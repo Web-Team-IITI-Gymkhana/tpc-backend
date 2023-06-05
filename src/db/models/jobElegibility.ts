@@ -22,7 +22,7 @@ export class jobEligibility extends Model {
   @Column({
     type: sequelize.ENUM,
     values: Object.values(Course),
-    defaultValue: Course.BTech,
+    defaultValue: Course.BTECH,
   })
   course: Course;
 

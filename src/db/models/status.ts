@@ -26,7 +26,7 @@ export class statusModel extends Model {
   @Column({
     type: sequelize.ENUM,
     values: Object.values(Status),
-    defaultValue: Status.Scheduled,
+    defaultValue: Status.SCHEDULED,
   })
   status: Status;
 

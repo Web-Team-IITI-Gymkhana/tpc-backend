@@ -1,6 +1,6 @@
 export enum Course {
-  BTech = 'B.Tech',
-  MTech = 'Mtech',
+  BTECH = 'BTECH',
+  MTECH = 'MTECH',
   MS = 'MS',
-  Phd = 'Phd',
+  PHD = 'PHD',
 }

@@ -1,4 +1,4 @@
 export enum Types {
-  Full_time = 'Full_time',
-  Internship = 'Internship',
+  FULL_TIME = 'FULL_TIME',
+  INTERNSHIP = 'INTERNSHIP',
 }

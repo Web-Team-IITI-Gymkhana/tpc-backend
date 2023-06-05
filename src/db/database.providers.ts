@@ -47,15 +47,8 @@ export const databaseProviders = [
         eventModel,
         contactModel,
       ]);
-      await sequelize.sync({ force: true });
+      //await sequelize.sync({ force: true });
       return sequelize;
     },
   },
 ];
-
-// export const spacesProviders = [
-//   {
-//     provide: USER_DAO,
-//     useValue: UserModel,
-//   },
-// ];
