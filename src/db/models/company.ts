@@ -12,7 +12,7 @@ export class companyModel extends Model {
     type: sequelize.UUID,
     defaultValue: sequelize.UUIDV4,
   })
-  id: typeof randomUUID;
+  Company_id: typeof randomUUID;
 
   @Unique
   @Column
@@ -20,6 +20,7 @@ export class companyModel extends Model {
 
   @Column({
     allowNull: true,
+    defaultValue: null,
   })
   imageLink: string;
 

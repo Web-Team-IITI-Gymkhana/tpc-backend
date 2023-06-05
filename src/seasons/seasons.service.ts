@@ -38,7 +38,7 @@ export class seasonsService {
     if (seasons.length == 0) {
       return { message: 'no user found', status: 404 };
     }
-    return seasons;
+    return { data: seasons, status: 200 };
   }
 
   async delete(id: typeof randomUUID): Promise<any> {

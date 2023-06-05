@@ -13,7 +13,7 @@ export class contactModel extends Model {
     type: sequelize.UUID,
     defaultValue: sequelize.UUIDV4,
   })
-  id: typeof randomUUID;
+  Contact_id: typeof randomUUID;
 
   @Column
   Name: string;
@@ -30,9 +30,8 @@ export class contactModel extends Model {
 
   @ForeignKey(() => companyModel)
   @Column(sequelize.UUID)
-  Company_id: string;
-
-  @BelongsTo(() => companyModel, 'id')
+  Company_id: typeof randomUUID;
+  @BelongsTo(() => companyModel, 'Company_id')
   company: companyModel;
 
   @Column

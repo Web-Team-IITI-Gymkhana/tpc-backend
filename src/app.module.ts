@@ -6,8 +6,8 @@ import { TransactionInterceptor } from './interceptor/TransactionInterceptor';
 import { DatabaseModule } from './db/database.module';
 
 import { Logger, Module } from '@nestjs/common';
-// import { CompaniesModule } from './companies/companies.module';
-// import { CompaniesContactsModule } from './companies_contacts/companies_contacts.module';
+import { CompaniesModule } from './companies/companies.module';
+import { CompaniesContactsModule } from './companies_contacts/companies_contacts.module';
 // import { TeamModule } from './team/team.module';
 // import { SeasonsJobsModule } from './seasons_jobs/seasons_jobs.module';
 // import { SeasonsJobsEventsModule } from './seasons_jobs_events/seasons_jobs_events.module';
@@ -18,7 +18,7 @@ import { Logger, Module } from '@nestjs/common';
 import { SeasonsModule } from './seasons/seasons.module';
 
 @Module({
-  imports: [ConfigModule.forRoot(), DatabaseModule, SeasonsModule],
+  imports: [ConfigModule.forRoot(), DatabaseModule, SeasonsModule, CompaniesModule, CompaniesContactsModule],
   controllers: [AppController],
   providers: [Logger, TransactionInterceptor],
 })
