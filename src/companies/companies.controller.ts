@@ -2,7 +2,6 @@ import { companiesService } from './companies.service';
 import {
   Body,
   Controller,
-  Headers,
   HttpCode,
   HttpStatus,
   Post,
@@ -10,8 +9,6 @@ import {
   Delete,
   ForbiddenException,
   UnauthorizedException,
-  Res,
-  Req,
   Param,
   UseInterceptors,
   Patch,
@@ -19,7 +16,6 @@ import {
 import { LoggerInterceptor } from 'src/interceptor/LoggerInterceptor';
 import { TransactionInterceptor } from 'src/interceptor/TransactionInterceptor';
 import { randomUUID } from 'crypto';
-import { json } from 'sequelize';
 import { companiesDto } from './companies.dto';
 
 @UseInterceptors(new LoggerInterceptor())

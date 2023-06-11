@@ -30,6 +30,6 @@ export class statusModel extends Model {
   })
   status: Status;
 
-  @Column({ defaultValue: '' })
+  @Column
   metaData: string;
 }

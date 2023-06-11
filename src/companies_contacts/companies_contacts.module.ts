@@ -1,12 +1,12 @@
 import { Module } from '@nestjs/common';
-import { DatabaseModule } from 'src/db/database.module';
 import { companiesContactsController } from './companies_contacts.controller';
 import { companiesContactsService } from './companies_contacts.service';
 import { ConfigService } from '@nestjs/config';
+import { databaseModule } from 'src/db/database.module';
 
 @Module({
-  imports: [DatabaseModule],
+  imports: [databaseModule],
   controllers: [companiesContactsController],
   providers: [ConfigService, companiesContactsService],
 })
-export class CompaniesContactsModule {}
+export class companiesContactsModule {}

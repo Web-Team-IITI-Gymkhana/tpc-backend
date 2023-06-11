@@ -13,15 +13,15 @@ export class companiesContactDto {
   @IsString()
   @IsOptional()
   @Length(10, 15, { message: 'Phone Number has to be between 10 to 15 characters ' })
-  public Primary_number?: string;
+  public primaryNumber?: string;
 
   @IsString()
   @IsOptional()
   @Length(10, 15, { message: 'Phone Number has to be between 10 to 15 characters ' })
-  public Secondary_number?: string;
+  public secondaryNumber?: string;
 
   @IsString()
-  public Role: string;
+  public role: string;
 }
 
 // export class AuthDto {

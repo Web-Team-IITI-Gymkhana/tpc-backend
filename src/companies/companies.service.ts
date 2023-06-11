@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { companiesDto } from './companies.dto';
 import { ConfigService } from '@nestjs/config';
@@ -49,7 +49,7 @@ export class companiesService {
     const [rowsUpdated, [updatedEntity]] = await companyModel
       .update(company, {
         where: {
-          Company_id: Company_id,
+          id: Company_id,
         },
         returning: true,
       })
@@ -63,13 +63,13 @@ export class companiesService {
     return { data: updatedEntity, status: 200 };
   }
 
-  async delete(Company_id: typeof randomUUID): Promise<any> {
+  async delete(id: typeof randomUUID): Promise<any> {
     let flag = false,
       rows;
     await companyModel
       .destroy({
         where: {
-          Company_id,
+          id,
         },
       })
       .then((del_rows) => {

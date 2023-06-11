@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { ForbiddenException, Injectable } from '@nestjs/common';
 import { seasonModel } from 'src/db/models/season';
 import { randomUUID } from 'crypto';
 import { ConfigService } from '@nestjs/config';

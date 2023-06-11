@@ -12,7 +12,7 @@ export class companyModel extends Model {
     type: sequelize.UUID,
     defaultValue: sequelize.UUIDV4,
   })
-  Company_id: typeof randomUUID;
+  id: typeof randomUUID;
 
   @Unique
   @Column
@@ -32,7 +32,3 @@ export class companyModel extends Model {
   @UpdatedAt
   updatedAt: Date;
 }
-
-// Company
-//      Name
-//      image(optional)

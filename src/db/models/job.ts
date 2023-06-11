@@ -48,7 +48,7 @@ export class jobModel extends Model {
   //
   @ForeignKey(() => contactModel)
   @Column(sequelize.UUID)
-  HR_details: string;
+  hrDetails: string;
 
   @BelongsTo(() => contactModel, 'id')
   contact1: contactModel;
@@ -58,7 +58,7 @@ export class jobModel extends Model {
   //
   @ForeignKey(() => contactModel)
   @Column(sequelize.UUID)
-  Assignee_Id: string;
+  assigneeId: string;
 
   @BelongsTo(() => contactModel, 'id')
   contact2: contactModel;
@@ -66,7 +66,7 @@ export class jobModel extends Model {
   //
 
   @Column(DataType.ARRAY(DataType.STRING))
-  eligibility_ids: string[];
+  eligibilityIds: string[];
 
   @Column({
     type: sequelize.ENUM,
@@ -84,7 +84,7 @@ export class jobModel extends Model {
   filledJafLink: string;
 
   @Column
-  jd: string;
+  jobDescription: string;
 
   @Column({
     type: sequelize.JSONB,
@@ -106,23 +106,6 @@ export class jobModel extends Model {
   @Column({ defaultValue: true })
   domestic: boolean;
 
-  @Column({ defaultValue: '' })
+  @Column
   metaData: string;
 }
-
-// Season id - fk
-// Company id - fk
-// Hr_details (is a contact_id) - fk
-// Assignee Id (is a contact_id) - fk
-// Eligibility ids (open for whom?) - array of ids rahegi yeh
-// Type(Full time/internship)
-// Role - string
-// Description of the role - string
-// Filled Jaf link(drive link) - string
-// jd(drive link) - string
-// Salary - object(Postgres me JSONB) ->
-// Eg. { CTC_1_yr ?:  , CTC_4_yr ?: , stipend?:  }
-// { CTC 1st year (or Stipend in case of internship) CTC 4 years (null in case of internship }
-// Core vs non core
-// domestic vs International
-// Meta data - string - (bond details(if any), or tentative joining date, joining location  etc.)

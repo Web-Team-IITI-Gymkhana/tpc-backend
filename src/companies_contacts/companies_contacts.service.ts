@@ -1,4 +1,4 @@
-import { BadRequestException, ForbiddenException, Inject, Injectable } from '@nestjs/common';
+import { BadRequestException, ForbiddenException, Injectable } from '@nestjs/common';
 import { randomUUID } from 'crypto';
 import { companiesContactDto } from './companiesContact.dto';
 import { ConfigService } from '@nestjs/config';
@@ -10,18 +10,18 @@ export class companiesContactsService {
 
   constructor(private config: ConfigService) {}
 
-  async create(Company_id: typeof randomUUID, companyContact: companiesContactDto): Promise<any> {
+  async create(companyId: typeof randomUUID, companyContact: companiesContactDto): Promise<any> {
     let flag = false;
-    const { email, name, Primary_number, Secondary_number, Role } = companyContact;
-    const contact = { primary: Primary_number, secondary: Secondary_number };
+    const { email, name, primaryNumber, secondaryNumber, role } = companyContact;
+    const contact = { primary: primaryNumber, secondary: secondaryNumber };
     let values;
     await contactModel
       .create({
         email,
-        Name: name,
+        name,
         contact,
-        Company_id,
-        Role,
+        companyId,
+        role,
       })
       .then(async (data) => {
         flag = true;
@@ -40,9 +40,9 @@ export class companiesContactsService {
     }
   }
 
-  async get(Company_id: typeof randomUUID): Promise<any> {
+  async get(companyId: typeof randomUUID): Promise<any> {
     const contact = await contactModel.findAll({
-      where: { Company_id: Company_id },
+      where: { companyId },
     });
     if (contact.length == 0) {
       return { message: 'no contacts found', status: 404 };
@@ -50,26 +50,21 @@ export class companiesContactsService {
     return { data: contact, status: 200 };
   }
 
-  async update(
-    Company_id: typeof randomUUID,
-    Contact_id: typeof randomUUID,
-    companyContact: companiesContactDto,
-  ): Promise<any> {
-    const { email, name, Primary_number, Secondary_number, Role } = companyContact;
-    const contact = { primary: Primary_number, secondary: Secondary_number };
+  async update(id: typeof randomUUID, companyContact: companiesContactDto): Promise<any> {
+    const { email, name, primaryNumber, secondaryNumber, role } = companyContact;
+    const contact = { primary: primaryNumber, secondary: secondaryNumber };
 
     const [rowsUpdated, [updatedEntity]] = await contactModel
       .update(
         {
           email,
-          Name: name,
+          name,
           contact,
-          Role,
+          role,
         },
         {
           where: {
-            Contact_id: Contact_id,
-            Company_id: Company_id,
+            id,
           },
           returning: true,
         },
@@ -84,13 +79,13 @@ export class companiesContactsService {
     return { data: updatedEntity, status: 200 };
   }
 
-  async delete(Company_id: typeof randomUUID, Contact_id: typeof randomUUID): Promise<any> {
+  async delete(id: typeof randomUUID): Promise<any> {
     let flag = false,
       rows;
     await contactModel
       .destroy({
         where: {
-          Contact_id,
+          id,
         },
       })
       .then((del_rows) => {

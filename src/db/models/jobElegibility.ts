@@ -30,7 +30,7 @@ export class jobEligibility extends Model {
   year: Date;
 
   @Column
-  groupEmailID: string;
+  groupEmailId: string;
 
   @Column
   @CreatedAt
@@ -40,9 +40,3 @@ export class jobEligibility extends Model {
   @UpdatedAt
   updatedAt: Date;
 }
-
-// Job-eligibilty table
-// Branch
-// Course (BTech. or MTech or MS or Phd.)
-// Year
-// Group-email id (like 2019mech@iiti.ac.in)

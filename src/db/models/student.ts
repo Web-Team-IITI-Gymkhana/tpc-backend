@@ -20,10 +20,6 @@ export class studentModel extends Model {
 
   @Column({
     type: sequelize.JSONB,
-    // defaultValue: {
-    //   isRegistered: 1,
-    //   isFreezed: 0,
-    // },
   })
   internshipDetails: {
     SeasonID: typeof randomUUID;
@@ -34,10 +30,6 @@ export class studentModel extends Model {
 
   @Column({
     type: sequelize.JSONB,
-    // defaultValue: {
-    //   isRegistered: 1,
-    //   isFreezed: 0,
-    // },
   })
   placementDetails: {
     SeasonID: typeof randomUUID;
@@ -62,16 +54,3 @@ export class studentModel extends Model {
   @UpdatedAt
   updatedAt: Date;
 }
-
-// Student
-// email id - mil jayegi authorization
-// internship_details :
-// 	{
-// 		Season_id, is_registered, is_freezed, offer?(single offer ids)
-// 	}
-// placement_details :
-// 	{
-// 		Season_id, is_registered, is_freezed, offers(array of offers ids)
-// 	}
-// Penalty_points - number
-// meta_date - string

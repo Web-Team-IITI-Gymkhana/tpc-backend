@@ -13,14 +13,14 @@ export class contactModel extends Model {
     type: sequelize.UUID,
     defaultValue: sequelize.UUIDV4,
   })
-  Contact_id: typeof randomUUID;
+  id: typeof randomUUID;
 
   @Column
-  Name: string;
+  name: string;
 
   @Column({
     type: 'JSONB',
-    allowNull: true, // Optional - specify if the column allows null values
+    allowNull: true,
   })
   contact: { primary: string; secondary: string };
 
@@ -30,10 +30,10 @@ export class contactModel extends Model {
 
   @ForeignKey(() => companyModel)
   @Column(sequelize.UUID)
-  Company_id: typeof randomUUID;
-  @BelongsTo(() => companyModel, 'Company_id')
+  companyId: typeof randomUUID;
+  @BelongsTo(() => companyModel, 'companyId')
   company: companyModel;
 
   @Column
-  Role: string;
+  role: string;
 }

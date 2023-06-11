@@ -36,6 +36,6 @@ export class eventModel extends Model {
   @UpdatedAt
   endTime: Date;
 
-  @Column({ defaultValue: '' })
+  @Column
   metaData: string;
 }

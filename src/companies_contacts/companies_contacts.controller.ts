@@ -2,7 +2,6 @@ import { companiesContactsService } from './companies_contacts.service';
 import {
   Body,
   Controller,
-  Headers,
   HttpCode,
   HttpStatus,
   Post,
@@ -10,8 +9,6 @@ import {
   Delete,
   ForbiddenException,
   UnauthorizedException,
-  Res,
-  Req,
   Param,
   UseInterceptors,
   Patch,
@@ -48,13 +45,13 @@ export class companiesContactsController {
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(TransactionInterceptor)
   updateCompaniesContact(@Param() params: any, @Body() companyContact: companiesContactDto): Promise<any> {
-    return this.companiesContactsService.update(params.company_id, params.contact_id, companyContact);
+    return this.companiesContactsService.update(params.contact_id, companyContact);
   }
 
   @Delete(':contact_id')
   @HttpCode(HttpStatus.OK)
   @UseInterceptors(TransactionInterceptor)
   deleteCompaniesContact(@Param() params: any): Promise<any> {
-    return this.companiesContactsService.delete(params.company_id, params.contact_id);
+    return this.companiesContactsService.delete(params.contact_id);
   }
 }

@@ -14,6 +14,8 @@ export class seasonModel extends Model {
   })
   id: typeof randomUUID;
 
-  @Column
+  @Column({
+    allowNull: false,
+  })
   name: string;
 }

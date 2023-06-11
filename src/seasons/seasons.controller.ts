@@ -2,7 +2,6 @@ import { seasonsService } from './seasons.service';
 import {
   Body,
   Controller,
-  Headers,
   HttpCode,
   HttpStatus,
   Post,
@@ -10,15 +9,12 @@ import {
   Delete,
   ForbiddenException,
   UnauthorizedException,
-  Res,
-  Req,
   Param,
   UseInterceptors,
 } from '@nestjs/common';
 import { LoggerInterceptor } from 'src/interceptor/LoggerInterceptor';
 import { TransactionInterceptor } from 'src/interceptor/TransactionInterceptor';
 import { randomUUID } from 'crypto';
-import { json } from 'sequelize';
 
 @UseInterceptors(new LoggerInterceptor())
 @Controller('seasons')

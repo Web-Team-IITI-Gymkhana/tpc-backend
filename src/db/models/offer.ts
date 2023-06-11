@@ -22,7 +22,7 @@ export class offerModel extends Model {
   companyName: string;
 
   @Column({ defaultValue: true })
-  is_ppo: boolean;
+  isPpo: boolean;
 
   @Column
   role: string;
@@ -50,17 +50,6 @@ export class offerModel extends Model {
     stipend: number | null;
   };
 
-  @Column({ defaultValue: '' })
+  @Column
   metaData: string;
 }
-
-// Oncampus vs offcampus
-// Company’s name
-// Is_ppo - boolean
-// Role
-// Type(Full time/internship)
-// Core vs Non-core
-// Salary - object(Postgres me JSONB) ->
-// Eg. { CTC_1_yr ?:  , CTC_4_yr ?: , stipend?:  }
-// { CTC 1st year (or Stipend in case of internship) CTC 4 years (null in case of internship }
-// Meta_data - string
