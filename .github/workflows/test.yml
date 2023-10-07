@@ -1,0 +1,33 @@
+name: CI/CD for Nest.js
+
+on:
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: 18
+
+      - name: Clean Slate Yarn Install
+        run: |
+          npm uninstall -g yarn
+          npm cache clean --force
+          npm install -g yarn
+          yarn policies set-version 1
+          yarn install --immutable --immutable-cache --check-cache
+        env:
+          CI: true
+
+      - name: Run Tests
+        run: yarn test
+
