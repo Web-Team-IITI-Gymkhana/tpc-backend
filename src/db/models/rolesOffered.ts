@@ -1,13 +1,13 @@
 import { randomUUID } from "crypto";
 import sequelize from "sequelize";
 import { BelongsTo, Column, ForeignKey, Model, Table } from "sequelize-typescript";
-import { jafModel } from "./jaf";
-import { eligibleRolesModel } from "./eligibleRoles";
+import { Jaf } from "./jaf";
+import { EligibleRoles } from "./eligibleRoles";
 
 @Table({
-  tableName: "rolesOffered",
+  tableName: "RolesOffered",
 })
-export class rolesOfferedModel extends Model {
+export class RolesOffered extends Model {
   @Column({
     primaryKey: true,
     allowNull: false,
@@ -16,17 +16,17 @@ export class rolesOfferedModel extends Model {
   })
   id: typeof randomUUID;
 
-  @ForeignKey(() => eligibleRolesModel)
+  @ForeignKey(() => EligibleRoles)
   @Column(sequelize.UUID)
   roleId: typeof randomUUID;
-  @BelongsTo(() => eligibleRolesModel, "roleId")
-  eligiibleRoles: eligibleRolesModel;
+  @BelongsTo(() => EligibleRoles, "roleId")
+  eligiibleRoles: EligibleRoles;
 
-  @ForeignKey(() => jafModel)
+  @ForeignKey(() => Jaf)
   @Column(sequelize.UUID)
   jafId: typeof randomUUID;
-  @BelongsTo(() => jafModel, "jafId")
-  jaf: jafModel;
+  @BelongsTo(() => Jaf, "jafId")
+  jaf: Jaf;
 
   @Column
   salaryPeriod: number;

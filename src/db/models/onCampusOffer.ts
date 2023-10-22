@@ -1,30 +1,30 @@
 import { Model, Column, Table, ForeignKey, BelongsTo } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { randomUUID } from "crypto";
-import { studentModel } from "./student";
-import { jafModel } from "./jaf";
+import { Student } from "./student";
+import { Jaf } from "./jaf";
 
 @Table({
-  tableName: "onCampusOffer",
+  tableName: "OnCampusOffer",
 })
-export class onCampusOfferModel extends Model {
-  @ForeignKey(() => studentModel)
+export class OnCampusOffer extends Model {
+  @ForeignKey(() => Student)
   @Column({
     type: sequelize.UUID,
     primaryKey: true,
   })
   studentId: typeof randomUUID;
-  @BelongsTo(() => studentModel, "studentId")
-  student: studentModel;
+  @BelongsTo(() => Student, "studentId")
+  student: Student;
 
-  @ForeignKey(() => jafModel)
+  @ForeignKey(() => Jaf)
   @Column({
     type: sequelize.UUID,
     primaryKey: true,
   })
   jafId: typeof randomUUID;
-  @BelongsTo(() => jafModel, "jafId")
-  jaf: jafModel;
+  @BelongsTo(() => Jaf, "jafId")
+  jaf: Jaf;
 
   @Column
   status: string;

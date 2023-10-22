@@ -1,14 +1,20 @@
 import { randomUUID } from "crypto";
 import sequelize from "sequelize";
-import { BelongsTo, Column, ForeignKey, Model, Table } from "sequelize-typescript";
-import { companyModel } from "./company";
-import { memberModel } from "./member";
-import { seasonModel } from "./season";
+import { BelongsTo, Column, ForeignKey, Model, Table, HasMany } from "sequelize-typescript";
+import { Company } from "./company";
+import { Event } from "./event";
+import { Member } from "./member";
+import { Season } from "./season";
+import { TpcCoordinator } from "./tpcCoordinator";
+import { FacultyCoordinatorApproval } from "./facultyCoordinatorApproval";
+import { OnCampusOffer } from "./onCampusOffer";
+import { RolesOffered } from "./rolesOffered";
+import { Status } from "../enums/jaf.enum";
 
 @Table({
-  tableName: "jaf",
+  tableName: "Jaf",
 })
-export class jafModel extends Model {
+export class Jaf extends Model {
   @Column({
     primaryKey: true,
     allowNull: false,
@@ -17,23 +23,23 @@ export class jafModel extends Model {
   })
   id: typeof randomUUID;
 
-  @ForeignKey(() => seasonModel)
+  @ForeignKey(() => Season)
   @Column(sequelize.UUID)
   seasonId: typeof randomUUID;
-  @BelongsTo(() => seasonModel, "seasonId")
-  season: seasonModel;
+  @BelongsTo(() => Season, "seasonId")
+  season: Season;
 
-  @ForeignKey(() => memberModel)
+  @ForeignKey(() => Member)
   @Column(sequelize.UUID)
   recruiterId: typeof randomUUID;
-  @BelongsTo(() => memberModel, "memberId")
-  member: memberModel;
+  @BelongsTo(() => Member, "recruiterId")
+  member: Member;
 
-  @ForeignKey(() => companyModel)
+  @ForeignKey(() => Company)
   @Column(sequelize.UUID)
   companyId: typeof randomUUID;
-  @BelongsTo(() => companyModel, "companyId")
-  company: companyModel;
+  @BelongsTo(() => Company, "companyId")
+  company: Company;
 
   @Column
   role: string;
@@ -52,4 +58,25 @@ export class jafModel extends Model {
 
   @Column
   eligibility: string;
+
+  @Column({
+    type: sequelize.ENUM,
+    values: Object.values(Status),
+  })
+  status: Status;
+
+  @HasMany(() => Event, "jafId")
+  events: Event[];
+
+  @HasMany(() => TpcCoordinator, "jafId")
+  tpcCoordinators: TpcCoordinator[];
+
+  @HasMany(() => FacultyCoordinatorApproval, "jafId")
+  facultyCoordinatorApprovals: FacultyCoordinatorApproval[];
+
+  @HasMany(() => OnCampusOffer, "jafId")
+  onCampusOffers: OnCampusOffer[];
+
+  @HasMany(() => RolesOffered, "jafId")
+  rolesOffered: RolesOffered[];
 }

@@ -1,12 +1,17 @@
-import { Table, Column, Model, IsEmail, ForeignKey, BelongsTo } from "sequelize-typescript";
+import { Table, Column, Model, IsEmail, ForeignKey, BelongsTo, HasOne, HasMany } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { randomUUID } from "crypto";
-import { companyModel } from "./company";
+import { Company } from "./company";
+import { FacultyCoordinator } from "./facultyCoordinator";
+import { TpcCoordinator } from "./tpcCoordinator";
+import { Season } from "./season";
+import { Jaf } from "./jaf";
+import { Student } from "./student";
 
 @Table({
-  tableName: "member",
+  tableName: "Member",
 })
-export class memberModel extends Model {
+export class Member extends Model {
   @Column({
     primaryKey: true,
     allowNull: false,
@@ -35,9 +40,24 @@ export class memberModel extends Model {
   })
   role: string;
 
-  @ForeignKey(() => companyModel)
+  @ForeignKey(() => Company)
   @Column({ type: sequelize.UUID })
   companyId: typeof randomUUID;
-  @BelongsTo(() => companyModel, "companyId")
-  company: companyModel;
+  @BelongsTo(() => Company, "companyId")
+  company: Company;
+
+  @HasOne(() => FacultyCoordinator, "memberId")
+  facultyCoordinator: FacultyCoordinator;
+
+  @HasOne(() => Season, "memberId")
+  season: Season;
+
+  @HasMany(() => TpcCoordinator, "memberId")
+  tpcCoordinator: TpcCoordinator[];
+
+  @HasMany(() => Jaf, "recruiterId")
+  jafs: Jaf[];
+
+  @HasOne(() => Student, "memberId")
+  student: Student;
 }

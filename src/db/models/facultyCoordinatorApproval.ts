@@ -1,13 +1,13 @@
 import { randomUUID } from "crypto";
 import sequelize from "sequelize";
 import { BelongsTo, Column, ForeignKey, Model, Table } from "sequelize-typescript";
-import { facultyCoordinatorModel } from "./facultyCoordinator";
-import { jafModel } from "./jaf";
+import { FacultyCoordinator } from "./facultyCoordinator";
+import { Jaf } from "./jaf";
 
 @Table({
-  tableName: "facultyCoordinatorApproval",
+  tableName: "FacultyCoordinatorApproval",
 })
-export class facultyCoordinatorApprovalModel extends Model {
+export class FacultyCoordinatorApproval extends Model {
   @Column({
     primaryKey: true,
     allowNull: false,
@@ -16,17 +16,17 @@ export class facultyCoordinatorApprovalModel extends Model {
   })
   id: typeof randomUUID;
 
-  @ForeignKey(() => jafModel)
+  @ForeignKey(() => Jaf)
   @Column(sequelize.UUID)
   jafId: typeof randomUUID;
-  @BelongsTo(() => jafModel, "jafId")
-  jaf: jafModel;
+  @BelongsTo(() => Jaf, "jafId")
+  jaf: Jaf;
 
-  @ForeignKey(() => facultyCoordinatorModel)
+  @ForeignKey(() => FacultyCoordinator)
   @Column(sequelize.UUID)
   facultyCoordinatorId: typeof randomUUID;
-  @BelongsTo(() => facultyCoordinatorModel, "facultyCoordinatorId")
-  facultyCoordinator: facultyCoordinatorModel;
+  @BelongsTo(() => FacultyCoordinator, "facultyCoordinatorId")
+  facultyCoordinator: FacultyCoordinator;
 
   @Column
   approval: boolean;

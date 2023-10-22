@@ -1,30 +1,30 @@
 import { Table, Column, Model, ForeignKey, BelongsTo } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { randomUUID } from "crypto";
-import { eventModel } from "./event";
-import { studentModel } from "./student";
+import { Event } from "./event";
+import { Student } from "./student";
 
 @Table({
-  tableName: "rounds",
+  tableName: "Rounds",
 })
-export class roundsModel extends Model {
-  @ForeignKey(() => eventModel)
+export class Rounds extends Model {
+  @ForeignKey(() => Event)
   @Column({
     type: sequelize.UUID,
     primaryKey: true,
   })
   eventId: typeof randomUUID;
-  @BelongsTo(() => eventModel, "eventId")
-  event: eventModel;
+  @BelongsTo(() => Event, "eventId")
+  event: Event;
 
-  @ForeignKey(() => studentModel)
+  @ForeignKey(() => Student)
   @Column({
     type: sequelize.UUID,
     primaryKey: true,
   })
   studentId: typeof randomUUID;
-  @BelongsTo(() => studentModel, "studentId")
-  student: studentModel;
+  @BelongsTo(() => Student, "studentId")
+  student: Student;
 
   @Column
   status: string;

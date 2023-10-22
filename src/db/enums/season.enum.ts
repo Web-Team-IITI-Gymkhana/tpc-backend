@@ -1,4 +1,4 @@
-export enum type {
+export enum Type {
   INTERN = "Intern",
   PLACEMENT = "Placement",
 }

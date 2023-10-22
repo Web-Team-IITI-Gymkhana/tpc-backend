@@ -1,14 +1,14 @@
 import { randomUUID } from "crypto";
 import sequelize from "sequelize";
 import { BelongsTo, Column, ForeignKey, Model, Table } from "sequelize-typescript";
-import { companyModel } from "./company";
-import { seasonModel } from "./season";
-import { studentModel } from "./student";
+import { Company } from "./company";
+import { Season } from "./season";
+import { Student } from "./student";
 
 @Table({
-  tableName: "ppoOffer",
+  tableName: "PpoOffer",
 })
-export class ppOfferModel extends Model {
+export class PpoOffer extends Model {
   @Column({
     primaryKey: true,
     allowNull: false,
@@ -17,23 +17,23 @@ export class ppOfferModel extends Model {
   })
   id: typeof randomUUID;
 
-  @ForeignKey(() => studentModel)
+  @ForeignKey(() => Student)
   @Column(sequelize.UUID)
   studentId: typeof randomUUID;
-  @BelongsTo(() => studentModel, "studentId")
-  student: studentModel;
+  @BelongsTo(() => Student, "studentId")
+  student: Student;
 
-  @ForeignKey(() => seasonModel)
+  @ForeignKey(() => Season)
   @Column(sequelize.UUID)
   seasonId: typeof randomUUID;
-  @BelongsTo(() => seasonModel, "seasonId")
-  season: seasonModel;
+  @BelongsTo(() => Season, "seasonId")
+  season: Season;
 
-  @ForeignKey(() => companyModel)
+  @ForeignKey(() => Company)
   @Column(sequelize.UUID)
   companyId: typeof randomUUID;
-  @BelongsTo(() => companyModel, "companyId")
-  company: companyModel;
+  @BelongsTo(() => Company, "companyId")
+  company: Company;
 
   @Column
   salaryValue: number;

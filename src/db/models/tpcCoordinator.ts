@@ -1,13 +1,13 @@
 import { randomUUID } from "crypto";
 import sequelize from "sequelize";
 import { BelongsTo, Column, ForeignKey, Model, Table } from "sequelize-typescript";
-import { memberModel } from "./member";
-import { jafModel } from "./jaf";
+import { Member } from "./member";
+import { Jaf } from "./jaf";
 
 @Table({
-  tableName: "tpcCoordinator",
+  tableName: "TpcCoordinator",
 })
-export class tpcCoordinatorModel extends Model {
+export class TpcCoordinator extends Model {
   @Column({
     primaryKey: true,
     allowNull: false,
@@ -16,17 +16,17 @@ export class tpcCoordinatorModel extends Model {
   })
   id: typeof randomUUID;
 
-  @ForeignKey(() => memberModel)
+  @ForeignKey(() => Member)
   @Column(sequelize.UUID)
   memberId: typeof randomUUID;
-  @BelongsTo(() => memberModel, "memberId")
-  member: memberModel;
+  @BelongsTo(() => Member, "memberId")
+  member: Member;
 
-  @ForeignKey(() => jafModel)
+  @ForeignKey(() => Jaf)
   @Column(sequelize.UUID)
   jafId: typeof randomUUID;
-  @BelongsTo(() => jafModel, "jafId")
-  jaf: jafModel;
+  @BelongsTo(() => Jaf, "jafId")
+  jaf: Jaf;
 
   @Column({ defaultValue: true })
   primaryCoordinator: boolean;

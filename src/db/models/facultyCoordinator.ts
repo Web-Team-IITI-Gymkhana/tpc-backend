@@ -1,12 +1,13 @@
-import { Table, Column, Model, IsEmail, ForeignKey, BelongsTo } from "sequelize-typescript";
+import { Table, Column, Model, IsEmail, ForeignKey, BelongsTo, HasMany } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { randomUUID } from "crypto";
-import { memberModel } from "./member";
+import { Member } from "./member";
+import { FacultyCoordinatorApproval } from "./facultyCoordinatorApproval";
 
 @Table({
-  tableName: "facultyCoordinator",
+  tableName: "FacultyCoordinator",
 })
-export class facultyCoordinatorModel extends Model {
+export class FacultyCoordinator extends Model {
   @Column({
     primaryKey: true,
     allowNull: false,
@@ -27,9 +28,12 @@ export class facultyCoordinatorModel extends Model {
   })
   email: string;
 
-  @ForeignKey(() => memberModel)
+  @ForeignKey(() => Member)
   @Column({ type: sequelize.UUID, unique: true })
   memberId: typeof randomUUID;
-  @BelongsTo(() => memberModel, "memberId")
-  member: memberModel;
+  @BelongsTo(() => Member, "memberId")
+  member: Member;
+
+  @HasMany(() => FacultyCoordinatorApproval, "facultyCoordinatorId")
+  facultyCoordinatorApprovals: FacultyCoordinatorApproval[];
 }

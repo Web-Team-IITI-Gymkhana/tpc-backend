@@ -1,12 +1,13 @@
 import { randomUUID } from "crypto";
 import sequelize from "sequelize";
-import { Column, Model, Table } from "sequelize-typescript";
-import { gender } from "../enums/student.enum";
+import { Column, HasMany, Model, Table } from "sequelize-typescript";
+import { Gender } from "../enums/student.enum";
+import { RolesOffered } from "./rolesOffered";
 
 @Table({
-  tableName: "eligibleRoles",
+  tableName: "EligibleRoles",
 })
-export class eligibleRolesModel extends Model {
+export class EligibleRoles extends Model {
   @Column({
     primaryKey: true,
     allowNull: false,
@@ -17,9 +18,9 @@ export class eligibleRolesModel extends Model {
 
   @Column({
     type: sequelize.ENUM,
-    values: Object.values(gender),
+    values: Object.values(Gender),
   })
-  gender: gender;
+  gender: Gender;
 
   @Column
   programme: string;
@@ -35,4 +36,7 @@ export class eligibleRolesModel extends Model {
 
   @Column
   category: string;
+
+  @HasMany(() => RolesOffered, "roleId")
+  rolesOffered: RolesOffered[];
 }

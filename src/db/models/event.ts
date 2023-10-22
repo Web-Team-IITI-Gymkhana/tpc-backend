@@ -1,12 +1,14 @@
-import { Table, Column, Model, ForeignKey, BelongsTo } from "sequelize-typescript";
+import { Table, Column, Model, ForeignKey, BelongsTo, HasMany } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { randomUUID } from "crypto";
-import { jafModel } from "./jaf";
+import { Jaf } from "./jaf";
+import { Rounds } from "./rounds";
+import { Stage } from "../enums/event.enum";
 
 @Table({
-  tableName: "event",
+  tableName: "Event",
 })
-export class eventModel extends Model {
+export class Event extends Model {
   @Column({
     primaryKey: true,
     allowNull: false,
@@ -15,18 +17,27 @@ export class eventModel extends Model {
   })
   id: typeof randomUUID;
 
-  @ForeignKey(() => jafModel)
+  @ForeignKey(() => Jaf)
   @Column({ type: sequelize.UUID })
   jafId: typeof randomUUID;
-  @BelongsTo(() => jafModel, "jafId")
-  jaf: jafModel;
+  @BelongsTo(() => Jaf, "jafId")
+  jaf: Jaf;
+
+  @Column({
+    type: sequelize.ENUM,
+    values: Object.values(Stage),
+  })
+  stae: Stage;
 
   @Column
-  stage: string;
+  roundNumber: Number;
 
   @Column({ type: sequelize.DATE })
   startDateTime: Date;
 
   @Column({ type: sequelize.DATE })
   endDateTime: Date;
+
+  @HasMany(() => Rounds, "eventId")
+  rounds: Rounds[];
 }

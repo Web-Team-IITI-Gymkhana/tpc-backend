@@ -1,13 +1,17 @@
-import { ForeignKey, Column, BelongsTo, Table, Model } from "sequelize-typescript";
+import { ForeignKey, Column, BelongsTo, Table, Model, HasMany } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { randomUUID } from "crypto";
-import { memberModel } from "./member";
-import { gender } from "../enums/student.enum";
+import { Member } from "./member";
+import { Gender } from "../enums/student.enum";
+import { OnCampusOffer } from "./onCampusOffer";
+import { Rounds } from "./rounds";
+import { Penalties } from "./penalties";
+import { PpoOffer } from "./ppoOffer";
 
 @Table({
-  tableName: "student",
+  tableName: "Student",
 })
-export class studentModel extends Model {
+export class Student extends Model {
   @Column({
     primaryKey: true,
     allowNull: false,
@@ -16,11 +20,11 @@ export class studentModel extends Model {
   })
   id: typeof randomUUID;
 
-  @ForeignKey(() => memberModel)
+  @ForeignKey(() => Member)
   @Column({ type: sequelize.UUID, unique: true })
   memberId: typeof randomUUID;
-  @BelongsTo(() => memberModel, "memberId")
-  member: memberModel;
+  @BelongsTo(() => Member, "memberId")
+  member: Member;
 
   @Column({ allowNull: false })
   name: string;
@@ -30,9 +34,9 @@ export class studentModel extends Model {
 
   @Column({
     type: sequelize.ENUM,
-    values: Object.values(gender),
+    values: Object.values(Gender),
   })
-  gender: gender;
+  gender: Gender;
 
   @Column({ allowNull: false })
   branch: string;
@@ -48,4 +52,16 @@ export class studentModel extends Model {
 
   @Column({ defaultValue: 0 })
   totalPenalty: Number;
+
+  @HasMany(() => Rounds, "studentId")
+  rounds: Rounds[];
+
+  @HasMany(() => OnCampusOffer, "studentId")
+  oncampusoffers: OnCampusOffer[];
+
+  @HasMany(() => Penalties, "studentId")
+  penalties: Penalties[];
+
+  @HasMany(() => PpoOffer, "studentId")
+  ppoOffers: PpoOffer[];
 }

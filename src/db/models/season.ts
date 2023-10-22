@@ -1,12 +1,14 @@
-import { Table, Column, Model } from "sequelize-typescript";
+import { Table, Column, Model, HasMany } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { randomUUID } from "crypto";
-import { type } from "../enums/season.enum";
+import { Type } from "../enums/season.enum";
+import { Jaf } from "./jaf";
+import { PpoOffer } from "./ppoOffer";
 
 @Table({
-  tableName: "season",
+  tableName: "Season",
 })
-export class seasonModel extends Model {
+export class Season extends Model {
   @Column({
     primaryKey: true,
     allowNull: false,
@@ -20,7 +22,13 @@ export class seasonModel extends Model {
 
   @Column({
     type: sequelize.ENUM,
-    values: Object.values(type),
+    values: Object.values(Type),
   })
-  type: type;
+  type: Type;
+
+  @HasMany(() => Jaf, "seasonId")
+  jafs: Jaf[];
+
+  @HasMany(() => PpoOffer, "seasonId")
+  ppooffers: PpoOffer[];
 }
