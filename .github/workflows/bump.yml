@@ -1,0 +1,37 @@
+name: Bump
+
+on:
+  release:
+    types: 
+      - published
+  workflow_dispatch:
+
+env:
+  GITHUB_SHA: ${{ github.sha }}
+
+jobs:
+  bump_tag:
+    name: Bump tag into docker-compose.yml
+    runs-on: ubuntu-latest
+    steps:  
+      - name: Checkout charts
+        uses: actions/checkout@v3
+        with:
+          repository: Web-Team-IITI-Gymkhana/tpc-pipeline-testing
+          ref: 'main'
+          token: ${{ secrets.TF_GITHUB_CI_ADMIN_TOKEN }}
+          path: base_dir
+  
+      - name: Changing Chart version
+        uses: mikefarah/yq@v4.34.1
+        with:
+          cmd: yq -i '.services.backend.image = "lofowebteam/tpc_portal:${{ env.GITHUB_SHA }}"' base_dir/docker-compose.yml
+        
+      - name: Commit updated docker compose
+        run: |
+          cd base_dir
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add docker-compose.yml
+          git commit -m "[CI] Bump backend image tag to ${{ env.GITHUB_SHA }}"
+          git push
