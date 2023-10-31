@@ -30,5 +30,8 @@ dist
 /.env.test
 /node_modules
 
+# test
+/coverage
+
 .idea/*
 ti-*

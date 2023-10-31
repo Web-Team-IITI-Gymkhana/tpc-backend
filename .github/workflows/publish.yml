@@ -1,4 +1,4 @@
-name: Publish Image
+name: Publish Backend Image
 
 on:
   release:
@@ -25,6 +25,18 @@ jobs:
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
+
+      - name: Set Version tag if it is release action
+        id: meta
+        run: |
+          if [ ${{ github.action }} == 'published' ]; then
+            echo "A release is publised"
+            echo "::set-output name=tags::${{ env.DOCKER_REPO }}:${{ github.event.release.tag_name }}"
+          else
+            echo "Not a release"
+            echo "::set-output name=tags::"
+          fi
+        shell: bash
       
       - name: Build and push Docker image
         uses: docker/build-push-action@v5
@@ -32,7 +44,7 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: ${{ env.DOCKER_REPO }}:${{ github.sha }},${{ env.DOCKER_REPO }}:latest
+          tags: ${{ env.DOCKER_REPO }}:${{ github.sha }},${{ env.DOCKER_REPO }}:latest,{{ steps.meta.outputs.tags }}
           cache-from: type=registry,ref=${{ env.DOCKER_REPO }}:buildcache
           cache-to: type=registry,ref=${{ env.DOCKER_REPO }}:buildcache,mode=max
 
