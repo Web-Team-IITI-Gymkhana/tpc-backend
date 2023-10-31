@@ -1,4 +1,4 @@
-name: CI/CD for Nest.js
+name: Run tests
 
 on:
   pull_request:
