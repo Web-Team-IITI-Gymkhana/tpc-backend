@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import sequelize from "sequelize";
-import { BelongsTo, Column, ForeignKey, Model, Table, HasMany } from "sequelize-typescript";
+import { BelongsTo, Column, ForeignKey, Model, Table, HasMany, Unique } from "sequelize-typescript";
 import { Company } from "./company";
 import { Event } from "./event";
 import { Member } from "./member";
@@ -9,7 +9,7 @@ import { TpcCoordinator } from "./tpcCoordinator";
 import { FacultyCoordinatorApproval } from "./facultyCoordinatorApproval";
 import { OnCampusOffer } from "./onCampusOffer";
 import { RolesOffered } from "./rolesOffered";
-import { Status } from "../enums/jaf.enum";
+import { Status } from "../enums/status_jaf.enum";
 
 @Table({
   tableName: "Jaf",
@@ -23,6 +23,7 @@ export class Jaf extends Model {
   })
   id: typeof randomUUID;
 
+  @Unique("SeasonCompanyRole")
   @ForeignKey(() => Season)
   @Column(sequelize.UUID)
   seasonId: typeof randomUUID;
@@ -35,12 +36,14 @@ export class Jaf extends Model {
   @BelongsTo(() => Member, "recruiterId")
   member: Member;
 
+  @Unique("SeasonCompanyRole")
   @ForeignKey(() => Company)
   @Column(sequelize.UUID)
   companyId: typeof randomUUID;
   @BelongsTo(() => Company, "companyId")
   company: Company;
 
+  @Unique("SeasonCompanyRole")
   @Column
   role: string;
 
@@ -51,13 +54,10 @@ export class Jaf extends Model {
   docs: string;
 
   @Column
-  accepted: boolean;
-
-  @Column
   publicAccess: boolean;
 
   @Column
-  eligibility: string;
+  eligibilityCpi: number;
 
   @Column({
     type: sequelize.ENUM,

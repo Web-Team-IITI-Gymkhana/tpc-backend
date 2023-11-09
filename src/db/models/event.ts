@@ -1,9 +1,8 @@
-import { Table, Column, Model, ForeignKey, BelongsTo, HasMany } from "sequelize-typescript";
+import { Table, Column, Model, ForeignKey, BelongsTo, HasMany, Unique, Index } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { randomUUID } from "crypto";
 import { Jaf } from "./jaf";
 import { Rounds } from "./rounds";
-import { Stage } from "../enums/event.enum";
 
 @Table({
   tableName: "Event",
@@ -17,18 +16,18 @@ export class Event extends Model {
   })
   id: typeof randomUUID;
 
+  @Index("Jaf-Id")
+  @Unique("JafRoundNoUnique")
   @ForeignKey(() => Jaf)
   @Column({ type: sequelize.UUID })
   jafId: typeof randomUUID;
   @BelongsTo(() => Jaf, "jafId")
   jaf: Jaf;
 
-  @Column({
-    type: sequelize.ENUM,
-    values: Object.values(Stage),
-  })
-  stae: Stage;
+  @Column
+  stage: string;
 
+  @Unique("JafRoundNoUnique")
   @Column
   roundNumber: Number;
 

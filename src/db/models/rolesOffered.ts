@@ -1,8 +1,9 @@
 import { randomUUID } from "crypto";
 import sequelize from "sequelize";
-import { BelongsTo, Column, ForeignKey, Model, Table } from "sequelize-typescript";
+import { BelongsTo, Column, ForeignKey, Model, Table, Unique } from "sequelize-typescript";
 import { Jaf } from "./jaf";
-import { EligibleRoles } from "./eligibleRoles";
+import { ProgrammesOffered } from "./programmesOffered";
+import { Gender } from "../enums/gender.enum";
 
 @Table({
   tableName: "RolesOffered",
@@ -16,17 +17,28 @@ export class RolesOffered extends Model {
   })
   id: typeof randomUUID;
 
-  @ForeignKey(() => EligibleRoles)
+  @Unique("ProgramJaf")
+  @ForeignKey(() => ProgrammesOffered)
   @Column(sequelize.UUID)
-  roleId: typeof randomUUID;
-  @BelongsTo(() => EligibleRoles, "roleId")
-  eligiibleRoles: EligibleRoles;
+  programId: typeof randomUUID;
+  @BelongsTo(() => ProgrammesOffered, "programId")
+  programmesOffered: ProgrammesOffered;
 
+  @Unique("ProgramJaf")
   @ForeignKey(() => Jaf)
   @Column(sequelize.UUID)
   jafId: typeof randomUUID;
   @BelongsTo(() => Jaf, "jafId")
   jaf: Jaf;
+
+  @Column({
+    type: sequelize.ENUM,
+    values: Object.values(Gender),
+  })
+  gender: Gender;
+
+  @Column
+  category: string;
 
   @Column
   salaryPeriod: number;

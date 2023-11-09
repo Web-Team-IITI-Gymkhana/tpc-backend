@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import sequelize from "sequelize";
-import { BelongsTo, Column, ForeignKey, Model, Table } from "sequelize-typescript";
+import { BelongsTo, Column, ForeignKey, Model, Table, Unique } from "sequelize-typescript";
 import { Company } from "./company";
 import { Season } from "./season";
 import { Student } from "./student";
@@ -17,18 +17,21 @@ export class PpoOffer extends Model {
   })
   id: typeof randomUUID;
 
+  @Unique("StudentSeasonCompanyUnique")
   @ForeignKey(() => Student)
   @Column(sequelize.UUID)
   studentId: typeof randomUUID;
   @BelongsTo(() => Student, "studentId")
   student: Student;
 
+  @Unique("StudentSeasonCompanyUnique")
   @ForeignKey(() => Season)
   @Column(sequelize.UUID)
   seasonId: typeof randomUUID;
   @BelongsTo(() => Season, "seasonId")
   season: Season;
 
+  @Unique("StudentSeasonCompanyUnique")
   @ForeignKey(() => Company)
   @Column(sequelize.UUID)
   companyId: typeof randomUUID;

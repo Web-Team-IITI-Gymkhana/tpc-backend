@@ -1,4 +1,4 @@
-import { Table, Column, Model, ForeignKey, BelongsTo } from "sequelize-typescript";
+import { Table, Column, Model, ForeignKey, BelongsTo, Index } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { randomUUID } from "crypto";
 import { Event } from "./event";

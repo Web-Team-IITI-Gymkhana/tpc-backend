@@ -1,12 +1,13 @@
-import { Table, Column, Model, IsEmail, ForeignKey, BelongsTo, HasOne, HasMany } from "sequelize-typescript";
+import { Table, Column, Model, IsEmail, HasOne, HasMany } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { randomUUID } from "crypto";
-import { Company } from "./company";
 import { FacultyCoordinator } from "./facultyCoordinator";
+import { FacultyCoordinatorApproval } from "./facultyCoordinatorApproval";
 import { TpcCoordinator } from "./tpcCoordinator";
-import { Season } from "./season";
 import { Jaf } from "./jaf";
 import { Student } from "./student";
+import { Role } from "../enums/role.enum";
+import { Recruiter } from "./recruiter";
 
 @Table({
   tableName: "Member",
@@ -37,20 +38,16 @@ export class Member extends Model {
 
   @Column({
     allowNull: false,
+    type: sequelize.ENUM,
+    values: Object.values(Role),
   })
-  role: string;
-
-  @ForeignKey(() => Company)
-  @Column({ type: sequelize.UUID })
-  companyId: typeof randomUUID;
-  @BelongsTo(() => Company, "companyId")
-  company: Company;
+  role: Role;
 
   @HasOne(() => FacultyCoordinator, "memberId")
   facultyCoordinator: FacultyCoordinator;
 
-  @HasOne(() => Season, "memberId")
-  season: Season;
+  @HasMany(() => FacultyCoordinatorApproval, "facultyId")
+  facultyCoordinatorApproval: FacultyCoordinatorApproval[];
 
   @HasMany(() => TpcCoordinator, "memberId")
   tpcCoordinator: TpcCoordinator[];
@@ -60,4 +57,7 @@ export class Member extends Model {
 
   @HasOne(() => Student, "memberId")
   student: Student;
+
+  @HasOne(() => Recruiter, "memberId")
+  recruiter: Recruiter;
 }

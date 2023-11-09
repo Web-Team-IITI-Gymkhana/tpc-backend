@@ -1,6 +1,6 @@
 import { randomUUID } from "crypto";
 import sequelize from "sequelize";
-import { BelongsTo, Column, ForeignKey, Model, Table } from "sequelize-typescript";
+import { BelongsTo, Column, ForeignKey, Model, Table, Unique } from "sequelize-typescript";
 import { Member } from "./member";
 import { Jaf } from "./jaf";
 
@@ -16,12 +16,14 @@ export class TpcCoordinator extends Model {
   })
   id: typeof randomUUID;
 
+  @Unique("MemberJafUnique")
   @ForeignKey(() => Member)
   @Column(sequelize.UUID)
   memberId: typeof randomUUID;
   @BelongsTo(() => Member, "memberId")
   member: Member;
 
+  @Unique("MemberJafUnique")
   @ForeignKey(() => Jaf)
   @Column(sequelize.UUID)
   jafId: typeof randomUUID;

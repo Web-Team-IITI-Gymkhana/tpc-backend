@@ -1,7 +1,7 @@
-import { Table, Column, Model, HasMany } from "sequelize-typescript";
+import { Table, Column, Model, HasMany, Unique } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { randomUUID } from "crypto";
-import { Type } from "../enums/season.enum";
+import { Type } from "../enums/type.enum";
 import { Jaf } from "./jaf";
 import { PpoOffer } from "./ppoOffer";
 
@@ -17,9 +17,11 @@ export class Season extends Model {
   })
   id: typeof randomUUID;
 
+  @Unique("TypeYearUnique")
   @Column({ type: sequelize.DATE, allowNull: false })
   year: Date;
 
+  @Unique("TypeYearUnique")
   @Column({
     type: sequelize.ENUM,
     values: Object.values(Type),

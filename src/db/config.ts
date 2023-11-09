@@ -1,5 +1,6 @@
 import { Company } from "./models/company";
-import { EligibleRoles } from "./models/eligibleRoles";
+import { ProgrammesOffered } from "./models/programmesOffered";
+import { Recruiter } from "./models/recruiter";
 import { Event } from "./models/event";
 import { FacultyCoordinatorApproval } from "./models/facultyCoordinatorApproval";
 import { FacultyCoordinator } from "./models/facultyCoordinator";
@@ -25,7 +26,8 @@ export default {
   database: process.env.DB_NAME,
   models: [
     Company,
-    EligibleRoles,
+    ProgrammesOffered,
+    Recruiter,
     Event,
     FacultyCoordinator,
     FacultyCoordinatorApproval,

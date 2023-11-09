@@ -1,8 +1,9 @@
 import { randomUUID } from "crypto";
 import sequelize from "sequelize";
-import { BelongsTo, Column, ForeignKey, Model, Table } from "sequelize-typescript";
-import { FacultyCoordinator } from "./facultyCoordinator";
+import { BelongsTo, Column, ForeignKey, Model, Table, Index, Unique } from "sequelize-typescript";
+import { Member } from "./member";
 import { Jaf } from "./jaf";
+import { FacultyApproval } from "../enums/facultyApproval.enum";
 
 @Table({
   tableName: "FacultyCoordinatorApproval",
@@ -16,20 +17,26 @@ export class FacultyCoordinatorApproval extends Model {
   })
   id: typeof randomUUID;
 
+  @Index({ name: "JafId" })
+  @Unique("FacultyJafUnique")
   @ForeignKey(() => Jaf)
   @Column(sequelize.UUID)
   jafId: typeof randomUUID;
   @BelongsTo(() => Jaf, "jafId")
   jaf: Jaf;
 
-  @ForeignKey(() => FacultyCoordinator)
-  @Column(sequelize.UUID)
-  facultyCoordinatorId: typeof randomUUID;
-  @BelongsTo(() => FacultyCoordinator, "facultyCoordinatorId")
-  facultyCoordinator: FacultyCoordinator;
+  @ForeignKey(() => Member)
+  @Unique("FacultyJafUnique")
+  @Column({ type: sequelize.UUID })
+  facultyId: typeof randomUUID;
+  @BelongsTo(() => Member, "facultyId")
+  member: Member;
 
-  @Column
-  approval: boolean;
+  @Column({
+    type: sequelize.ENUM,
+    values: Object.values(FacultyApproval),
+  })
+  approval: FacultyApproval;
 
   @Column
   remarks: string;

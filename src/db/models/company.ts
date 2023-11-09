@@ -2,8 +2,8 @@ import { Table, Column, Model, HasMany } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { randomUUID } from "crypto";
 import { Jaf } from "./jaf";
-import { Member } from "./member";
 import { PpoOffer } from "./ppoOffer";
+import { Recruiter } from "./recruiter";
 
 @Table({
   tableName: "Company",
@@ -25,9 +25,9 @@ export class Company extends Model {
   @HasMany(() => Jaf, "companyId")
   jafs: Jaf[];
 
-  @HasMany(() => Member, "companyId")
-  members: Member[];
-
   @HasMany(() => PpoOffer, "companyId")
   ppoOffers: PpoOffer[];
+
+  @HasMany(() => Recruiter, "companyId")
+  recruiters: Recruiter[];
 }

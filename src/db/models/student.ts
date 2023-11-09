@@ -2,7 +2,7 @@ import { ForeignKey, Column, BelongsTo, Table, Model, HasMany } from "sequelize-
 import sequelize from "sequelize";
 import { randomUUID } from "crypto";
 import { Member } from "./member";
-import { Gender } from "../enums/student.enum";
+import { Gender } from "../enums/gender.enum";
 import { OnCampusOffer } from "./onCampusOffer";
 import { Rounds } from "./rounds";
 import { Penalties } from "./penalties";
@@ -12,22 +12,22 @@ import { PpoOffer } from "./ppoOffer";
   tableName: "Student",
 })
 export class Student extends Model {
+  @ForeignKey(() => Member)
   @Column({
+    type: sequelize.UUID,
+    unique: true,
     primaryKey: true,
     allowNull: false,
-    type: sequelize.UUID,
-    defaultValue: sequelize.UUIDV4,
   })
-  id: typeof randomUUID;
-
-  @ForeignKey(() => Member)
-  @Column({ type: sequelize.UUID, unique: true })
   memberId: typeof randomUUID;
   @BelongsTo(() => Member, "memberId")
   member: Member;
 
   @Column({ allowNull: false })
   name: string;
+
+  @Column
+  rollNo: string;
 
   @Column
   category: string;
