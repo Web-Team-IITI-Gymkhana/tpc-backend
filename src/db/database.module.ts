@@ -26,5 +26,6 @@ console.log(isProductionEnv);
       synchronize: true,
     }),
   ],
+  //exports: [SequelizeModule],
 })
 export class DatabaseModule {}
