@@ -43,7 +43,7 @@ export class Member extends Model {
   })
   role: Role;
 
-  @HasOne(() => FacultyCoordinator, "memberId")
+  @HasOne(() => FacultyCoordinator, { onDelete: "CASCADE", foreignKey: "memberId" })
   facultyCoordinator: FacultyCoordinator;
 
   @HasMany(() => FacultyCoordinatorApproval, "facultyId")
@@ -58,6 +58,6 @@ export class Member extends Model {
   @HasOne(() => Student, "memberId")
   student: Student;
 
-  @HasOne(() => Recruiter, "memberId")
+  @HasOne(() => Recruiter, { onDelete: "CASCADE", foreignKey: "memberId" })
   recruiter: Recruiter;
 }

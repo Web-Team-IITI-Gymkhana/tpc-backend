@@ -1,19 +1,20 @@
 import { IsNotEmpty, IsString, IsEmail } from "class-validator";
 
-export class facultyDto {
+export class recruiterUpdateDto {
   @IsString()
   @IsNotEmpty()
+  public memberId: string;
+
+  @IsString()
   public name: string;
 
   @IsString()
-  @IsNotEmpty()
-  public department: string;
-
-  @IsString()
-  @IsNotEmpty()
   @IsEmail()
   public email: string;
 
   @IsString()
   public contact: string;
+
+  @IsString()
+  public companyName: string;
 }

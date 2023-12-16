@@ -1,45 +1,49 @@
 import { IsNotEmpty, IsString, IsOptional, IsEnum, isNotEmpty, IsNumber, IsEmail } from "class-validator";
 import { Gender } from "src/db/enums/gender.enum";
 
-export class studentDto {
+export class studentSearchDto {
   @IsString()
-  @IsNotEmpty()
-  public name: string;
+  @IsOptional()
+  name: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   public category: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   public rollNo: string;
 
   @IsEnum(Gender)
+  @IsOptional()
   public gender: Gender;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   public branch: string;
 
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   public graduationYear: Date;
 
   @IsNumber()
-  @IsNotEmpty()
+  @IsOptional()
   public currentCPI: Number;
 
   @IsString()
+  @IsOptional()
   public resume: string;
 
   @IsString()
-  @IsNotEmpty()
   @IsEmail()
+  @IsOptional()
   public email: string;
 
   @IsNumber()
+  @IsOptional()
   public totalPenalty: Number;
 
   @IsString()
+  @IsOptional()
   public contact: string;
 }

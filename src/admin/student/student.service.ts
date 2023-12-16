@@ -1,24 +1,27 @@
-import { Injectable } from "@nestjs/common";
+import { ArgumentMetadata, Injectable, UsePipes, ValidationPipe } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 import { Student } from "../../db/models/student";
-import { studentDto } from "./student.dto";
+import { studentDto } from "./dto/student.dto";
 import { Member } from "src/db/models/member";
 import { Role } from "src/db/enums/role.enum";
 import { Sequelize } from "sequelize-typescript";
-import { studentSearchDto } from "./studentSearch.dto";
+import { studentSearchDto } from "./dto/studentSearch.dto";
+import { json } from "sequelize";
+import { studentUpdateDto } from "./dto/studentUpdate.dto";
+import { randomUUID } from "crypto";
+import { studentDeleteDto } from "./dto/studentDelete.dto";
 
 @Injectable()
-export class StudentService {
+export class studentService {
   configService: any;
   constructor(
     private config: ConfigService,
     private sequelize: Sequelize
   ) {}
 
-  create_student = async (student: studentDto) => {
+  async createStudent(student: studentDto): Promise<any> {
     const t = await this.sequelize.transaction();
     try {
-      // let studentEntry: any= {}
       const {
         name,
         category,
@@ -32,10 +35,6 @@ export class StudentService {
         resume,
         email,
       } = student;
-      // if(student.resume)          studentEntry.resume=student.resume;
-      // if(student.totalPenalty)    studentEntry.totalPenalty=student.totalPenalty;
-      // if(student.contact)         studentEntry.contact=student.contact;
-      console.log(t);
       // inserting students in the member
       const [statusFound, created] = await Member.findOrCreate({
         where: { email },
@@ -72,6 +71,7 @@ export class StudentService {
             transaction: t,
           }
         );
+        await t.commit();
         return { data: newstudent, status: 200 };
       } else {
         // creating new student
@@ -90,55 +90,54 @@ export class StudentService {
           },
           { transaction: t }
         );
-        t.commit();
+        await t.commit();
         return { data: newstudent, status: 200 };
       }
     } catch (err) {
       t.rollback();
-      console.log(err);
       throw err;
     }
-  };
-  async create(students: any): Promise<any> {
+  }
+  async create(students: studentDto[]): Promise<any> {
     const notDone = [];
+    const errors = [];
+    const validationPipe = new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true });
+    const metadata: ArgumentMetadata = {
+      type: "body",
+      metatype: studentDto,
+      data: "",
+    };
+
     try {
       const createStudentPromises = students.map(async (student: studentDto) => {
         try {
-          const ans = await this.create_student(student);
+          const validatedStudent = await validationPipe.transform(student, metadata);
+          const ans = await this.createStudent(validatedStudent);
           return ans;
         } catch (err) {
           notDone.push(student);
+          errors.push(err);
           throw err;
         }
       });
+
       const createdStudents = await Promise.allSettled(createStudentPromises);
       for (const student of createdStudents) {
         if (student.status == "rejected") {
           throw student.reason;
         }
       }
-      return { status: 200, output: createdStudents };
+      return { status: 200 };
     } catch (error) {
-      return { status: 400, rolledBackQueries: notDone, error: error };
+      return {
+        status: 400,
+        rolledBackQueries: notDone,
+        error: errors,
+      };
     }
-    // const studentArray = students.map((query) => {
-    //   return this.queryBuilder(query).studentQuery;
-    // });
-    // const memberArray = students.map((query) => {
-    //   return this.queryBuilder(query).memberQuery;
-    // });
-    // await Member.bulkCreate(studentArray, {
-    //   updateOnDuplicate: [""], // Specify the columns to be updated
-    //   transaction,
-    // });
-
-    // await Student.bulkCreate(dataArray, {
-    //   updateOnDuplicate: ["value1", "value2", "value3"], // Specify the columns to be updated
-    //   transaction,
-    // });
   }
 
-  queryBuilder = (params: any) => {
+  queryBuilder = (params) => {
     let studentQuery: any = {},
       memberQuery: any = {};
     if (params.name) {
@@ -195,14 +194,14 @@ export class StudentService {
     }
   }
 
-  async update_student(student) {
+  async updateStudent(student: studentUpdateDto) {
     const t = await this.sequelize.transaction();
     try {
-      const { studentId, memberId } = student.search;
-      const updateParams = student.update;
+      const memberId = student.memberId;
+      const updateParams: studentSearchDto = student.update;
       const { studentQuery, memberQuery } = this.queryBuilder(updateParams);
       const result1 = Student.update(studentQuery, {
-        where: { id: student },
+        where: { memberId: memberId },
         transaction: t,
       });
       const result2 = Member.update(memberQuery, {
@@ -218,15 +217,24 @@ export class StudentService {
     }
   }
 
-  async update(students: any): Promise<any> {
+  async update(students: studentUpdateDto[]): Promise<any> {
     const notDone = [];
+    const errors = [];
+    const validationPipe = new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true });
+    const metadata: ArgumentMetadata = {
+      type: "body",
+      metatype: studentUpdateDto,
+      data: "",
+    };
     try {
-      const createStudentPromises = students.map(async (student: any) => {
+      const createStudentPromises = students.map(async (student: studentUpdateDto) => {
         try {
-          const ans = await this.update_student(student);
+          const validatedStudent = await validationPipe.transform(student, metadata);
+          const ans = await this.updateStudent(validatedStudent);
           return ans;
         } catch (err) {
           notDone.push(student);
+          errors.push(err);
           throw err;
         }
       });
@@ -236,38 +244,41 @@ export class StudentService {
           throw student.reason;
         }
       }
-      return { status: 200, output: updatedStudents };
+      return { status: 200 };
     } catch (error) {
-      return { status: 400, rolledBackQueries: notDone, error: error };
+      return { status: 400, rolledBackQueries: notDone, error: errors };
     }
   }
 
-  async delete(students: any) {
-    const t = await this.sequelize.transaction();
+  async delete(students: String[]) {
+    const notDone = [];
+    const errors = [];
+    const validationPipe = new ValidationPipe({ whitelist: true, forbidNonWhitelisted: true });
+    const metadata: ArgumentMetadata = {
+      type: "body",
+      metatype: studentDeleteDto,
+      data: "",
+    };
     try {
-      const StudentIds = students.map((id) => {
-        return id.studentId;
+      const deleteStudents = students.map(async (student) => {
+        try {
+          const validatedStudent = await validationPipe.transform(student, metadata);
+          const ans = await Student.destroy({
+            where: { memberId: validatedStudent.id },
+          });
+        } catch (err) {
+          notDone.push(student);
+          errors.push(err);
+          throw err;
+        }
       });
-      const MemberIds = students.map((id) => {
-        return id.memberId;
-      });
-      const res1 = await Member.destroy({
-        where: {
-          id: MemberIds,
-        },
-        transaction: t,
-      });
-      const res2 = await Student.destroy({
-        where: {
-          id: StudentIds,
-        },
-        transaction: t,
-      });
-      await t.commit();
-      return { status: 200, output: [res1, res2] };
+      const deletedStudents = await Promise.allSettled(deleteStudents);
+      if (errors.length) {
+        throw "error";
+      }
+      return { status: 200 };
     } catch (err) {
-      await t.rollback();
-      return { status: 400, error: err };
+      return { status: 400, notDone: notDone, error: errors };
     }
   }
 }

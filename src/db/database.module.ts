@@ -28,4 +28,4 @@ console.log(isProductionEnv);
   ],
   //exports: [SequelizeModule],
 })
-export class DatabaseModule {}
+export class databaseModule {}

@@ -15,7 +15,7 @@ export class Recruiter extends Model {
     type: sequelize.UUID,
   })
   memberId: typeof randomUUID;
-  @BelongsTo(() => Member, "memberId")
+  @BelongsTo(() => Member, { onDelete: "CASCADE", foreignKey: "memberId" })
   member: Member;
 
   @ForeignKey(() => Company)
@@ -24,6 +24,6 @@ export class Recruiter extends Model {
     type: sequelize.UUID,
   })
   companyId: typeof randomUUID;
-  @BelongsTo(() => Company, "companyId")
+  @BelongsTo(() => Company, { onDelete: "CASCADE", foreignKey: "companyId" })
   company: Company;
 }

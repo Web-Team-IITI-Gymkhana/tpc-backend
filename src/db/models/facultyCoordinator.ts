@@ -15,6 +15,6 @@ export class FacultyCoordinator extends Model {
   @ForeignKey(() => Member)
   @Column({ type: sequelize.UUID, unique: true })
   memberId: typeof randomUUID;
-  @BelongsTo(() => Member, "memberId")
+  @BelongsTo(() => Member, { onDelete: "CASCADE", foreignKey: "memberId" })
   member: Member;
 }

@@ -28,6 +28,6 @@ export class Company extends Model {
   @HasMany(() => PpoOffer, "companyId")
   ppoOffers: PpoOffer[];
 
-  @HasMany(() => Recruiter, "companyId")
+  @HasMany(() => Recruiter, { onDelete: "CASCADE", foreignKey: "companyId" })
   recruiters: Recruiter[];
 }

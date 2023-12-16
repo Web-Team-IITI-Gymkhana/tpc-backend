@@ -1,11 +1,12 @@
 import { Module } from "@nestjs/common";
-import { RecruiterController } from "./recruiter.controller";
-import { RecruiterService } from "./recruiter.service";
-import { DatabaseModule } from "../../db/database.module";
+import { recruiterController } from "./recruiter.controller";
+import { recruiterService } from "./recruiter.service";
+import { databaseModule } from "../../db/database.module";
+import { ConfigService } from "@nestjs/config";
 
 @Module({
-  imports: [DatabaseModule],
-  controllers: [RecruiterController],
-  providers: [RecruiterService],
+  imports: [databaseModule],
+  controllers: [recruiterController],
+  providers: [recruiterService, ConfigService],
 })
-export class RecruiterModule {}
+export class recruiterModule {}
