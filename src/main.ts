@@ -8,7 +8,8 @@ import { isProductionEnv } from "./utils/utils";
 import { SwaggerModule, DocumentBuilder, SwaggerDocumentOptions, SwaggerCustomOptions } from "@nestjs/swagger";
 import { HttpExceptionFilter } from "./interceptor/ExceptionFilter";
 import { LoggerInterceptor } from "./interceptor/LoggerInterceptor";
-
+import * as dotenv from "dotenv";
+dotenv.config();
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
     logger: createWinstonLogger(),

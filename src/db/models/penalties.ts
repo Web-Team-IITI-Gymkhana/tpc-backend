@@ -1,7 +1,7 @@
 import { Table, Column, Model, ForeignKey, BelongsTo } from "sequelize-typescript";
 import sequelize from "sequelize";
-import { randomUUID } from "crypto";
-import { Student } from "./student";
+
+import { StudentModel } from "./StudentModel";
 
 @Table({
   tableName: "Penalties",
@@ -13,13 +13,13 @@ export class Penalties extends Model {
     type: sequelize.UUID,
     defaultValue: sequelize.UUIDV4,
   })
-  id: typeof randomUUID;
+  id: string;
 
-  @ForeignKey(() => Student)
+  @ForeignKey(() => StudentModel)
   @Column({ type: sequelize.UUID })
-  studentId: typeof randomUUID;
-  @BelongsTo(() => Student, "studentId")
-  student: Student;
+  studentId: string;
+  @BelongsTo(() => StudentModel, "studentId")
+  student: StudentModel;
 
   @Column
   penalty: number;

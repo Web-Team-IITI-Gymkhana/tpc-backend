@@ -1,34 +1,19 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
-import { RecruiterService } from './recruiter.service';
-import { CreateRecruiterDto } from './dto/create-recruiter.dto';
-import { UpdateRecruiterDto } from './dto/update-recruiter.dto';
+import { Body, Controller, Inject, Post, UseInterceptors, ClassSerializerInterceptor } from "@nestjs/common";
+import { RECRUITER_SERVICE } from "src/constants";
+import RecruiterService from "src/services/RecruiterService";
+import { Recruiter } from "src/entities/Recruiter";
+import { AddRecruiterDto } from "./recruiter.dto";
 
-@Controller('recruiter')
+@Controller("/recruiter")
 export class RecruiterController {
-  constructor(private readonly recruiterService: RecruiterService) {}
+  constructor(@Inject(RECRUITER_SERVICE) private recruiterService: RecruiterService) {}
 
-  @Post()
-  create(@Body() createRecruiterDto: CreateRecruiterDto) {
-    return this.recruiterService.create(createRecruiterDto);
-  }
-
-  @Get()
-  findAll() {
-    return this.recruiterService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.recruiterService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRecruiterDto: UpdateRecruiterDto) {
-    return this.recruiterService.update(+id, updateRecruiterDto);
-  }
-
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.recruiterService.remove(+id);
+  @Post("/")
+  @UseInterceptors(ClassSerializerInterceptor)
+  async signup(@Body() body: AddRecruiterDto) {
+    const recruiter = await this.recruiterService.createRecruiter(
+      new Recruiter({ companyId: body.companyId, userId: body.userId })
+    );
+    return { recruiter: recruiter };
   }
 }

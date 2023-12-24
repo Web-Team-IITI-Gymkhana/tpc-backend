@@ -1,7 +1,6 @@
-import { randomUUID } from "crypto";
 import sequelize from "sequelize";
 import { BelongsTo, Column, ForeignKey, Model, Table, Unique } from "sequelize-typescript";
-import { Jaf } from "./jaf";
+import { JobModel } from "./JobModel";
 import { ProgrammesOffered } from "./programmesOffered";
 import { Gender } from "../enums/gender.enum";
 
@@ -15,21 +14,21 @@ export class RolesOffered extends Model {
     type: sequelize.UUID,
     defaultValue: sequelize.UUIDV4,
   })
-  id: typeof randomUUID;
+  id: string;
 
   @Unique("ProgramJaf")
   @ForeignKey(() => ProgrammesOffered)
   @Column(sequelize.UUID)
-  programId: typeof randomUUID;
+  programId: string;
   @BelongsTo(() => ProgrammesOffered, "programId")
   programmesOffered: ProgrammesOffered;
 
   @Unique("ProgramJaf")
-  @ForeignKey(() => Jaf)
+  @ForeignKey(() => JobModel)
   @Column(sequelize.UUID)
-  jafId: typeof randomUUID;
-  @BelongsTo(() => Jaf, "jafId")
-  jaf: Jaf;
+  jobId: string;
+  @BelongsTo(() => JobModel, "jobId")
+  job: JobModel;
 
   @Column({
     type: sequelize.ENUM,

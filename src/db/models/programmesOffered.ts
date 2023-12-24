@@ -1,6 +1,6 @@
 import sequelize from "sequelize";
 import { Model, Table, Column, Unique, HasMany } from "sequelize-typescript";
-import { randomUUID } from "crypto";
+
 import { RolesOffered } from "./rolesOffered";
 
 @Table({
@@ -13,7 +13,7 @@ export class ProgrammesOffered extends Model {
     defaultValue: sequelize.UUIDV4,
     allowNull: false,
   })
-  id: typeof randomUUID;
+  id: string;
 
   @Unique("ProgrammeDegreeBranchYearUnique")
   @Column

@@ -1,8 +1,8 @@
 import { Model, Column, Table, ForeignKey, BelongsTo, Unique } from "sequelize-typescript";
 import sequelize from "sequelize";
-import { randomUUID } from "crypto";
-import { Student } from "./student";
-import { Jaf } from "./jaf";
+
+import { StudentModel } from "./StudentModel";
+import { JobModel } from "./JobModel";
 
 @Table({
   tableName: "OnCampusOffer",
@@ -14,25 +14,25 @@ export class OnCampusOffer extends Model {
     primaryKey: true,
     allowNull: false,
   })
-  id: typeof randomUUID;
+  id: string;
 
   @Unique("StudentJafUnique")
-  @ForeignKey(() => Student)
+  @ForeignKey(() => StudentModel)
   @Column({
     type: sequelize.UUID,
   })
-  studentId: typeof randomUUID;
-  @BelongsTo(() => Student, "studentId")
-  student: Student;
+  studentId: string;
+  @BelongsTo(() => StudentModel, "studentId")
+  student: StudentModel;
 
   @Unique("StudentJafUnique")
-  @ForeignKey(() => Jaf)
+  @ForeignKey(() => JobModel)
   @Column({
     type: sequelize.UUID,
   })
-  jafId: typeof randomUUID;
-  @BelongsTo(() => Jaf, "jafId")
-  jaf: Jaf;
+  jobId: string;
+  @BelongsTo(() => JobModel, "jobId")
+  job: JobModel;
 
   @Column
   status: string;
