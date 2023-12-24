@@ -32,11 +32,14 @@ $ yarn
 ```
 
 ## Running the app
+create `.env` file by copying from `.env.example`
 
 ```bash
 # watch mode
-$ yarn start
+$ yarn start:dev
 ```
+
+Server will be hosted at `http://localhost:3000` and will have Swagger UI to play with APIs
 
 ### Code Organization
 
