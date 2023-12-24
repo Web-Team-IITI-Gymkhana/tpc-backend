@@ -16,7 +16,6 @@ import { Student } from "./models/student";
 import { TpcCoordinator } from "./models/tpcCoordinator";
 import * as dotenv from "dotenv";
 dotenv.config();
-
 export default {
   dialect: "postgres",
   host: process.env.DB_HOST,
