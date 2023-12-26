@@ -1,7 +1,5 @@
-import { Table, Column, Model, IsEmail, HasOne, HasMany } from "sequelize-typescript";
+import { Table, Column, Model, IsEmail } from "sequelize-typescript";
 import sequelize from "sequelize";
-
-import { Role } from "../enums/role.enum";
 
 @Table({
   tableName: "User",
@@ -32,8 +30,7 @@ export class UserModel extends Model<UserModel> {
 
   @Column({
     allowNull: false,
-    type: sequelize.ENUM,
-    values: Object.values(Role),
+    type: sequelize.STRING,
   })
-  role: Role;
+  role: string;
 }

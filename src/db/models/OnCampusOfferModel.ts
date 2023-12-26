@@ -3,11 +3,12 @@ import sequelize from "sequelize";
 
 import { StudentModel } from "./StudentModel";
 import { JobModel } from "./JobModel";
+import { SalaryModel } from "./SalaryModel";
 
 @Table({
   tableName: "OnCampusOffer",
 })
-export class OnCampusOffer extends Model {
+export class OnCampusOfferModel extends Model<OnCampusOfferModel> {
   @Column({
     type: sequelize.UUID,
     defaultValue: sequelize.UUIDV4,
@@ -16,23 +17,19 @@ export class OnCampusOffer extends Model {
   })
   id: string;
 
-  @Unique("StudentJafUnique")
+  @Unique("StudentJobSalaryUnique")
   @ForeignKey(() => StudentModel)
   @Column({
     type: sequelize.UUID,
   })
   studentId: string;
-  @BelongsTo(() => StudentModel, "studentId")
-  student: StudentModel;
 
-  @Unique("StudentJafUnique")
-  @ForeignKey(() => JobModel)
+  @Unique("StudentJobSalaryUnique")
+  @ForeignKey(() => SalaryModel)
   @Column({
     type: sequelize.UUID,
   })
-  jobId: string;
-  @BelongsTo(() => JobModel, "jobId")
-  job: JobModel;
+  salaryId: string;
 
   @Column
   status: string;

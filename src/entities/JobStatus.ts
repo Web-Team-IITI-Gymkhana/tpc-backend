@@ -1,6 +1,5 @@
-import { JobStatusModel, SeasonModel } from "src/db/models";
-import { JobStatusType, SeasonType } from "src/db/enums";
-import { Job } from "./Job";
+import { JobStatusModel } from "src/db/models";
+import { JobStatusType } from "src/db/enums";
 
 export class JobStatus {
   id?: string;
@@ -27,7 +26,7 @@ export class JobStatus {
     return new this({
       id: jobStatus.id,
       jobId: jobStatus.jobId,
-      status: jobStatus.status,
+      status: jobStatus.status as JobStatusType,
       transition: jobStatus.transition,
       message: jobStatus.message,
       createdAt: jobStatus.createdAt,

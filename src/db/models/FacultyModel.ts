@@ -1,4 +1,4 @@
-import { Table, Column, Model, IsEmail, ForeignKey, BelongsTo, HasMany } from "sequelize-typescript";
+import { Table, Column, Model, ForeignKey, BelongsTo } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { UserModel } from "./UserModel";
 

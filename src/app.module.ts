@@ -22,12 +22,14 @@ import JobStatusService from "./services/JobStatusService";
 import { TransactionInterceptor } from "./interceptor/TransactionInterceptor";
 import RecruiterService from "./services/RecruiterService";
 import { RecruiterController } from "./recruiter/recruiter.controller";
+import { JwtStrategy } from "./auth/JwtStrategy";
 
 @Module({
   imports: [ConfigModule.forRoot(), DatabaseModule],
   controllers: [AppController, AuthController, AdminController, RecruiterController],
   providers: [
     Logger,
+    JwtStrategy,
     TransactionInterceptor,
     AppService,
     {

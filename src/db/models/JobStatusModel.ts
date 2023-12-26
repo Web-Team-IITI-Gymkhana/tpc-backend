@@ -1,7 +1,6 @@
 import sequelize from "sequelize";
 import { Column, ForeignKey, Model, Table, DataType } from "sequelize-typescript";
 import { JobModel } from "./JobModel";
-import { JobStatusType } from "../enums/jobStatusType.enum";
 
 @Table({
   tableName: "JobStatus",
@@ -21,10 +20,9 @@ export class JobStatusModel extends Model<JobStatusModel> {
 
   @Column({
     allowNull: false,
-    type: sequelize.ENUM,
-    values: Object.values(JobStatusType),
+    type: sequelize.STRING,
   })
-  status: JobStatusType;
+  status: string;
 
   @Column({ allowNull: true, type: DataType.STRING })
   transition?: string;

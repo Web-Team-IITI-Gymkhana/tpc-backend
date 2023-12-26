@@ -21,3 +21,11 @@ export class UserSignUpDto {
   @ApiPropertyOptional()
   contact: string;
 }
+
+export class UserLogInDto {
+  @ApiProperty({
+    type: String,
+    description: "user email",
+  })
+  email: string;
+}

@@ -1,6 +1,5 @@
 import { Table, Column, Model, Unique } from "sequelize-typescript";
 import sequelize from "sequelize";
-import { SeasonType } from "../enums/seasonType.enum";
 
 @Table({
   tableName: "Season",
@@ -20,8 +19,7 @@ export class SeasonModel extends Model<SeasonModel> {
 
   @Unique("TypeYearUnique")
   @Column({
-    type: sequelize.ENUM,
-    values: Object.values(SeasonType),
+    type: sequelize.STRING,
   })
-  type: SeasonType;
+  type: string;
 }

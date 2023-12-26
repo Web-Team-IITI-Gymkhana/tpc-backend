@@ -32,9 +32,9 @@ export class Event {
     return new this({
       id: event.id,
       jobId: event.jobId,
-      type: event.type,
+      type: event.type as EventType,
       roundNumber: event.roundNumber,
-      status: event.status,
+      status: event.status as EventStatus,
       metadata: event.metadata,
       startDateTime: event.startDateTime,
       endDateTime: event.endDateTime,

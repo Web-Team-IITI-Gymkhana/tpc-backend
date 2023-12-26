@@ -10,15 +10,33 @@ import {
   JobStatusModel,
   EventModel,
   CompanyModel,
+  PenaltyModel,
+  OffCampusOfferModel,
+  OnCampusOfferModel,
+  ResumeModel,
+  ApplicationModel,
+  ProgramModel,
+  SalaryModel,
+  JobCoordinatorModel,
+  FacultyApprovalRequestModel,
 } from "./models";
 import { isProductionEnv } from "../utils/utils";
 import {
+  APPLICATION_DAO,
   COMPANY_DAO,
   EVENT_DAO,
+  FACULTY_APPROVAL_REQUEST_DAO,
   FACULTY_DAO,
+  JOB_COORDINATOR_DAO,
   JOB_DAO,
   JOB_STATUS_DAO,
+  OFF_CAMPUS_OFFER_DAO,
+  ON_CAMPUS_OFFER_DAO,
+  PENALTY_DAO,
+  PROGRAM_DAO,
   RECRUITER_DAO,
+  RESUME_DAO,
+  SALARY_DAO,
   SEASON_DAO,
   STUDENT_DAO,
   USER_DAO,
@@ -57,6 +75,15 @@ export const databaseProviders = [
         JobModel,
         JobStatusModel,
         EventModel,
+        ResumeModel,
+        ApplicationModel,
+        ProgramModel,
+        SalaryModel,
+        JobCoordinatorModel,
+        FacultyApprovalRequestModel,
+        PenaltyModel,
+        OffCampusOfferModel,
+        OnCampusOfferModel,
       ]);
       // sequelize.sync({ force: true });
       return sequelize;
@@ -100,5 +127,41 @@ export const spacesProviders = [
   {
     provide: EVENT_DAO,
     useValue: EventModel,
+  },
+  {
+    provide: RESUME_DAO,
+    useValue: ResumeModel,
+  },
+  {
+    provide: APPLICATION_DAO,
+    useValue: ApplicationModel,
+  },
+  {
+    provide: FACULTY_APPROVAL_REQUEST_DAO,
+    useValue: FacultyApprovalRequestModel,
+  },
+  {
+    provide: SALARY_DAO,
+    useValue: SalaryModel,
+  },
+  {
+    provide: JOB_COORDINATOR_DAO,
+    useValue: JobCoordinatorModel,
+  },
+  {
+    provide: PROGRAM_DAO,
+    useValue: ProgramModel,
+  },
+  {
+    provide: PENALTY_DAO,
+    useValue: PenaltyModel,
+  },
+  {
+    provide: ON_CAMPUS_OFFER_DAO,
+    useValue: OnCampusOfferModel,
+  },
+  {
+    provide: OFF_CAMPUS_OFFER_DAO,
+    useValue: OffCampusOfferModel,
   },
 ];

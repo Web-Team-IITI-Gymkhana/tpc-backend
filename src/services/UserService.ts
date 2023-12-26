@@ -14,6 +14,16 @@ class UserService {
     return User.fromModel(userModel);
   }
 
+  async getUserById(id: string, t?: Transaction) {
+    const userModel = await this.userRepo.findOne({ where: { id: id }, transaction: t });
+    return User.fromModel(userModel);
+  }
+
+  async getUserByEmail(email: string, t?: Transaction) {
+    const userModel = await this.userRepo.findOne({ where: { email: email }, transaction: t });
+    return User.fromModel(userModel);
+  }
+
   async deleteUser(userId: string, t?: Transaction) {
     await this.userRepo.destroy({ where: { id: userId }, transaction: t });
   }

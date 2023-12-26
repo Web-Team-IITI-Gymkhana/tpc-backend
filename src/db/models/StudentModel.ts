@@ -1,8 +1,8 @@
 import { ForeignKey, Column, BelongsTo, Table, Model, HasMany, Unique } from "sequelize-typescript";
 import sequelize from "sequelize";
-
 import { UserModel } from "./UserModel";
-import { Gender } from "../enums/gender.enum";
+import { PenaltyModel } from "./PenaltyModel";
+import { ProgramModel } from "./ProgramModel";
 
 @Table({
   tableName: "Student",
@@ -37,17 +37,16 @@ export class StudentModel extends Model<StudentModel> {
   category: string;
 
   @Column({
-    type: sequelize.ENUM,
-    values: Object.values(Gender),
+    type: sequelize.STRING,
   })
-  gender: Gender;
+  gender: string;
 
-  @Column({ allowNull: false })
-  branch: string;
+  @ForeignKey(() => ProgramModel)
+  @Column({
+    type: sequelize.UUID,
+  })
+  programId: string;
 
-  @Column({ allowNull: false })
-  course: string;
-
-  @Column({ allowNull: false })
-  graduationYear: string;
+  @HasMany(() => PenaltyModel, "studentId")
+  penalties: PenaltyModel[];
 }

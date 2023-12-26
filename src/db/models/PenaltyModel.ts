@@ -4,9 +4,9 @@ import sequelize from "sequelize";
 import { StudentModel } from "./StudentModel";
 
 @Table({
-  tableName: "Penalties",
+  tableName: "Penalty",
 })
-export class Penalties extends Model {
+export class PenaltyModel extends Model<PenaltyModel> {
   @Column({
     primaryKey: true,
     allowNull: false,
@@ -18,15 +18,10 @@ export class Penalties extends Model {
   @ForeignKey(() => StudentModel)
   @Column({ type: sequelize.UUID })
   studentId: string;
-  @BelongsTo(() => StudentModel, "studentId")
-  student: StudentModel;
 
   @Column
   penalty: number;
 
   @Column
   reason: string;
-
-  @Column({ type: sequelize.DATE })
-  penaltyDate: Date;
 }

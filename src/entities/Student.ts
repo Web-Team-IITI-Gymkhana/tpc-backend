@@ -9,9 +9,7 @@ export class Student {
   rollNo: string;
   catagory?: string;
   gender: Gender;
-  branch: string;
-  course: string;
-  graduationYear: string;
+  programId: string;
   createdAt?: Date;
   updatedAt?: Date;
 
@@ -22,9 +20,7 @@ export class Student {
     rollNo: string;
     catagory?: string;
     gender: Gender;
-    branch: string;
-    course: string;
-    graduationYear: string;
+    programId: string;
     createdAt?: Date;
     updatedAt?: Date;
   }) {
@@ -38,10 +34,8 @@ export class Student {
       user: student.user && User.fromModel(student.user),
       rollNo: student.rollNo,
       catagory: student.category,
-      course: student.course,
-      branch: student.branch,
-      graduationYear: student.graduationYear,
-      gender: student.gender,
+      programId: student.programId,
+      gender: student.gender as Gender,
       createdAt: student.createdAt,
       updatedAt: student.updatedAt,
     });

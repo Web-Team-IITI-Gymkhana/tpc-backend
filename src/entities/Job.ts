@@ -1,4 +1,4 @@
-import { CompanyModel, JobModel } from "src/db/models";
+import { JobModel } from "src/db/models";
 import { Company } from "./Company";
 import { Recruiter } from "./Recruiter";
 import { Season } from "./Season";

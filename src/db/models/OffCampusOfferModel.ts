@@ -1,13 +1,13 @@
 import sequelize from "sequelize";
-import { BelongsTo, Column, ForeignKey, Model, Table, Unique } from "sequelize-typescript";
+import { Column, ForeignKey, Model, Table, Unique } from "sequelize-typescript";
 import { CompanyModel as Company } from "./CompanyModel";
 import { SeasonModel as Season } from "./SeasonModel";
 import { StudentModel } from "./StudentModel";
 
 @Table({
-  tableName: "PpoOffer",
+  tableName: "OffCampusOffer",
 })
-export class PpoOffer extends Model {
+export class OffCampusOfferModel extends Model<OffCampusOfferModel> {
   @Column({
     primaryKey: true,
     allowNull: false,
@@ -20,31 +20,28 @@ export class PpoOffer extends Model {
   @ForeignKey(() => StudentModel)
   @Column(sequelize.UUID)
   studentId: string;
-  @BelongsTo(() => StudentModel, "studentId")
-  student: StudentModel;
 
   @Unique("StudentSeasonCompanyUnique")
   @ForeignKey(() => Season)
   @Column(sequelize.UUID)
   seasonId: string;
-  @BelongsTo(() => Season, "seasonId")
-  season: Season;
 
   @Unique("StudentSeasonCompanyUnique")
   @ForeignKey(() => Company)
   @Column(sequelize.UUID)
   companyId: string;
-  @BelongsTo(() => Company, "companyId")
-  company: Company;
 
   @Column
-  salaryValue: number;
+  salary: number;
 
   @Column
   salaryPeriod: number;
 
-  @Column
-  metadata: string;
+  @Column({
+    type: sequelize.JSONB,
+    defaultValue: sequelize.Sequelize.literal("'{}'::jsonb"),
+  })
+  metadata: object;
 
   @Column
   offerType: string;

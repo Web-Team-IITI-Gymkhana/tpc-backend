@@ -16,7 +16,7 @@ export class Season {
     return new this({
       id: season.id,
       year: season.year,
-      type: season.type,
+      type: season.type as SeasonType,
       createdAt: season.createdAt,
       updatedAt: season.updatedAt,
     });

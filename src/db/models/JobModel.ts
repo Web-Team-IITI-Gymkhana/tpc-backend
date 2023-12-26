@@ -5,6 +5,7 @@ import { EventModel } from "./EventModel";
 import { SeasonModel } from "./SeasonModel";
 import { RecruiterModel } from "./RecruiterModel";
 import { JobStatusModel } from "./JobStatusModel";
+import { SalaryModel } from "./SalaryModel";
 
 @Table({
   tableName: "Job",
@@ -43,8 +44,11 @@ export class JobModel extends Model<JobModel> {
   @Column
   role: string;
 
-  @Column({ allowNull: true, type: DataType.JSONB(), defaultValue: Sequelize.literal("'{}'::jsonb") })
+  @Column({ allowNull: false, type: DataType.JSONB(), defaultValue: Sequelize.literal("'{}'::jsonb") })
   metadata: object;
+
+  @Column({ allowNull: false, type: DataType.JSONB(), defaultValue: Sequelize.literal("'{}'::jsonb") })
+  eligibility: object;
 
   @Column({ defaultValue: false })
   active: boolean;
@@ -61,4 +65,7 @@ export class JobModel extends Model<JobModel> {
 
   @HasMany(() => EventModel, "jobId")
   events: Event[];
+
+  @HasMany(() => SalaryModel, "jobId")
+  salaries: SalaryModel[];
 }

@@ -3,24 +3,12 @@ import { UserModel } from "src/db/models";
 import { Role } from "src/db/enums";
 
 export class User {
-  @ApiProperty()
   id?: string;
-
-  @ApiProperty()
   name: string;
-
-  @ApiProperty()
   email: string;
-
-  @ApiProperty()
   contact?: string;
-
-  @ApiProperty()
   role: Role;
-
-  @ApiProperty()
   createdAt?: Date;
-  @ApiProperty()
   updatedAt?: Date;
 
   constructor(input: {
@@ -28,7 +16,7 @@ export class User {
     name: string;
     email: string;
     contact?: string;
-    role?: string;
+    role?: Role;
     createdAt?: string;
     updatedAt?: string;
   }) {
@@ -41,7 +29,7 @@ export class User {
       name: user.name,
       email: user.email,
       contact: user.contact,
-      role: user.role,
+      role: user.role as Role,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     });
