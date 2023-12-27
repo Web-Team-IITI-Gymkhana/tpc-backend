@@ -1,13 +1,14 @@
+import { CompanyMetadataDto } from "src/admin/dtos/company";
 import { CompanyModel } from "src/db/models";
 
 export class Company {
   id?: string;
   name: string;
-  metadata?: object;
+  metadata?: CompanyMetadataDto;
   createdAt?: Date;
   updatedAt?: Date;
 
-  constructor(input: { id?: string; name: string; metadata?: object; createdAt?: Date; updatedAt?: Date }) {
+  constructor(input: { id?: string; name: string; metadata?: CompanyMetadataDto; createdAt?: Date; updatedAt?: Date }) {
     Object.assign(this, input);
   }
 

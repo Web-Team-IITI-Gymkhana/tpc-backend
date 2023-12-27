@@ -1,7 +1,7 @@
 import { Table, Column, Model, IsEmail, ForeignKey, BelongsTo, HasMany, Index, Unique } from "sequelize-typescript";
 import sequelize from "sequelize";
-import { UserModel } from "./UserModel";
 import { JobModel } from "./JobModel";
+import { TpcMemberModel } from "./TpcMemberModel";
 
 @Table({
   tableName: "JobCoordinator",
@@ -15,12 +15,12 @@ export class JobCoordinatorModel extends Model<JobCoordinatorModel> {
   })
   id: string;
 
-  @Unique("UserJob")
-  @ForeignKey(() => UserModel)
+  @Unique("TpcMemberJob")
+  @ForeignKey(() => TpcMemberModel)
   @Column({ type: sequelize.UUID })
-  userId: string;
+  tpcMemberId: string;
 
-  @Unique("UserJob")
+  @Unique("TpcMemberJob")
   @ForeignKey(() => JobModel)
   @Column({ type: sequelize.UUID })
   jobId: string;

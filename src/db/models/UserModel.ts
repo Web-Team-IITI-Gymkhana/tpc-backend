@@ -1,4 +1,4 @@
-import { Table, Column, Model, IsEmail } from "sequelize-typescript";
+import { Table, Column, Model, IsEmail, Unique } from "sequelize-typescript";
 import sequelize from "sequelize";
 
 @Table({
@@ -14,6 +14,7 @@ export class UserModel extends Model<UserModel> {
   id: string;
 
   @IsEmail
+  @Unique("EmailRole")
   @Column({
     allowNull: false,
     unique: true,
@@ -28,6 +29,7 @@ export class UserModel extends Model<UserModel> {
   @Column
   contact: string;
 
+  @Unique("EmailRole")
   @Column({
     allowNull: false,
     type: sequelize.STRING,

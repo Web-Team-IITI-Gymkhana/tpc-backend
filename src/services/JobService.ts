@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { omit } from "lodash";
-import { Transaction } from "sequelize";
+import { Transaction, WhereOptions } from "sequelize";
 import { JOB_DAO, JOB_STATUS_DAO } from "src/constants";
 import { JobModel, JobStatusModel } from "src/db/models";
 import { Job } from "src/entities/Job";
@@ -20,6 +20,11 @@ class JobService {
       transaction: t,
     });
     return Job.fromModel(jobModel);
+  }
+
+  async getJobs(where?: WhereOptions<JobModel>, t?: Transaction) {
+    const jobModels = await this.jobRepo.findAll({ where: where, transaction: t });
+    return jobModels.map((jobModel) => Job.fromModel(jobModel));
   }
 
   async updateJob(jobId: string, fieldsToUpdate: object, transaction?: Transaction): Promise<Job> {

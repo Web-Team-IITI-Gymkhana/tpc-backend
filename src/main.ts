@@ -66,7 +66,7 @@ function createSwagger(app: INestApplication) {
       persistAuthorization: true,
     },
   };
-  SwaggerModule.setup("/api/v1/docs", app, document, customOptions);
+  SwaggerModule.setup(process.env.ROOT_DOCS_PATH || "/api/v1", app, document, customOptions);
 }
 
 function createWinstonLogger(): LoggerService {

@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
-import { Transaction } from "sequelize";
+import { Transaction, WhereOptions } from "sequelize";
 import { SEASON_DAO } from "src/constants";
 import { SeasonModel } from "src/db/models";
 import { Season } from "src/entities/Season";
@@ -13,6 +13,11 @@ class SeasonService {
   async createSeason(season: Season, t?: Transaction) {
     const seasonModel = await this.seasonRepo.create(season, { transaction: t });
     return Season.fromModel(seasonModel);
+  }
+
+  async getSeasons(where?: WhereOptions<SeasonModel>, t?: Transaction) {
+    const seasonModels = await this.seasonRepo.findAll({ where: where, transaction: t });
+    return seasonModels.map((seasonModel) => Season.fromModel(seasonModel));
   }
 
   async deleteSeason(seasonId: string, t?: Transaction) {

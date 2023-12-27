@@ -1,5 +1,5 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
-import { Transaction } from "sequelize";
+import { Transaction, WhereOptions } from "sequelize";
 import { COMPANY_DAO } from "src/constants";
 import { CompanyModel } from "src/db/models";
 import { Company } from "src/entities/Company";
@@ -15,8 +15,22 @@ class CompanyService {
     return Company.fromModel(companyModel);
   }
 
+  async getCompanies(where?: WhereOptions<CompanyModel>, t?: Transaction) {
+    const companyModels = await this.companyRepo.findAll({ where: where, transaction: t });
+    return companyModels.map((companyModel) => Company.fromModel(companyModel));
+  }
+
+  async updateCompany(companyId: string, fieldsToUpdate: object, t?: Transaction) {
+    const [_, updatedModel] = await this.companyRepo.update(fieldsToUpdate, {
+      where: { id: companyId },
+      returning: true,
+      transaction: t,
+    });
+    return Company.fromModel(updatedModel[0]);
+  }
+
   async deleteCompany(companyId: string, t?: Transaction) {
-    await this.companyRepo.destroy({ where: { id: companyId }, transaction: t });
+    return !!(await this.companyRepo.destroy({ where: { id: companyId }, transaction: t }));
   }
 }
 
