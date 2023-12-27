@@ -5,6 +5,7 @@ import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
 import { DatabaseModule } from "./db/database.module";
 import {
+  AUTH_SERVICE,
   COMPANY_SERVICE,
   JOB_SERVICE,
   JOB_STATUS_SERVICE,
@@ -23,6 +24,7 @@ import { TransactionInterceptor } from "./interceptor/TransactionInterceptor";
 import RecruiterService from "./services/RecruiterService";
 import { RecruiterController } from "./recruiter/recruiter.controller";
 import { JwtStrategy } from "./auth/JwtStrategy";
+import AuthService from "./services/AuthService";
 
 @Module({
   imports: [ConfigModule.forRoot(), DatabaseModule],
@@ -32,6 +34,10 @@ import { JwtStrategy } from "./auth/JwtStrategy";
     JwtStrategy,
     TransactionInterceptor,
     AppService,
+    {
+      provide: AUTH_SERVICE,
+      useClass: AuthService,
+    },
     {
       provide: USER_SERVICE,
       useClass: UserService,
