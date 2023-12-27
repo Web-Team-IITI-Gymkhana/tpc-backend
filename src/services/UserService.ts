@@ -16,7 +16,7 @@ class UserService {
 
   async getOrCreateUser(user: User, t?: Transaction) {
     const [userModel] = await this.userRepo.findOrCreate({
-      where: { email: user.email },
+      where: { email: user.email, role: user.role },
       defaults: user,
       transaction: t,
     });

@@ -1,9 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsEmail, ValidateNested } from "class-validator";
-import { Category, Gender, Role } from "src/db/enums";
+import { Category, TpcMemberRole } from "src/db/enums";
 
-export class CreateStudentDto {
+export class CreateTpcMemberDto {
   @ApiProperty({
     type: String,
   })
@@ -16,36 +16,28 @@ export class CreateStudentDto {
   @ApiPropertyOptional()
   contact: string;
   @ApiProperty()
-  rollNo: string;
+  role: TpcMemberRole;
   @ApiProperty()
-  category: Category;
-  @ApiProperty()
-  gender: Gender;
-  @ApiProperty()
-  programId: string;
+  deparment: string;
 }
 
-export class AddStudentsDto {
+export class AddTpcMembersDto {
   @ApiProperty({
     isArray: true,
-    type: CreateStudentDto,
+    type: CreateTpcMemberDto,
   })
   @ValidateNested({ each: true })
-  @Type(() => CreateStudentDto)
-  students: CreateStudentDto[];
+  @Type(() => CreateTpcMemberDto)
+  tpcMembers: CreateTpcMemberDto[];
 }
 
-export class GetStudentQueryDto {
+export class GetTpcMemberQueryDto {
   @ApiPropertyOptional()
   id?: string;
   @ApiPropertyOptional()
   userId?: string;
   @ApiPropertyOptional()
-  rollNo?: string;
-  @ApiPropertyOptional({ enum: Category })
-  category?: Category;
-  @ApiPropertyOptional({ enum: Gender })
-  gender?: Gender;
-  @ApiPropertyOptional()
-  programId?: string;
+  department?: string;
+  @ApiPropertyOptional({ enum: TpcMemberRole })
+  role?: Category;
 }

@@ -4,7 +4,7 @@ import { User } from "./User";
 export class Faculty {
   id?: string;
   userId: string;
-  user: User;
+  user?: User;
   department: string;
   createdAt?: Date;
   updatedAt?: Date;
@@ -12,7 +12,7 @@ export class Faculty {
   constructor(input: {
     id?: string;
     userId: string;
-    user: User;
+    user?: User;
     department: string;
     createdAt?: Date;
     updatedAt?: Date;

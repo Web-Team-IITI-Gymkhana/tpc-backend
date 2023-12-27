@@ -19,6 +19,7 @@ import {
   SalaryModel,
   JobCoordinatorModel,
   FacultyApprovalRequestModel,
+  TpcMemberModel,
 } from "./models";
 import { isProductionEnv } from "../utils/utils";
 import {
@@ -39,6 +40,7 @@ import {
   SALARY_DAO,
   SEASON_DAO,
   STUDENT_DAO,
+  TPC_MEMBER_DAO,
   USER_DAO,
 } from "src/constants";
 
@@ -68,6 +70,7 @@ export const databaseProviders = [
       sequelize.addModels([
         UserModel,
         StudentModel,
+        TpcMemberModel,
         RecruiterModel,
         FacultyModel,
         SeasonModel,
@@ -99,6 +102,10 @@ export const spacesProviders = [
   {
     provide: STUDENT_DAO,
     useValue: StudentModel,
+  },
+  {
+    provide: TPC_MEMBER_DAO,
+    useValue: TpcMemberModel,
   },
   {
     provide: FACULTY_DAO,

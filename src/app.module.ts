@@ -14,6 +14,7 @@ import {
   RECRUITER_SERVICE,
   SEASON_SERVICE,
   STUDENT_SERVICE,
+  TPC_MEMBER_SERVICE,
   USER_SERVICE,
 } from "./constants";
 import UserService from "./services/UserService";
@@ -35,6 +36,8 @@ import { AdminJobController } from "./admin/controllers/job";
 import EventService from "./services/EventService";
 import StudentService from "./services/StudentService";
 import { AdminStudentController } from "./admin/controllers/student";
+import TpcMemberService from "./services/TpcMemberService";
+import { AdminTpcMemberController } from "./admin/controllers/tpcMember";
 
 @Module({
   imports: [ConfigModule.forRoot(), DatabaseModule],
@@ -46,6 +49,7 @@ import { AdminStudentController } from "./admin/controllers/student";
     AdminCompanyController,
     AdminJobController,
     AdminStudentController,
+    AdminTpcMemberController,
     RecruiterController,
   ],
   providers: [
@@ -64,6 +68,10 @@ import { AdminStudentController } from "./admin/controllers/student";
     {
       provide: USER_SERVICE,
       useClass: UserService,
+    },
+    {
+      provide: TPC_MEMBER_SERVICE,
+      useClass: TpcMemberService,
     },
     {
       provide: RECRUITER_SERVICE,
