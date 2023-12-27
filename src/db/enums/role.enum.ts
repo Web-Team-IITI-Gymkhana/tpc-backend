@@ -1,7 +1,7 @@
 export enum Role {
-  STUDENT = "Student",
-  RECRUITER = "Recruiter",
-  ADMIN = "Admin",
-  TPC_MEMBER = "TPC Member",
-  FACULTY = "Faculty",
+  STUDENT = "STUDENT",
+  RECRUITER = "RECRUITER",
+  ADMIN = "ADMIN",
+  TPC_MEMBER = "TPC_MEMBER",
+  FACULTY = "FACULTY",
 }

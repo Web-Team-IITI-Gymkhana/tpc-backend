@@ -8,13 +8,14 @@ import { isProductionEnv } from "./utils/utils";
 import { SwaggerModule, DocumentBuilder, SwaggerDocumentOptions, SwaggerCustomOptions } from "@nestjs/swagger";
 import { HttpExceptionFilter } from "./interceptor/ExceptionFilter";
 import { LoggerInterceptor } from "./interceptor/LoggerInterceptor";
-
+import * as dotenv from "dotenv";
+dotenv.config();
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
     logger: createWinstonLogger(),
     cors: true,
   });
-  app.setGlobalPrefix("api/v1", { exclude: [{ path: "/health", method: RequestMethod.GET }] });
+  app.setGlobalPrefix("api/v1");
   createSwagger(app);
   app.use(Helmet());
   app.useGlobalInterceptors(new LoggerInterceptor());
@@ -36,7 +37,7 @@ function createSwagger(app: INestApplication) {
 
   const config = new DocumentBuilder()
     .setTitle("TPC Backend API")
-    .setDescription("API for tpc backedn")
+    .setDescription("API for TPC backend")
     .setVersion(version)
     .addTag("TPCBackend")
     .addBearerAuth(
