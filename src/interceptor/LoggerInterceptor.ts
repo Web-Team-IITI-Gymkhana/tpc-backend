@@ -1,15 +1,16 @@
-import { CallHandler, ExecutionContext, Injectable, NestInterceptor, Logger } from '@nestjs/common';
-import { Request } from 'express';
-import { Observable, throwError } from 'rxjs';
-import { catchError, map } from 'rxjs/operators';
+import { CallHandler, ExecutionContext, Injectable, NestInterceptor, Logger } from "@nestjs/common";
+import { Request } from "express";
+import { Observable, throwError } from "rxjs";
+import { catchError, map } from "rxjs/operators";
+import { RequestDto } from "src/entities/Request";
 
 @Injectable()
 export class LoggerInterceptor implements NestInterceptor {
-  private logger = new Logger('Request');
+  private logger = new Logger("Request");
 
   public intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const req: Request = context.switchToHttp().getRequest();
-    const userName = req['user'] ? req['user'].userName : 'anonymous';
+    const req: RequestDto = context.switchToHttp().getRequest();
+    const userName = req?.user?.email || "anonymous";
     const { statusCode } = context.switchToHttp().getResponse();
     const { method, url, ip } = req;
     const startTime = new Date().getTime();
@@ -24,7 +25,7 @@ export class LoggerInterceptor implements NestInterceptor {
       catchError((err) => {
         this.logger.error(`${logMessage} ${this.getTimeDelta(startTime)}ms ${err.message} ${err.stack}`);
         return throwError(() => err);
-      }),
+      })
     );
   }
 
