@@ -15,7 +15,7 @@ async function bootstrap(): Promise<void> {
     logger: createWinstonLogger(),
     cors: true,
   });
-  app.setGlobalPrefix("api/v1", { exclude: [{ path: "/health", method: RequestMethod.GET }] });
+  app.setGlobalPrefix("api/v1");
   createSwagger(app);
   app.use(Helmet());
   app.useGlobalInterceptors(new LoggerInterceptor());
@@ -37,7 +37,7 @@ function createSwagger(app: INestApplication) {
 
   const config = new DocumentBuilder()
     .setTitle("TPC Backend API")
-    .setDescription("API for tpc backedn")
+    .setDescription("API for TPC backend")
     .setVersion(version)
     .addTag("TPCBackend")
     .addBearerAuth(
