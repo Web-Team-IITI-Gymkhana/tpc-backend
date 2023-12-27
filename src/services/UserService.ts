@@ -14,6 +14,15 @@ class UserService {
     return User.fromModel(userModel);
   }
 
+  async getOrCreateUser(user: User, t?: Transaction) {
+    const [userModel] = await this.userRepo.findOrCreate({
+      where: { email: user.email },
+      defaults: user,
+      transaction: t,
+    });
+    return User.fromModel(userModel);
+  }
+
   async getUserById(id: string, t?: Transaction) {
     const userModel = await this.userRepo.findOne({ where: { id: id }, transaction: t });
     return User.fromModel(userModel);

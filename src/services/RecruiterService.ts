@@ -1,6 +1,6 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { omit } from "lodash";
-import { Transaction } from "sequelize";
+import { Transaction, WhereOptions } from "sequelize";
 import { RECRUITER_DAO } from "src/constants";
 import { RecruiterModel } from "src/db/models";
 import { Recruiter } from "src/entities/Recruiter";
@@ -14,6 +14,11 @@ class RecruiterService {
   async createRecruiter(recruiter: Recruiter, t?: Transaction) {
     const recruiterModel = await this.recruiterRepo.create(omit(recruiter, "user", "company"), { transaction: t });
     return Recruiter.fromModel(recruiterModel);
+  }
+
+  async getRecruiters(where?: WhereOptions<RecruiterModel>, t?: Transaction) {
+    const recruiterModels = await this.recruiterRepo.findAll({ where: where, transaction: t });
+    return recruiterModels.map((recruiterModel) => Recruiter.fromModel(recruiterModel));
   }
 
   async deleteRecruiter(recruiterId: string, t?: Transaction) {

@@ -1,13 +1,13 @@
 import { StudentModel } from "src/db/models";
-import { Gender } from "src/db/enums";
+import { Gender, Category } from "src/db/enums";
 import { User } from "./User";
 
 export class Student {
   id?: string;
   userId: string;
-  user: User;
+  user?: User;
   rollNo: string;
-  catagory?: string;
+  category?: Category;
   gender: Gender;
   programId: string;
   createdAt?: Date;
@@ -16,9 +16,9 @@ export class Student {
   constructor(input: {
     id?: string;
     userId: string;
-    user: User;
+    user?: User;
     rollNo: string;
-    catagory?: string;
+    category?: Category;
     gender: Gender;
     programId: string;
     createdAt?: Date;
@@ -33,7 +33,7 @@ export class Student {
       userId: student.userId,
       user: student.user && User.fromModel(student.user),
       rollNo: student.rollNo,
-      catagory: student.category,
+      category: student.category as Category,
       programId: student.programId,
       gender: student.gender as Gender,
       createdAt: student.createdAt,
