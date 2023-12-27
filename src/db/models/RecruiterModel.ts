@@ -19,8 +19,7 @@ export class RecruiterModel extends Model<RecruiterModel> {
   @Unique("UserCompany")
   @ForeignKey(() => UserModel)
   @Column({
-    primaryKey: true,
-    allowNull: false,
+    unique: true,
     type: sequelize.UUID,
   })
   userId: string;
