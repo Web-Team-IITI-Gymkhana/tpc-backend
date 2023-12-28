@@ -34,8 +34,8 @@ import {
 import EventService from "src/services/EventService";
 import { queryBuilder } from "src/utils/utils";
 
-@Controller("/admin/jobs")
-export class AdminJobController {
+@Controller("/jobs")
+export class JobController {
   constructor(
     @Inject(JOB_SERVICE) private jobService: JobService,
     @Inject(EVENT_SERVICE) private eventService: EventService

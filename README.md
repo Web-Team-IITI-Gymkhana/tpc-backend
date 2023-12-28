@@ -103,4 +103,3 @@ By default, when you run backend using `yarn start` we do not execute the migrat
 To execute them, we need to run
 
 >  yarn migrate:dev
-

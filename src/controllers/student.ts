@@ -19,8 +19,8 @@ import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
 
-@Controller("/admin/students")
-export class AdminStudentController {
+@Controller("/students")
+export class StudentController {
   constructor(
     @Inject(STUDENT_SERVICE) private studentService: StudentService,
     @Inject(USER_SERVICE) private userService: UserService
