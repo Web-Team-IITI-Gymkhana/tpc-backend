@@ -7,6 +7,7 @@ import {
   Post,
   Query,
   Body,
+  UseGuards,
 } from "@nestjs/common";
 import { STUDENT_SERVICE, USER_SERVICE } from "src/constants";
 import StudentService from "src/services/StudentService";
@@ -18,8 +19,12 @@ import { Role } from "src/db/enums";
 import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
+import { ApiBearerAuth } from "@nestjs/swagger";
+import { AuthGuard } from "@nestjs/passport";
 
 @Controller("/students")
+@ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"))
 export class StudentController {
   constructor(
     @Inject(STUDENT_SERVICE) private studentService: StudentService,

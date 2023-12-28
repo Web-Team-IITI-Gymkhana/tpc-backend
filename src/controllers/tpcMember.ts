@@ -7,6 +7,7 @@ import {
   Post,
   Query,
   Body,
+  UseGuards,
 } from "@nestjs/common";
 import { TPC_MEMBER_SERVICE, USER_SERVICE } from "src/constants";
 import TpcMemberService from "src/services/TpcMemberService";
@@ -18,8 +19,12 @@ import { Role } from "src/db/enums";
 import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
+import { ApiBearerAuth } from "@nestjs/swagger";
+import { AuthGuard } from "@nestjs/passport";
 
 @Controller("/tpcMembers")
+@ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"))
 export class TpcMemberController {
   constructor(
     @Inject(TPC_MEMBER_SERVICE) private tpcMemberService: TpcMemberService,

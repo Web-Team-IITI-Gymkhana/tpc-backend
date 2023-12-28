@@ -12,6 +12,7 @@ import {
   HttpStatus,
   Put,
   Delete,
+  UseGuards,
 } from "@nestjs/common";
 import { EVENT_SERVICE, JOB_SERVICE } from "src/constants";
 import JobService from "src/services/JobService";
@@ -33,8 +34,12 @@ import {
 } from "../dtos/job";
 import EventService from "src/services/EventService";
 import { queryBuilder } from "src/utils/utils";
+import { ApiBearerAuth } from "@nestjs/swagger";
+import { AuthGuard } from "@nestjs/passport";
 
 @Controller("/jobs")
+@ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"))
 export class JobController {
   constructor(
     @Inject(JOB_SERVICE) private jobService: JobService,
