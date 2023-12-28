@@ -1,6 +1,7 @@
-import { ApiProperty } from "@nestjs/swagger";
+import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { UserModel } from "src/db/models";
 import { Role } from "src/db/enums";
+import { Exclude } from "class-transformer";
 
 export class User {
   id?: string;
@@ -8,6 +9,9 @@ export class User {
   email: string;
   contact?: string;
   role: Role;
+  @Exclude()
+  @ApiPropertyOptional({ description: "This is the id in role table eg. studentId for STUDENT" })
+  roleId?: string;
   createdAt?: Date;
   updatedAt?: Date;
 
@@ -17,6 +21,7 @@ export class User {
     email: string;
     contact?: string;
     role?: Role;
+    roleId?: string;
     createdAt?: string;
     updatedAt?: string;
   }) {

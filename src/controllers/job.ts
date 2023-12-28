@@ -36,6 +36,7 @@ import EventService from "src/services/EventService";
 import { queryBuilder } from "src/utils/utils";
 import { ApiBearerAuth } from "@nestjs/swagger";
 import { AuthGuard } from "@nestjs/passport";
+import { Action, RequirePermissions, ResourceType, params } from "src/auth/RequirePermission";
 
 @Controller("/jobs")
 @ApiBearerAuth("jwt")
@@ -87,6 +88,7 @@ export class JobController {
   }
 
   @Put("/:jobId")
+  @UseGuards(RequirePermissions(ResourceType.JOB, Action.MANAGE, params("jobId")))
   @UseInterceptors(TransactionInterceptor)
   @UseInterceptors(ClassSerializerInterceptor)
   async updateJob(

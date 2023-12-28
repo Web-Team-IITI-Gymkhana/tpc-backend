@@ -7,11 +7,11 @@ import { User } from "src/entities/User";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
-  constructor(@Inject(AUTH_SERVICE) authService: AuthService) {
+  constructor(@Inject(AUTH_SERVICE) private authService: AuthService) {
     super(authService.getJwtOptions());
   }
 
   async validate(payload: any): Promise<User> {
-    return new User({ id: payload.sub, email: payload["email"], role: payload["userType"], name: payload["name"] });
+    return this.authService.parsePayload(payload);
   }
 }
