@@ -4,8 +4,8 @@ import SeasonService from "src/services/SeasonService";
 import { Season } from "src/entities/Season";
 import { AddSeasonDto } from "../dtos/season";
 
-@Controller("/admin/seasons")
-export class AdminSeasonController {
+@Controller("/seasons")
+export class SeasonController {
   constructor(@Inject(SEASON_SERVICE) private seasonService: SeasonService) {}
 
   @Post()

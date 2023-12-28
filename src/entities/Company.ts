@@ -1,4 +1,4 @@
-import { CompanyMetadataDto } from "src/admin/dtos/company";
+import { CompanyMetadataDto } from "src/dtos/company";
 import { CompanyModel } from "src/db/models";
 
 export class Company {

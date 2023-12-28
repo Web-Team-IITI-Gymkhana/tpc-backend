@@ -18,8 +18,8 @@ import { Company } from "src/entities/Company";
 import { AddCompanyDto, CompanyIdParamDto, UpdateCompanyDto } from "../dtos/company";
 import RecruiterService from "src/services/RecruiterService";
 
-@Controller("/admin/companies")
-export class AdminCompanyController {
+@Controller("/companies")
+export class CompanyController {
   constructor(
     @Inject(COMPANY_SERVICE) private companyService: CompanyService,
     @Inject(RECRUITER_SERVICE) private recruiterService: RecruiterService

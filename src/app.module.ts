@@ -25,19 +25,19 @@ import JobService from "./services/JobService";
 import JobStatusService from "./services/JobStatusService";
 import { TransactionInterceptor } from "./interceptor/TransactionInterceptor";
 import RecruiterService from "./services/RecruiterService";
-import { RecruiterController } from "./recruiter/recruiter.controller";
+import { RecruiterController } from "./controllers/recruiter";
 import { JwtStrategy } from "./auth/JwtStrategy";
 import AuthService from "./services/AuthService";
 import ProgramService from "./services/ProgramService";
-import { AdminController } from "./admin/controllers/admin";
-import { AdminCompanyController } from "./admin/controllers/company";
-import { AdminSeasonController } from "./admin/controllers/season";
-import { AdminJobController } from "./admin/controllers/job";
+import { AdminController } from "./controllers/admin";
+import { CompanyController } from "./controllers/company";
+import { SeasonController } from "./controllers/season";
+import { JobController } from "./controllers/job";
 import EventService from "./services/EventService";
 import StudentService from "./services/StudentService";
-import { AdminStudentController } from "./admin/controllers/student";
+import { StudentController } from "./controllers/student";
 import TpcMemberService from "./services/TpcMemberService";
-import { AdminTpcMemberController } from "./admin/controllers/tpcMember";
+import { TpcMemberController } from "./controllers/tpcMember";
 
 @Module({
   imports: [ConfigModule.forRoot(), DatabaseModule],
@@ -45,11 +45,11 @@ import { AdminTpcMemberController } from "./admin/controllers/tpcMember";
     AppController,
     AuthController,
     AdminController,
-    AdminSeasonController,
-    AdminCompanyController,
-    AdminJobController,
-    AdminStudentController,
-    AdminTpcMemberController,
+    SeasonController,
+    CompanyController,
+    JobController,
+    StudentController,
+    TpcMemberController,
     RecruiterController,
   ],
   providers: [

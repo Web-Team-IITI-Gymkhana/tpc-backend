@@ -19,8 +19,8 @@ import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
 
-@Controller("/admin/tpcMembers")
-export class AdminTpcMemberController {
+@Controller("/tpcMembers")
+export class TpcMemberController {
   constructor(
     @Inject(TPC_MEMBER_SERVICE) private tpcMemberService: TpcMemberService,
     @Inject(USER_SERVICE) private userService: UserService

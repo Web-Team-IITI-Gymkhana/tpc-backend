@@ -34,7 +34,7 @@ export class AuthController {
     if (!user) {
       throw new HttpException(`User with email ${body.email} doesn't exists`, HttpStatus.NOT_FOUND);
     }
-    const token = this.authService.vendJWT(user);
+    const token = await this.authService.vendJWT(user);
     return { accessToken: token };
   }
 }

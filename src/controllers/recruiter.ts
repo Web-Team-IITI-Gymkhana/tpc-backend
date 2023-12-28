@@ -2,13 +2,13 @@ import { Body, Controller, Inject, Post, UseInterceptors, ClassSerializerInterce
 import { RECRUITER_SERVICE } from "src/constants";
 import RecruiterService from "src/services/RecruiterService";
 import { Recruiter } from "src/entities/Recruiter";
-import { AddRecruiterDto } from "./recruiter.dto";
+import { AddRecruiterDto } from "../dtos/recruiter";
 
-@Controller("/recruiter")
+@Controller("/recruiters")
 export class RecruiterController {
   constructor(@Inject(RECRUITER_SERVICE) private recruiterService: RecruiterService) {}
 
-  @Post("/")
+  @Post()
   @UseInterceptors(ClassSerializerInterceptor)
   async signup(@Body() body: AddRecruiterDto) {
     const recruiter = await this.recruiterService.createRecruiter(
