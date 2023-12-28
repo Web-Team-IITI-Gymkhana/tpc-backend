@@ -11,14 +11,19 @@ import {
   HttpException,
   HttpStatus,
   Delete,
+  UseGuards,
 } from "@nestjs/common";
 import { COMPANY_SERVICE, RECRUITER_SERVICE } from "src/constants";
 import CompanyService from "src/services/CompanyService";
 import { Company } from "src/entities/Company";
 import { AddCompanyDto, CompanyIdParamDto, UpdateCompanyDto } from "../dtos/company";
 import RecruiterService from "src/services/RecruiterService";
+import { ApiBearerAuth } from "@nestjs/swagger";
+import { AuthGuard } from "@nestjs/passport";
 
 @Controller("/companies")
+@ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"))
 export class CompanyController {
   constructor(
     @Inject(COMPANY_SERVICE) private companyService: CompanyService,
