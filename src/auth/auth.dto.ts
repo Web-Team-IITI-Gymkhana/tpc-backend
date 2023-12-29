@@ -27,4 +27,8 @@ export class UserLogInDto {
     description: "user email",
   })
   email: string;
+  @ApiProperty({
+    enum: Role,
+  })
+  role: Role;
 }

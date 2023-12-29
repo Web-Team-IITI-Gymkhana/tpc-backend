@@ -18,7 +18,7 @@ export class CreateTpcMemberDto {
   @ApiProperty()
   role: TpcMemberRole;
   @ApiProperty()
-  deparment: string;
+  department: string;
 }
 
 export class AddTpcMembersDto {
