@@ -21,12 +21,14 @@ export class ApplicationModel extends Model<ApplicationModel> {
   @ForeignKey(() => EventModel)
   @Column({
     type: sequelize.UUID,
-    allowNull: true,
   })
   eventId: string;
 
-  // Set Null onDelete of Event
-  @BelongsTo(() => EventModel, "eventId")
+  // Restrict Delete Application onDelete of Event
+  @BelongsTo(() => EventModel, {
+    foreignKey: "eventId",
+    onDelete: "RESTRICT",
+  })
   event: EventModel;
 
   @Unique("JobStudentResume")

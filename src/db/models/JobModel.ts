@@ -35,6 +35,13 @@ export class JobModel extends Model<JobModel> {
   @Column(sequelize.UUID)
   recruiterId: string;
 
+  // Restrict Job Delete onDelete of Recruiter
+  @BelongsTo(() => RecruiterModel, {
+    foreignKey: "recruiterId",
+    onDelete: "RESTRICT",
+  })
+  recruiter: RecruiterModel;
+
   @Unique("SeasonCompanyRole")
   @ForeignKey(() => CompanyModel)
   @Column(sequelize.UUID)

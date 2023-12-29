@@ -1,7 +1,7 @@
 import sequelize from "sequelize";
-import { Column, ForeignKey, Model, Table, Unique } from "sequelize-typescript";
-import { CompanyModel as Company } from "./CompanyModel";
-import { SeasonModel as Season } from "./SeasonModel";
+import { BelongsTo, Column, ForeignKey, Model, Table, Unique } from "sequelize-typescript";
+import { CompanyModel } from "./CompanyModel";
+import { SeasonModel } from "./SeasonModel";
 import { StudentModel } from "./StudentModel";
 
 @Table({
@@ -22,14 +22,28 @@ export class OffCampusOfferModel extends Model<OffCampusOfferModel> {
   studentId: string;
 
   @Unique("StudentSeasonCompanyUnique")
-  @ForeignKey(() => Season)
+  @ForeignKey(() => SeasonModel)
   @Column(sequelize.UUID)
   seasonId: string;
 
+  // Delete Off Campus Offer onDelete of Season
+  @BelongsTo(() => SeasonModel, {
+    foreignKey: "seasonId",
+    onDelete: "CASCADE",
+  })
+  season: SeasonModel;
+
   @Unique("StudentSeasonCompanyUnique")
-  @ForeignKey(() => Company)
+  @ForeignKey(() => CompanyModel)
   @Column(sequelize.UUID)
   companyId: string;
+
+  // Restrict Delete Off Campus Offer onDelete of Company
+  @BelongsTo(() => CompanyModel, {
+    foreignKey: "companyId",
+    onDelete: "RESTRICT",
+  })
+  company: CompanyModel;
 
   @Column
   salary: number;

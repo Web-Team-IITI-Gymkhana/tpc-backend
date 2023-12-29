@@ -24,7 +24,6 @@ export class StudentModel extends Model<StudentModel> {
   @Column({
     type: sequelize.UUID,
     unique: true,
-    primaryKey: true,
     allowNull: false,
   })
   userId: string;
@@ -53,6 +52,13 @@ export class StudentModel extends Model<StudentModel> {
     type: sequelize.UUID,
   })
   programId: string;
+
+  // Delete Student onDelete of Program
+  @BelongsTo(() => ProgramModel, {
+    foreignKey: "programId",
+    onDelete: "CASCADE",
+  })
+  program: ProgramModel;
 
   // Delete Penalty onDelete of Student
   @HasMany(() => PenaltyModel, {
