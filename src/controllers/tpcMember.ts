@@ -65,7 +65,7 @@ export class TpcMemberController {
               new TpcMember({
                 userId: user.id,
                 role: tpcMember.role,
-                department: tpcMember.deparment,
+                department: tpcMember.department,
               }),
               transaction
             );

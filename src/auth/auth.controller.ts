@@ -30,9 +30,12 @@ export class AuthController {
 
   @Post("/login")
   async login(@Body() body: UserLogInDto) {
-    const user = await this.userService.getUserByEmail(body.email);
+    const user = await this.userService.getUserByEmail(body.email, body.role);
     if (!user) {
-      throw new HttpException(`User with email ${body.email} doesn't exists`, HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        `User with email ${body.email} and role ${body.role} doesn't exists`,
+        HttpStatus.NOT_FOUND
+      );
     }
     const token = await this.authService.vendJWT(user);
     return { accessToken: token };

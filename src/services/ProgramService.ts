@@ -42,7 +42,7 @@ class ProgramService {
   }
 
   async createPrograms(programs: Program[], t?: Transaction) {
-    await this.programRepo.bulkCreate(programs, { transaction: t });
+    await this.programRepo.bulkCreate(programs, { updateOnDuplicate: ["branch", "year", "course"], transaction: t });
   }
 
   async getPrograms(where?: WhereOptions<ProgramModel>, t?: Transaction) {

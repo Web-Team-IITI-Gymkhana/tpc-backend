@@ -17,7 +17,6 @@ export class UserModel extends Model<UserModel> {
   @Unique("EmailRole")
   @Column({
     allowNull: false,
-    unique: true,
   })
   email: string;
 
@@ -32,7 +31,6 @@ export class UserModel extends Model<UserModel> {
   @Unique("EmailRole")
   @Column({
     allowNull: false,
-    type: sequelize.STRING,
   })
   role: string;
 }

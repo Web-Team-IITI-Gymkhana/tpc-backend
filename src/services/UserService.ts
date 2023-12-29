@@ -1,6 +1,7 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { Transaction } from "sequelize";
 import { USER_DAO } from "src/constants";
+import { Role } from "src/db/enums";
 import { UserModel } from "src/db/models";
 import { User } from "src/entities/User";
 @Injectable()
@@ -28,8 +29,8 @@ class UserService {
     return userModel && User.fromModel(userModel);
   }
 
-  async getUserByEmail(email: string, t?: Transaction) {
-    const userModel = await this.userRepo.findOne({ where: { email: email }, transaction: t });
+  async getUserByEmail(email: string, role: Role, t?: Transaction) {
+    const userModel = await this.userRepo.findOne({ where: { email: email, role: role }, transaction: t });
     return userModel && User.fromModel(userModel);
   }
 
