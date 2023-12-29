@@ -29,18 +29,25 @@ export const AUTH_SERVICE = "AUTH_SERVICE",
   SEASON_SERVICE = "SEASON_SERVICE",
   COMPANY_SERVICE = "COMPANY_SERVICE",
   JOB_SERVICE = "JOB_SERVICE",
-  JOB_STATUS_SERVICE = "JOB_STATUS_SERVICE";
+  JOB_STATUS_SERVICE = "JOB_STATUS_SERVICE",
+  PENALTY_SERVICE = "PENALTY_SERVICE",
+  JOB_COORDINATOR_SERVICE = "JOB_COORDINATOR_SERVICE";
 
 export enum COURSES {
   BTECH = "BTECH",
-  BSC = "BSC",
   MTECH = "MTECH",
   MSC = "MSC",
+  MSResearch = "MSResearch",
+  PHD = "PHD",
   PG = "PG",
 }
 export enum BRANCHES {
-  MECHANICAL = "MECHANICAL",
-  ELECTRICAL = "ELECTRICAL",
+  MECHANICAL = "Mechanical Engineering",
+  ELECTRICAL = "Electrical Engineering",
+  CIVIL = "Civil Engineering",
+  COMPUTER = "Computer Science and Engineering",
+  Metallurgical = "Metallurgical Engineering and Materials Sciences",
+  SPACE_ENG = "Space Engineering",
 }
 
 export const COURSE_BRANCH_MAP = {

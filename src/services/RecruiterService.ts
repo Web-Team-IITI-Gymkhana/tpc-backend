@@ -22,7 +22,31 @@ class RecruiterService {
   }
 
   async deleteRecruiter(recruiterId: string, t?: Transaction) {
+    const recruiter = await this.recruiterRepo.findAll({ where: { id: recruiterId } });
     await this.recruiterRepo.destroy({ where: { id: recruiterId }, transaction: t });
+    return recruiter[0].userId;
+  }
+
+  async buildQuery(fieldsToUpdate: object) {
+    const attr = await this.recruiterRepo.describe();
+    const attributes = Object.keys(attr);
+    const values = {};
+    for (const attribute of attributes) {
+      if (fieldsToUpdate[`${attribute}`]) {
+        values[`${attribute}`] = fieldsToUpdate[`${attribute}`];
+      }
+    }
+    return values;
+  }
+
+  async updateRecruiter(recruiterId: string, fieldsToUpdate: object, t?: Transaction) {
+    const values = await this.buildQuery(fieldsToUpdate);
+    const [_, updatedModel] = await this.recruiterRepo.update(values, {
+      where: { id: recruiterId },
+      returning: true,
+      transaction: t,
+    });
+    return Recruiter.fromModel(updatedModel[0]);
   }
 }
 

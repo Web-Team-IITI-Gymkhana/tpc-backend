@@ -8,10 +8,13 @@ import {
   Query,
   Body,
   UseGuards,
+  Delete,
+  Param,
+  Put,
 } from "@nestjs/common";
 import { STUDENT_SERVICE, USER_SERVICE } from "src/constants";
 import StudentService from "src/services/StudentService";
-import { AddStudentsDto, GetStudentQueryDto } from "../dtos/student";
+import { AddStudentsDto, GetStudentQueryDto, UpdateStudentDto, studentIdParamDto } from "../dtos/student";
 import { Student } from "src/entities/Student";
 import UserService from "src/services/UserService";
 import { User } from "src/entities/User";
@@ -77,5 +80,28 @@ export class StudentController {
     }
     const students = await Promise.all(promises);
     return { students: students };
+  }
+
+  @Put("/:studentId")
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(TransactionInterceptor)
+  async updateStudent(
+    @Param() param: studentIdParamDto,
+    @Body() body: UpdateStudentDto,
+    @TransactionParam() transaction: Transaction
+  ) {
+    const newstudent = await this.studentService.updateStudent(param.studentId, body, transaction);
+    const newUser = await this.userService.updateUser(newstudent.userId, body, transaction);
+    newstudent.user = newUser;
+    return { student: newstudent };
+  }
+
+  @Delete("/:studentId")
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(TransactionInterceptor)
+  async deletePenalty(@Param() param: studentIdParamDto, @TransactionParam() transaction: Transaction) {
+    const userId = await this.studentService.deleteStudent(param.studentId, transaction);
+    const userDeleted = await this.userService.deleteUser(userId, transaction);
+    return { deleted: userDeleted };
   }
 }

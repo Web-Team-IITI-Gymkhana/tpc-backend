@@ -8,10 +8,13 @@ import {
   Query,
   Body,
   UseGuards,
+  Put,
+  Param,
+  Delete,
 } from "@nestjs/common";
 import { TPC_MEMBER_SERVICE, USER_SERVICE } from "src/constants";
 import TpcMemberService from "src/services/TpcMemberService";
-import { AddTpcMembersDto, GetTpcMemberQueryDto } from "../dtos/tpcMember";
+import { AddTpcMembersDto, GetTpcMemberQueryDto, TpcMemberIdParamDto, UpdateTpcMemberDto } from "../dtos/tpcMember";
 import { TpcMember } from "src/entities/TpcMember";
 import UserService from "src/services/UserService";
 import { User } from "src/entities/User";
@@ -23,8 +26,8 @@ import { ApiBearerAuth } from "@nestjs/swagger";
 import { AuthGuard } from "@nestjs/passport";
 
 @Controller("/tpcMembers")
-@ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"))
+// @ApiBearerAuth("jwt")
+// @UseGuards(AuthGuard("jwt"))
 export class TpcMemberController {
   constructor(
     @Inject(TPC_MEMBER_SERVICE) private tpcMemberService: TpcMemberService,
@@ -79,5 +82,26 @@ export class TpcMemberController {
     }
     const tpcMembers = await Promise.all(promises);
     return { tpcMembers: tpcMembers };
+  }
+
+  @Put("/:tpcMemberId")
+  @UseInterceptors(ClassSerializerInterceptor)
+  @UseInterceptors(TransactionInterceptor)
+  async updateTpcMember(
+    @Param() param: TpcMemberIdParamDto,
+    @Body() body: UpdateTpcMemberDto,
+    @TransactionParam() transaction: Transaction
+  ) {
+    const newTpcMember = await this.tpcMemberService.updateTpcMember(param.tpcMemberId, body, transaction);
+    const newUser = await this.userService.updateUser(newTpcMember.userId, body, transaction);
+    newTpcMember.user = newUser;
+    return { tpcMember: newTpcMember };
+  }
+
+  @Delete("/:tpcMemberId")
+  @UseInterceptors(ClassSerializerInterceptor)
+  async deletePenalty(@Param() param: TpcMemberIdParamDto) {
+    const deleted = await this.tpcMemberService.deleteTpcMember(param.tpcMemberId);
+    return { deleted: deleted };
   }
 }

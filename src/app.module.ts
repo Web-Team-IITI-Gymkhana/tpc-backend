@@ -8,8 +8,11 @@ import {
   AUTH_SERVICE,
   COMPANY_SERVICE,
   EVENT_SERVICE,
+  JOB_COORDINATOR_DAO,
+  JOB_COORDINATOR_SERVICE,
   JOB_SERVICE,
   JOB_STATUS_SERVICE,
+  PENALTY_SERVICE,
   PROGRAM_SERVICE,
   RECRUITER_SERVICE,
   SEASON_SERVICE,
@@ -38,7 +41,9 @@ import StudentService from "./services/StudentService";
 import { StudentController } from "./controllers/student";
 import TpcMemberService from "./services/TpcMemberService";
 import { TpcMemberController } from "./controllers/tpcMember";
-
+import PenaltyService from "./services/PenaltyService";
+import { PenaltyController } from "./controllers/penalty";
+import JobCoordinatorService from "./services/JobCoordinatorService";
 @Module({
   imports: [ConfigModule.forRoot(), DatabaseModule],
   controllers: [
@@ -51,6 +56,7 @@ import { TpcMemberController } from "./controllers/tpcMember";
     StudentController,
     TpcMemberController,
     RecruiterController,
+    PenaltyController,
   ],
   providers: [
     Logger,
@@ -100,6 +106,14 @@ import { TpcMemberController } from "./controllers/tpcMember";
     {
       provide: STUDENT_SERVICE,
       useClass: StudentService,
+    },
+    {
+      provide: PENALTY_SERVICE,
+      useClass: PenaltyService,
+    },
+    {
+      provide: JOB_COORDINATOR_SERVICE,
+      useClass: JobCoordinatorService,
     },
   ],
 })

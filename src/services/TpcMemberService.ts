@@ -39,7 +39,29 @@ class TpcMemberService {
   }
 
   async deleteTpcMember(tpcMemberId: string, t?: Transaction) {
-    await this.tpcMemberRepo.destroy({ where: { id: tpcMemberId }, transaction: t });
+    return !!(await this.tpcMemberRepo.destroy({ where: { id: tpcMemberId }, transaction: t }));
+  }
+
+  async buildQuery(fieldsToUpdate: object) {
+    const attr = await this.tpcMemberRepo.describe();
+    const attributes = Object.keys(attr);
+    const values = {};
+    for (const attribute of attributes) {
+      if (fieldsToUpdate[`${attribute}`]) {
+        values[`${attribute}`] = fieldsToUpdate[`${attribute}`];
+      }
+    }
+    return values;
+  }
+
+  async updateTpcMember(tpcMemberId: string, fieldsToUpdate: object, t?: Transaction) {
+    const values = await this.buildQuery(fieldsToUpdate);
+    const [_, updatedModel] = await this.tpcMemberRepo.update(values, {
+      where: { id: tpcMemberId },
+      returning: true,
+      transaction: t,
+    });
+    return TpcMember.fromModel(updatedModel[0]);
   }
 }
 
