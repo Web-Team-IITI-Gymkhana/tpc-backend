@@ -24,7 +24,11 @@ export class ApplicationModel extends Model<ApplicationModel> {
   })
   eventId: string;
 
-  @BelongsTo(() => EventModel, "eventId")
+  // Restrict Delete Application onDelete of Event
+  @BelongsTo(() => EventModel, {
+    foreignKey: "eventId",
+    onDelete: "RESTRICT",
+  })
   event: EventModel;
 
   @Unique("JobStudentResume")
@@ -34,7 +38,11 @@ export class ApplicationModel extends Model<ApplicationModel> {
   })
   jobId: string;
 
-  @BelongsTo(() => JobModel, "jobId")
+  // Delete Application onDelete of Job
+  @BelongsTo(() => JobModel, {
+    foreignKey: "jobId",
+    onDelete: "CASCADE",
+  })
   job: JobModel;
 
   @Unique("JobStudentResume")
@@ -44,7 +52,11 @@ export class ApplicationModel extends Model<ApplicationModel> {
   })
   studentId: string;
 
-  @BelongsTo(() => StudentModel, "studentId")
+  // Delete Application onDelete of Student
+  @BelongsTo(() => StudentModel, {
+    foreignKey: "studentId",
+    onDelete: "CASCADE",
+  })
   student: StudentModel;
 
   @Column
@@ -57,6 +69,10 @@ export class ApplicationModel extends Model<ApplicationModel> {
   })
   resumeId: string;
 
-  @BelongsTo(() => ResumeModel, "resumeId")
+  // Restrict Resume Deletion if associated with Application
+  @BelongsTo(() => ResumeModel, {
+    foreignKey: "resumeId",
+    onDelete: "RESTRICT",
+  })
   resume: ResumeModel;
 }

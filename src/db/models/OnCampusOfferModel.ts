@@ -1,8 +1,7 @@
-import { Model, Column, Table, ForeignKey, BelongsTo, Unique } from "sequelize-typescript";
+import { Model, Column, Table, ForeignKey, Unique, BelongsTo } from "sequelize-typescript";
 import sequelize from "sequelize";
 
 import { StudentModel } from "./StudentModel";
-import { JobModel } from "./JobModel";
 import { SalaryModel } from "./SalaryModel";
 
 @Table({
@@ -30,6 +29,13 @@ export class OnCampusOfferModel extends Model<OnCampusOfferModel> {
     type: sequelize.UUID,
   })
   salaryId: string;
+
+  // Delete OnCampusOffer onDelete of Salary
+  @BelongsTo(() => SalaryModel, {
+    foreignKey: "salaryId",
+    onDelete: "CASCADE",
+  })
+  salary: SalaryModel;
 
   @Column
   status: string;

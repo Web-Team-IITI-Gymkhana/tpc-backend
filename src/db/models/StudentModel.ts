@@ -3,6 +3,9 @@ import sequelize from "sequelize";
 import { UserModel } from "./UserModel";
 import { PenaltyModel } from "./PenaltyModel";
 import { ProgramModel } from "./ProgramModel";
+import { OffCampusOfferModel } from "./OffCampusOfferModel";
+import { ResumeModel } from "./ResumeModel";
+import { OnCampusOfferModel } from "./OnCampusOfferModel";
 
 @Table({
   tableName: "Student",
@@ -21,12 +24,15 @@ export class StudentModel extends Model<StudentModel> {
   @Column({
     type: sequelize.UUID,
     unique: true,
-    primaryKey: true,
     allowNull: false,
   })
   userId: string;
 
-  @BelongsTo(() => UserModel, "userId")
+  // Delete Student onDelete of User
+  @BelongsTo(() => UserModel, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
+  })
   user: UserModel;
 
   @Unique("UserRollNo")
@@ -47,6 +53,38 @@ export class StudentModel extends Model<StudentModel> {
   })
   programId: string;
 
-  @HasMany(() => PenaltyModel, "studentId")
+  // Delete Student onDelete of Program
+  @BelongsTo(() => ProgramModel, {
+    foreignKey: "programId",
+    onDelete: "CASCADE",
+  })
+  program: ProgramModel;
+
+  // Delete Penalty onDelete of Student
+  @HasMany(() => PenaltyModel, {
+    foreignKey: "studentId",
+    onDelete: "CASCADE",
+  })
   penalties: PenaltyModel[];
+
+  // Delete Off Campus Offers onDelete of Student
+  @HasMany(() => OffCampusOfferModel, {
+    foreignKey: "studentId",
+    onDelete: "CASCADE",
+  })
+  offCampusOffers: OffCampusOfferModel[];
+
+  // Delete On Campus Offers onDelete of Student
+  @HasMany(() => OnCampusOfferModel, {
+    foreignKey: "studentId",
+    onDelete: "CASCADE",
+  })
+  onCampusOffers: OnCampusOfferModel[];
+
+  // Delete Resume onDelete of Student
+  @HasMany(() => ResumeModel, {
+    foreignKey: "studentId",
+    onDelete: "CASCADE",
+  })
+  resumes: ResumeModel[];
 }
