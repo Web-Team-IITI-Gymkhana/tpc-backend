@@ -1,8 +1,7 @@
-import { Model, Column, Table, ForeignKey, BelongsTo, Unique } from "sequelize-typescript";
+import { Model, Column, Table, ForeignKey, Unique } from "sequelize-typescript";
 import sequelize from "sequelize";
 
 import { StudentModel } from "./StudentModel";
-import { JobModel } from "./JobModel";
 import { SalaryModel } from "./SalaryModel";
 
 @Table({

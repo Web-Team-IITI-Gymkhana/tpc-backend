@@ -24,7 +24,11 @@ export class RecruiterModel extends Model<RecruiterModel> {
   })
   userId: string;
 
-  @BelongsTo(() => UserModel, "userId")
+  // Delete Recruiter onDelete of User
+  @BelongsTo(() => UserModel, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
+  })
   user: UserModel;
 
   @Unique("UserCompany")
@@ -35,6 +39,10 @@ export class RecruiterModel extends Model<RecruiterModel> {
   })
   companyId: string;
 
-  @BelongsTo(() => CompanyModel, "companyId")
+  // Delete Recruiter onDelete of Company
+  @BelongsTo(() => CompanyModel, {
+    foreignKey: "companyId",
+    onDelete: "CASCADE",
+  })
   company: CompanyModel;
 }

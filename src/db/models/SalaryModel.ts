@@ -1,8 +1,6 @@
 import sequelize from "sequelize";
-import { BelongsTo, Column, ForeignKey, Model, Table, Unique } from "sequelize-typescript";
+import { Column, ForeignKey, Model, Table } from "sequelize-typescript";
 import { JobModel } from "./JobModel";
-import { Gender } from "../enums/gender.enum";
-import { ProgramModel } from "./ProgramModel";
 
 @Table({
   tableName: "Salary",

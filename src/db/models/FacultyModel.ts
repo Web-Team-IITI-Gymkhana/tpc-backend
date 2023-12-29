@@ -21,6 +21,10 @@ export class FacultyModel extends Model<FacultyModel> {
   @Column({ type: sequelize.UUID, unique: true })
   userId: string;
 
-  @BelongsTo(() => UserModel, "userId")
+  // Delete Faculty onDelete of User
+  @BelongsTo(() => UserModel, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
+  })
   user: UserModel;
 }

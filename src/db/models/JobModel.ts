@@ -24,7 +24,11 @@ export class JobModel extends Model<JobModel> {
   @Column(sequelize.UUID)
   seasonId: string;
 
-  @BelongsTo(() => SeasonModel, "seasonId")
+  // Delete Job onDelete of Season
+  @BelongsTo(() => SeasonModel, {
+    foreignKey: "seasonId",
+    onDelete: "CASCADE",
+  })
   season: SeasonModel;
 
   @ForeignKey(() => RecruiterModel)
@@ -36,7 +40,11 @@ export class JobModel extends Model<JobModel> {
   @Column(sequelize.UUID)
   companyId: string;
 
-  @BelongsTo(() => CompanyModel, "companyId")
+  // Delete Job onDelete of Company
+  @BelongsTo(() => CompanyModel, {
+    foreignKey: "companyId",
+    onDelete: "CASCADE",
+  })
   company: CompanyModel;
 
   // @todo: add enum for this
@@ -56,6 +64,7 @@ export class JobModel extends Model<JobModel> {
   @Column({ allowNull: true, type: sequelize.UUID })
   currentStatusId: string;
 
+  // Delete JobStatus onDelete of Job
   @HasOne(() => JobStatusModel, {
     as: "currentStatus",
     foreignKey: "jobId",
@@ -63,9 +72,24 @@ export class JobModel extends Model<JobModel> {
   })
   currentStatus: JobStatusModel;
 
-  @HasMany(() => EventModel, "jobId")
+  // Delete Job Status onDelete of Job
+  @HasMany(() => JobStatusModel, {
+    foreignKey: "jobId",
+    onDelete: "CASCADE",
+  })
+  jobStatuses: JobStatusModel[];
+
+  // Delete Events onDelete of Job
+  @HasMany(() => EventModel, {
+    foreignKey: "jobId",
+    onDelete: "CASCADE",
+  })
   events: Event[];
 
-  @HasMany(() => SalaryModel, "jobId")
+  // Delete Salary onDelete of Job
+  @HasMany(() => SalaryModel, {
+    foreignKey: "jobId",
+    onDelete: "CASCADE",
+  })
   salaries: SalaryModel[];
 }

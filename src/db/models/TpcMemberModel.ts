@@ -21,7 +21,11 @@ export class TpcMemberModel extends Model<TpcMemberModel> {
   @Column({ type: sequelize.UUID, unique: true })
   userId: string;
 
-  @BelongsTo(() => UserModel, "userId")
+  // Delete TpcMember onDelete of User
+  @BelongsTo(() => UserModel, {
+    foreignKey: "userId",
+    onDelete: "CASCADE",
+  })
   user: UserModel;
 
   @Column({ allowNull: false, type: sequelize.STRING })

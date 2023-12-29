@@ -21,9 +21,11 @@ export class ApplicationModel extends Model<ApplicationModel> {
   @ForeignKey(() => EventModel)
   @Column({
     type: sequelize.UUID,
+    allowNull: true,
   })
   eventId: string;
 
+  // Set Null onDelete of Event
   @BelongsTo(() => EventModel, "eventId")
   event: EventModel;
 
@@ -34,7 +36,11 @@ export class ApplicationModel extends Model<ApplicationModel> {
   })
   jobId: string;
 
-  @BelongsTo(() => JobModel, "jobId")
+  // Delete Application onDelete of Job
+  @BelongsTo(() => JobModel, {
+    foreignKey: "jobId",
+    onDelete: "CASCADE",
+  })
   job: JobModel;
 
   @Unique("JobStudentResume")
@@ -44,7 +50,11 @@ export class ApplicationModel extends Model<ApplicationModel> {
   })
   studentId: string;
 
-  @BelongsTo(() => StudentModel, "studentId")
+  // Delete Application onDelete of Student
+  @BelongsTo(() => StudentModel, {
+    foreignKey: "studentId",
+    onDelete: "CASCADE",
+  })
   student: StudentModel;
 
   @Column
@@ -57,6 +67,10 @@ export class ApplicationModel extends Model<ApplicationModel> {
   })
   resumeId: string;
 
-  @BelongsTo(() => ResumeModel, "resumeId")
+  // Restrict Resume Deletion if associated with Application
+  @BelongsTo(() => ResumeModel, {
+    foreignKey: "resumeId",
+    onDelete: "RESTRICT",
+  })
   resume: ResumeModel;
 }
