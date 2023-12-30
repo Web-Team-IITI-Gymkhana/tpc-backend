@@ -2,14 +2,15 @@ import { Inject, Injectable, Logger } from "@nestjs/common";
 import { omit } from "lodash";
 import { Transaction, WhereOptions } from "sequelize";
 import { TPC_MEMBER_DAO } from "src/constants";
-import { TpcMemberModel } from "src/db/models";
+import { TpcMemberModel, UserModel } from "src/db/models";
 import { TpcMember } from "src/entities/TpcMember";
+import { getQueryValues } from "src/utils/utils";
 
 @Injectable()
 class TpcMemberService {
   private logger = new Logger(TpcMemberService.name);
 
-  constructor(@Inject(TPC_MEMBER_DAO) private tpcMemberRepo: typeof TpcMemberModel) {}
+  constructor(@Inject(TPC_MEMBER_DAO) private tpcMemberRepo: typeof TpcMemberModel) { }
 
   async createTpcMember(tpcMember: TpcMember, t?: Transaction) {
     const tpcMemberModel = await this.tpcMemberRepo.create(omit(tpcMember, "user"), { transaction: t });
@@ -33,13 +34,24 @@ class TpcMemberService {
     return tpcMemberModels.map((tpcMemberModel) => TpcMember.fromModel(tpcMemberModel));
   }
 
-  async getTpcMembers(where?: WhereOptions<TpcMemberModel>, t?: Transaction) {
-    const tpcMemberModels = await this.tpcMemberRepo.findAll({ where: where, transaction: t });
+  async getTpcMembers(whereTpcMembers?: WhereOptions<TpcMemberModel>, whereUser?: WhereOptions<UserModel>, t?: Transaction) {
+    const valuesStudent = getQueryValues(whereTpcMembers);
+    const valuesUser = getQueryValues(whereUser);
+    const tpcMemberModels = await this.tpcMemberRepo.findAll({ where: valuesStudent, transaction: t, include: { model: UserModel, where: valuesUser, required: true } });
     return tpcMemberModels.map((tpcMemberModel) => TpcMember.fromModel(tpcMemberModel));
   }
 
   async deleteTpcMember(tpcMemberId: string, t?: Transaction) {
-    await this.tpcMemberRepo.destroy({ where: { id: tpcMemberId }, transaction: t });
+    return !!(await this.tpcMemberRepo.destroy({ where: { id: tpcMemberId }, transaction: t }));
+  }
+
+  async updateTpcMember(tpcMemberId: string, fieldsToUpdate: object, t?: Transaction) {
+    const [_, updatedModel] = await this.tpcMemberRepo.update(fieldsToUpdate, {
+      where: { id: tpcMemberId },
+      returning: true,
+      transaction: t,
+    });
+    return TpcMember.fromModel(updatedModel[0]);
   }
 }
 

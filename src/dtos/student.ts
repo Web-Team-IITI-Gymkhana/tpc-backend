@@ -1,7 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsEmail, ValidateNested } from "class-validator";
-import { Category, Gender, Role } from "src/db/enums";
+import { IsEmail, IsOptional, ValidateNested } from "class-validator";
+import { Category, Gender} from "src/db/enums";
 
 export class CreateStudentDto {
   @ApiProperty({
@@ -48,4 +48,42 @@ export class GetStudentQueryDto {
   gender?: Gender;
   @ApiPropertyOptional()
   programId?: string;
+  @ApiPropertyOptional()
+  contact?: string;
+  @ApiPropertyOptional()
+  name?: string;
+  @ApiPropertyOptional()
+  email?: string;
+}
+
+export class studentIdParamDto {
+  @ApiProperty({
+    type: String,
+  })
+  studentId: string;
+}
+
+export class UpdateStudentDto {
+  @ApiProperty({
+    type: String,
+  })
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+  @ApiProperty({
+    type: String,
+  })
+  name?: string;
+  @ApiPropertyOptional()
+  contact?: string;
+  @ApiProperty()
+  rollNo?: string;
+  @ApiProperty()
+  category?: Category;
+  @ApiProperty()
+  gender?: Gender;
+  @ApiProperty()
+  programId?: string;
+  @ApiProperty()
+  role?: string;
 }

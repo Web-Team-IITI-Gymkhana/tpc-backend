@@ -35,7 +35,16 @@ class UserService {
   }
 
   async deleteUser(userId: string, t?: Transaction) {
-    await this.userRepo.destroy({ where: { id: userId }, transaction: t });
+    return !!(await this.userRepo.destroy({ where: { id: userId }, transaction: t }));
+  }
+
+  async updateUser(userId: string, fieldsToUpdate: object, t?: Transaction) {
+    const [_, updatedModel] = await this.userRepo.update(fieldsToUpdate, {
+      where: { id: userId },
+      returning: true,
+      transaction: t,
+    });
+    return User.fromModel(updatedModel[0]);
   }
 }
 
