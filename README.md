@@ -34,6 +34,12 @@ $ yarn
 ## Running the app
 create `.env` file by copying from `.env.example`
 
+To run postgres locally:
+```bash
+docker compose up
+```
+This will provide you a postgres admin at http://localhost:8080
+
 ```bash
 # watch mode
 $ yarn start:dev
