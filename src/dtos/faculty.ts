@@ -1,7 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsEmail, IsOptional, ValidateNested } from "class-validator";
-import { UUID } from "sequelize";
 
 export class CreateFacultyDto {
   @ApiProperty({
@@ -52,11 +51,19 @@ export class GetFacultyDto {
   id?: string;
   @ApiPropertyOptional()
   department?: string;
+  @ApiPropertyOptional()
+  name?: string;
+  @ApiPropertyOptional()
+  email?: string;
+  @ApiPropertyOptional()
+  contact?: string;
+  @ApiPropertyOptional()
+  userId?: string;
 }
 
 export class FacultyIdParamDto {
   @ApiProperty({
-    type: UUID,
+    type: String,
   })
   facultyId: string;
 }
@@ -70,3 +77,4 @@ export class CreateFacultiesDto {
   @Type(() => CreateFacultyDto)
   faculties: CreateFacultyDto[];
 }
+

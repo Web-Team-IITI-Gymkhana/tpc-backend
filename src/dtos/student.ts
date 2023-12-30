@@ -1,8 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsEmail, IsOptional, IsUUID, ValidateNested } from "class-validator";
-import { UUID } from "sequelize";
-import { Category, Gender, Role } from "src/db/enums";
+import { IsEmail, IsOptional, ValidateNested } from "class-validator";
+import { Category, Gender} from "src/db/enums";
 
 export class CreateStudentDto {
   @ApiProperty({
@@ -49,11 +48,17 @@ export class GetStudentQueryDto {
   gender?: Gender;
   @ApiPropertyOptional()
   programId?: string;
+  @ApiPropertyOptional()
+  contact?: string;
+  @ApiPropertyOptional()
+  name?: string;
+  @ApiPropertyOptional()
+  email?: string;
 }
 
 export class studentIdParamDto {
   @ApiProperty({
-    type: UUID,
+    type: String,
   })
   studentId: string;
 }

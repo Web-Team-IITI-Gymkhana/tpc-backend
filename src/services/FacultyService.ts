@@ -2,7 +2,7 @@ import { Inject, Injectable, Logger } from "@nestjs/common";
 import { omit } from "lodash";
 import { Transaction, WhereOptions } from "sequelize";
 import { FACULTY_DAO } from "src/constants";
-import { FacultyModel } from "src/db/models";
+import { FacultyModel, UserModel } from "src/db/models";
 import { Faculty } from "src/entities/Faculty";
 import { getQueryValues } from "src/utils/utils";
 
@@ -12,9 +12,10 @@ class FacultyService {
 
   constructor(@Inject(FACULTY_DAO) private facultyRepo: typeof FacultyModel) {}
 
-  async getFaculties(where?: WhereOptions<FacultyModel>, t?: Transaction) {
-    const values = getQueryValues(where);
-    const facultyModels = await this.facultyRepo.findAll({ where: values, transaction: t });
+  async getFaculties(whereFaculty?: WhereOptions<FacultyModel>, whereUser?: WhereOptions<UserModel>,t?: Transaction) {
+    const valuesFaculty = getQueryValues(whereFaculty);
+    const valuesUser = getQueryValues(whereUser);
+    const facultyModels = await this.facultyRepo.findAll({ where: valuesFaculty, transaction: t, include: {model: UserModel, where: valuesUser, required: true} });
     return facultyModels.map((facultyModel) => Faculty.fromModel(facultyModel));
   }
 

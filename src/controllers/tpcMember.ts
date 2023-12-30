@@ -35,7 +35,7 @@ export class TpcMemberController {
   constructor(
     @Inject(TPC_MEMBER_SERVICE) private tpcMemberService: TpcMemberService,
     @Inject(USER_SERVICE) private userService: UserService
-  ) {}
+  ) { }
 
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
@@ -45,7 +45,14 @@ export class TpcMemberController {
       userId: query.userId,
       role: query.role,
       department: query.department,
-    });
+    },
+      {
+        id: query.userId,
+        name: query.name,
+        email: query.email,
+        contact: query.contact,
+
+      });
     for (const tpcMember of tpcMembers) {
       tpcMember.user = await this.userService.getUserById(tpcMember.userId);
     }
@@ -137,7 +144,7 @@ export class TpcMemberController {
       "getTpcMembers",
       transaction
     );
-    const newUser = await UpdateOrFind(newTpcMember.userId, User, this.userService, "updateUser", "getUserById",transaction);
+    const newUser = await UpdateOrFind(newTpcMember.userId, User, this.userService, "updateUser", "getUserById", transaction);
     newTpcMember.user = newUser;
     return { tpcMember: newTpcMember };
   }

@@ -1,7 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsEmail, IsOptional, ValidateNested } from "class-validator";
-import { UUID } from "sequelize";
 
 export class AddRecruiterDto {
   @ApiProperty({
@@ -38,14 +37,14 @@ export class AddRecruitersDto {
 
 export class RecruiterIdParamDto {
   @ApiProperty({
-    type: UUID,
+    type: String,
   })
   recruiterId: string;
 }
 
 export class UpdateRecruiterDto {
   @ApiProperty({
-    type: UUID,
+    type: String,
   })
   companyId?: string;
   @ApiProperty()

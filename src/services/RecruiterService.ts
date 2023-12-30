@@ -1,8 +1,8 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
-import { omit } from "lodash";
+import { includes, omit } from "lodash";
 import { Transaction, WhereOptions } from "sequelize";
 import { RECRUITER_DAO } from "src/constants";
-import { RecruiterModel } from "src/db/models";
+import { RecruiterModel, UserModel } from "src/db/models";
 import { Recruiter } from "src/entities/Recruiter";
 import { getQueryValues } from "src/utils/utils";
 
@@ -10,7 +10,7 @@ import { getQueryValues } from "src/utils/utils";
 class RecruiterService {
   private logger = new Logger(RecruiterService.name);
 
-  constructor(@Inject(RECRUITER_DAO) private recruiterRepo: typeof RecruiterModel) {}
+  constructor(@Inject(RECRUITER_DAO) private recruiterRepo: typeof RecruiterModel) { }
 
   async createRecruiter(recruiter: Recruiter, t?: Transaction) {
     const recruiterModel = await this.recruiterRepo.create(omit(recruiter, "user", "company"), { transaction: t });
@@ -27,7 +27,7 @@ class RecruiterService {
 
   async getRecruiters(where?: WhereOptions<RecruiterModel>, t?: Transaction) {
     const values = getQueryValues(where);
-    const recruiterModels = await this.recruiterRepo.findAll({ where: values, transaction: t });
+    const recruiterModels = await this.recruiterRepo.findAll({ where: values, transaction: t, include: { model: UserModel, required: true } });
     return recruiterModels.map((recruiterModel) => Recruiter.fromModel(recruiterModel));
   }
 

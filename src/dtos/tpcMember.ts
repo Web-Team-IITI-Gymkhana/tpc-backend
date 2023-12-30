@@ -1,7 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsEmail, IsOptional, ValidateNested } from "class-validator";
-import { UUID } from "sequelize";
 import { Category, TpcMemberRole } from "src/db/enums";
 
 export class CreateTpcMemberDto {
@@ -41,11 +40,26 @@ export class GetTpcMemberQueryDto {
   department?: string;
   @ApiPropertyOptional({ enum: TpcMemberRole })
   role?: Category;
+  @ApiPropertyOptional({
+    type: String,
+  })
+  @IsEmail()
+  @IsOptional()
+  email?: string;
+
+  @ApiPropertyOptional({
+    type: String,
+  })
+  name?: string;
+
+  @ApiPropertyOptional()
+  contact?: string;
+
 }
 
 export class TpcMemberIdParamDto {
   @ApiProperty({
-    type: UUID,
+    type: String,
   })
   tpcMemberId: string;
 }

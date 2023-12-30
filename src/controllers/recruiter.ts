@@ -28,14 +28,14 @@ import { Role } from "src/db/enums";
 import { CompanyIdParamDto } from "src/dtos/company";
 import { UpdateOrFind } from "src/utils/utils";
 
-@Controller("/:companyId/recruiters")
+@Controller("companies/:companyId/recruiters")
 @ApiBearerAuth("jwt")
 @UseGuards(AuthGuard("jwt"))
 export class RecruiterController {
   constructor(
     @Inject(RECRUITER_SERVICE) private recruiterService: RecruiterService,
     @Inject(USER_SERVICE) private userService: UserService
-  ) {}
+  ) { }
 
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
@@ -43,16 +43,14 @@ export class RecruiterController {
     const recruiters = await this.recruiterService.getRecruiters({
       companyId: param.companyId,
     });
-    for (const recruiter of recruiters) {
-      recruiter.user = await this.userService.getUserById(recruiter.userId);
-    }
+
     return { recruiters: recruiters };
   }
 
   @Post()
   @UseInterceptors(TransactionInterceptor)
   @UseInterceptors(ClassSerializerInterceptor)
-  async addRecruiter(
+  async addRecruiters(
     @Param() param: CompanyIdParamDto,
     @Body() body: AddRecruitersDto,
     @TransactionParam() transaction: Transaction
@@ -89,8 +87,8 @@ export class RecruiterController {
       );
     }
 
-    const Recruiters = await Promise.all(promises);
-    return { Recruiters: Recruiters };
+    const recruiters = await Promise.all(promises);
+    return { recruiters: recruiters };
   }
 
   querybuilder(params) {
@@ -138,7 +136,7 @@ export class RecruiterController {
       "getRecruiters",
       transaction
     );
-    const newUser = await UpdateOrFind(newRecruiter.userId, User, this.userService, "updateUser", "getUserById",transaction);
+    const newUser = await UpdateOrFind(newRecruiter.userId, User, this.userService, "updateUser", "getUserById", transaction);
     newRecruiter.user = newUser;
     return { recruiter: newRecruiter };
   }

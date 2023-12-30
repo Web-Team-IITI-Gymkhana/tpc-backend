@@ -2,14 +2,15 @@ import { Inject, Injectable, Logger } from "@nestjs/common";
 import { omit } from "lodash";
 import { Transaction, WhereOptions } from "sequelize";
 import { STUDENT_DAO } from "src/constants";
-import { StudentModel } from "src/db/models";
+import { StudentModel, UserModel } from "src/db/models";
 import { Student } from "src/entities/Student";
+import { getQueryValues } from "src/utils/utils";
 
 @Injectable()
 class StudentService {
   private logger = new Logger(StudentService.name);
 
-  constructor(@Inject(STUDENT_DAO) private studentRepo: typeof StudentModel) {}
+  constructor(@Inject(STUDENT_DAO) private studentRepo: typeof StudentModel) { }
 
   async createStudent(student: Student, t?: Transaction) {
     const studentModel = await this.studentRepo.create(omit(student, "user"), { transaction: t });
@@ -33,8 +34,10 @@ class StudentService {
     return studentModels.map((studentModel) => Student.fromModel(studentModel));
   }
 
-  async getStudents(where?: WhereOptions<StudentModel>, t?: Transaction) {
-    const studentModels = await this.studentRepo.findAll({ where: where, transaction: t });
+  async getStudents(whereStudent?: WhereOptions<StudentModel>, whereUser?: WhereOptions<UserModel>, t?: Transaction) {
+    const valuesStudent = getQueryValues(whereStudent);
+    const valuesUser = getQueryValues(whereUser);
+    const studentModels = await this.studentRepo.findAll({ where: valuesStudent, transaction: t, include: { model: UserModel, where: valuesUser } });
     return studentModels.map((studentModel) => Student.fromModel(studentModel));
   }
 

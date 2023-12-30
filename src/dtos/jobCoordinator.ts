@@ -1,19 +1,17 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsUUID, ValidateNested } from "class-validator";
-import { UUID } from "sequelize";
+import {  ValidateNested } from "class-validator";
 
 export class JobCoordinatorIdParamDto {
   @ApiProperty({
-    type: UUID,
+    type: String,
   })
-  @IsUUID()
   jobCoordinatorId: string;
 }
 
 export class CreateJobCoordinatorDto {
   @ApiProperty({
-    type: UUID,
+    type: String,
   })
   tpcMemberId: string;
 
@@ -35,7 +33,7 @@ export class CreateJobCoordinatorsDto {
 
 export class UpdateJobCoordinatorDto {
   @ApiProperty({
-    type: UUID,
+    type: String,
   })
   tpcMemberId?: string;
 
@@ -45,7 +43,7 @@ export class UpdateJobCoordinatorDto {
   role?: string;
 
   @ApiProperty({
-    type: UUID,
+    type: String,
   })
   jobId?: string;
 }

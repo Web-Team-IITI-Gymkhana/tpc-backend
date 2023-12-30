@@ -44,11 +44,15 @@ export class FacultyController {
   async getFaculties(@Query() query: GetFacultyDto) {
     const faculties = await this.facultyService.getFaculties({
       id: query.id,
+      userId: query.userId,
       department: query.department,
+    },
+    {
+      id: query.userId,
+      name: query.name,
+      email: query.email,
+      contact: query.contact,
     });
-    for(const faculty of faculties) {
-      faculty.user = await this.userService.getUserById(faculty.userId);
-    }
     return { faculties: faculties };
   }
 

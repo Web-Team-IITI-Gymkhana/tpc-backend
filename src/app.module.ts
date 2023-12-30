@@ -43,7 +43,6 @@ import { StudentController } from "./controllers/student";
 import TpcMemberService from "./services/TpcMemberService";
 import { TpcMemberController } from "./controllers/tpcMember";
 import PenaltyService from "./services/PenaltyService";
-import { PenaltyController } from "./controllers/penalty";
 import JobCoordinatorService from "./services/JobCoordinatorService";
 import { FacultyController } from "./controllers/faculty";
 import FacultyService from "./services/FacultyService";
@@ -61,7 +60,6 @@ import { JobCoordinatorController } from "./controllers/jobCoordinator";
     StudentController,
     TpcMemberController,
     RecruiterController,
-    PenaltyController,
     FacultyController,
     JobCoordinatorController,
   ],

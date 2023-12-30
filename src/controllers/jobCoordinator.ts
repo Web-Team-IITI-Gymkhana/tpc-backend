@@ -19,7 +19,7 @@ import { JOB_COORDINATOR_SERVICE } from "src/constants";
 import { JobIdParamDto } from "src/dtos/job";
 import JobCoordinatorService from "src/services/JobCoordinatorService";
 import { JobCoordinator } from "src/entities/JobCoordinator";
-import { CreateJobCoordinatorsDto, JobCoordinatorIdParamDto,  UpdateJobCoordinatorDto } from "src/dtos/jobCoordinator";
+import { CreateJobCoordinatorsDto, JobCoordinatorIdParamDto, UpdateJobCoordinatorDto } from "src/dtos/jobCoordinator";
 import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
@@ -29,7 +29,7 @@ import { UpdateOrFind } from "src/utils/utils";
 @ApiBearerAuth("jwt")
 @UseGuards(AuthGuard("jwt"))
 export class JobCoordinatorController {
-  constructor(@Inject(JOB_COORDINATOR_SERVICE) private jobCoordinatorService: JobCoordinatorService) {}
+  constructor(@Inject(JOB_COORDINATOR_SERVICE) private jobCoordinatorService: JobCoordinatorService) { }
 
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
@@ -45,21 +45,14 @@ export class JobCoordinatorController {
     const promises = [];
     for (const jobCoordinator of body.jobCoordinators) {
       promises.push(
-        new Promise(async (resolve, reject) => {
-          try {
-            const newJobCoordinator = await this.jobCoordinatorService.createOrGetJobCoordinator(
-              new JobCoordinator({
-                jobId: param.jobId,
-                tpcMemberId: jobCoordinator.tpcMemberId,
-                role: jobCoordinator.role
-              }),
-              transaction
-            );
-            resolve(newJobCoordinator);
-          } catch (err) {
-            reject(err);
-          }
-        })
+        this.jobCoordinatorService.createOrGetJobCoordinator(
+          new JobCoordinator({
+            jobId: param.jobId,
+            tpcMemberId: jobCoordinator.tpcMemberId,
+            role: jobCoordinator.role
+          }),
+          transaction
+        )
       );
     }
     const jobCoordinators = await Promise.all(promises);
@@ -70,8 +63,8 @@ export class JobCoordinatorController {
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(TransactionInterceptor)
   async updateJobCoordinator(
-    @Param() param: JobIdParamDto & JobCoordinatorIdParamDto, 
-    @Body() body: UpdateJobCoordinatorDto, 
+    @Param() param: JobIdParamDto & JobCoordinatorIdParamDto,
+    @Body() body: UpdateJobCoordinatorDto,
     @TransactionParam() transaction: Transaction) {
     const [jobCoordinator] = await this.jobCoordinatorService.getJobCoordinators({
       id: param.jobCoordinatorId,
@@ -79,7 +72,7 @@ export class JobCoordinatorController {
     if (!jobCoordinator) {
       throw new HttpException(`jobCoordinator with jobCoordinatorId: ${param.jobCoordinatorId} not found`, HttpStatus.NOT_FOUND);
     }
-    
+
     const newJobCoordinator = await UpdateOrFind(
       param.jobCoordinatorId,
       body,

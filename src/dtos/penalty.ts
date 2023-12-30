@@ -1,11 +1,10 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsUUID, ValidateNested } from "class-validator";
-import { UUID } from "sequelize";
+import { ValidateNested } from "class-validator";
 
 export class PenaltyIdParamDto {
   @ApiProperty({
-    type: UUID,
+    type: String,
   })
   penaltyId: string;
 }
@@ -40,7 +39,7 @@ export class UpdatePenaltyDto {
   penalty?: number;
 
   @ApiProperty({
-    type: UUID,
+    type: String,
   })
   @ApiPropertyOptional()
   studentId?: string;
