@@ -24,6 +24,10 @@ import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
 import { ApiBearerAuth } from "@nestjs/swagger";
 import { AuthGuard } from "@nestjs/passport";
+import { HttpException } from "@nestjs/common/exceptions";
+import { HttpStatus } from "@nestjs/common/enums";
+import { UpdateOrFind } from "src/utils/utils";
+
 
 @Controller("/students")
 @ApiBearerAuth("jwt")
@@ -44,6 +48,9 @@ export class StudentController {
       gender: query.gender,
       programId: query.programId,
     });
+    for (const student of students) {
+      student.user = await this.userService.getUserById(student.userId);
+    }
     return { students: students };
   }
 
@@ -82,6 +89,37 @@ export class StudentController {
     return { students: students };
   }
 
+  querybuilder(params) {
+    let Student = {};
+    let User = {};
+    if (params.rollNo) {
+      Student[`rollNo`] = params.rollNo;
+    }
+    if (params.category) {
+      Student[`category`] = params.category;
+    }
+    if (params.programId) {
+      Student[`programId`] = params.programId;
+    }
+    if (params.gender) {
+      Student[`gender`] = params.gender;
+    }
+    if (params.name) {
+      User["name"] = params.name;
+    }
+    if (params.email) {
+      User["email"] = params.email;
+    }
+    if (params.contact) {
+      User["contact"] = params.contact;
+    }
+    if (params.role) {
+      User["role"] = params.role;
+    }
+
+    return { Student, User };
+  }
+
   @Put("/:studentId")
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(TransactionInterceptor)
@@ -90,18 +128,39 @@ export class StudentController {
     @Body() body: UpdateStudentDto,
     @TransactionParam() transaction: Transaction
   ) {
-    const newstudent = await this.studentService.updateStudent(param.studentId, body, transaction);
-    const newUser = await this.userService.updateUser(newstudent.userId, body, transaction);
-    newstudent.user = newUser;
-    return { student: newstudent };
+    const [student] = await this.studentService.getStudents({
+      id: param.studentId,
+    });
+    if (!student) {
+      throw new HttpException(`Student with StudentId: ${param.studentId} not found`, HttpStatus.NOT_FOUND);
+    }
+    const { Student, User } = this.querybuilder(body);
+
+    const newStudent = await UpdateOrFind(
+      param.studentId,
+      Student,
+      this.studentService,
+      "updateStudent",
+      "getStudents",
+      transaction
+    );
+    const newUser = await UpdateOrFind(newStudent.userId, User, this.userService, "updateUser", "getUserById",transaction);
+    newStudent.user = newUser;
+    return { student: newStudent };
   }
 
   @Delete("/:studentId")
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(TransactionInterceptor)
-  async deletePenalty(@Param() param: studentIdParamDto, @TransactionParam() transaction: Transaction) {
-    const userId = await this.studentService.deleteStudent(param.studentId, transaction);
-    const userDeleted = await this.userService.deleteUser(userId, transaction);
-    return { deleted: userDeleted };
+  async deleteStudent(@Param() param: studentIdParamDto, @TransactionParam() transaction: Transaction) {
+    const [student] = await this.studentService.getStudents({
+      id: param.studentId,
+    });
+    if (!student) {
+      throw new HttpException(`Student with StudentId: ${param.studentId} not found`, HttpStatus.NOT_FOUND);
+    }
+    const studentDeleted = await this.studentService.deleteStudent(param.studentId, transaction);
+    const userDeleted = await this.userService.deleteUser(student.userId, transaction);
+    return { deleted: userDeleted && studentDeleted };
   }
 }

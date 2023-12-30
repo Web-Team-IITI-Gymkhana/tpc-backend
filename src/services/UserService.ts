@@ -38,21 +38,8 @@ class UserService {
     return !!(await this.userRepo.destroy({ where: { id: userId }, transaction: t }));
   }
 
-  async buildQuery(fieldsToUpdate: object) {
-    const attr = await this.userRepo.describe();
-    const attributes = Object.keys(attr);
-    const values = {};
-    for (const attribute of attributes) {
-      if (fieldsToUpdate[`${attribute}`]) {
-        values[`${attribute}`] = fieldsToUpdate[`${attribute}`];
-      }
-    }
-    return values;
-  }
-
   async updateUser(userId: string, fieldsToUpdate: object, t?: Transaction) {
-    const values = await this.buildQuery(fieldsToUpdate);
-    const [_, updatedModel] = await this.userRepo.update(values, {
+    const [_, updatedModel] = await this.userRepo.update(fieldsToUpdate, {
       where: { id: userId },
       returning: true,
       transaction: t,

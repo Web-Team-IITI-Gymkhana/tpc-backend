@@ -1,10 +1,9 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsEmail, ValidateNested } from "class-validator";
+import { IsEmail, IsOptional, ValidateNested } from "class-validator";
 import { UUID } from "sequelize";
 
-export class AddFacultyDto {
-
+export class CreateFacultyDto {
   @ApiProperty({
     type: String,
   })
@@ -28,25 +27,46 @@ export class AddFacultyDto {
 }
 
 export class UpdateFacultyDto {
+  @ApiProperty({
+    type: String,
+  })
+  department?: string;
 
-    @ApiProperty({
-      type: String,
-    })
-    department?: string;
-  }
+  @ApiProperty()
+  name?: string;
 
+  @ApiProperty()
+  @IsEmail()
+  @IsOptional()
+  email?: string;
 
-  export class GetFacultyDto {
-    @ApiPropertyOptional()
-    id?: string;
-    @ApiPropertyOptional()
-    department?: string;
-    
-  }
-  
-  export class FacultyIdParamDto {
-    @ApiProperty({
-      type: UUID,
-    })
-    facultyId: string;
-  }
+  @ApiProperty()
+  contact?: string;
+
+  @ApiProperty()
+  role?: string;
+}
+
+export class GetFacultyDto {
+  @ApiPropertyOptional()
+  id?: string;
+  @ApiPropertyOptional()
+  department?: string;
+}
+
+export class FacultyIdParamDto {
+  @ApiProperty({
+    type: UUID,
+  })
+  facultyId: string;
+}
+
+export class CreateFacultiesDto {
+  @ApiProperty({
+    isArray: true,
+    type: CreateFacultyDto,
+  })
+  @ValidateNested({ each: true })
+  @Type(() => CreateFacultyDto)
+  faculties: CreateFacultyDto[];
+}

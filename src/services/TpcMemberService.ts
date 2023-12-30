@@ -4,6 +4,7 @@ import { Transaction, WhereOptions } from "sequelize";
 import { TPC_MEMBER_DAO } from "src/constants";
 import { TpcMemberModel } from "src/db/models";
 import { TpcMember } from "src/entities/TpcMember";
+import { getQueryValues } from "src/utils/utils";
 
 @Injectable()
 class TpcMemberService {
@@ -34,7 +35,8 @@ class TpcMemberService {
   }
 
   async getTpcMembers(where?: WhereOptions<TpcMemberModel>, t?: Transaction) {
-    const tpcMemberModels = await this.tpcMemberRepo.findAll({ where: where, transaction: t });
+    const value = getQueryValues(where);
+    const tpcMemberModels = await this.tpcMemberRepo.findAll({ where: value, transaction: t });
     return tpcMemberModels.map((tpcMemberModel) => TpcMember.fromModel(tpcMemberModel));
   }
 
@@ -42,21 +44,8 @@ class TpcMemberService {
     return !!(await this.tpcMemberRepo.destroy({ where: { id: tpcMemberId }, transaction: t }));
   }
 
-  async buildQuery(fieldsToUpdate: object) {
-    const attr = await this.tpcMemberRepo.describe();
-    const attributes = Object.keys(attr);
-    const values = {};
-    for (const attribute of attributes) {
-      if (fieldsToUpdate[`${attribute}`]) {
-        values[`${attribute}`] = fieldsToUpdate[`${attribute}`];
-      }
-    }
-    return values;
-  }
-
   async updateTpcMember(tpcMemberId: string, fieldsToUpdate: object, t?: Transaction) {
-    const values = await this.buildQuery(fieldsToUpdate);
-    const [_, updatedModel] = await this.tpcMemberRepo.update(values, {
+    const [_, updatedModel] = await this.tpcMemberRepo.update(fieldsToUpdate, {
       where: { id: tpcMemberId },
       returning: true,
       transaction: t,

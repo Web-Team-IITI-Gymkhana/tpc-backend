@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsEmail, ValidateNested } from "class-validator";
+import { IsEmail, IsOptional, ValidateNested } from "class-validator";
 import { UUID } from "sequelize";
 
 export class AddRecruiterDto {
@@ -47,5 +47,18 @@ export class UpdateRecruiterDto {
   @ApiProperty({
     type: UUID,
   })
-  companyId: string;
+  companyId?: string;
+  @ApiProperty()
+  name?: string;
+
+  @ApiProperty()
+  @IsEmail()
+  @IsOptional()
+  email?: string;
+
+  @ApiProperty()
+  contact?: string;
+
+  @ApiProperty()
+  role?: string;
 }

@@ -14,7 +14,7 @@ class ProgramService {
     @Inject(PROGRAM_DAO) private programRepo: typeof ProgramModel
   ) {}
   async onModuleInit() {
-    // await this.insertDefaultPrograms();
+    await this.insertDefaultPrograms();
   }
 
   private getDefaultPrograms() {

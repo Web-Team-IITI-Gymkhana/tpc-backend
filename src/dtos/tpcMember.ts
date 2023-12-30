@@ -67,7 +67,10 @@ export class UpdateTpcMemberDto {
   contact?: string;
 
   @ApiProperty()
-  role?: TpcMemberRole;
+  Tpcrole?: TpcMemberRole;
+
+  @ApiProperty()
+  role: string;
 
   @ApiProperty()
   department?: string;

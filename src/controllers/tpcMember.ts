@@ -11,6 +11,8 @@ import {
   Put,
   Param,
   Delete,
+  HttpException,
+  HttpStatus,
 } from "@nestjs/common";
 import { TPC_MEMBER_SERVICE, USER_SERVICE } from "src/constants";
 import TpcMemberService from "src/services/TpcMemberService";
@@ -24,10 +26,11 @@ import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
 import { ApiBearerAuth } from "@nestjs/swagger";
 import { AuthGuard } from "@nestjs/passport";
+import { UpdateOrFind } from "src/utils/utils";
 
 @Controller("/tpcMembers")
-// @ApiBearerAuth("jwt")
-// @UseGuards(AuthGuard("jwt"))
+@ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"))
 export class TpcMemberController {
   constructor(
     @Inject(TPC_MEMBER_SERVICE) private tpcMemberService: TpcMemberService,
@@ -43,6 +46,9 @@ export class TpcMemberController {
       role: query.role,
       department: query.department,
     });
+    for (const tpcMember of tpcMembers) {
+      tpcMember.user = await this.userService.getUserById(tpcMember.userId);
+    }
     return { tpcMembers: tpcMembers };
   }
 
@@ -84,6 +90,32 @@ export class TpcMemberController {
     return { tpcMembers: tpcMembers };
   }
 
+  querybuilder(params) {
+    let TpcMember = {};
+    let User = {};
+
+    if (params.department) {
+      TpcMember[`department`] = params.department;
+    }
+    if (params.role) {
+      TpcMember["role"] = params.Tpcrole;
+    }
+    if (params.name) {
+      User["name"] = params.name;
+    }
+    if (params.email) {
+      User["email"] = params.email;
+    }
+    if (params.contact) {
+      User["contact"] = params.contact;
+    }
+    if (params.role) {
+      User["role"] = params.role;
+    }
+
+    return { TpcMember, User };
+  }
+
   @Put("/:tpcMemberId")
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(TransactionInterceptor)
@@ -92,16 +124,33 @@ export class TpcMemberController {
     @Body() body: UpdateTpcMemberDto,
     @TransactionParam() transaction: Transaction
   ) {
-    const newTpcMember = await this.tpcMemberService.updateTpcMember(param.tpcMemberId, body, transaction);
-    const newUser = await this.userService.updateUser(newTpcMember.userId, body, transaction);
+    const [tpcMember] = await this.tpcMemberService.getTpcMembers({ id: param.tpcMemberId });
+    if (!tpcMember) {
+      throw new HttpException(`TpcMember with TpcMemberId: ${param.tpcMemberId} not found`, HttpStatus.NOT_FOUND);
+    }
+    const { TpcMember, User } = this.querybuilder(body);
+    const newTpcMember = await UpdateOrFind(
+      param.tpcMemberId,
+      TpcMember,
+      this.tpcMemberService,
+      "updateTpcMember",
+      "getTpcMembers",
+      transaction
+    );
+    const newUser = await UpdateOrFind(newTpcMember.userId, User, this.userService, "updateUser", "getUserById",transaction);
     newTpcMember.user = newUser;
     return { tpcMember: newTpcMember };
   }
 
   @Delete("/:tpcMemberId")
   @UseInterceptors(ClassSerializerInterceptor)
-  async deletePenalty(@Param() param: TpcMemberIdParamDto) {
+  async deleteTpcMember(@Param() param: TpcMemberIdParamDto) {
+    const [tpcMember] = await this.tpcMemberService.getTpcMembers({ id: param.tpcMemberId });
+    if (!tpcMember) {
+      throw new HttpException(`TpcMember with TpcMemberId: ${param.tpcMemberId} not found`, HttpStatus.NOT_FOUND);
+    }
     const deleted = await this.tpcMemberService.deleteTpcMember(param.tpcMemberId);
+    //Can be a student even if he/she isnt a TPC member so not deleting from user table.
     return { deleted: deleted };
   }
 }

@@ -79,4 +79,6 @@ export class UpdateStudentDto {
   gender?: Gender;
   @ApiProperty()
   programId?: string;
+  @ApiProperty()
+  role?: string;
 }

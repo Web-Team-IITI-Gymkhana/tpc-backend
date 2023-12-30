@@ -39,26 +39,11 @@ class StudentService {
   }
 
   async deleteStudent(studentId: string, t?: Transaction) {
-    const students = await this.studentRepo.findAll({ where: { id: studentId } });
-    await this.studentRepo.destroy({ where: { id: studentId }, transaction: t });
-    return students[0].userId;
-  }
-
-  async buildQuery(fieldsToUpdate: object) {
-    const attr = await this.studentRepo.describe();
-    const attributes = Object.keys(attr);
-    const values = {};
-    for (const attribute of attributes) {
-      if (fieldsToUpdate[`${attribute}`]) {
-        values[`${attribute}`] = fieldsToUpdate[`${attribute}`];
-      }
-    }
-    return values;
+    return !!(await this.studentRepo.destroy({ where: { id: studentId }, transaction: t }));
   }
 
   async updateStudent(studentId: string, fieldsToUpdate: object, t?: Transaction) {
-    const values = await this.buildQuery(fieldsToUpdate);
-    const [_, updatedModel] = await this.studentRepo.update(values, {
+    const [_, updatedModel] = await this.studentRepo.update(fieldsToUpdate, {
       where: { id: studentId },
       returning: true,
       transaction: t,
