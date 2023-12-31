@@ -13,18 +13,18 @@ class JobCoordinatorService {
   constructor(@Inject(JOB_COORDINATOR_DAO) private jobCoordinatorRepo: typeof JobCoordinatorModel) { }
 
   async createOrGetJobCoordinator(jobCoordinator: JobCoordinator, t?: Transaction) {
-    const [JobCoordinatorModel] = await this.jobCoordinatorRepo.findOrCreate({
+    const [jobCoordinatorModel] = await this.jobCoordinatorRepo.findOrCreate({
       where: omit(jobCoordinator, "tpcMember"),
       defaults: omit(jobCoordinator, 'tpcMember'),
       transaction: t,
     });
-    return JobCoordinator.fromModel(JobCoordinatorModel);
+    return JobCoordinator.fromModel(jobCoordinatorModel);
   }
 
 
   async getJobCoordinators(where: WhereOptions<JobCoordinatorModel>, t?: Transaction) {
-    const JobCoordinatorModels = await this.jobCoordinatorRepo.findAll({ where: where, transaction: t, include: { model: TpcMemberModel, include: [UserModel], required: true } });
-    return JobCoordinatorModels.map((JobCoordinatorModel) => JobCoordinator.fromModel(JobCoordinatorModel));
+    const jobCoordinatorModels = await this.jobCoordinatorRepo.findAll({ where: where, transaction: t, include: { model: TpcMemberModel, include: [UserModel], required: true } });
+    return jobCoordinatorModels.map((JobCoordinatorModel) => JobCoordinator.fromModel(JobCoordinatorModel));
   }
 
   async updateJobCoordinator(jobCoordinatorId: string, fieldsToUpdate: object, t?: Transaction) {

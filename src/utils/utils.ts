@@ -1,4 +1,4 @@
-import { isArray } from "lodash";
+import { isArray, isObject } from "lodash";
 import { Transaction } from "sequelize";
 
 export const isProductionEnv = (): boolean => {
@@ -21,7 +21,13 @@ export const queryBuilder = (query: object, entity) => {
 export function getQueryValues(where) {
   let values = {};
   for (const key in where) {
-    if (where[key]) values[key] = where[key];
+    if (where[key]) {
+      if (isObject(where[key])) {
+        values[key] = Object.assign({}, where[key]);
+      } else {
+        values[key] = where[key];
+      }
+    }
   }
   return values;
 }
