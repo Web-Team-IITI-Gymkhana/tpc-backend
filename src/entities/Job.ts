@@ -3,6 +3,7 @@ import { Company } from "./Company";
 import { Recruiter } from "./Recruiter";
 import { Season } from "./Season";
 import { JobStatus } from "./JobStatus";
+import { Category, Gender } from "src/db/enums";
 
 export class Job {
   id?: string;
@@ -13,6 +14,12 @@ export class Job {
   companyId: string;
   company?: Company;
   role: string;
+  eligibility?: {
+    programs?: string[];
+    gender?: Gender[];
+    category?: Category[];
+    minCPI?: number;
+  };
   active?: boolean;
   metadata?: object;
   currentStatusId?: string;
@@ -29,6 +36,12 @@ export class Job {
     companyId: string;
     company?: Company;
     role: string;
+    eligibility?: {
+      programs?: string[];
+      gender?: Gender[];
+      category?: Category[];
+      minCPI?: number;
+    };
     active?: boolean;
     metadata?: object;
     currentStatusId?: string;
@@ -49,6 +62,7 @@ export class Job {
       role: job.role,
       recruiterId: job.recruiterId,
       active: job.active,
+      eligibility: job.eligibility,
       currentStatusId: job.currentStatusId,
       currentStatus: job.currentStatus && JobStatus.fromModel(job.currentStatus),
       metadata: job.metadata,

@@ -9,7 +9,7 @@ import {
   COMPANY_SERVICE,
   EVENT_SERVICE,
   FACULTY_SERVICE,
-  JOB_COORDINATOR_DAO,
+  FACULTY_APPROVAL_REQUEST_SERVICE,
   JOB_COORDINATOR_SERVICE,
   JOB_SERVICE,
   JOB_STATUS_SERVICE,
@@ -37,6 +37,7 @@ import { AdminController } from "./controllers/admin";
 import { CompanyController } from "./controllers/company";
 import { SeasonController } from "./controllers/season";
 import { JobController } from "./controllers/job";
+import FacultyApprovalRequestService from "./services/FacultyApprovalRequest";
 import EventService from "./services/EventService";
 import StudentService from "./services/StudentService";
 import { StudentController } from "./controllers/student";
@@ -123,6 +124,10 @@ import { JobCoordinatorController } from "./controllers/jobCoordinator";
     {
       provide: FACULTY_SERVICE,
       useClass: FacultyService,
+    },
+    {
+      provide:FACULTY_APPROVAL_REQUEST_SERVICE,
+      useClass:FacultyApprovalRequestService
     }
   ],
 })

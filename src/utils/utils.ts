@@ -21,7 +21,13 @@ export const queryBuilder = (query: object, entity) => {
 export function getQueryValues(where) {
   let values = {};
   for (const key in where) {
-    if (where[key]) values[key] = where[key];
+    if (where[key]) {
+      if(typeof where[key] == "object") {
+        values[key] = Object.assign(values[key], where[key]);
+      } else {
+        values[key] = where[key];
+      }
+    }
   }
   return values;
 }
