@@ -13,9 +13,12 @@ import {
   JOB_COORDINATOR_SERVICE,
   JOB_SERVICE,
   JOB_STATUS_SERVICE,
+  OFF_CAMPUS_OFFER_SERVICE,
+  ON_CAMPUS_OFFER_SERVICE,
   PENALTY_SERVICE,
   PROGRAM_SERVICE,
   RECRUITER_SERVICE,
+  SALARY_SERVICE,
   SEASON_SERVICE,
   STUDENT_SERVICE,
   TPC_MEMBER_SERVICE,
@@ -47,6 +50,12 @@ import JobCoordinatorService from "./services/JobCoordinatorService";
 import { FacultyController } from "./controllers/faculty";
 import FacultyService from "./services/FacultyService";
 import { JobCoordinatorController } from "./controllers/jobCoordinator";
+import SalaryService from "./services/SalaryService";
+import { SalaryController } from "./controllers/salary";
+import { OffCampusOfferController } from "./controllers/offCampusOffer";
+import OffCampusOfferService from "./services/OffCampusOfferService";
+import { OnCampusOfferController } from "./controllers/onCampusOffer";
+import OnCampusOfferService from "./services/OnCampusOfferService";
 
 @Module({
   imports: [ConfigModule.forRoot(), DatabaseModule],
@@ -62,6 +71,9 @@ import { JobCoordinatorController } from "./controllers/jobCoordinator";
     RecruiterController,
     FacultyController,
     JobCoordinatorController,
+    OffCampusOfferController,
+    OnCampusOfferController,
+    SalaryController,
   ],
   providers: [
     Logger,
@@ -123,7 +135,19 @@ import { JobCoordinatorController } from "./controllers/jobCoordinator";
     {
       provide: FACULTY_SERVICE,
       useClass: FacultyService,
-    }
+    },
+    {
+      provide: SALARY_SERVICE,
+      useClass: SalaryService,
+    },
+    {
+      provide: OFF_CAMPUS_OFFER_SERVICE,
+      useClass: OffCampusOfferService,
+    },
+    {
+      provide: ON_CAMPUS_OFFER_SERVICE,
+      useClass: OnCampusOfferService,
+    },
   ],
 })
 export class AppModule {}
