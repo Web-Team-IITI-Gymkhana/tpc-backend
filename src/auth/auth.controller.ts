@@ -37,6 +37,7 @@ export class AuthController {
         HttpStatus.NOT_FOUND
       );
     }
+    user.roleId = await this.authService.getRoleIdForUser(user);
     const token = await this.authService.vendJWT(user);
     return { accessToken: token };
   }
