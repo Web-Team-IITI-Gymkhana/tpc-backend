@@ -13,7 +13,7 @@ class JobService {
   constructor(
     @Inject(JOB_DAO) private jobRepo: typeof JobModel,
     @Inject(JOB_STATUS_DAO) private jobStatusRepo: typeof JobStatusModel
-  ) {}
+  ) { }
 
   async createJob(job: Job, t?: Transaction) {
     const jobModel = await this.jobRepo.create(omit(job, "company", "season", "recruiter", "currentStatus"), {
@@ -46,7 +46,7 @@ class JobService {
   }
 
   async deleteJob(jobId: string, t?: Transaction) {
-    await this.jobRepo.destroy({ where: { id: jobId }, transaction: t });
+    return !!(await this.jobRepo.destroy({ where: { id: jobId }, transaction: t }));
   }
 }
 

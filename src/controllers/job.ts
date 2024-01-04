@@ -14,13 +14,14 @@ import {
   Delete,
   UseGuards,
 } from "@nestjs/common";
-import { EVENT_SERVICE, JOB_SERVICE } from "src/constants";
+import { EVENT_SERVICE, FACULTY_APPROVAL_REQUEST_SERVICE, JOB_SERVICE } from "src/constants";
 import JobService from "src/services/JobService";
 import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
 import { Job } from "src/entities/Job";
 import { Event } from "src/entities/Event";
+import { FacultyApprovalRequest } from "src/entities/FacultyApprovalRequest";
 import { JobStatus } from "src/entities/JobStatus";
 import { EventStatus, JobStatusType } from "src/db/enums";
 import {
@@ -31,11 +32,16 @@ import {
   JobIdParamDto,
   UpdateJobDto,
   UpdateJobEventDto,
+  FacultyApprovalRequestIdParamDto,
+  UpdateJobFacultyApprovalRequestDto,
+  GetJobFacultyApprovalRequestQuery,
+  CreateJobFacultyApprovalRequestsDto
 } from "../dtos/job";
 import EventService from "src/services/EventService";
 import { queryBuilder } from "src/utils/utils";
 import { ApiBearerAuth } from "@nestjs/swagger";
 import { AuthGuard } from "@nestjs/passport";
+import FacultyApprovalRequestService from "src/services/FacultyApprovalRequest";
 
 @Controller("/jobs")
 @ApiBearerAuth("jwt")
@@ -43,8 +49,9 @@ import { AuthGuard } from "@nestjs/passport";
 export class JobController {
   constructor(
     @Inject(JOB_SERVICE) private jobService: JobService,
-    @Inject(EVENT_SERVICE) private eventService: EventService
-  ) {}
+    @Inject(EVENT_SERVICE) private eventService: EventService,
+    @Inject(FACULTY_APPROVAL_REQUEST_SERVICE) private facultyApprovalRequestService: FacultyApprovalRequestService
+  ) { }
 
   @Post()
   @UseInterceptors(TransactionInterceptor)
@@ -112,6 +119,15 @@ export class JobController {
     return { job: updatedJob };
   }
 
+  @Delete("/:jobId")
+  @UseInterceptors(TransactionInterceptor)
+  @UseInterceptors(ClassSerializerInterceptor)
+  async deleteJob(@Param() param: JobIdParamDto, @TransactionParam() transaction: Transaction) {
+    const deleted = await this.jobService.deleteJob(param.jobId, transaction);
+    return { deleted: deleted };
+  }
+
+
   @Get("/:jobId/events")
   @UseInterceptors(TransactionInterceptor)
   @UseInterceptors(ClassSerializerInterceptor)
@@ -168,6 +184,79 @@ export class JobController {
   @UseInterceptors(ClassSerializerInterceptor)
   async deleteEvent(@Param() param: JobIdParamDto & EventIdParamDto, @TransactionParam() transaction: Transaction) {
     const deleted = await this.eventService.deleteEvent(param.eventId, transaction);
+    return { deleted: deleted };
+  }
+
+
+  @Get("/:jobId/facultyApprovalRequest")
+  @UseInterceptors(TransactionInterceptor)
+  @UseInterceptors(ClassSerializerInterceptor)
+  async getJobFacultyApprovalRequests(
+    @Param() param: JobIdParamDto,
+    @Query() query: GetJobFacultyApprovalRequestQuery,
+    @TransactionParam() transaction: Transaction) {
+    const facultyApprovalRequests = await this.facultyApprovalRequestService.getFacultyApprovalRequests({
+      id: query.id,
+      jobId: param.jobId,
+      facultyId: query.facultyId
+    });
+    return { facultyApprovalRequests: facultyApprovalRequests };
+  }
+
+  @Post("/:jobId/facultyApprovalRequest")
+  @UseInterceptors(TransactionInterceptor)
+  @UseInterceptors(ClassSerializerInterceptor)
+  async addJobFacultyApprovalRequest(
+    @Param() param: JobIdParamDto,
+    @Body() body: CreateJobFacultyApprovalRequestsDto,
+    @TransactionParam() transaction: Transaction
+  ) {
+    const [job] = await this.jobService.getJobs({
+      id: param.jobId,
+    });
+    if (!job) {
+      throw new HttpException(`job with jobId: ${param.jobId} not found`, HttpStatus.NOT_FOUND);
+    }
+    const promises = [];
+    for (const facultyApprovalRequest of body.facultyApprovalRequests) {
+      promises.push(
+        await this.facultyApprovalRequestService.createOrGetFacultyApprovalRequest(
+          new FacultyApprovalRequest({
+            jobId: param.jobId,
+            facultyId: facultyApprovalRequest.facultyId,
+            approved: false,
+            remarks: facultyApprovalRequest.remarks
+          }),
+          transaction
+        )
+      );
+    }
+    const facultyApprovalRequests = await Promise.all(promises);
+    return { facultyApprovalRequests: facultyApprovalRequests };
+  }
+
+
+  @Put("/:jobId/facultyApprovalRequest/:facultyApprovalRequestId")
+  @UseInterceptors(TransactionInterceptor)
+  @UseInterceptors(ClassSerializerInterceptor)
+  async updateFacultyApprovalRequest(
+    @Param() param: JobIdParamDto & FacultyApprovalRequestIdParamDto,
+    @Body() body: UpdateJobFacultyApprovalRequestDto,
+    @TransactionParam() transaction: Transaction
+  ) {
+    let [facultyApprovalRequest] = await this.facultyApprovalRequestService.getFacultyApprovalRequests({ id: param.facultyApprovalRequestId }, transaction);
+    if (!facultyApprovalRequest) {
+      throw new HttpException(`FacultyApprovalRequest with facultyApprovalRequestId: ${param.facultyApprovalRequestId} not found`, HttpStatus.NOT_FOUND);
+    }
+    const updatedFacultyApprovalRequest = await this.facultyApprovalRequestService.updateFacultyApprovalRequest(facultyApprovalRequest.id, body, transaction);
+    return { facultyApprovalRequest: updatedFacultyApprovalRequest };
+  }
+
+  @Delete("/:jobId/facultyApprovalRequest/:facultyApprovalRequestId")
+  @UseInterceptors(TransactionInterceptor)
+  @UseInterceptors(ClassSerializerInterceptor)
+  async deleteFacultyApprovalRequest(@Param() param: JobIdParamDto & FacultyApprovalRequestIdParamDto, @TransactionParam() transaction: Transaction) {
+    const deleted = await this.facultyApprovalRequestService.deleteFacultyApprovalRequest(param.facultyApprovalRequestId, transaction);
     return { deleted: deleted };
   }
 }

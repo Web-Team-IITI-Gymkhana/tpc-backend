@@ -1,4 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
+import { Type } from "class-transformer";
+import { ValidateNested } from "class-validator";
 import { EventType, JobStatusType } from "src/db/enums";
 
 export class JobIdParamDto {
@@ -69,4 +71,48 @@ export class UpdateJobEventDto {
   startDateTime?: Date;
   @ApiPropertyOptional()
   endDateTime?: Date;
+}
+
+
+export class CreateJobFacultyApprovalRequestDto {
+  @ApiProperty()
+  facultyId: string;
+  @ApiProperty()
+  remarks: string;
+
+}
+export class CreateJobFacultyApprovalRequestsDto {
+  @ApiProperty({
+    isArray: true,
+    type: CreateJobFacultyApprovalRequestDto,
+  })
+  @ValidateNested({ each: true })
+  @Type(() => CreateJobFacultyApprovalRequestDto)
+  facultyApprovalRequests: CreateJobFacultyApprovalRequestDto[];
+}
+
+export class FacultyApprovalRequestIdParamDto {
+  @ApiProperty()
+  facultyApprovalRequestId: string;
+}
+
+
+export class UpdateJobFacultyApprovalRequestDto {
+  @ApiPropertyOptional()
+  facultyId: string;
+  @ApiPropertyOptional()
+  remarks: string;
+  @ApiPropertyOptional()
+  approved: boolean;
+
+}
+
+export class GetJobFacultyApprovalRequestQuery {
+  @ApiPropertyOptional()
+  id?: string;
+  @ApiPropertyOptional()
+  jobId?: string;
+  @ApiPropertyOptional()
+  facultyId?: string;
+
 }

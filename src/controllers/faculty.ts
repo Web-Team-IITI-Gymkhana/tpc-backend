@@ -37,7 +37,7 @@ export class FacultyController {
   constructor(
     @Inject(FACULTY_SERVICE) private facultyService: FacultyService,
     @Inject(USER_SERVICE) private userService: UserService
-  ) {}
+  ) { }
 
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
@@ -47,12 +47,12 @@ export class FacultyController {
       userId: query.userId,
       department: query.department,
     },
-    {
-      id: query.userId,
-      name: query.name,
-      email: query.email,
-      contact: query.contact,
-    });
+      {
+        id: query.userId,
+        name: query.name,
+        email: query.email,
+        contact: query.contact,
+      });
     return { faculties: faculties };
   }
 
@@ -136,7 +136,7 @@ export class FacultyController {
       "getFaculties",
       transaction
     );
-    const newUser = await UpdateOrFind(newFaculty.userId, User, this.userService, "updateUser", "getUserById",transaction);
+    const newUser = await UpdateOrFind(newFaculty.userId, User, this.userService, "updateUser", "getUserById", transaction);
     newFaculty.user = newUser;
     return { faculty: newFaculty };
   }
@@ -154,6 +154,6 @@ export class FacultyController {
     const userId = faculty.userId;
     const facultydeleted = await this.facultyService.deleteFaculty(param.facultyId, transaction);
     const userDeleted = await this.userService.deleteUser(userId, transaction);
-    return { deleted: userDeleted&&facultydeleted };
+    return { deleted: userDeleted && facultydeleted };
   }
 }
