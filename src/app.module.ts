@@ -57,6 +57,7 @@ import { OffCampusOfferController } from "./controllers/offCampusOffer";
 import OffCampusOfferService from "./services/OffCampusOfferService";
 import { OnCampusOfferController } from "./controllers/onCampusOffer";
 import OnCampusOfferService from "./services/OnCampusOfferService";
+import { QueryInterceptor } from "./interceptor/QueryInterceptor";
 
 @Module({
   imports: [ConfigModule.forRoot(), DatabaseModule],
@@ -80,6 +81,7 @@ import OnCampusOfferService from "./services/OnCampusOfferService";
     Logger,
     JwtStrategy,
     TransactionInterceptor,
+    QueryInterceptor,
     AppService,
     {
       provide: AUTH_SERVICE,
@@ -138,8 +140,8 @@ import OnCampusOfferService from "./services/OnCampusOfferService";
       useClass: FacultyService,
     },
     {
-      provide:FACULTY_APPROVAL_REQUEST_SERVICE,
-      useClass:FacultyApprovalRequestService
+      provide: FACULTY_APPROVAL_REQUEST_SERVICE,
+      useClass: FacultyApprovalRequestService,
     },
     {
       provide: SALARY_SERVICE,

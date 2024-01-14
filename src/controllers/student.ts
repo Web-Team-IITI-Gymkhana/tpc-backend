@@ -201,7 +201,7 @@ export class StudentController {
     return { penalties: penalties };
   }
 
-  @Put("/:studentId/penalty/:penaltyId")
+  @Put("/penalty/:penaltyId")
   @UseInterceptors(ClassSerializerInterceptor)
   async updatePenalty(@Param() param: studentIdParamDto & PenaltyIdParamDto, @Body() body: UpdatePenaltyDto) {
     const [penalty] = await this.penaltyService.getPenalties({ id: param.penaltyId });
@@ -212,7 +212,7 @@ export class StudentController {
     return { penalty: newPenalty };
   }
 
-  @Delete("/:studentId/penalty/:penaltyId")
+  @Delete("/penalty/:penaltyId")
   @UseInterceptors(ClassSerializerInterceptor)
   async deletePenalty(@Param() param: studentIdParamDto & PenaltyIdParamDto) {
     const [penalty] = await this.penaltyService.getPenalties({
