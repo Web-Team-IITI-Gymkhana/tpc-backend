@@ -48,8 +48,46 @@ export class StudentController {
 
   //Template Starts.
 
+  /**  This is how I think a generalized template would look like.
+   *   We can thrash this and go for hardcoding the values also.
+   *   The main advantage this gives are the utils functions which can help us by removing the part where we hardcode the mappings.
+   *   Especially in GET.
+   *   This is not tested throughly, please do so before approval.
+   *   Nested values are passed into query by using underscores.
+   *   eg: {
+   *            "user": {
+   *                "userId": "abc",
+   *            }
+   *        }
+   *      is Represented as: {
+   *                                user_userId: "abc"
+   *                          }
+   */
+
   @Get()
   @UseInterceptors(QueryInterceptor)
+  /**  The where object looks like this: 
+   * {
+   *    from:,
+   *    to: ,
+   *    orderBy: {
+   *        field: DESC/ASC,  
+   *    },
+   *    filterBy: {
+   *        field1: {
+   *            "lt": value,
+   *            "gt": value,
+   *            "eq": array
+   *        }
+   *        field2: {
+   *            "lt": value,
+   *            "gt": value,
+   *            "eq": array
+   *        },
+   *        ...
+   *    }
+   * }
+   */
   async getStudents(@Query() where: any) {
     const models = [StudentModel, UserModel, ProgramModel];
     const alias = ["", "user", "program"];
@@ -60,8 +98,8 @@ export class StudentController {
 
     for (let i = 0; i < models.length; i++) {
       const model = models[i];
-      filters.push(makeFilter(conformToModel(filterBy, model)));
-      const orderBy = conformToModel(orders, model);
+      filters.push(makeFilter(conformToModel(filterBy, model, i==0)));
+      const orderBy = conformToModel(orders, model, i==0);
       if (Object.keys(orderBy).length) {
         const res = find_order(orderBy, model);
         options["order"] = [[{ model: model, as: alias[i] }, res[0], res[1]]];
@@ -83,8 +121,8 @@ export class StudentController {
     const data = [];
     for (const student of body) {
       student["role"] = Role.STUDENT;
-      const stud = conformToModel(student, StudentModel);
-      const user = conformToModel(student, UserModel);
+      const stud = conformToModel(student, StudentModel, 1);
+      const user = conformToModel(student, UserModel, 0);
       stud["user"] = user;
       data.push(stud);
     }
@@ -92,24 +130,36 @@ export class StudentController {
     return ans;
   }
 
+  /**  The body is an array of the form: 
+   * {
+   *    fieldToBeUpdated: newValue.
+   * }
+   * Id is also passed along for searching the student.
+   */
   @Patch()
   async updateStudents(@Body() body: any) {
     const models = [UserModel, StudentModel ];
     const data = [];
     for(const value of body) {
-      const student = conformToModel(body, StudentModel);
-      const user = conformToModel(body, UserModel);
-      student['user'] = user;
-      data.push(student);
+      const student = conformToModel(value, StudentModel, 1);
+      const user = conformToModel(value, UserModel, 0);
+      const updateValues = [student, user];
+      data.push(updateValues);
     }
     const ans = await bulkOperate(this.studentService, 'updateStudent', data);
     return ans;
   }
 
-  // @Delete()
-  // async deleteStudents(@Query() query: any) {
-  //   return this.studentService.deleteStudents(query);
-  // }
+  /**
+   * The query is of the form:
+   * {
+   *    userId: array of userIds.
+   * }
+   */
+  @Delete()
+  async deleteStudents(@Query() query: any) {
+    return this.studentService.deleteStudents(query.userId);
+  }
 
   //Template Ends.
 

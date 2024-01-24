@@ -1,6 +1,6 @@
-import { Inject, Injectable, Logger } from "@nestjs/common";
+import { HttpException, Inject, Injectable, Logger } from "@nestjs/common";
 import { omit } from "lodash";
-import { Transaction, WhereOptions } from "sequelize";
+import { Op, Transaction, WhereOptions } from "sequelize";
 import { COMPANY_DAO, STUDENT_DAO, USER_DAO } from "src/constants";
 import { ProgramModel, StudentModel, UserModel } from "src/db/models";
 import { Student } from "src/entities/Student";
@@ -46,11 +46,35 @@ class StudentService {
     return students;
   }
 
-  async updateStudent(studentData) {
-    const ans = await this.studentRepo.update(studentData,{
-      where: { id: studentData.id},
+  async updateStudent(data) {
+    const studentData = data[0], userData = data[1];
+    const student = await this.getStudents([{id: studentData.id}, {}, {}], {});
+    if(!student || !student[0])      throw new HttpException(`The Student with id: ${studentData.id} doesnt exist`, 404);
+    //Find the student.
+    let studentAns = student[0], userAns = student[0].user;
+    const [cnt, newStudents] = await this.studentRepo.update(studentData, {
+      where: {id: studentData.id},
       returning: true,
     });
+    if(cnt)             studentAns = newStudents[0];
+    //Update the student Table.
+    const [cnt1, newUser] = await this.userRepo.update(userData, {
+      where: {id: studentAns.userId},
+      returning: true,
+    });
+    if(cnt1)            userAns = newUser[0];
+    studentAns.user = userAns;
+    //Update the user Table.
+    return Student.fromModel(studentAns); 
+    //This is why entity is needed.
+    //Otherwise user doesnt come in the output.
+  }
+
+  async deleteStudents(ids) {
+    const ans = await this.userRepo.destroy({
+      where: {id: ids}
+    });
+    //Works because of the way the tables are designed: Cascading delete.
     return ans;
   }
 }

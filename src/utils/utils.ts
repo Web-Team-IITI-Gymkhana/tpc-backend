@@ -42,10 +42,16 @@ export function optionsFactory(from?: number, to?: number) {
   return options;
 }
 
-export function conformToModel(object, model) {
+/**  Takes in an object and a model and returns the fields present in both.
+ *   This may cause issue when passing the field 'id' as all models have that field with the same name.
+ *   So we also pass an argument BaseModel to prevent that from happening returning id iff the model is a baseModel.
+ *   This may cause issue when fields of different models have same name.
+ */
+export function conformToModel(object, model, baseModel) {
   const attributes = model.getAttributes();
   const result = {};
   for(const key in attributes) {
+    if(key == 'id' && !baseModel)                 continue;
     if(object[key]) {
       if(typeof object[key] === "object")         result[key] = Object.assign({}, object[key]);
       else                                        result[key] = object[key];
@@ -82,6 +88,7 @@ export async function UpdateOrFind(
   }
 }
 
+/**  This converts our gt,lt,eq syntax to the sequelize accepted syntax. */
 export function makeFilter(where) {
   const res = {};
   for(const key in where) {
@@ -94,12 +101,16 @@ export function makeFilter(where) {
   return res;
 }
 
+/**
+ *   Converts the orderBy to the proper format: an array.
+ */
 export function find_order(orderBy, model) {
   const ans = [];
   for(const key in orderBy)     ans.push(key, orderBy[key]);
   return ans;
 }
 
+/**  Uses promises to perform some async function n no of times.*/
 export async function bulkOperate(objectName, functionName, data) {
   const promises = [];
   for(const value of data)        promises.push(objectName[functionName](value));

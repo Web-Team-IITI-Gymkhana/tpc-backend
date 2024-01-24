@@ -8,6 +8,7 @@ export class Student {
   user?: User;
   rollNo: string;
   category?: Category;
+  cpi: number;
   gender: Gender;
   programId: string;
   createdAt?: Date;
@@ -23,6 +24,7 @@ export class Student {
     programId: string;
     createdAt?: Date;
     updatedAt?: Date;
+    cpi: number;
   }) {
     Object.assign(this, input);
   }
@@ -30,6 +32,7 @@ export class Student {
   static fromModel(student: StudentModel): Student {
     return new this({
       id: student.id,
+      cpi: student.cpi,
       userId: student.userId,
       user: student.user && User.fromModel(student.user),
       rollNo: student.rollNo,
