@@ -6,3 +6,4 @@ export * from "./role.enum";
 export * from "./seasonType.enum";
 export * from "./category.enum";
 export * from "./tpcMemberRole.enum";
+export * from "./companyCategory.enum";

@@ -17,6 +17,4 @@ export class AdminController {
     const programs = await this.programService.getPrograms();
     return { programs: programs };
   }
-
-  
 }

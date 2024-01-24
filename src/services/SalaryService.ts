@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { isObject, omit } from "lodash";
 import { Transaction, WhereOptions, SaveOptions, Sequelize } from "sequelize";
-import { SALARY_DAO } from "src/constants";
+import { JOB_SERVICE, SALARY_DAO } from "src/constants";
 import { SalaryModel } from "src/db/models";
 import { Salary } from "src/entities/Salary";
 import { getQueryValues } from "src/utils/utils";
@@ -12,13 +12,13 @@ class SalaryService {
 
   constructor(@Inject(SALARY_DAO) private salaryRepo: typeof SalaryModel) {}
 
-  async createOrGetSalary(salary: Salary, t?: Transaction) {
+  async createSalary(salary: Salary, t?: Transaction) {
     const values = getQueryValues(salary);
-    const [salaryModel] = await this.salaryRepo.findOrCreate({
-      where: values,
-      defaults: values,
-      transaction: t,
-    });
+    const salaryModel = await this.salaryRepo.create(omit(values,"categories","programs","genders"), {transaction: t});
+    if(values['categories'])      await salaryModel.$add('categories', values['categories']);
+    if(values['programs'])        await salaryModel.$add('programs', values['programs']);
+    if(values['genders'])         await salaryModel.$add('genders', values['genders']);
+    await salaryModel.save();
     return Salary.fromModel(salaryModel);
   }
 

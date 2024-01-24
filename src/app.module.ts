@@ -23,6 +23,8 @@ import {
   STUDENT_SERVICE,
   TPC_MEMBER_SERVICE,
   USER_SERVICE,
+  INSERT_SERVICE,
+  FILE_SERVICE
 } from "./constants";
 import UserService from "./services/UserService";
 import { AuthController } from "./auth/auth.controller";
@@ -58,6 +60,9 @@ import OffCampusOfferService from "./services/OffCampusOfferService";
 import { OnCampusOfferController } from "./controllers/onCampusOffer";
 import OnCampusOfferService from "./services/OnCampusOfferService";
 import { QueryInterceptor } from "./interceptor/QueryInterceptor";
+import { JafController } from "./controllers/jaf";
+import { FileService } from "./services/FileService";
+import { InsertService } from "./services/InsertService";
 
 @Module({
   imports: [ConfigModule.forRoot(), DatabaseModule],
@@ -76,6 +81,7 @@ import { QueryInterceptor } from "./interceptor/QueryInterceptor";
     OffCampusOfferController,
     OnCampusOfferController,
     SalaryController,
+    JafController,
   ],
   providers: [
     Logger,
@@ -155,6 +161,14 @@ import { QueryInterceptor } from "./interceptor/QueryInterceptor";
       provide: ON_CAMPUS_OFFER_SERVICE,
       useClass: OnCampusOfferService,
     },
+    {
+      provide: INSERT_SERVICE,
+      useClass: InsertService
+    },
+    {
+      provide: FILE_SERVICE,
+      useClass: FileService
+    }
   ],
 })
 export class AppModule {}

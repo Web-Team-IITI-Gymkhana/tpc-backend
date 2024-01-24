@@ -116,3 +116,4 @@ export class GetJobFacultyApprovalRequestQuery {
   facultyId?: string;
 
 }
+

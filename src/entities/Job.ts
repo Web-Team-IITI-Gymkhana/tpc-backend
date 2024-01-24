@@ -2,72 +2,99 @@ import { JobModel } from "src/db/models";
 import { Company } from "./Company";
 import { Recruiter } from "./Recruiter";
 import { Season } from "./Season";
+import { Event } from "./Event";
 import { JobStatus } from "./JobStatus";
 import { Category, Gender } from "src/db/enums";
+import { Salary } from "./Salary";
+import { CompanyDetailsDto, RecruiterDetailsDto, SalaryDetailsDto, SelectionProcedureDetailsDto } from "src/dtos/jaf";
 
 export class Job {
   id?: string;
   seasonId: string;
   season?: Season;
-  recruiterId: string;
+  recruiterId?: string;
   recruiter?: Recruiter;
-  companyId: string;
+  companyId?: string;
   company?: Company;
   role: string;
-  eligibility?: {
-    programs?: string[];
-    gender?: Gender[];
-    category?: Category[];
-    minCPI?: number;
-  };
-  active?: boolean;
-  metadata?: object;
+  description?: string;
+  skills: string;
+  location: string;
+  noOfVacancies?: number;
+  offerLetterReleaseDate?: string;
+  joiningDate?: string;
+  duration?: number;
+  selectionProcedure: SelectionProcedureDetailsDto;
+  salaries?: Salary[];
+  others?: string;
   currentStatusId?: string;
   currentStatus?: JobStatus;
-  createdAt?: Date;
-  updatedAt?: Date;
+  attachment?: string;
+  companyDetailsFilled?: CompanyDetailsDto;
+  recruiterDetailsFilled?: RecruiterDetailsDto;
+  jobStatuses?: JobStatus[];
+  events?: Event[];
+  active: boolean;
+
 
   constructor(input: {
     id?: string;
     seasonId: string;
     season?: Season;
-    recruiterId: string;
+    recruiterId?: string;
     recruiter?: Recruiter;
-    companyId: string;
+    companyId?: string;
     company?: Company;
     role: string;
-    eligibility?: {
-      programs?: string[];
-      gender?: Gender[];
-      category?: Category[];
-      minCPI?: number;
-    };
-    active?: boolean;
-    metadata?: object;
+    description?: string;
+    skills: string;
+    location: string;
+    noOfVacancies?: number;
+    offerLetterReleaseDate?: string;
+    joiningDate?: string;
+    duration?: number;
+    selectionProcedure: SelectionProcedureDetailsDto;
+    salaries?: Salary[];
+    others?: string;
+    attachment?: string;
     currentStatusId?: string;
     currentStatus?: JobStatus;
-    createdAt?: Date;
-    updatedAt?: Date;
+    companyDetailsFilled?: object;
+    recruiterDetailsFilled?: object;
+    jobStatuses?: JobStatus[];
+    events?: Event[];
+    active: boolean;
   }) {
     Object.assign(this, input);
   }
 
-  static fromModel(job: JobModel): Job {
+  static fromModel(job: JobModel) {
     return new this({
       id: job.id,
       seasonId: job.seasonId,
       season: job.season && Season.fromModel(job.season),
+      recruiterId: job.recruiterId,
+      recruiter: job.recruiter && Recruiter.fromModel(job.recruiter),
       companyId: job.companyId,
       company: job.company && Company.fromModel(job.company),
       role: job.role,
-      recruiterId: job.recruiterId,
-      active: job.active,
-      eligibility: job.eligibility,
+      description: job.description,
+      skills: job.skills,
+      location: job.location,
+      noOfVacancies: job.noOfVacancies,
+      offerLetterReleaseDate: job.offerLetterReleaseDate,
+      joiningDate: job.joiningDate,
+      duration: job.duration,
+      selectionProcedure: job.selectionProcedure as SelectionProcedureDetailsDto,
+      salaries: job.salaries && job.salaries.map((salary) => Salary.fromModel(salary)),
+      others: job.others,
+      attachment: job.attachment,
       currentStatusId: job.currentStatusId,
       currentStatus: job.currentStatus && JobStatus.fromModel(job.currentStatus),
-      metadata: job.metadata,
-      createdAt: job.createdAt,
-      updatedAt: job.updatedAt,
-    });
+      companyDetailsFilled: job.companyDetailsFilled,
+      recruiterDetailsFilled: job.recruiterDetailsFilled,
+      jobStatuses: job.jobStatuses && job.jobStatuses.map((jobStatus) => JobStatus.fromModel(jobStatus)),
+      active: job.active,
+    })
   }
 }

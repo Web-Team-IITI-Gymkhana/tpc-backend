@@ -47,6 +47,9 @@ export class StudentModel extends Model<StudentModel> {
   })
   gender: string;
 
+  @Column
+  cpi: number;
+
   @ForeignKey(() => ProgramModel)
   @Column({
     type: sequelize.UUID,

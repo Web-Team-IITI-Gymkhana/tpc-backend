@@ -1,89 +1,86 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsEmail, IsOptional, ValidateNested } from "class-validator";
-import { Category, Gender} from "src/db/enums";
+import { IsDateString, IsEmail, IsEnum, IsNumber, IsObject, IsOptional, IsPhoneNumber, IsString, IsUUID, ValidateNested } from "class-validator";
+import { Category, Gender } from "src/db/enums";
 
 export class CreateStudentDto {
   @ApiProperty({
     type: String,
   })
+  @IsString()
+  rollNo: string;
+
+  @ApiProperty({
+    type: String
+  })
+  @IsUUID()
+  programId: string;
+
+  @ApiProperty({
+    type: 'enum',
+    enum: Category
+  })
+  @IsEnum(Category)
+  category: Category;
+
+  @ApiProperty({
+    type: Number
+  })
+  @IsNumber()
+  cpi: number;
+
+  @ApiProperty({
+    type: 'enum',
+    enum: Gender
+  })
+  @IsEnum(Gender)
+  gender: Gender;
+
+  @ApiProperty({
+    type: String
+  })
+  @IsString()
+  name: string;
+
+  @ApiProperty({
+    type: String
+  })
   @IsEmail()
   email: string;
+
   @ApiProperty({
-    type: String,
+    type: String
   })
-  name: string;
-  @ApiPropertyOptional()
+  @IsPhoneNumber()
   contact: string;
-  @ApiProperty()
-  rollNo: string;
-  @ApiProperty()
-  category: Category;
-  @ApiProperty()
-  gender: Gender;
-  @ApiProperty()
-  programId: string;
 }
 
-export class AddStudentsDto {
-  @ApiProperty({
-    isArray: true,
-    type: CreateStudentDto,
+export class whereOptionsDto {
+  @ApiPropertyOptional({
+    type: Number,
   })
-  @ValidateNested({ each: true })
-  @Type(() => CreateStudentDto)
-  students: CreateStudentDto[];
-}
-
-export class GetStudentQueryDto {
-  @ApiPropertyOptional()
-  id?: string;
-  @ApiPropertyOptional()
-  userId?: string;
-  @ApiPropertyOptional()
-  rollNo?: string;
-  @ApiPropertyOptional({ enum: Category })
-  category?: Category;
-  @ApiPropertyOptional({ enum: Gender })
-  gender?: Gender;
-  @ApiPropertyOptional()
-  programId?: string;
-  @ApiPropertyOptional()
-  contact?: string;
-  @ApiPropertyOptional()
-  name?: string;
-  @ApiPropertyOptional()
-  email?: string;
-}
-
-export class studentIdParamDto {
-  @ApiProperty({
-    type: String,
-  })
-  studentId: string;
-}
-
-export class UpdateStudentDto {
-  @ApiProperty({
-    type: String,
-  })
+  @IsNumber()
   @IsOptional()
-  @IsEmail()
-  email?: string;
-  @ApiProperty({
-    type: String,
+  from?: number;
+
+  @ApiPropertyOptional({
+    type: Number,
   })
-  name?: string;
-  @ApiPropertyOptional()
-  contact?: string;
-  @ApiProperty()
-  rollNo?: string;
-  @ApiProperty()
-  category?: Category;
-  @ApiProperty()
-  gender?: Gender;
-  @ApiProperty()
-  programId?: string;
-  @ApiProperty()
-  role?: string;
+  @IsNumber()
+  @IsOptional()
+  to?: number;
+
+  @ApiPropertyOptional({
+    type: Object,
+  })
+  @IsObject()
+  @IsOptional()
+  orderBy?: object;
+
+  // @ApiPropertyOptional({
+  //   type: Object,
+  // })
+  // @ValidateNested({each: true})
+  // @Type(()=> FilterOptionsDto)
+  // filterBy?: FilterOptionsDto
 }

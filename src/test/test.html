@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>File Upload</title>
+</head>
+<body>
+  <h1>File Upload</h1>
+  <form id="uploadForm">
+    <label for="fileInput">Select File:</label>
+    <input type="file" id="fileInput" name="file" required>
+    <br>
+    <label for="otherFieldInput">Other Field:</label>
+    <input type="text" id="otherFieldInput" name="Other_otherField" required>
+    <br>
+    <button type="button" onclick="uploadFile()">Upload</button>
+  </form>
+  <div id="response"></div>
+
+  <script>
+    async function uploadFile() {
+      const form = document.getElementById('uploadForm');
+      const formData = new FormData(form);
+      const formDataObject = {};
+      formData.forEach((value, key) => {
+        formDataObject[key] = value;
+      });
+
+      console.log(formDataObject);
+
+      try {
+        const response = await fetch('http://localhost:5000/api/v1/jaf', {
+          method: 'POST',
+          body: JSON.stringify(formDataObject),
+        });
+
+        const data = await response.json();
+
+        // Display the response
+        const responseDiv = document.getElementById('response');
+        responseDiv.innerHTML = `<p>Response:</p><pre>${JSON.stringify(data, null, 2)}</pre>`;
+      } catch (error) {
+        console.error('Error uploading file:', error);
+      }
+    }
+  </script>
+</body>
+</html>

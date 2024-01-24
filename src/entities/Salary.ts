@@ -1,24 +1,29 @@
 import { SalaryModel } from "src/db/models";
+import { Gender, Category } from "../db/enums";
 
 export class Salary {
   id?: string;
   jobId: string;
-  salary: number;
-  salaryPeriod: number;
-  metadata?: object;
-  constraints: object;
-  createdAt?: Date;
-  updatedAt?: Date;
+  salaryPeriod?: string;
+  criteria?: object;
+  baseSalary: number;
+  totalCTC: number;
+  takeHomeSalary: number;
+  grossSalary: number;
+  otherCompensations: number;
+  others?: string;
 
   constructor(input: {
     id?: string;
     jobId: string;
-    salary: number;
-    salaryPeriod: number;
-    metadata?: object;
-    constraints: object;
-    createdAt?: Date;
-    updatedAt?: Date;
+    salaryPeriod?: string;
+    criteria?: object;
+    baseSalary: number;
+    totalCTC: number;
+    takeHomeSalary: number;
+    grossSalary: number;
+    otherCompensations: number;
+    others?: string;
   }) {
     Object.assign(this, input);
   }
@@ -27,12 +32,14 @@ export class Salary {
     return new this({
       id: model.id,
       jobId: model.jobId,
-      salary: model.salary,
       salaryPeriod: model.salaryPeriod,
-      metadata: model.metadata,
-      constraints: model.constraints,
-      createdAt: model.createdAt,
-      updatedAt: model.updatedAt,
+      others: model.others,
+      criteria: model.criteria,
+      baseSalary: model.baseSalary,
+      totalCTC: model.totalCTC,
+      takeHomeSalary: model.takeHomeSalary,
+      grossSalary: model.grossSalary,
+      otherCompensations: model.otherCompensations,
     });
   }
 }

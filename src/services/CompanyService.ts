@@ -1,7 +1,8 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
+import { omit } from "lodash";
 import { Transaction, WhereOptions } from "sequelize";
 import { COMPANY_DAO } from "src/constants";
-import { CompanyModel } from "src/db/models";
+import { CompanyModel, JobModel } from "src/db/models";
 import { Company } from "src/entities/Company";
 
 @Injectable()
@@ -11,7 +12,7 @@ class CompanyService {
   constructor(@Inject(COMPANY_DAO) private companyRepo: typeof CompanyModel) {}
 
   async createCompany(company: Company, t?: Transaction) {
-    const companyModel = await this.companyRepo.create(company, { transaction: t });
+    const companyModel = await this.companyRepo.create(omit(company, 'jobs'), { transaction: t });
     return Company.fromModel(companyModel);
   }
 

@@ -35,7 +35,7 @@ import {
   FacultyApprovalRequestIdParamDto,
   UpdateJobFacultyApprovalRequestDto,
   GetJobFacultyApprovalRequestQuery,
-  CreateJobFacultyApprovalRequestsDto
+  CreateJobFacultyApprovalRequestsDto,
 } from "../dtos/job";
 import EventService from "src/services/EventService";
 import { queryBuilder } from "src/utils/utils";
@@ -51,30 +51,25 @@ export class JobController {
     @Inject(JOB_SERVICE) private jobService: JobService,
     @Inject(EVENT_SERVICE) private eventService: EventService,
     @Inject(FACULTY_APPROVAL_REQUEST_SERVICE) private facultyApprovalRequestService: FacultyApprovalRequestService
-  ) { }
+  ) {}
 
-  @Post()
-  @UseInterceptors(TransactionInterceptor)
-  @UseInterceptors(ClassSerializerInterceptor)
-  async addJob(@Body() body: AddJobDto, @TransactionParam() transaction: Transaction) {
-    const job = await this.jobService.createJob(
-      new Job({
-        seasonId: body.seasonId,
-        companyId: body.companyId,
-        recruiterId: body.recruiterId,
-        role: body.role,
-        metadata: body.metadata,
-        active: false,
-      }),
-      transaction
-    );
+  // @Post()
+  // @UseInterceptors(TransactionInterceptor)
+  // @UseInterceptors(ClassSerializerInterceptor)
+  // async addJob(@Body() body: AddJobDto, @TransactionParam() transaction: Transaction) {
+  //   const job = await this.jobService.createJob(
+  //     new Job({
+        
+  //     }),
+  //     transaction
+  //   );
 
-    const updatedJob = await this.jobService.upsertJobStatusAndUpdateCurrent(
-      new JobStatus({ jobId: job.id, status: JobStatusType.INITIALIZED }),
-      transaction
-    );
-    return { job: updatedJob };
-  }
+  //   const updatedJob = await this.jobService.upsertJobStatusAndUpdateCurrent(
+  //     new JobStatus({ jobId: job.id, status: JobStatusType.INITIALIZED }),
+  //     transaction
+  //   );
+  //   return { job: updatedJob };
+  // }
 
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
@@ -126,7 +121,6 @@ export class JobController {
     const deleted = await this.jobService.deleteJob(param.jobId, transaction);
     return { deleted: deleted };
   }
-
 
   @Get("/:jobId/events")
   @UseInterceptors(TransactionInterceptor)
@@ -187,18 +181,18 @@ export class JobController {
     return { deleted: deleted };
   }
 
-
   @Get("/:jobId/facultyApprovalRequest")
   @UseInterceptors(TransactionInterceptor)
   @UseInterceptors(ClassSerializerInterceptor)
   async getJobFacultyApprovalRequests(
     @Param() param: JobIdParamDto,
     @Query() query: GetJobFacultyApprovalRequestQuery,
-    @TransactionParam() transaction: Transaction) {
+    @TransactionParam() transaction: Transaction
+  ) {
     const facultyApprovalRequests = await this.facultyApprovalRequestService.getFacultyApprovalRequests({
       id: query.id,
       jobId: param.jobId,
-      facultyId: query.facultyId
+      facultyId: query.facultyId,
     });
     return { facultyApprovalRequests: facultyApprovalRequests };
   }
@@ -225,7 +219,7 @@ export class JobController {
             jobId: param.jobId,
             facultyId: facultyApprovalRequest.facultyId,
             approved: false,
-            remarks: facultyApprovalRequest.remarks
+            remarks: facultyApprovalRequest.remarks,
           }),
           transaction
         )
@@ -235,7 +229,6 @@ export class JobController {
     return { facultyApprovalRequests: facultyApprovalRequests };
   }
 
-
   @Put("/facultyApprovalRequest/:facultyApprovalRequestId")
   @UseInterceptors(TransactionInterceptor)
   @UseInterceptors(ClassSerializerInterceptor)
@@ -244,19 +237,35 @@ export class JobController {
     @Body() body: UpdateJobFacultyApprovalRequestDto,
     @TransactionParam() transaction: Transaction
   ) {
-    let [facultyApprovalRequest] = await this.facultyApprovalRequestService.getFacultyApprovalRequests({ id: param.facultyApprovalRequestId }, transaction);
+    let [facultyApprovalRequest] = await this.facultyApprovalRequestService.getFacultyApprovalRequests(
+      { id: param.facultyApprovalRequestId },
+      transaction
+    );
     if (!facultyApprovalRequest) {
-      throw new HttpException(`FacultyApprovalRequest with facultyApprovalRequestId: ${param.facultyApprovalRequestId} not found`, HttpStatus.NOT_FOUND);
+      throw new HttpException(
+        `FacultyApprovalRequest with facultyApprovalRequestId: ${param.facultyApprovalRequestId} not found`,
+        HttpStatus.NOT_FOUND
+      );
     }
-    const updatedFacultyApprovalRequest = await this.facultyApprovalRequestService.updateFacultyApprovalRequest(facultyApprovalRequest.id, body, transaction);
+    const updatedFacultyApprovalRequest = await this.facultyApprovalRequestService.updateFacultyApprovalRequest(
+      facultyApprovalRequest.id,
+      body,
+      transaction
+    );
     return { facultyApprovalRequest: updatedFacultyApprovalRequest };
   }
 
   @Delete("/facultyApprovalRequest/:facultyApprovalRequestId")
   @UseInterceptors(TransactionInterceptor)
   @UseInterceptors(ClassSerializerInterceptor)
-  async deleteFacultyApprovalRequest(@Param() param: JobIdParamDto & FacultyApprovalRequestIdParamDto, @TransactionParam() transaction: Transaction) {
-    const deleted = await this.facultyApprovalRequestService.deleteFacultyApprovalRequest(param.facultyApprovalRequestId, transaction);
+  async deleteFacultyApprovalRequest(
+    @Param() param: JobIdParamDto & FacultyApprovalRequestIdParamDto,
+    @TransactionParam() transaction: Transaction
+  ) {
+    const deleted = await this.facultyApprovalRequestService.deleteFacultyApprovalRequest(
+      param.facultyApprovalRequestId,
+      transaction
+    );
     return { deleted: deleted };
   }
 }

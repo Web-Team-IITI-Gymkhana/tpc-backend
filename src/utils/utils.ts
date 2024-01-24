@@ -1,4 +1,5 @@
 import { isArray, isObject } from "lodash";
+import { Op } from "sequelize";
 import { Transaction } from "sequelize";
 
 export const isProductionEnv = (): boolean => {
@@ -32,6 +33,27 @@ export function getQueryValues(where) {
   return values;
 }
 
+export function optionsFactory(from?: number, to?: number) {
+  const options = {};
+  if(from && to) {
+    options['offset'] = from;
+    options['limit'] = to-from+1;
+  }
+  return options;
+}
+
+export function conformToModel(object, model) {
+  const attributes = model.getAttributes();
+  const result = {};
+  for(const key in attributes) {
+    if(object[key]) {
+      if(typeof object[key] === "object")         result[key] = Object.assign({}, object[key]);
+      else                                        result[key] = object[key];
+    }
+  }
+  return result;
+}
+
 export async function UpdateOrFind(
   id: string,
   fieldsToUpdate: object,
@@ -58,4 +80,29 @@ export async function UpdateOrFind(
       return ans;
     }
   }
+}
+
+export function makeFilter(where) {
+  const res = {};
+  for(const key in where) {
+    const ans = {};
+    if(where[key].gt)     ans[Op.gt] = where[key].gt;
+    if(where[key].lt)     ans[Op.lt] = where[key].lt;
+    if(where[key].eq)     ans[Op.in] = where[key].eq;
+    res[key] = ans;
+  }
+  return res;
+}
+
+export function find_order(orderBy, model) {
+  const ans = [];
+  for(const key in orderBy)     ans.push(key, orderBy[key]);
+  return ans;
+}
+
+export async function bulkOperate(objectName, functionName, data) {
+  const promises = [];
+  for(const value of data)        promises.push(objectName[functionName](value));
+  const ans = await Promise.all(promises);
+  return ans;
 }

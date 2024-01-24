@@ -55,40 +55,7 @@ export class RecruiterController {
     @Body() body: AddRecruitersDto,
     @TransactionParam() transaction: Transaction
   ) {
-    const promises = [];
-    for (const recruiter of body.recruiters) {
-      promises.push(
-        new Promise(async (resolve, reject) => {
-          try {
-            const user = await this.userService.getOrCreateUser(
-              new User({
-                name: recruiter.name,
-                email: recruiter.email,
-                contact: recruiter.contact,
-                role: Role.RECRUITER,
-              }),
-              transaction
-            );
-
-            const newRecruiter = await this.recruiterService.getOrCreateRecruiter(
-              new Recruiter({
-                userId: user.id,
-                companyId: param.companyId,
-              }),
-              transaction
-            );
-            newRecruiter.user = user;
-
-            resolve(newRecruiter);
-          } catch (err) {
-            reject(err);
-          }
-        })
-      );
-    }
-
-    const recruiters = await Promise.all(promises);
-    return { recruiters: recruiters };
+    
   }
 
   querybuilder(params) {

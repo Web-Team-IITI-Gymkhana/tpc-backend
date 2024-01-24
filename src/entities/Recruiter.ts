@@ -8,6 +8,8 @@ export class Recruiter {
   user?: User;
   companyId: string;
   company?: Company;
+  designation: string;
+  landline: string;
   createdAt?: Date;
   updatedAt?: Date;
 
@@ -17,6 +19,8 @@ export class Recruiter {
     user?: User;
     companyId: string;
     company?: Company;
+    designation: string;
+    landline: string;
     createdAt?: Date;
     updatedAt?: Date;
   }) {
@@ -30,6 +34,8 @@ export class Recruiter {
       user: recruiter.user && User.fromModel(recruiter.user),
       companyId: recruiter.companyId,
       company: recruiter.company && Company.fromModel(recruiter.company),
+      designation: recruiter.designation,
+      landline: recruiter.landline,
       createdAt: recruiter.createdAt,
       updatedAt: recruiter.updatedAt,
     });
