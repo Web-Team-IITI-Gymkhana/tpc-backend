@@ -28,6 +28,16 @@ class FacultyService {
     return Faculty.fromModel(facultyModel);
   }
 
+  async bulkCreateFaculties(faculties: any[], t?: Transaction) {
+    const createdFaculties = await this.facultyRepo.bulkCreate(faculties.map((faculty) => omit(faculty, "user")), {
+      // updateOnDuplicate: ['department'], // Specify the fields that can be updated in case of duplicates
+      transaction: t,
+      returning: true, // Make Sequelize return the rows that were added/updated
+    });
+  
+    return createdFaculties.map((facultyModel: any) => Faculty.fromModel(facultyModel));
+  }
+  
   async deleteFaculty(facultyId: string, t?: Transaction) {
     return !!(await this.facultyRepo.destroy({ where: { id: facultyId }, transaction: t }));
   }

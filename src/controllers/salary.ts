@@ -38,6 +38,33 @@ export class SalaryController {
     return { salaries: salaries };
   }
 
+  // @Post()
+  // @UseInterceptors(ClassSerializerInterceptor)
+  // @UseInterceptors(TransactionInterceptor)
+  // async createSalaries(
+  //   @Param() param: JobIdParamDto,
+  //   @Body() body: CreateSalariesDto,
+  //   @TransactionParam() transaction: Transaction
+  // ) {
+  //   const promises = [];
+  //   for (const salary of body.salaries) {
+  //     promises.push(
+  //       this.salaryService.createOrGetSalary(
+  //         new Salary({
+  //           jobId: param.jobId,
+  //           salary: salary.salary,
+  //           salaryPeriod: salary.salaryPeriod,
+  //           metadata: salary.metadata,
+  //           constraints: salary.constraints,
+  //         }),
+  //         transaction
+  //       )
+  //     );
+  //   }
+  //   const salaries = await Promise.all(promises);
+  //   return { salaries: salaries };
+  // }
+
   @Post()
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(TransactionInterceptor)
@@ -46,22 +73,18 @@ export class SalaryController {
     @Body() body: CreateSalariesDto,
     @TransactionParam() transaction: Transaction
   ) {
-    const promises = [];
-    for (const salary of body.salaries) {
-      promises.push(
-        this.salaryService.createOrGetSalary(
-          new Salary({
-            jobId: param.jobId,
-            salary: salary.salary,
-            salaryPeriod: salary.salaryPeriod,
-            metadata: salary.metadata,
-            constraints: salary.constraints,
-          }),
-          transaction
-        )
-      );
-    }
-    const salaries = await Promise.all(promises);
+    const salaryArray = body.salaries.map(salary => {
+      return {
+        jobId: param.jobId,
+        salary: salary.salary,
+        salaryPeriod: salary.salaryPeriod,
+        metadata: salary.metadata,
+        constraints: salary.constraints,
+      };
+    });
+
+    const salaries = await this.salaryService.bulkCreateSalaries(salaryArray, transaction);
+
     return { salaries: salaries };
   }
 

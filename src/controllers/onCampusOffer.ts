@@ -48,26 +48,44 @@ export class OnCampusOfferController {
     return { onCampusOffers: onCampusOffers };
   }
 
+  // @Post()
+  // @UseInterceptors(ClassSerializerInterceptor)
+  // @UseInterceptors(TransactionInterceptor)
+  // async createOnCampusOffers(@Body() body: CreateOnCampusOffersDto, @TransactionParam() t: Transaction) {
+  //   const promises = [];
+  //   for (const onCampusOffer of body.onCampusOffers) {
+  //     promises.push(
+  //       this.onCampusOfferService.createOrGetOnCampusOffer(
+  //         new OnCampusOffer({
+  //           studentId: onCampusOffer.studentId,
+  //           salaryId: onCampusOffer.salaryId,
+  //           status: onCampusOffer.status,
+  //         }),
+  //         t
+  //       )
+  //     );
+  //   }
+  //   const onCampusOffers = await Promise.all(promises);
+  //   return { onCampusOffers: onCampusOffers };
+  // }
+
   @Post()
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(TransactionInterceptor)
   async createOnCampusOffers(@Body() body: CreateOnCampusOffersDto, @TransactionParam() t: Transaction) {
-    const promises = [];
-    for (const onCampusOffer of body.onCampusOffers) {
-      promises.push(
-        this.onCampusOfferService.createOrGetOnCampusOffer(
-          new OnCampusOffer({
-            studentId: onCampusOffer.studentId,
-            salaryId: onCampusOffer.salaryId,
-            status: onCampusOffer.status,
-          }),
-          t
-        )
-      );
-    }
-    const onCampusOffers = await Promise.all(promises);
+    const onCampusOfferArray = body.onCampusOffers.map(onCampusOffer => {
+      return {
+        studentId: onCampusOffer.studentId,
+        salaryId: onCampusOffer.salaryId,
+        status: onCampusOffer.status,
+      };
+    });
+
+    const onCampusOffers = await this.onCampusOfferService.bulkCreateOnCampusOffers(onCampusOfferArray, t);
+
     return { onCampusOffers: onCampusOffers };
   }
+
 
   @Put("/:onCampusOfferId")
   @UseInterceptors(ClassSerializerInterceptor)

@@ -20,6 +20,16 @@ class JobCoordinatorService {
     });
     return JobCoordinator.fromModel(jobCoordinatorModel);
   }
+  async bulkCreateJobCoordinators(jobCoordinators: any[], t?: Transaction) {
+    const createdJobCoordinators = await this.jobCoordinatorRepo.bulkCreate(jobCoordinators, {
+      // updateOnDuplicate: ['role'], // Specify the fields that can be updated in case of duplicates
+      transaction: t,
+      returning: true, // Make Sequelize return the rows that were added/updated
+    });
+
+    return createdJobCoordinators.map((jobCoordinatorModel: any) => JobCoordinator.fromModel(jobCoordinatorModel));
+  }
+
 
 
   async getJobCoordinators(where: WhereOptions<JobCoordinatorModel>, t?: Transaction) {

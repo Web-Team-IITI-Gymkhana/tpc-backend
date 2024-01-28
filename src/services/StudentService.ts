@@ -26,6 +26,16 @@ class StudentService {
     return Student.fromModel(studentModel);
   }
 
+  async bulkCreateStudents(students: any[], t?: Transaction) {
+    const createdStudents = await this.studentRepo.bulkCreate(students.map((student) => omit(student, "user")), {
+      transaction: t,
+      returning: true,
+    });
+  
+    return createdStudents.map((studentModel: any) => Student.fromModel(studentModel));
+  }
+  
+
   async addStudents(students?: Student[], t?: Transaction) {
     const studentModels = await this.studentRepo.bulkCreate(
       students.map((student) => omit(student, "user")),

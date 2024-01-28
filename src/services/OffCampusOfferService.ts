@@ -10,7 +10,7 @@ import { getQueryValues } from "src/utils/utils";
 class OffCampusOfferService {
   private logger = new Logger(OffCampusOfferService.name);
 
-  constructor(@Inject(OFF_CAMPUS_OFFER_DAO) private offCampusOfferRepo: typeof OffCampusOfferModel) {}
+  constructor(@Inject(OFF_CAMPUS_OFFER_DAO) private offCampusOfferRepo: typeof OffCampusOfferModel) { }
 
   async createOrGetOffCampusOffer(offCampusOffer: OffCampusOffer, t?: Transaction) {
     const values = getQueryValues(offCampusOffer);
@@ -20,6 +20,12 @@ class OffCampusOfferService {
       transaction: t,
     });
     return OffCampusOffer.fromModel(offCampusOfferModel);
+  }
+
+  async bulkCreateOffCampusOffers(offCampusOffers: any[], t?: Transaction) {
+    const createdOffCampusOffers = await this.offCampusOfferRepo.bulkCreate(offCampusOffers, { transaction: t, returning: true });
+
+    return createdOffCampusOffers.map((offCampusOfferModel: any) => OffCampusOffer.fromModel(offCampusOfferModel));
   }
 
   async getOffCampusOffers(where: WhereOptions<OffCampusOfferModel>, t?: Transaction) {

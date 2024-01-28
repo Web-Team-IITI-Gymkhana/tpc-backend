@@ -54,31 +54,54 @@ export class OffCampusOfferController {
     return { offCampusOffers: offCampusOffers };
   }
 
+  // @Post()
+  // @UseInterceptors(ClassSerializerInterceptor)
+  // @UseInterceptors(TransactionInterceptor)
+  // async createOffCampusOffers(@Body() body: CreateOffCampusOffersDto, @TransactionParam() t: Transaction) {
+  //   const promises = [];
+  //   for (const offCampusOffer of body.offCampusOffers) {
+  //     promises.push(
+  //       this.offCampusOfferService.createOrGetOffCampusOffer(
+  //         new OffCampusOffer({
+  //           studentId: offCampusOffer.studentId,
+  //           seasonId: offCampusOffer.seasonId,
+  //           companyId: offCampusOffer.companyId,
+  //           salary: offCampusOffer.salary,
+  //           salaryPeriod: offCampusOffer.salaryPeriod,
+  //           metadata: offCampusOffer.metadata,
+  //           offerType: offCampusOffer.offerType,
+  //           status: offCampusOffer.status,
+  //         }),
+  //         t
+  //       )
+  //     );
+  //   }
+  //   const offCampusOffers = await Promise.all(promises);
+  //   return { offCampusOffers: offCampusOffers };
+  // }
+
   @Post()
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(TransactionInterceptor)
   async createOffCampusOffers(@Body() body: CreateOffCampusOffersDto, @TransactionParam() t: Transaction) {
-    const promises = [];
-    for (const offCampusOffer of body.offCampusOffers) {
-      promises.push(
-        this.offCampusOfferService.createOrGetOffCampusOffer(
-          new OffCampusOffer({
-            studentId: offCampusOffer.studentId,
-            seasonId: offCampusOffer.seasonId,
-            companyId: offCampusOffer.companyId,
-            salary: offCampusOffer.salary,
-            salaryPeriod: offCampusOffer.salaryPeriod,
-            metadata: offCampusOffer.metadata,
-            offerType: offCampusOffer.offerType,
-            status: offCampusOffer.status,
-          }),
-          t
-        )
-      );
-    }
-    const offCampusOffers = await Promise.all(promises);
+    const offCampusOfferArray = body.offCampusOffers.map(offCampusOffer => {
+      return {
+        studentId: offCampusOffer.studentId,
+        seasonId: offCampusOffer.seasonId,
+        companyId: offCampusOffer.companyId,
+        salary: offCampusOffer.salary,
+        salaryPeriod: offCampusOffer.salaryPeriod,
+        metadata: offCampusOffer.metadata,
+        offerType: offCampusOffer.offerType,
+        status: offCampusOffer.status,
+      };
+    });
+
+    const offCampusOffers = await this.offCampusOfferService.bulkCreateOffCampusOffers(offCampusOfferArray, t);
+
     return { offCampusOffers: offCampusOffers };
   }
+
 
   @Put("/:offCampusOfferId")
   @UseInterceptors(ClassSerializerInterceptor)

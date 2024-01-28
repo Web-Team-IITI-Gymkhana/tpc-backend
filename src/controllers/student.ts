@@ -61,39 +61,74 @@ export class StudentController {
     return { students: students };
   }
 
+  // @Post()
+  // @UseInterceptors(TransactionInterceptor)
+  // @UseInterceptors(ClassSerializerInterceptor)
+  // async addStudents(@Body() body: AddStudentsDto, @TransactionParam() transaction: Transaction) {
+  //   const promises = [];
+  //   for (const student of body.students) {
+  //     promises.push(
+  //       new Promise(async (resolve, reject) => {
+  //         try {
+  //           const user = await this.userService.getOrCreateUser(
+  //             new User({ name: student.name, email: student.email, contact: student.contact, role: Role.STUDENT }),
+  //             transaction
+  //           );
+  //           const newStudent = await this.studentService.getOrCreateStudent(
+  //             new Student({
+  //               userId: user.id,
+  //               rollNo: student.rollNo,
+  //               category: student.category,
+  //               gender: student.gender,
+  //               programId: student.programId,
+  //             }),
+  //             transaction
+  //           );
+  //           newStudent.user = user;
+  //           resolve(newStudent);
+  //         } catch (err) {
+  //           reject(err);
+  //         }
+  //       })
+  //     );
+  //   }
+  //   const students = await Promise.all(promises);
+  //   return { students: students };
+  // }
+
   @Post()
   @UseInterceptors(TransactionInterceptor)
   @UseInterceptors(ClassSerializerInterceptor)
   async addStudents(@Body() body: AddStudentsDto, @TransactionParam() transaction: Transaction) {
-    const promises = [];
-    for (const student of body.students) {
-      promises.push(
-        new Promise(async (resolve, reject) => {
-          try {
-            const user = await this.userService.getOrCreateUser(
-              new User({ name: student.name, email: student.email, contact: student.contact, role: Role.STUDENT }),
-              transaction
-            );
-            const newStudent = await this.studentService.getOrCreateStudent(
-              new Student({
-                userId: user.id,
-                rollNo: student.rollNo,
-                category: student.category,
-                gender: student.gender,
-                programId: student.programId,
-              }),
-              transaction
-            );
-            newStudent.user = user;
-            resolve(newStudent);
-          } catch (err) {
-            reject(err);
-          }
-        })
-      );
-    }
-    const students = await Promise.all(promises);
-    return { students: students };
+    const userArray = body.students.map(student => {
+      return {
+        name: student.name,
+        email: student.email,
+        contact: student.contact,
+        role: Role.STUDENT,
+      };
+    });
+
+    const createdUsers = await this.userService.bulkCreateUsers(userArray, transaction);
+
+    const studentArray = createdUsers.map((user, index) => {
+      return {
+        userId: user.id,
+        rollNo: body.students[index].rollNo,
+        category: body.students[index].category,
+        gender: body.students[index].gender,
+        programId: body.students[index].programId,
+      };
+    });
+
+    const createdStudents = await this.studentService.bulkCreateStudents(studentArray, transaction);
+
+    // Associate the created users with their respective students
+    createdStudents.forEach((student, index) => {
+      student.user = createdUsers[index];
+    });
+
+    return { students: createdStudents };
   }
 
   querybuilder(params) {

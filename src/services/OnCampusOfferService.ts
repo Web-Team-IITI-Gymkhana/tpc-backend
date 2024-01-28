@@ -21,6 +21,13 @@ class OnCampusOfferService {
     return OnCampusOffer.fromModel(onCampusOfferModel);
   }
 
+  async bulkCreateOnCampusOffers(onCampusOffers: any[], t?: Transaction) {
+    const createdOnCampusOffers = await this.onCampusOfferRepo.bulkCreate(onCampusOffers, { transaction: t, returning: true });
+  
+    return createdOnCampusOffers.map((onCampusOfferModel: any) => OnCampusOffer.fromModel(onCampusOfferModel));
+  }
+  
+
   async getOnCampusOffers(where: WhereOptions<OnCampusOfferModel>, t?: Transaction) {
     const values = getQueryValues(where);
     const onCampusOfferModels = await this.onCampusOfferRepo.findAll({

@@ -38,24 +38,42 @@ export class JobCoordinatorController {
     return { jobCoordinators: jobCoordinators };
   }
 
+  // @Post()
+  // @UseInterceptors(ClassSerializerInterceptor)
+  // @UseInterceptors(TransactionInterceptor)
+  // async createJobCoordinators(@Param() param: JobIdParamDto, @Body() body: CreateJobCoordinatorsDto, @TransactionParam() transaction: Transaction) {
+  //   const promises = [];
+  //   for (const jobCoordinator of body.jobCoordinators) {
+  //     promises.push(
+  //       this.jobCoordinatorService.createOrGetJobCoordinator(
+  //         new JobCoordinator({
+  //           jobId: param.jobId,
+  //           tpcMemberId: jobCoordinator.tpcMemberId,
+  //           role: jobCoordinator.role
+  //         }),
+  //         transaction
+  //       )
+  //     );
+  //   }
+  //   const jobCoordinators = await Promise.all(promises);
+  //   return { jobCoordinators: jobCoordinators };
+  // }
+
+
   @Post()
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(TransactionInterceptor)
   async createJobCoordinators(@Param() param: JobIdParamDto, @Body() body: CreateJobCoordinatorsDto, @TransactionParam() transaction: Transaction) {
-    const promises = [];
-    for (const jobCoordinator of body.jobCoordinators) {
-      promises.push(
-        this.jobCoordinatorService.createOrGetJobCoordinator(
-          new JobCoordinator({
-            jobId: param.jobId,
-            tpcMemberId: jobCoordinator.tpcMemberId,
-            role: jobCoordinator.role
-          }),
-          transaction
-        )
-      );
-    }
-    const jobCoordinators = await Promise.all(promises);
+    const jobCoordinatorArray = body.jobCoordinators.map(jobCoordinator => {
+      return {
+        jobId: param.jobId,
+        tpcMemberId: jobCoordinator.tpcMemberId,
+        role: jobCoordinator.role
+      };
+    });
+
+    const jobCoordinators = await this.jobCoordinatorService.bulkCreateJobCoordinators(jobCoordinatorArray, transaction);
+
     return { jobCoordinators: jobCoordinators };
   }
 

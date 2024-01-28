@@ -25,6 +25,15 @@ class TpcMemberService {
     });
     return TpcMember.fromModel(tpcMemberModel);
   }
+  async bulkCreateTpcMembers(tpcMembers: any[], t?: Transaction) {
+    const createdTpcMembers = await this.tpcMemberRepo.bulkCreate(tpcMembers.map((tpcMember) => omit(tpcMember, "user")), {
+      transaction: t,
+      returning: true,
+    });
+  
+    return createdTpcMembers.map((tpcMemberModel: any) => TpcMember.fromModel(tpcMemberModel));
+  }
+  
 
   async addTpcMembers(tpcMembers?: TpcMember[], t?: Transaction) {
     const tpcMemberModels = await this.tpcMemberRepo.bulkCreate(

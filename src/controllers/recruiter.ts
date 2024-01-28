@@ -47,6 +47,49 @@ export class RecruiterController {
     return { recruiters: recruiters };
   }
 
+  // @Post()
+  // @UseInterceptors(TransactionInterceptor)
+  // @UseInterceptors(ClassSerializerInterceptor)
+  // async addRecruiters(
+  //   @Param() param: CompanyIdParamDto,
+  //   @Body() body: AddRecruitersDto,
+  //   @TransactionParam() transaction: Transaction
+  // ) {
+  //   const promises = [];
+  //   for (const recruiter of body.recruiters) {
+  //     promises.push(
+  //       new Promise(async (resolve, reject) => {
+  //         try {
+  //           const user = await this.userService.getOrCreateUser(
+  //             new User({
+  //               name: recruiter.name,
+  //               email: recruiter.email,
+  //               contact: recruiter.contact,
+  //               role: Role.RECRUITER,
+  //             }),
+  //             transaction
+  //           );
+
+  //           const newRecruiter = await this.recruiterService.getOrCreateRecruiter(
+  //             new Recruiter({
+  //               userId: user.id,
+  //               companyId: param.companyId,
+  //             }),
+  //             transaction
+  //           );
+  //           newRecruiter.user = user;
+
+  //           resolve(newRecruiter);
+  //         } catch (err) {
+  //           reject(err);
+  //         }
+  //       })
+  //     );
+  //   }
+
+  //   const recruiters = await Promise.all(promises);
+  //   return { recruiters: recruiters };
+  // }
   @Post()
   @UseInterceptors(TransactionInterceptor)
   @UseInterceptors(ClassSerializerInterceptor)
@@ -55,41 +98,34 @@ export class RecruiterController {
     @Body() body: AddRecruitersDto,
     @TransactionParam() transaction: Transaction
   ) {
-    const promises = [];
-    for (const recruiter of body.recruiters) {
-      promises.push(
-        new Promise(async (resolve, reject) => {
-          try {
-            const user = await this.userService.getOrCreateUser(
-              new User({
-                name: recruiter.name,
-                email: recruiter.email,
-                contact: recruiter.contact,
-                role: Role.RECRUITER,
-              }),
-              transaction
-            );
+    const userArray = body.recruiters.map(recruiter => {
+      return {
+        name: recruiter.name,
+        email: recruiter.email,
+        contact: recruiter.contact,
+        role: Role.RECRUITER,
+      };
+    });
 
-            const newRecruiter = await this.recruiterService.getOrCreateRecruiter(
-              new Recruiter({
-                userId: user.id,
-                companyId: param.companyId,
-              }),
-              transaction
-            );
-            newRecruiter.user = user;
+    const createdUsers = await this.userService.bulkCreateUsers(userArray, transaction);
 
-            resolve(newRecruiter);
-          } catch (err) {
-            reject(err);
-          }
-        })
-      );
-    }
+    const recruiterArray = createdUsers.map(user => {
+      return {
+        userId: user.id,
+        companyId: param.companyId,
+      };
+    });
 
-    const recruiters = await Promise.all(promises);
-    return { recruiters: recruiters };
+    const createdRecruiters = await this.recruiterService.bulkCreateRecruiters(recruiterArray, transaction);
+
+    // Associate the created users with their respective recruiters
+    createdRecruiters.forEach((recruiter, index) => {
+      recruiter.user = createdUsers[index];
+    });
+
+    return { recruiters: createdRecruiters };
   }
+
 
   querybuilder(params) {
     let Recruiter = {};

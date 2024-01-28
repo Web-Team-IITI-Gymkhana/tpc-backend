@@ -8,7 +8,7 @@ import { User } from "src/entities/User";
 class UserService {
   private logger = new Logger(UserService.name);
 
-  constructor(@Inject(USER_DAO) private userRepo: typeof UserModel) {}
+  constructor(@Inject(USER_DAO) private userRepo: typeof UserModel) { }
 
   async createUser(user: User, t?: Transaction) {
     const userModel = await this.userRepo.create(user, { transaction: t });
@@ -23,6 +23,11 @@ class UserService {
     });
     return User.fromModel(userModel);
   }
+  async bulkCreateUsers(users: User[], t?: Transaction) {
+    const createdUsers = await this.userRepo.bulkCreate(users, { transaction: t, returning: true });
+    return createdUsers.map((userModel: any) => User.fromModel(userModel));
+  }
+
 
   async getUserById(id: string, t?: Transaction) {
     const userModel = await this.userRepo.findOne({ where: { id: id }, transaction: t });

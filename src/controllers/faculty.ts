@@ -56,40 +56,73 @@ export class FacultyController {
     return { faculties: faculties };
   }
 
+  // @Post()
+  // @UseInterceptors(TransactionInterceptor)
+  // @UseInterceptors(ClassSerializerInterceptor)
+  // async createFaculties(@Body() body: CreateFacultiesDto, @TransactionParam() transaction: Transaction) {
+  //   const promises = [];
+  //   for (const faculty of body.faculties) {
+  //     promises.push(
+  //       new Promise(async (resolve, reject) => {
+  //         try {
+  //           const user = await this.userService.getOrCreateUser(
+  //             new User({ name: faculty.name, email: faculty.email, contact: faculty.contact, role: Role.FACULTY }),
+  //             transaction
+  //           );
+
+  //           const newFaculty = await this.facultyService.getOrCreateFaculty(
+  //             new Faculty({
+  //               userId: user.id,
+  //               department: faculty.department,
+  //             }),
+  //             transaction
+  //           );
+  //           newFaculty.user = user;
+
+  //           resolve(newFaculty);
+  //         } catch (err) {
+  //           reject(err);
+  //         }
+  //       })
+  //     );
+  //   }
+
+  //   const faculties = await Promise.all(promises);
+  //   return { faculties: faculties };
+  // }
+
   @Post()
   @UseInterceptors(TransactionInterceptor)
   @UseInterceptors(ClassSerializerInterceptor)
   async createFaculties(@Body() body: CreateFacultiesDto, @TransactionParam() transaction: Transaction) {
-    const promises = [];
-    for (const faculty of body.faculties) {
-      promises.push(
-        new Promise(async (resolve, reject) => {
-          try {
-            const user = await this.userService.getOrCreateUser(
-              new User({ name: faculty.name, email: faculty.email, contact: faculty.contact, role: Role.FACULTY }),
-              transaction
-            );
+    const userArray = body.faculties.map(faculty => {
+      return {
+        name: faculty.name,
+        email: faculty.email,
+        contact: faculty.contact,
+        role: Role.FACULTY,
+      };
+    });
 
-            const newFaculty = await this.facultyService.getOrCreateFaculty(
-              new Faculty({
-                userId: user.id,
-                department: faculty.department,
-              }),
-              transaction
-            );
-            newFaculty.user = user;
+    const createdUsers = await this.userService.bulkCreateUsers(userArray, transaction);
 
-            resolve(newFaculty);
-          } catch (err) {
-            reject(err);
-          }
-        })
-      );
-    }
+    const facultyArray = createdUsers.map((user, index) => {
+      return {
+        userId: user.id,
+        department: body.faculties[index].department,
+      };
+    });
 
-    const faculties = await Promise.all(promises);
-    return { faculties: faculties };
+    const createdFaculties = await this.facultyService.bulkCreateFaculties(facultyArray, transaction);
+
+    // Associate the created users with their respective faculties
+    createdFaculties.forEach((faculty, index) => {
+      faculty.user = createdUsers[index];
+    });
+
+    return { faculties: createdFaculties };
   }
+
 
   querybuilder(params) {
     let Faculty = {};

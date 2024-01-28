@@ -21,6 +21,15 @@ class SalaryService {
     });
     return Salary.fromModel(salaryModel);
   }
+  async bulkCreateSalaries(salaries: any[], t?: Transaction) {
+    const createdSalaries = await this.salaryRepo.bulkCreate(salaries, {
+      transaction: t,
+      returning: true,
+    });
+  
+    return createdSalaries.map((salaryModel: any) => Salary.fromModel(salaryModel));
+  }
+  
 
   async getSalaries(where: WhereOptions<SalaryModel>, t?: Transaction) {
     const salaryModels = await this.salaryRepo.findAll({ where: where, transaction: t });

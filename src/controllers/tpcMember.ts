@@ -59,42 +59,75 @@ export class TpcMemberController {
     return { tpcMembers: tpcMembers };
   }
 
+  // @Post()
+  // @UseInterceptors(TransactionInterceptor)
+  // @UseInterceptors(ClassSerializerInterceptor)
+  // async addTpcMembers(@Body() body: AddTpcMembersDto, @TransactionParam() transaction: Transaction) {
+  //   const promises = [];
+  //   for (const tpcMember of body.tpcMembers) {
+  //     promises.push(
+  //       new Promise(async (resolve, reject) => {
+  //         try {
+  //           const user = await this.userService.getOrCreateUser(
+  //             new User({
+  //               name: tpcMember.name,
+  //               email: tpcMember.email,
+  //               contact: tpcMember.contact,
+  //               role: Role.STUDENT,
+  //             }),
+  //             transaction
+  //           );
+  //           const newTpcMember = await this.tpcMemberService.getOrCreateTpcMember(
+  //             new TpcMember({
+  //               userId: user.id,
+  //               role: tpcMember.role,
+  //               department: tpcMember.department,
+  //             }),
+  //             transaction
+  //           );
+  //           newTpcMember.user = user;
+  //           resolve(newTpcMember);
+  //         } catch (err) {
+  //           reject(err);
+  //         }
+  //       })
+  //     );
+  //   }
+  //   const tpcMembers = await Promise.all(promises);
+  //   return { tpcMembers: tpcMembers };
+  // }
+
   @Post()
   @UseInterceptors(TransactionInterceptor)
   @UseInterceptors(ClassSerializerInterceptor)
   async addTpcMembers(@Body() body: AddTpcMembersDto, @TransactionParam() transaction: Transaction) {
-    const promises = [];
-    for (const tpcMember of body.tpcMembers) {
-      promises.push(
-        new Promise(async (resolve, reject) => {
-          try {
-            const user = await this.userService.getOrCreateUser(
-              new User({
-                name: tpcMember.name,
-                email: tpcMember.email,
-                contact: tpcMember.contact,
-                role: Role.STUDENT,
-              }),
-              transaction
-            );
-            const newTpcMember = await this.tpcMemberService.getOrCreateTpcMember(
-              new TpcMember({
-                userId: user.id,
-                role: tpcMember.role,
-                department: tpcMember.department,
-              }),
-              transaction
-            );
-            newTpcMember.user = user;
-            resolve(newTpcMember);
-          } catch (err) {
-            reject(err);
-          }
-        })
-      );
-    }
-    const tpcMembers = await Promise.all(promises);
-    return { tpcMembers: tpcMembers };
+    const userArray = body.tpcMembers.map(tpcMember => {
+      return {
+        name: tpcMember.name,
+        email: tpcMember.email,
+        contact: tpcMember.contact,
+        role: Role.STUDENT, // Assuming tpcMembers have the role STUDENT, adjust as needed
+      };
+    });
+
+    const createdUsers = await this.userService.bulkCreateUsers(userArray, transaction);
+
+    const tpcMemberArray = createdUsers.map((user, index) => {
+      return {
+        userId: user.id,
+        role: body.tpcMembers[index].role,
+        department: body.tpcMembers[index].department,
+      };
+    });
+
+    const createdTpcMembers = await this.tpcMemberService.bulkCreateTpcMembers(tpcMemberArray, transaction);
+
+    // Associate the created users with their respective tpcMembers
+    createdTpcMembers.forEach((tpcMember, index) => {
+      tpcMember.user = createdUsers[index];
+    });
+
+    return { tpcMembers: createdTpcMembers };
   }
 
   querybuilder(params) {

@@ -24,6 +24,15 @@ class RecruiterService {
     });
     return Recruiter.fromModel(recruiterModel);
   }
+  async bulkCreateRecruiters(recruiters: any[], t?: Transaction) {
+    const createdRecruiters = await this.recruiterRepo.bulkCreate(recruiters.map((recruiter) => omit(recruiter, "user", "company")), {
+      transaction: t,
+      returning: true,
+    });
+  
+    return createdRecruiters.map((recruiterModel: any) => Recruiter.fromModel(recruiterModel));
+  }
+  
 
   async getRecruiters(where?: WhereOptions<RecruiterModel>, t?: Transaction) {
     const values = getQueryValues(where);
