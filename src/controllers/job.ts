@@ -163,7 +163,7 @@ export class JobController {
     return { event: event };
   }
 
-  @Put("/:jobId/events/:eventId")
+  @Put("/events/:eventId")
   @UseInterceptors(TransactionInterceptor)
   @UseInterceptors(ClassSerializerInterceptor)
   async updateEvent(
@@ -179,7 +179,7 @@ export class JobController {
     return { event: updatedEvent };
   }
 
-  @Delete("/:jobId/events/:eventId")
+  @Delete("/events/:eventId")
   @UseInterceptors(TransactionInterceptor)
   @UseInterceptors(ClassSerializerInterceptor)
   async deleteEvent(@Param() param: JobIdParamDto & EventIdParamDto, @TransactionParam() transaction: Transaction) {
@@ -236,7 +236,7 @@ export class JobController {
   }
 
 
-  @Put("/:jobId/facultyApprovalRequest/:facultyApprovalRequestId")
+  @Put("/facultyApprovalRequest/:facultyApprovalRequestId")
   @UseInterceptors(TransactionInterceptor)
   @UseInterceptors(ClassSerializerInterceptor)
   async updateFacultyApprovalRequest(
@@ -252,7 +252,7 @@ export class JobController {
     return { facultyApprovalRequest: updatedFacultyApprovalRequest };
   }
 
-  @Delete("/:jobId/facultyApprovalRequest/:facultyApprovalRequestId")
+  @Delete("/facultyApprovalRequest/:facultyApprovalRequestId")
   @UseInterceptors(TransactionInterceptor)
   @UseInterceptors(ClassSerializerInterceptor)
   async deleteFacultyApprovalRequest(@Param() param: JobIdParamDto & FacultyApprovalRequestIdParamDto, @TransactionParam() transaction: Transaction) {

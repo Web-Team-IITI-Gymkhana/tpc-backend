@@ -59,6 +59,7 @@ import { OffCampusOfferController } from "./controllers/offCampusOffer";
 import OffCampusOfferService from "./services/OffCampusOfferService";
 import { OnCampusOfferController } from "./controllers/onCampusOffer";
 import OnCampusOfferService from "./services/OnCampusOfferService";
+import { QueryInterceptor } from "./interceptor/QueryInterceptor";
 import RecruiterAuthService from "./services/RecruiterLoginService";
 import { EmailService } from "./services/EmailService";
 
@@ -84,6 +85,7 @@ import { EmailService } from "./services/EmailService";
     Logger,
     JwtStrategy,
     TransactionInterceptor,
+    QueryInterceptor,
     AppService,
     {
       provide: AUTH_SERVICE,
