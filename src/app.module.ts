@@ -6,6 +6,7 @@ import { AppService } from "./app.service";
 import { DatabaseModule } from "./db/database.module";
 import {
   AUTH_SERVICE,
+  RECRUITER_LOGIN_SERVICE,
   COMPANY_SERVICE,
   EVENT_SERVICE,
   FACULTY_SERVICE,
@@ -23,6 +24,7 @@ import {
   STUDENT_SERVICE,
   TPC_MEMBER_SERVICE,
   USER_SERVICE,
+  MAIL_SERVICE,
 } from "./constants";
 import UserService from "./services/UserService";
 import { AuthController } from "./auth/auth.controller";
@@ -57,6 +59,8 @@ import { OffCampusOfferController } from "./controllers/offCampusOffer";
 import OffCampusOfferService from "./services/OffCampusOfferService";
 import { OnCampusOfferController } from "./controllers/onCampusOffer";
 import OnCampusOfferService from "./services/OnCampusOfferService";
+import RecruiterAuthService from "./services/RecruiterLoginService";
+import { EmailService } from "./services/EmailService";
 
 @Module({
   imports: [ConfigModule.forRoot(), DatabaseModule],
@@ -86,6 +90,10 @@ import OnCampusOfferService from "./services/OnCampusOfferService";
       useClass: AuthService,
     },
     {
+      provide: RECRUITER_LOGIN_SERVICE,
+      useClass: RecruiterAuthService,
+    },
+    {
       provide: PROGRAM_SERVICE,
       useClass: ProgramService,
     },
@@ -104,6 +112,10 @@ import OnCampusOfferService from "./services/OnCampusOfferService";
     {
       provide: SEASON_SERVICE,
       useClass: SeasonService,
+    },
+    {
+      provide: MAIL_SERVICE,
+      useClass: EmailService,
     },
     {
       provide: COMPANY_SERVICE,
@@ -138,8 +150,8 @@ import OnCampusOfferService from "./services/OnCampusOfferService";
       useClass: FacultyService,
     },
     {
-      provide:FACULTY_APPROVAL_REQUEST_SERVICE,
-      useClass:FacultyApprovalRequestService
+      provide: FACULTY_APPROVAL_REQUEST_SERVICE,
+      useClass: FacultyApprovalRequestService,
     },
     {
       provide: SALARY_SERVICE,
