@@ -2,30 +2,29 @@ import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { User } from "src/entities/User";
 import * as jwt from "jsonwebtoken";
 import { ExtractJwt, StrategyOptions } from "passport-jwt";
+import { randomUUID } from "crypto";
 
 @Injectable()
-class AuthService {
-  private logger = new Logger(AuthService.name);
-  private secretKey = process.env.USER_SECRET;
-  private issuer = "tpc.iiti.ac.in";
+class RecruiterAuthService {
+  private logger = new Logger(RecruiterAuthService.name);
+  private secretKey = process.env.RECRUITER_SECRET;
   private audience = "tpc-backend";
-  private expiry = 7 * 24 * 60 * 60;
+  private expiry = 5 * 60 * 60;
   private algorithm: jwt.Algorithm = "HS256";
 
   constructor() {}
 
   async vendJWT(user: User) {
     const payload = {
-      id: user.id,
       userType: user.role,
       email: user.email,
+      id: user.id,
       name: user.name,
     };
     const options: jwt.SignOptions = {
       expiresIn: this.expiry,
       subject: user.id,
       audience: this.audience,
-      issuer: this.issuer,
       algorithm: this.algorithm,
     };
     return jwt.sign(payload, this.secretKey, options);
@@ -35,7 +34,6 @@ class AuthService {
     return {
       secretOrKey: this.secretKey,
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      issuer: this.issuer,
       audience: this.audience,
       algorithms: [this.algorithm],
       ignoreExpiration: false,
@@ -47,16 +45,29 @@ class AuthService {
       const payload = jwt.verify(token, this.secretKey, {
         algorithms: [this.algorithm],
         audience: this.audience,
-        issuer: this.issuer,
       }) as jwt.JwtPayload;
       if (!payload) {
         throw new HttpException("Unauthorized", HttpStatus.UNAUTHORIZED);
       }
-      return new User({ id: payload.sub, email: payload["email"], role: payload["userType"], name: payload["name"] });
+      return new User({
+        id: payload["id"],
+        email: payload["email"],
+        role: payload["userType"],
+        name: payload["name"],
+      });
     } catch (err) {
+      throw new HttpException("Unauthorized", HttpStatus.UNAUTHORIZED);
+    }
+  }
+
+  async validateJWT(token: string) {
+    try {
+      const foundUser = await this.parseJWT(token);
+      return foundUser;
+    } catch {
       throw new HttpException("Unauthorized", HttpStatus.UNAUTHORIZED);
     }
   }
 }
 
-export default AuthService;
+export default RecruiterAuthService;

@@ -35,7 +35,7 @@ export class RecruiterController {
   constructor(
     @Inject(RECRUITER_SERVICE) private recruiterService: RecruiterService,
     @Inject(USER_SERVICE) private userService: UserService
-  ) { }
+  ) {}
 
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
@@ -136,7 +136,14 @@ export class RecruiterController {
       "getRecruiters",
       transaction
     );
-    const newUser = await UpdateOrFind(newRecruiter.userId, User, this.userService, "updateUser", "getUserById", transaction);
+    const newUser = await UpdateOrFind(
+      newRecruiter.userId,
+      User,
+      this.userService,
+      "updateUser",
+      "getUserById",
+      transaction
+    );
     newRecruiter.user = newUser;
     return { recruiter: newRecruiter };
   }

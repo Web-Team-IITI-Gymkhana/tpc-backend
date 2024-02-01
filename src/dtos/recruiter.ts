@@ -1,6 +1,6 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsEmail, IsOptional, ValidateNested } from "class-validator";
+import { IsEmail, IsOptional, IsString, ValidateNested } from "class-validator";
 
 export class AddRecruiterDto {
   @ApiProperty({
