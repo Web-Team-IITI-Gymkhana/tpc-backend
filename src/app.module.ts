@@ -24,7 +24,8 @@ import {
   TPC_MEMBER_SERVICE,
   USER_SERVICE,
   INSERT_SERVICE,
-  FILE_SERVICE
+  FILE_SERVICE,
+  JOB_SERVICE_NEW
 } from "./constants";
 import UserService from "./services/UserService";
 import { AuthController } from "./auth/auth.controller";
@@ -63,6 +64,7 @@ import { QueryInterceptor } from "./interceptor/QueryInterceptor";
 import { JafController } from "./controllers/jaf";
 import { FileService } from "./services/FileService";
 import { InsertService } from "./services/InsertService";
+import { JobServiceNew } from "./services/JobServiceNew";
 
 @Module({
   imports: [ConfigModule.forRoot(), DatabaseModule],
@@ -168,6 +170,10 @@ import { InsertService } from "./services/InsertService";
     {
       provide: FILE_SERVICE,
       useClass: FileService
+    },
+    {
+      provide: JOB_SERVICE_NEW,
+      useClass: JobServiceNew
     }
   ],
 })

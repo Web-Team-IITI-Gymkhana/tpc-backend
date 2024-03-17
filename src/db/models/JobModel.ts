@@ -6,6 +6,8 @@ import { SeasonModel } from "./SeasonModel";
 import { RecruiterModel } from "./RecruiterModel";
 import { JobStatusModel } from "./JobStatusModel";
 import { SalaryModel } from "./SalaryModel";
+import { JobCoordinatorModel } from "./JobCoordinatorModel";
+import { FacultyApprovalRequestModel } from "./FacultyApprovalRequestModel";
 
 @Table({
   tableName: "Job",
@@ -140,6 +142,20 @@ export class JobModel extends Model<JobModel> {
     onDelete: "CASCADE",
   })
   jobStatuses: JobStatusModel[];
+
+  //Delete Job onDelete of Job.
+  @HasMany(() => JobCoordinatorModel, {
+    foreignKey: "jobId",
+    onDelete: "CASCADE",
+  })
+  jobCoordinators: JobCoordinatorModel[];
+
+  //Delete Faculy Approval Request on delete of Job
+  @HasMany(() => FacultyApprovalRequestModel, {
+    foreignKey: "jobId",
+    onDelete: "CASCADE",
+  })
+  facultyApprovalRequests: FacultyApprovalRequestModel[];
 
   // Delete Events onDelete of Job
   @HasMany(() => EventModel, {

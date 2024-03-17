@@ -4,7 +4,7 @@ import sequelize from "sequelize";
 import { Sequelize, Transaction, WhereOptions } from "sequelize";
 import { COMPANY_DAO, JOB_DAO, JOB_STATUS_DAO, RECRUITER_DAO } from "src/constants";
 import { JobStatusType } from "src/db/enums";
-import { CompanyModel, JobModel, JobStatusModel, RecruiterModel } from "src/db/models";
+import { CompanyModel, JobModel, JobStatusModel, RecruiterModel, SeasonModel } from "src/db/models";
 import { Job } from "src/entities/Job";
 import { JobStatus } from "src/entities/JobStatus";
 import { getQueryValues } from "src/utils/utils";
@@ -15,9 +15,9 @@ class JobService {
 
   constructor(
     @Inject(JOB_DAO) private jobRepo: typeof JobModel,
+    @Inject(COMPANY_DAO) private companyRepo: typeof CompanyModel,
+    @Inject(RECRUITER_DAO) private recruiterRepo: typeof RecruiterModel,
     @Inject(JOB_STATUS_DAO) private jobStatusRepo: typeof JobStatusModel,
-    @Inject(COMPANY_DAO)  private companyRepo: typeof CompanyModel,
-    @Inject(RECRUITER_DAO) private recruiterRepo: typeof RecruiterModel
   ) {}
 
   async createJob(job: Job, t?: Transaction) {
@@ -28,9 +28,9 @@ class JobService {
     return Job.fromModel(jobModel);
   }
 
-  async getJobs(where?: WhereOptions<JobModel>, t?: Transaction) {
-    const jobModels = await this.jobRepo.findAll({ where: where, transaction: t });
-    return jobModels.map((jobModel) => Job.fromModel(jobModel));
+  async getJobs() : Promise<Job[]> {
+    const ans = await this.jobRepo.findAll();
+    return ans.map((job) => Job.fromModel(job));
   }
 
   async updateJob(jobId: string, fieldsToUpdate: object, transaction?: Transaction): Promise<Job> {

@@ -1,3 +1,7 @@
+import { ApiPropertyOptional } from "@nestjs/swagger";
+import { Type } from "class-transformer";
+import { IsArray, IsNumber, IsOptional, IsString } from "class-validator";
+
 export const SEQUELIZE_DAO = "SEQUELIZE",
   USER_DAO = "USER_DAO",
   STUDENT_DAO = "STUDENT_DAO",
@@ -29,6 +33,7 @@ export const AUTH_SERVICE = "AUTH_SERVICE",
   SEASON_SERVICE = "SEASON_SERVICE",
   COMPANY_SERVICE = "COMPANY_SERVICE",
   JOB_SERVICE = "JOB_SERVICE",
+  JOB_SERVICE_NEW = "JOB_SERVICE_NEW",
   JOB_STATUS_SERVICE = "JOB_STATUS_SERVICE",
   PENALTY_SERVICE = "PENALTY_SERVICE",
   JOB_COORDINATOR_SERVICE = "JOB_COORDINATOR_SERVICE",
@@ -123,3 +128,45 @@ export const COURSE_BRANCH_MAP = {
   ],
 };
 export const YEARS = ["2023", "2024", "2025"];
+
+export enum OrderByEnum {
+  DESC = "DESC",
+  ASC = "ASC"
+}
+
+export class MatchOptionsString {
+  @ApiPropertyOptional({
+      type: Array<String>
+  })
+  @IsArray()
+  @IsString({ each: true })
+  @IsOptional()
+  eq?: Array<string>
+}
+
+export class MatchOptionsNumber {
+  @ApiPropertyOptional({
+      type: Array<Number>
+  })
+  @IsArray()
+  @IsNumber({},{ each: true})
+  @IsOptional()
+  @Type(() => Number)
+  eq?: Array<number>
+
+  @ApiPropertyOptional({
+      type: Number
+  })
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  lt?: number;
+
+  @ApiPropertyOptional({
+      type: Number
+  })
+  @IsNumber()
+  @IsOptional()
+  @Type(() => Number)
+  gt?: number;
+}

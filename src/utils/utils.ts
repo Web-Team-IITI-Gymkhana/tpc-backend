@@ -111,9 +111,9 @@ export function find_order(orderBy, model) {
 }
 
 /**  Uses promises to perform some async function n no of times.*/
-export async function bulkOperate(objectName, functionName, data) {
+export async function bulkOperate(objectName, functionName, data, t?:Transaction) {
   const promises = [];
-  for(const value of data)        promises.push(objectName[functionName](value));
+  for(const value of data)        promises.push(objectName[functionName](value, t));
   const ans = await Promise.all(promises);
   return ans;
 }

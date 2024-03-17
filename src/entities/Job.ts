@@ -7,6 +7,8 @@ import { JobStatus } from "./JobStatus";
 import { Category, Gender } from "src/db/enums";
 import { Salary } from "./Salary";
 import { CompanyDetailsDto, RecruiterDetailsDto, SalaryDetailsDto, SelectionProcedureDetailsDto } from "src/dtos/jaf";
+import { JobCoordinator } from "./JobCoordinator";
+import { FacultyApprovalRequest } from "./FacultyApprovalRequest";
 
 export class Job {
   id?: string;
@@ -35,6 +37,8 @@ export class Job {
   jobStatuses?: JobStatus[];
   events?: Event[];
   active: boolean;
+  jobCoordinators?: JobCoordinator[];
+  facultyApprovalRequests?: FacultyApprovalRequest[];
 
 
   constructor(input: {
@@ -64,6 +68,8 @@ export class Job {
     jobStatuses?: JobStatus[];
     events?: Event[];
     active: boolean;
+    jobCoordinators?: JobCoordinator[];
+    facultyApprovalRequests?: FacultyApprovalRequest[];
   }) {
     Object.assign(this, input);
   }
@@ -95,6 +101,8 @@ export class Job {
       recruiterDetailsFilled: job.recruiterDetailsFilled,
       jobStatuses: job.jobStatuses && job.jobStatuses.map((jobStatus) => JobStatus.fromModel(jobStatus)),
       active: job.active,
+      jobCoordinators: job.jobCoordinators && job.jobCoordinators.map((jobCoordinator) => JobCoordinator.fromModel(jobCoordinator)),
+      facultyApprovalRequests: job.facultyApprovalRequests && job.facultyApprovalRequests.map((request) => FacultyApprovalRequest.fromModel(request)),
     })
   }
 }

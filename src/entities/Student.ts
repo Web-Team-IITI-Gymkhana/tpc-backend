@@ -1,11 +1,15 @@
 import { StudentModel } from "src/db/models";
 import { Gender, Category } from "src/db/enums";
 import { User } from "./User";
+import { Program } from "./Program";
+import { Resume } from "./Resume";
 
 export class Student {
   id?: string;
   userId: string;
   user?: User;
+  program?: Program;
+  resumes?: Resume[];
   rollNo: string;
   category?: Category;
   cpi: number;
@@ -18,6 +22,8 @@ export class Student {
     id?: string;
     userId: string;
     user?: User;
+    program?: Program;
+    resumes?: Resume[];
     rollNo: string;
     category?: Category;
     gender: Gender;
@@ -35,6 +41,8 @@ export class Student {
       cpi: student.cpi,
       userId: student.userId,
       user: student.user && User.fromModel(student.user),
+      program: student.program && Program.fromModel(student.program),
+      resumes: student.resumes && student.resumes.map((resume) => Resume.fromModel(resume)),
       rollNo: student.rollNo,
       category: student.category as Category,
       programId: student.programId,
