@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import {  ValidateNested } from "class-validator";
+import { ValidateNested } from "class-validator";
 
 export class JobCoordinatorIdParamDto {
   @ApiProperty({
@@ -19,6 +19,8 @@ export class CreateJobCoordinatorDto {
     type: String,
   })
   role: string;
+
+  jobId: string;
 }
 
 export class CreateJobCoordinatorsDto {

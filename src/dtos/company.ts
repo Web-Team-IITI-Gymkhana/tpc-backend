@@ -1,7 +1,16 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { CompanyCategory } from "src/db/enums";
 import { AddressDto } from "./jaf";
-import { IsEnum, IsNegative, IsNumber, IsNumberString, IsOptional, IsString, IsUrl, ValidateNested } from "class-validator";
+import {
+  IsEnum,
+  IsNegative,
+  IsNumber,
+  IsNumberString,
+  IsOptional,
+  IsString,
+  IsUrl,
+  ValidateNested,
+} from "class-validator";
 import { Type } from "class-transformer";
 
 export class CompanyIdParamDto {
@@ -28,10 +37,10 @@ export class AddCompanyDto {
   name: string;
 
   @ApiPropertyOptional({
-    type: CompanyMetadataDto
+    type: CompanyMetadataDto,
   })
-  @ValidateNested({each: true})
-  @Type(()=>CompanyMetadataDto)
+  @ValidateNested({ each: true })
+  @Type(() => CompanyMetadataDto)
   @IsOptional()
   metadata?: CompanyMetadataDto;
 
@@ -42,7 +51,7 @@ export class AddCompanyDto {
   domains: string;
 
   @ApiProperty({
-    type: 'enum',
+    type: "enum",
     enum: CompanyCategory,
   })
   @IsEnum(CompanyCategory)
@@ -50,34 +59,34 @@ export class AddCompanyDto {
   category?: CompanyCategory;
 
   @ApiProperty({
-    type: AddressDto
+    type: AddressDto,
   })
-  @ValidateNested({each: true})
-  @Type(()=>AddressDto)
-  address: AddressDto
+  @ValidateNested({ each: true })
+  @Type(() => AddressDto)
+  address: AddressDto;
 
   @ApiPropertyOptional({
-    type: Number
+    type: Number,
   })
   @IsNumber()
   @IsOptional()
   size?: number;
 
   @ApiProperty({
-    type: Number
+    type: Number,
   })
   @IsNumber()
   yearOfEstablishment: number;
 
   @ApiPropertyOptional({
-    type: String
+    type: String,
   })
   @IsString()
   @IsOptional()
   annualTurnover?: string;
 
   @ApiPropertyOptional({
-    type: String
+    type: String,
   })
   @IsUrl()
   @IsOptional()

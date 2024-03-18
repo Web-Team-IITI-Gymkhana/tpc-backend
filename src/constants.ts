@@ -32,8 +32,8 @@ export const AUTH_SERVICE = "AUTH_SERVICE",
   RECRUITER_SERVICE = "RECRUITER_SERVICE",
   SEASON_SERVICE = "SEASON_SERVICE",
   COMPANY_SERVICE = "COMPANY_SERVICE",
+  JAF_SERVICE = "JAF_SERVICE",
   JOB_SERVICE = "JOB_SERVICE",
-  JOB_SERVICE_NEW = "JOB_SERVICE_NEW",
   JOB_STATUS_SERVICE = "JOB_STATUS_SERVICE",
   PENALTY_SERVICE = "PENALTY_SERVICE",
   JOB_COORDINATOR_SERVICE = "JOB_COORDINATOR_SERVICE",
@@ -44,7 +44,6 @@ export const AUTH_SERVICE = "AUTH_SERVICE",
   INSERT_SERVICE = "INSERT_SERVICE",
   FILE_SERVICE = "FILE_SERVICE",
   ON_CAMPUS_OFFER_SERVICE = "ON_CAMPUS_OFFER_SERVICE";
-  
 
 export enum COURSES {
   BTECH = "BTECH",
@@ -131,31 +130,31 @@ export const YEARS = ["2023", "2024", "2025"];
 
 export enum OrderByEnum {
   DESC = "DESC",
-  ASC = "ASC"
+  ASC = "ASC",
 }
 
 export class MatchOptionsString {
   @ApiPropertyOptional({
-      type: Array<String>
+    type: Array<string>,
   })
   @IsArray()
   @IsString({ each: true })
   @IsOptional()
-  eq?: Array<string>
+  eq?: Array<string>;
 }
 
 export class MatchOptionsNumber {
   @ApiPropertyOptional({
-      type: Array<Number>
+    type: Array<number>,
   })
   @IsArray()
-  @IsNumber({},{ each: true})
+  @IsNumber({}, { each: true })
   @IsOptional()
   @Type(() => Number)
-  eq?: Array<number>
+  eq?: Array<number>;
 
   @ApiPropertyOptional({
-      type: Number
+    type: Number,
   })
   @IsNumber()
   @IsOptional()
@@ -163,7 +162,7 @@ export class MatchOptionsNumber {
   lt?: number;
 
   @ApiPropertyOptional({
-      type: Number
+    type: Number,
   })
   @IsNumber()
   @IsOptional()

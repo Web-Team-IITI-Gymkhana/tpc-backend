@@ -54,7 +54,6 @@ export class GetTpcMemberQueryDto {
 
   @ApiPropertyOptional()
   contact?: string;
-
 }
 
 export class TpcMemberIdParamDto {

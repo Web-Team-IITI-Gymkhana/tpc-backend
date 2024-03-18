@@ -13,7 +13,8 @@ class JobStatusService {
 
   async createJobStatus(jobStatus: JobStatus, t?: Transaction) {
     const values = getQueryValues(jobStatus);
-    const status =await this.jobStatusRepo.create(values, { transaction: t });
+    const status = await this.jobStatusRepo.create(values, { transaction: t });
+
     return status;
   }
 

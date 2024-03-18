@@ -13,11 +13,13 @@ class EventService {
 
   async createEvent(event: Event, t?: Transaction) {
     const eventModel = await this.eventRepo.create(event, { transaction: t });
+
     return Event.fromModel(eventModel);
   }
 
   async getEvents(where: WhereOptions<EventModel>, t?: Transaction) {
     const eventModels = await this.eventRepo.findAll({ where: where, transaction: t });
+
     return eventModels.map((eventModel) => Event.fromModel(eventModel));
   }
 
@@ -27,6 +29,7 @@ class EventService {
       returning: true,
       transaction: t,
     });
+
     return Event.fromModel(updatedModel[0]);
   }
 

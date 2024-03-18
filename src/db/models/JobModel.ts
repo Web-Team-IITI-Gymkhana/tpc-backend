@@ -67,74 +67,76 @@ export class JobModel extends Model<JobModel> {
   @Column({ defaultValue: false })
   active: boolean;
 
-  @Column({ allowNull: true, type: sequelize.UUID })
-  currentStatusId: string;
+  @Column({ type: sequelize.STRING })
+  currentStatus: string;
 
   @Column({
     type: sequelize.JSONB,
-    defaultValue: Sequelize.literal("'{}'::jsonb")
+    defaultValue: Sequelize.literal("'{}'::jsonb"),
   })
   companyDetailsFilled: object;
 
   @Column({
     type: sequelize.JSONB,
-    defaultValue: Sequelize.literal("'{}'::jsonb")
+    defaultValue: Sequelize.literal("'{}'::jsonb"),
   })
   recruiterDetailsFilled: object;
 
   @Column({
     type: sequelize.JSONB,
-    defaultValue: Sequelize.literal("'{}'::jsonb")
+    defaultValue: Sequelize.literal("'{}'::jsonb"),
   })
   selectionProcedure: object;
 
   @Column({
-    type: sequelize.STRING
+    type: sequelize.STRING,
   })
   description: string;
 
   @Column({
-    type: sequelize.STRING
+    type: sequelize.STRING,
   })
   attachment: string;
 
   @Column({
-    type: sequelize.STRING
+    type: sequelize.STRING,
   })
   skills: string;
 
   @Column({
-    type: sequelize.STRING
+    type: sequelize.STRING,
   })
   location: string;
 
   @Column({
-    type: sequelize.INTEGER
+    type: sequelize.INTEGER,
   })
   noOfVacancies: number;
 
   @Column({
-    type: sequelize.DATE
+    type: sequelize.DATE,
   })
   offerLetterReleaseDate: string;
 
   @Column({
-    type: sequelize.DATE
+    type: sequelize.DATE,
   })
   joiningDate: string;
 
   @Column({
-    type: sequelize.INTEGER
+    type: sequelize.INTEGER,
   })
   duration: number;
 
-  //Restrict the deletion of status that is the current Status for a job.
-  @BelongsTo(() => JobStatusModel, {
-    as: "currentStatus",
-    foreignKey: "currentStatusId",
-    constraints: false,
-  })
-  currentStatus: JobStatusModel;
+  /*
+   * //Restrict the deletion of status that is the current Status for a job.
+   * @BelongsTo(() => JobStatusModel, {
+   * as: "currentStatus",
+   * foreignKey: "currentStatusId",
+   * constraints: false,
+   * })
+   * currentStatus: JobStatusModel;
+   */
 
   // Delete Job Status onDelete of Job
   @HasMany(() => JobStatusModel, {

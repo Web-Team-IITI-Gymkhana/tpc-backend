@@ -19,7 +19,7 @@ import sequelize from "sequelize";
 import { Transaction } from "sequelize";
 import {
   FILE_SERVICE,
-  JOB_SERVICE,
+  JAF_SERVICE,
   JOB_STATUS_SERVICE,
   PROGRAM_SERVICE,
   SALARY_SERVICE,
@@ -35,13 +35,13 @@ import { CreateJafDto, SalaryDetailsDto, TestDetailsDto } from "src/dtos/jaf";
 import { QueryInterceptor } from "src/interceptor/QueryInterceptor";
 import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import EventService from "src/services/EventService";
-import {FileService} from "src/services/FileService";
-import JobService from "src/services/JobService";
+import { FileService } from "src/services/FileService";
+import JafService from "src/services/JafService";
 import JobStatusService from "src/services/JobStatusService";
 import ProgramService from "src/services/ProgramService";
 import SalaryService from "src/services/SalaryService";
 import SeasonService from "src/services/SeasonService";
-import {v4 as uuidv4} from 'uuid';
+import { v4 as uuidv4 } from "uuid";
 
 @Controller("jaf")
 @ApiBearerAuth("jwt")
@@ -49,7 +49,7 @@ import {v4 as uuidv4} from 'uuid';
 export class JafController {
   constructor(
     @Inject(SEASON_SERVICE) private seasonService: SeasonService,
-    @Inject(JOB_SERVICE) private jobService: JobService,
+    @Inject(JAF_SERVICE) private jobService: JafService,
     @Inject(SALARY_SERVICE) private salaryService: SalaryService,
     @Inject(PROGRAM_SERVICE) private programService: ProgramService,
     @Inject(JOB_STATUS_SERVICE) private jobStatusService: JobStatusService,
@@ -78,6 +78,7 @@ export class JafController {
       );
     }
     const newSalaries = await Promise.all(promises);
+
     return newSalaries;
   }
 
@@ -97,11 +98,11 @@ export class JafController {
   }
 
   @UseInterceptors(TransactionInterceptor)
-  @UseInterceptors(FileInterceptor('attachment'))
+  @UseInterceptors(FileInterceptor("attachment"))
   @Post()
   async createJaf(@Body() body: CreateJafDto, @TransactionParam() t: Transaction, @UploadedFile() file: any) {
     let attachment = undefined;
-    if(file) {
+    if (file) {
       attachment = this.fileService.uploadFile(file);
     }
     const job = await this.jobService.createJob(
@@ -127,9 +128,14 @@ export class JafController {
 
     const salaries = await this.createSalaries(body.job.salaries, job.id, t);
     const status = await this.jobStatusService.createJobStatus({ jobId: job.id, status: JobStatusType.INITIALIZED }, t);
-    const newJob = await this.jobService.updateJob(job.id, {
-      currentStatusId: status.id
-    }, t);
+    const newJob = await this.jobService.updateJob(
+      job.id,
+      {
+        currentStatusId: status.id,
+      },
+      t
+    );
+
     return newJob;
   }
 }

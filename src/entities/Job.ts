@@ -29,8 +29,8 @@ export class Job {
   selectionProcedure: SelectionProcedureDetailsDto;
   salaries?: Salary[];
   others?: string;
-  currentStatusId?: string;
-  currentStatus?: JobStatus;
+  //   currentStatusId?: string;
+  currentStatus?: string;
   attachment?: string;
   companyDetailsFilled?: CompanyDetailsDto;
   recruiterDetailsFilled?: RecruiterDetailsDto;
@@ -39,7 +39,6 @@ export class Job {
   active: boolean;
   jobCoordinators?: JobCoordinator[];
   facultyApprovalRequests?: FacultyApprovalRequest[];
-
 
   constructor(input: {
     id?: string;
@@ -61,8 +60,8 @@ export class Job {
     salaries?: Salary[];
     others?: string;
     attachment?: string;
-    currentStatusId?: string;
-    currentStatus?: JobStatus;
+    // currentStatusId?: string;
+    currentStatus?: string;
     companyDetailsFilled?: object;
     recruiterDetailsFilled?: object;
     jobStatuses?: JobStatus[];
@@ -95,14 +94,17 @@ export class Job {
       salaries: job.salaries && job.salaries.map((salary) => Salary.fromModel(salary)),
       others: job.others,
       attachment: job.attachment,
-      currentStatusId: job.currentStatusId,
-      currentStatus: job.currentStatus && JobStatus.fromModel(job.currentStatus),
+      //   currentStatusId: job.currentStatusId,
+      currentStatus: job.currentStatus,
       companyDetailsFilled: job.companyDetailsFilled,
       recruiterDetailsFilled: job.recruiterDetailsFilled,
       jobStatuses: job.jobStatuses && job.jobStatuses.map((jobStatus) => JobStatus.fromModel(jobStatus)),
       active: job.active,
-      jobCoordinators: job.jobCoordinators && job.jobCoordinators.map((jobCoordinator) => JobCoordinator.fromModel(jobCoordinator)),
-      facultyApprovalRequests: job.facultyApprovalRequests && job.facultyApprovalRequests.map((request) => FacultyApprovalRequest.fromModel(request)),
-    })
+      jobCoordinators:
+        job.jobCoordinators && job.jobCoordinators.map((jobCoordinator) => JobCoordinator.fromModel(jobCoordinator)),
+      facultyApprovalRequests:
+        job.facultyApprovalRequests &&
+        job.facultyApprovalRequests.map((request) => FacultyApprovalRequest.fromModel(request)),
+    });
   }
 }

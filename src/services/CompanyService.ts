@@ -12,12 +12,14 @@ class CompanyService {
   constructor(@Inject(COMPANY_DAO) private companyRepo: typeof CompanyModel) {}
 
   async createCompany(company: Company, t?: Transaction) {
-    const companyModel = await this.companyRepo.create(omit(company, 'jobs'), { transaction: t });
+    const companyModel = await this.companyRepo.create(omit(company, "jobs"), { transaction: t });
+
     return Company.fromModel(companyModel);
   }
 
   async getCompanies(where?: WhereOptions<CompanyModel>, t?: Transaction) {
     const companyModels = await this.companyRepo.findAll({ where: where, transaction: t });
+
     return companyModels.map((companyModel) => Company.fromModel(companyModel));
   }
 
@@ -27,6 +29,7 @@ class CompanyService {
       returning: true,
       transaction: t,
     });
+
     return Company.fromModel(updatedModel[0]);
   }
 

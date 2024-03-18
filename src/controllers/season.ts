@@ -25,6 +25,7 @@ export class SeasonController {
   @UseInterceptors(ClassSerializerInterceptor)
   async addSeason(@Body() body: AddSeasonDto) {
     const season = await this.seasonService.createSeason(new Season({ type: body.type, year: body.year }));
+
     return { season: season };
   }
 
@@ -32,6 +33,7 @@ export class SeasonController {
   @UseInterceptors(ClassSerializerInterceptor)
   async getSeasons() {
     const seasons = await this.seasonService.getSeasons();
+
     return { seasons: seasons };
   }
 }

@@ -77,4 +77,3 @@ export class CreateFacultiesDto {
   @Type(() => CreateFacultyDto)
   faculties: CreateFacultyDto[];
 }
-

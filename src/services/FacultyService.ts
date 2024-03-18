@@ -12,10 +12,15 @@ class FacultyService {
 
   constructor(@Inject(FACULTY_DAO) private facultyRepo: typeof FacultyModel) {}
 
-  async getFaculties(whereFaculty?: WhereOptions<FacultyModel>, whereUser?: WhereOptions<UserModel>,t?: Transaction) {
+  async getFaculties(whereFaculty?: WhereOptions<FacultyModel>, whereUser?: WhereOptions<UserModel>, t?: Transaction) {
     const valuesFaculty = getQueryValues(whereFaculty);
     const valuesUser = getQueryValues(whereUser);
-    const facultyModels = await this.facultyRepo.findAll({ where: valuesFaculty, transaction: t, include: {model: UserModel, where: valuesUser, required: true} });
+    const facultyModels = await this.facultyRepo.findAll({
+      where: valuesFaculty,
+      transaction: t,
+      include: { model: UserModel, where: valuesUser, required: true },
+    });
+
     return facultyModels.map((facultyModel) => Faculty.fromModel(facultyModel));
   }
 
@@ -25,6 +30,7 @@ class FacultyService {
       defaults: omit(faculty, "user"),
       transaction: t,
     });
+
     return Faculty.fromModel(facultyModel);
   }
 
@@ -38,6 +44,7 @@ class FacultyService {
       returning: true,
       transaction: t,
     });
+
     return Faculty.fromModel(updatedModel[0]);
   }
 }

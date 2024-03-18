@@ -19,6 +19,7 @@ class OffCampusOfferService {
       defaults: values,
       transaction: t,
     });
+
     return OffCampusOffer.fromModel(offCampusOfferModel);
   }
 
@@ -26,8 +27,9 @@ class OffCampusOfferService {
     const values = getQueryValues(where);
     const offCampusOfferModels = await this.offCampusOfferRepo.findAll({
       where: values,
-      transaction: t
+      transaction: t,
     });
+
     return offCampusOfferModels.map((offCampusOfferModel) => OffCampusOffer.fromModel(offCampusOfferModel));
   }
 
@@ -37,6 +39,7 @@ class OffCampusOfferService {
       returning: true,
       transaction: t,
     });
+
     return OffCampusOffer.fromModel(updatedModel[0]);
   }
 

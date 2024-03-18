@@ -1,7 +1,7 @@
 import sequelize from "sequelize";
 import { BelongsTo, Column, ForeignKey, Model, Table } from "sequelize-typescript";
 import { JobModel } from "./JobModel";
-import { Gender, Category } from "../enums"; 
+import { Gender, Category } from "../enums";
 
 @Table({
   tableName: "Salary",
@@ -32,27 +32,27 @@ export class SalaryModel extends Model<SalaryModel> {
   criteria: object;
 
   @Column({
-    type: sequelize.INTEGER
+    type: sequelize.INTEGER,
   })
   baseSalary: number;
 
   @Column({
-    type: sequelize.INTEGER
+    type: sequelize.INTEGER,
   })
   totalCTC: number;
 
   @Column({
-    type: sequelize.INTEGER
+    type: sequelize.INTEGER,
   })
   takeHomeSalary: number;
 
   @Column({
-    type: sequelize.INTEGER
+    type: sequelize.INTEGER,
   })
   grossSalary: number;
 
   @Column({
-    type: sequelize.INTEGER
+    type: sequelize.INTEGER,
   })
   otherCompensations: number;
 }

@@ -20,23 +20,30 @@ import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
 import { ApiBearerAuth } from "@nestjs/swagger";
-import {  bulkOperate, conformToModel, find_order, makeFilter, optionsFactory } from "src/utils/utils";
+import { bulkOperate, conformToModel, find_order, makeFilter, optionsFactory } from "src/utils/utils";
 import { ProgramModel, StudentModel, UserModel } from "src/db/models";
 import { QueryInterceptor } from "src/interceptor/QueryInterceptor";
-import { CreateStudentDto, CreateStudentReturnDto, DeleteStudentQueryDto, GetStudentReturnDto, GetStudentsReturnDto, UpdateStudentDto, WhereOptionsDto } from "src/dtos/student";
+import {
+  CreateStudentDto,
+  CreateStudentReturnDto,
+  DeleteStudentQueryDto,
+  GetStudentReturnDto,
+  GetStudentsReturnDto,
+  UpdateStudentDto,
+  WhereOptionsDto,
+} from "src/dtos/student";
 import { AuthGuard } from "@nestjs/passport";
 
 @Controller("/students")
 @ApiBearerAuth("jwt")
 // @UseGuards(AuthGuard("jwt"))
 export class StudentController {
-  constructor(
-    @Inject(STUDENT_SERVICE) private studentService: StudentService,
-  ) {}
+  constructor(@Inject(STUDENT_SERVICE) private studentService: StudentService) {}
 
   //Template Starts.
 
-  /**  This is how I think a generalized template would look like.
+  /**
+   *  This is how I think a generalized template would look like.
    *   We can thrash this and go for hardcoding the values also.
    *   The main advantage this gives are the utils functions which can help us by removing the part where we hardcode the mappings.
    *   Especially in GET.
@@ -54,7 +61,8 @@ export class StudentController {
 
   @Get()
   @UseInterceptors(QueryInterceptor)
-  async getStudents(@Query() where: WhereOptionsDto) : Promise<GetStudentsReturnDto[]> {
+  async getStudents(@Query() where: WhereOptionsDto): Promise<GetStudentsReturnDto[]> {
+    console.log(where);
     const models = [StudentModel, UserModel, ProgramModel];
     const alias = ["", "user", "program"];
     const filterBy = where.filterBy || {};
@@ -62,33 +70,33 @@ export class StudentController {
     const options = optionsFactory(where.from, where.to);
     const filters = [];
 
+    // put this code in the optionsFactory
     for (let i = 0; i < models.length; i++) {
       const model = models[i];
-      filters.push(makeFilter(conformToModel(filterBy, model, i==0)));
-      const orderBy = conformToModel(orders, model, i==0);
+      filters.push(makeFilter(conformToModel(filterBy, model, i == 0)));
+      const orderBy = conformToModel(orders, model, i == 0);
       if (Object.keys(orderBy).length) {
         const res = find_order(orderBy, model);
         options["order"] = [[{ model: model, as: alias[i] }, res[0], res[1]]];
       }
     }
 
-    if (options["order"] && options["order"][0][0]["as"] == "")    
-          options["order"][0] = [options["order"][0][1], options["order"][0][2]];
-    
-    
+    if (options["order"] && options["order"][0][0]["as"] == "")
+      options["order"][0] = [options["order"][0][1], options["order"][0][2]];
+
     const ans = await this.studentService.getStudents(filters, options);
     const pipe = new ParseArrayPipe({
       whitelist: true,
-      items: GetStudentsReturnDto
+      items: GetStudentsReturnDto,
     });
 
     return pipe.transform(ans, {
-      type: 'body'
+      type: "body",
     });
   }
 
-  @Get('/:id')
-  async getStudent(@Param('id') id: string) : Promise<GetStudentReturnDto>  {
+  @Get("/:id")
+  async getStudent(@Param("id") id: string): Promise<GetStudentReturnDto> {
     const ans = await this.studentService.getStudent(id);
     const pipe = new ValidationPipe({
       transform: true,
@@ -97,7 +105,7 @@ export class StudentController {
     });
 
     return pipe.transform(ans, {
-      type: 'body'
+      type: "body",
     });
   }
 
@@ -106,7 +114,7 @@ export class StudentController {
   async createStudents(
     @Body(new ParseArrayPipe({ items: CreateStudentDto })) body: CreateStudentDto[],
     @TransactionParam() transaction: Transaction
-  ) : Promise<CreateStudentReturnDto[]> {
+  ): Promise<CreateStudentReturnDto[]> {
     const data = [];
     for (const student of body) {
       student["role"] = Role.STUDENT;
@@ -121,13 +129,14 @@ export class StudentController {
       items: CreateStudentReturnDto,
       whitelist: true,
     });
-    
+
     return pipe.transform(ans, {
-      type: 'body'
+      type: "body",
     });
   }
 
-  /**  The body is an array of the form: 
+  /**
+   *  The body is an array of the form:
    * {
    *    fieldToBeUpdated: newValue.
    * }
@@ -135,15 +144,19 @@ export class StudentController {
    */
   @Patch()
   @UseInterceptors(TransactionInterceptor)
-  async updateStudents(@Body(new ParseArrayPipe({ items: UpdateStudentDto })) body: UpdateStudentDto[], @TransactionParam() t: Transaction) {
+  async updateStudents(
+    @Body(new ParseArrayPipe({ items: UpdateStudentDto })) body: UpdateStudentDto[],
+    @TransactionParam() t: Transaction
+  ) {
     const data = [];
-    for(const value of body) {
+    for (const value of body) {
       const student = conformToModel(value, StudentModel, 1);
       const user = conformToModel(value, UserModel, 0);
       const updateValues = [student, user];
       data.push(updateValues);
     }
-    const ans = await bulkOperate(this.studentService, 'updateStudent', data, t);
+    const ans = await bulkOperate(this.studentService, "updateStudent", data, t);
+
     return ans;
   }
 
@@ -154,9 +167,9 @@ export class StudentController {
    * }
    */
   @Delete()
-  async deleteStudents(@Query() query: DeleteStudentQueryDto) : Promise<Number> {
+  async deleteStudents(@Query() query: DeleteStudentQueryDto): Promise<number> {
     return this.studentService.deleteStudents(query.userId);
   }
-  
+
   //Template Ends.
 }

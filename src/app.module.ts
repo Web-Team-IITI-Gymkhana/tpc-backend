@@ -11,7 +11,7 @@ import {
   FACULTY_SERVICE,
   FACULTY_APPROVAL_REQUEST_SERVICE,
   JOB_COORDINATOR_SERVICE,
-  JOB_SERVICE,
+  JAF_SERVICE,
   JOB_STATUS_SERVICE,
   OFF_CAMPUS_OFFER_SERVICE,
   ON_CAMPUS_OFFER_SERVICE,
@@ -25,13 +25,13 @@ import {
   USER_SERVICE,
   INSERT_SERVICE,
   FILE_SERVICE,
-  JOB_SERVICE_NEW
+  JOB_SERVICE,
 } from "./constants";
 import UserService from "./services/UserService";
 import { AuthController } from "./auth/auth.controller";
 import SeasonService from "./services/SeasonService";
 import CompanyService from "./services/CompanyService";
-import JobService from "./services/JobService";
+import JafService from "./services/JafService";
 import JobStatusService from "./services/JobStatusService";
 import { TransactionInterceptor } from "./interceptor/TransactionInterceptor";
 import RecruiterService from "./services/RecruiterService";
@@ -53,7 +53,6 @@ import PenaltyService from "./services/PenaltyService";
 import JobCoordinatorService from "./services/JobCoordinatorService";
 import { FacultyController } from "./controllers/faculty";
 import FacultyService from "./services/FacultyService";
-import { JobCoordinatorController } from "./controllers/jobCoordinator";
 import SalaryService from "./services/SalaryService";
 import { SalaryController } from "./controllers/salary";
 import { OffCampusOfferController } from "./controllers/offCampusOffer";
@@ -64,7 +63,7 @@ import { QueryInterceptor } from "./interceptor/QueryInterceptor";
 import { JafController } from "./controllers/jaf";
 import { FileService } from "./services/FileService";
 import { InsertService } from "./services/InsertService";
-import { JobServiceNew } from "./services/JobServiceNew";
+import { JobService } from "./services/JobService";
 
 @Module({
   imports: [ConfigModule.forRoot(), DatabaseModule],
@@ -79,7 +78,6 @@ import { JobServiceNew } from "./services/JobServiceNew";
     TpcMemberController,
     RecruiterController,
     FacultyController,
-    JobCoordinatorController,
     OffCampusOfferController,
     OnCampusOfferController,
     SalaryController,
@@ -120,8 +118,8 @@ import { JobServiceNew } from "./services/JobServiceNew";
       useClass: CompanyService,
     },
     {
-      provide: JOB_SERVICE,
-      useClass: JobService,
+      provide: JAF_SERVICE,
+      useClass: JafService,
     },
     {
       provide: JOB_STATUS_SERVICE,
@@ -165,16 +163,16 @@ import { JobServiceNew } from "./services/JobServiceNew";
     },
     {
       provide: INSERT_SERVICE,
-      useClass: InsertService
+      useClass: InsertService,
     },
     {
       provide: FILE_SERVICE,
-      useClass: FileService
+      useClass: FileService,
     },
     {
-      provide: JOB_SERVICE_NEW,
-      useClass: JobServiceNew
-    }
+      provide: JOB_SERVICE,
+      useClass: JobService,
+    },
   ],
 })
 export class AppModule {}

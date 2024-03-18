@@ -25,13 +25,13 @@ export class CompanyModel extends Model<CompanyModel> {
   website: string;
 
   @Column({
-    type: sequelize.ARRAY(sequelize.ENUM(...Object.values(IndustryDomain)))
+    type: sequelize.ARRAY(sequelize.ENUM(...Object.values(IndustryDomain))),
   })
   domains: IndustryDomain[];
 
   @Column({
     type: sequelize.ENUM,
-    values: Object.values(CompanyCategory)
+    values: Object.values(CompanyCategory),
   })
   category: CompanyCategory;
 
@@ -42,28 +42,28 @@ export class CompanyModel extends Model<CompanyModel> {
   address: object;
 
   @Column({
-    type: sequelize.INTEGER
+    type: sequelize.INTEGER,
   })
   size: number;
 
   @Column({
-    type: sequelize.INTEGER
+    type: sequelize.INTEGER,
   })
   yearOfEstablishment: number;
 
   @Column({
-    type: sequelize.STRING
+    type: sequelize.STRING,
   })
   annualTurnover: string;
 
   @Column({
-    type: sequelize.STRING
+    type: sequelize.STRING,
   })
   socialMediaLink: string;
 
-  @HasMany(()=> JobModel, {
-    foreignKey: 'companyId',
-    onDelete: "CASCADE"
+  @HasMany(() => JobModel, {
+    foreignKey: "companyId",
+    onDelete: "CASCADE",
   })
   jobs: JobModel[];
 }

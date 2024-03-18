@@ -10,20 +10,25 @@ import { getQueryValues } from "src/utils/utils";
 class JobCoordinatorService {
   private logger = new Logger(JobCoordinatorService.name);
 
-  constructor(@Inject(JOB_COORDINATOR_DAO) private jobCoordinatorRepo: typeof JobCoordinatorModel) { }
+  constructor(@Inject(JOB_COORDINATOR_DAO) private jobCoordinatorRepo: typeof JobCoordinatorModel) {}
 
   async createOrGetJobCoordinator(jobCoordinator: JobCoordinator, t?: Transaction) {
     const [jobCoordinatorModel] = await this.jobCoordinatorRepo.findOrCreate({
       where: omit(jobCoordinator, "tpcMember"),
-      defaults: omit(jobCoordinator, 'tpcMember'),
+      defaults: omit(jobCoordinator, "tpcMember"),
       transaction: t,
     });
+
     return JobCoordinator.fromModel(jobCoordinatorModel);
   }
 
-
   async getJobCoordinators(where: WhereOptions<JobCoordinatorModel>, t?: Transaction) {
-    const jobCoordinatorModels = await this.jobCoordinatorRepo.findAll({ where: where, transaction: t, include: { model: TpcMemberModel, include: [UserModel], required: true } });
+    const jobCoordinatorModels = await this.jobCoordinatorRepo.findAll({
+      where: where,
+      transaction: t,
+      include: { model: TpcMemberModel, include: [UserModel], required: true },
+    });
+
     return jobCoordinatorModels.map((JobCoordinatorModel) => JobCoordinator.fromModel(JobCoordinatorModel));
   }
 
@@ -33,6 +38,7 @@ class JobCoordinatorService {
       returning: true,
       transaction: t,
     });
+
     return JobCoordinator.fromModel(updatedModel[0]);
   }
 

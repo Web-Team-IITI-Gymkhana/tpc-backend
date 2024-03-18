@@ -10,10 +10,11 @@ import { getQueryValues } from "src/utils/utils";
 class TpcMemberService {
   private logger = new Logger(TpcMemberService.name);
 
-  constructor(@Inject(TPC_MEMBER_DAO) private tpcMemberRepo: typeof TpcMemberModel) { }
+  constructor(@Inject(TPC_MEMBER_DAO) private tpcMemberRepo: typeof TpcMemberModel) {}
 
   async createTpcMember(tpcMember: TpcMember, t?: Transaction) {
     const tpcMemberModel = await this.tpcMemberRepo.create(omit(tpcMember, "user"), { transaction: t });
+
     return TpcMember.fromModel(tpcMemberModel);
   }
 
@@ -23,6 +24,7 @@ class TpcMemberService {
       defaults: omit(tpcMember, "user"),
       transaction: t,
     });
+
     return TpcMember.fromModel(tpcMemberModel);
   }
 
@@ -31,13 +33,23 @@ class TpcMemberService {
       tpcMembers.map((tpcMember) => omit(tpcMember, "user")),
       { transaction: t }
     );
+
     return tpcMemberModels.map((tpcMemberModel) => TpcMember.fromModel(tpcMemberModel));
   }
 
-  async getTpcMembers(whereTpcMembers?: WhereOptions<TpcMemberModel>, whereUser?: WhereOptions<UserModel>, t?: Transaction) {
+  async getTpcMembers(
+    whereTpcMembers?: WhereOptions<TpcMemberModel>,
+    whereUser?: WhereOptions<UserModel>,
+    t?: Transaction
+  ) {
     const valuesStudent = getQueryValues(whereTpcMembers);
     const valuesUser = getQueryValues(whereUser);
-    const tpcMemberModels = await this.tpcMemberRepo.findAll({ where: valuesStudent, transaction: t, include: { model: UserModel, where: valuesUser, required: true } });
+    const tpcMemberModels = await this.tpcMemberRepo.findAll({
+      where: valuesStudent,
+      transaction: t,
+      include: { model: UserModel, where: valuesUser, required: true },
+    });
+
     return tpcMemberModels.map((tpcMemberModel) => TpcMember.fromModel(tpcMemberModel));
   }
 
@@ -51,6 +63,7 @@ class TpcMemberService {
       returning: true,
       transaction: t,
     });
+
     return TpcMember.fromModel(updatedModel[0]);
   }
 }

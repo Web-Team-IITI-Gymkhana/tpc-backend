@@ -15,6 +15,7 @@ export class AdminController {
   @UseInterceptors(ClassSerializerInterceptor)
   async getAllProgramsOffered() {
     const programs = await this.programService.getPrograms();
+
     return { programs: programs };
   }
 }

@@ -10,7 +10,9 @@ import { getQueryValues } from "src/utils/utils";
 class FacultyApprovalRequestService {
   private logger = new Logger(FacultyApprovalRequestService.name);
 
-  constructor(@Inject(FACULTY_APPROVAL_REQUEST_DAO) private facultyApprovalRequestRepo: typeof FacultyApprovalRequestModel) { }
+  constructor(
+    @Inject(FACULTY_APPROVAL_REQUEST_DAO) private facultyApprovalRequestRepo: typeof FacultyApprovalRequestModel
+  ) {}
 
   async createOrGetFacultyApprovalRequest(facultyApprovalRequest: FacultyApprovalRequest, t?: Transaction) {
     const [facultyApprovalRequestModel] = await this.facultyApprovalRequestRepo.findOrCreate({
@@ -18,14 +20,20 @@ class FacultyApprovalRequestService {
       defaults: omit(facultyApprovalRequest),
       transaction: t,
     });
+
     return FacultyApprovalRequest.fromModel(facultyApprovalRequestModel);
   }
 
-
   async getFacultyApprovalRequests(where: WhereOptions<FacultyApprovalRequestModel>, t?: Transaction) {
     const values = getQueryValues(where);
-    const facultyApprovalRequestModels = await this.facultyApprovalRequestRepo.findAll({ where: values, transaction: t });
-    return facultyApprovalRequestModels.map((facultyApprovalRequestModel) => FacultyApprovalRequest.fromModel(facultyApprovalRequestModel));
+    const facultyApprovalRequestModels = await this.facultyApprovalRequestRepo.findAll({
+      where: values,
+      transaction: t,
+    });
+
+    return facultyApprovalRequestModels.map((facultyApprovalRequestModel) =>
+      FacultyApprovalRequest.fromModel(facultyApprovalRequestModel)
+    );
   }
 
   async updateFacultyApprovalRequest(facultyApprovalRequestId: string, fieldsToUpdate: object, t?: Transaction) {
@@ -34,11 +42,15 @@ class FacultyApprovalRequestService {
       returning: true,
       transaction: t,
     });
+
     return FacultyApprovalRequest.fromModel(updatedModel[0]);
   }
 
   async deleteFacultyApprovalRequest(facultyApprovalRequestId: string, t?: Transaction) {
-    return !!(await this.facultyApprovalRequestRepo.destroy({ where: { id: facultyApprovalRequestId }, transaction: t }));
+    return !!(await this.facultyApprovalRequestRepo.destroy({
+      where: { id: facultyApprovalRequestId },
+      transaction: t,
+    }));
   }
 }
 

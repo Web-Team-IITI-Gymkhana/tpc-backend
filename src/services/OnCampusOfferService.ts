@@ -1,7 +1,7 @@
 import { Inject, Injectable, Logger } from "@nestjs/common";
 import { Transaction, WhereOptions } from "sequelize";
-import { ON_CAMPUS_OFFER_DAO } from "src/constants"; 
-import { OnCampusOfferModel } from "src/db/models"; 
+import { ON_CAMPUS_OFFER_DAO } from "src/constants";
+import { OnCampusOfferModel } from "src/db/models";
 import { OnCampusOffer } from "src/entities/OnCampusOffer";
 import { getQueryValues } from "src/utils/utils";
 
@@ -18,6 +18,7 @@ class OnCampusOfferService {
       defaults: values,
       transaction: t,
     });
+
     return OnCampusOffer.fromModel(onCampusOfferModel);
   }
 
@@ -25,8 +26,9 @@ class OnCampusOfferService {
     const values = getQueryValues(where);
     const onCampusOfferModels = await this.onCampusOfferRepo.findAll({
       where: values,
-      transaction: t
+      transaction: t,
     });
+
     return onCampusOfferModels.map((onCampusOfferModel) => OnCampusOffer.fromModel(onCampusOfferModel));
   }
 
@@ -36,6 +38,7 @@ class OnCampusOfferService {
       returning: true,
       transaction: t,
     });
+
     return OnCampusOffer.fromModel(updatedModel[0]);
   }
 

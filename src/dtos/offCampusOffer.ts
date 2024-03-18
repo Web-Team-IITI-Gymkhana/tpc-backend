@@ -145,7 +145,7 @@ export class OffCampusOfferQueryDto {
   status?: string;
 
   @ApiPropertyOptional({
-    type: String
+    type: String,
   })
   id?: string;
 }

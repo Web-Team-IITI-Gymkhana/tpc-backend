@@ -45,7 +45,7 @@ export class UpdateSalaryDto {
   @ApiPropertyOptional({
     type: String,
   })
-  salary?: Number;
+  salary?: number;
 
   @ApiPropertyOptional({
     type: String,

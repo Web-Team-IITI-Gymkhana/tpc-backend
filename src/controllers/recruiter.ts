@@ -26,7 +26,7 @@ import { Transaction } from "sequelize";
 import { User } from "src/entities/User";
 import { Role } from "src/db/enums";
 import { CompanyIdParamDto } from "src/dtos/company";
-import { UpdateOrFind } from "src/utils/utils";
+import { updateOrFind } from "src/utils/utils";
 
 @Controller("companies/:companyId/recruiters")
 @ApiBearerAuth("jwt")
@@ -35,7 +35,7 @@ export class RecruiterController {
   constructor(
     @Inject(RECRUITER_SERVICE) private recruiterService: RecruiterService,
     @Inject(USER_SERVICE) private userService: UserService
-  ) { }
+  ) {}
 
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
@@ -54,13 +54,11 @@ export class RecruiterController {
     @Param() param: CompanyIdParamDto,
     @Body() body: AddRecruitersDto,
     @TransactionParam() transaction: Transaction
-  ) {
-    
-  }
+  ) {}
 
   querybuilder(params) {
-    let Recruiter = {};
-    let User = {};
+    const Recruiter = {};
+    const User = {};
     if (params.companyId) {
       Recruiter["companyId"] = params.companyId;
     }
@@ -95,7 +93,7 @@ export class RecruiterController {
       throw new HttpException(`recruiter with recruiterId: ${param.recruiterId} not found`, HttpStatus.NOT_FOUND);
     }
     const { Recruiter, User } = this.querybuilder(body);
-    const newRecruiter = await UpdateOrFind(
+    const newRecruiter = await updateOrFind(
       param.recruiterId,
       Recruiter,
       this.recruiterService,
@@ -103,8 +101,16 @@ export class RecruiterController {
       "getRecruiters",
       transaction
     );
-    const newUser = await UpdateOrFind(newRecruiter.userId, User, this.userService, "updateUser", "getUserById", transaction);
+    const newUser = await updateOrFind(
+      newRecruiter.userId,
+      User,
+      this.userService,
+      "updateUser",
+      "getUserById",
+      transaction
+    );
     newRecruiter.user = newUser;
+
     return { recruiter: newRecruiter };
   }
 
@@ -124,6 +130,7 @@ export class RecruiterController {
     const userId = recruiter.userId;
     const recruiterDeleted = await this.recruiterService.deleteRecruiter(param.recruiterId, transaction);
     const userDeleted = await this.userService.deleteUser(userId, transaction);
+
     return { deleted: userDeleted && recruiterDeleted };
   }
 }

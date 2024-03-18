@@ -21,7 +21,7 @@ import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
 import { OffCampusOffer } from "src/entities/OffCampusOffer";
-import { UpdateOrFind } from "src/utils/utils";
+import { updateOrFind } from "src/utils/utils";
 import {
   CreateOffCampusOffersDto,
   OffCampusOfferIdParamDto,
@@ -51,6 +51,7 @@ export class OffCampusOfferController {
       offerType: query.offerType,
       status: query.status,
     });
+
     return { offCampusOffers: offCampusOffers };
   }
 
@@ -77,6 +78,7 @@ export class OffCampusOfferController {
       );
     }
     const offCampusOffers = await Promise.all(promises);
+
     return { offCampusOffers: offCampusOffers };
   }
 
@@ -91,13 +93,14 @@ export class OffCampusOfferController {
       );
     }
 
-    const newOffCampusOffer = await UpdateOrFind(
+    const newOffCampusOffer = await updateOrFind(
       param.offCampusOfferId,
       body,
       this.offCampusOfferService,
       "updateOffCampusOffer",
       "getOffCampusOffers"
     );
+
     return { offCampusOffer: newOffCampusOffer };
   }
 
@@ -112,6 +115,7 @@ export class OffCampusOfferController {
       );
     }
     const deleted = await this.offCampusOfferService.deleteOffCampusOffer(param.offCampusOfferId);
+
     return { deleted: deleted };
   }
 }

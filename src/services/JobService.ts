@@ -1,81 +1,167 @@
-import { Inject, Injectable, Logger } from "@nestjs/common";
-import { omit } from "lodash";
-import sequelize from "sequelize";
-import { Sequelize, Transaction, WhereOptions } from "sequelize";
-import { COMPANY_DAO, JOB_DAO, JOB_STATUS_DAO, RECRUITER_DAO } from "src/constants";
-import { JobStatusType } from "src/db/enums";
-import { CompanyModel, JobModel, JobStatusModel, RecruiterModel, SeasonModel } from "src/db/models";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { JOB_COORDINATOR_DAO, JOB_DAO } from "src/constants";
+import {
+  CompanyModel,
+  FacultyApprovalRequestModel,
+  FacultyModel,
+  JobCoordinatorModel,
+  JobModel,
+  JobStatusModel,
+  RecruiterModel,
+  SeasonModel,
+  TpcMemberModel,
+  UserModel,
+} from "src/db/models";
+import { UpdateJobDto } from "src/dtos/job";
 import { Job } from "src/entities/Job";
-import { JobStatus } from "src/entities/JobStatus";
-import { getQueryValues } from "src/utils/utils";
 
 @Injectable()
-class JobService {
-  private logger = new Logger(JobService.name);
-
+export class JobService {
   constructor(
     @Inject(JOB_DAO) private jobRepo: typeof JobModel,
-    @Inject(COMPANY_DAO) private companyRepo: typeof CompanyModel,
-    @Inject(RECRUITER_DAO) private recruiterRepo: typeof RecruiterModel,
-    @Inject(JOB_STATUS_DAO) private jobStatusRepo: typeof JobStatusModel,
+    @Inject(JOB_COORDINATOR_DAO) private jobCoordinatorRepo: typeof JobModel
   ) {}
 
-  async createJob(job: Job, t?: Transaction) {
-    const obj = getQueryValues(job);
-    const jobModel = await this.jobRepo.create(omit(obj, "company", "season", "recruiter", "currentStatus"), {
-      transaction: t,
-    });
-    return Job.fromModel(jobModel);
+  async getJobs(filters, options): Promise<Job[]> {
+    const restrictions = {
+      where: filters[0],
+      include: [
+        {
+          model: SeasonModel,
+          as: "season",
+          where: filters[1],
+          required: true,
+        },
+        /*
+         * {
+         *     model: JobStatusModel,
+         *     as: 'currentStatus',
+         *     where: filters[2],
+         *     required: true,
+         * },
+         */
+        {
+          model: CompanyModel,
+          as: "company",
+          where: filters[3],
+          required: true,
+        },
+      ],
+    };
+    Object.assign(restrictions, options);
+
+    const jobs = await this.jobRepo.findAll(restrictions);
+
+    return jobs.map((job) => Job.fromModel(job));
   }
 
-  async getJobs() : Promise<Job[]> {
-    const ans = await this.jobRepo.findAll();
-    return ans.map((job) => Job.fromModel(job));
+  async getJob(id: string): Promise<Job> {
+    const ans = await this.jobRepo.findByPk(id, {
+      include: [
+        {
+          model: SeasonModel,
+          as: "season",
+        },
+        {
+          model: CompanyModel,
+          as: "company",
+        },
+        {
+          model: JobStatusModel,
+          as: "jobStatuses",
+        },
+        {
+          model: RecruiterModel,
+          as: "recruiter",
+          include: [
+            {
+              model: UserModel,
+              as: "user",
+            },
+            {
+              model: CompanyModel,
+              as: "company",
+            },
+          ],
+        },
+        {
+          model: JobCoordinatorModel,
+          as: "jobCoordinators",
+          include: [
+            {
+              model: TpcMemberModel,
+              as: "tpcMember",
+              include: [
+                {
+                  model: UserModel,
+                  as: "user",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          model: FacultyApprovalRequestModel,
+          as: "facultyApprovalRequests",
+          include: [
+            {
+              model: FacultyModel,
+              as: "faculty",
+              include: [
+                {
+                  model: UserModel,
+                  as: "user",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    return Job.fromModel(ans);
   }
 
-  async updateJob(jobId: string, fieldsToUpdate: object, transaction?: Transaction): Promise<Job> {
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    const [_, updatedJob] = await this.jobRepo.update(fieldsToUpdate, {
-      where: { id: jobId },
-      returning: true,
-      transaction,
-    });
-    return Job.fromModel(updatedJob[0]);
+  async createCoordinators(coordinators: any): Promise<Array<string>> {
+    const ans = await this.jobCoordinatorRepo.bulkCreate(coordinators);
+
+    return ans.map((data) => data.id);
   }
 
-  async upsertJobStatusAndUpdateCurrent(jobStatus: JobStatus, transaction?: Transaction) {
-    const pr1 =  this.jobStatusRepo.upsert(jobStatus, {
-      transaction: transaction,
-    });
-    const pr2 =   this.jobRepo.findOne({
-      where: { id: jobStatus.jobId },
-      include: {
-        model: JobStatusModel,
-        as: 'currentStatus',
-        required: true
-      },
-      transaction: transaction
-    });
-    const [[instance], prevJob] = await Promise.all([pr1, pr2]);
-    const prevStatus = prevJob.currentStatus.status;
-    if(prevStatus == JobStatusType.INITIALIZED && jobStatus.status == JobStatusType.SCHEDULED) {
-      const company = await this.companyRepo.create(prevJob.companyDetailsFilled,{
-        transaction: transaction
-      });
-      prevJob.recruiterDetailsFilled['companyId'] = company.id;
-      const recruiter = await this.recruiterRepo.create(prevJob.recruiterDetailsFilled,{
-        transaction: transaction
-      });
-      const job = await this.updateJob(instance.jobId, { currentStatusId: instance.id, companyId: company.id, recruiterId: recruiter.id }, transaction);
-      return job;
+  async updateJobs(body: UpdateJobDto[]): Promise<Job[]> {
+    const jobs = await this.jobRepo.findAll({ where: { id: body.map((data) => data.id) } });
+
+    const bodyIds = new Set(body.map((data) => data.id));
+    const jobIds = new Set(jobs.map((job) => job.id));
+    const difference = new Set([...bodyIds].filter((id) => !jobIds.has(id)));
+
+    console.log(difference, bodyIds, jobIds);
+    const toUpdate = body.filter((value) => jobIds.has(value.id));
+    console.log(toUpdate);
+
+    const pr = toUpdate.map((data) => this.jobRepo.update(data, { where: { id: data.id }, returning: true }));
+    const ans = await Promise.all(pr);
+
+    if (difference.size > 0) {
+      throw new NotFoundException(`Some jobs were not found. Please check the ids ${Array.from(difference).join(",")}`);
     }
-  const job = await this.updateJob(instance.jobId, { currentStatusId: instance.id }, transaction);
-  return job;
+
+    return ans.map((data) => Job.fromModel(data[1][0]));
   }
 
-  async deleteJob(jobId: string, t?: Transaction) {
-    return !!(await this.jobRepo.destroy({ where: { id: jobId }, transaction: t }));
+  async deleteJobs(ids: string[]): Promise<number> {
+    const ans = await this.jobRepo.destroy({
+      where: { id: ids },
+    });
+
+    return ans;
+  }
+
+  async deleteJobCordinators(ids: string[]): Promise<number> {
+    const ans = await this.jobCoordinatorRepo.destroy({
+      where: { id: ids },
+    });
+
+    return ans;
   }
 }
-
-export default JobService;

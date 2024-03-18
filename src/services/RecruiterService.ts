@@ -10,10 +10,11 @@ import { getQueryValues } from "src/utils/utils";
 class RecruiterService {
   private logger = new Logger(RecruiterService.name);
 
-  constructor(@Inject(RECRUITER_DAO) private recruiterRepo: typeof RecruiterModel) { }
+  constructor(@Inject(RECRUITER_DAO) private recruiterRepo: typeof RecruiterModel) {}
 
   async createRecruiter(recruiter: Recruiter, t?: Transaction) {
     const recruiterModel = await this.recruiterRepo.create(omit(recruiter, "user", "company"), { transaction: t });
+
     return Recruiter.fromModel(recruiterModel);
   }
   async getOrCreateRecruiter(recruiter: Recruiter, t?: Transaction) {
@@ -22,12 +23,18 @@ class RecruiterService {
       defaults: omit(recruiter, "user", "company"),
       transaction: t,
     });
+
     return Recruiter.fromModel(recruiterModel);
   }
 
   async getRecruiters(where?: WhereOptions<RecruiterModel>, t?: Transaction) {
     const values = getQueryValues(where);
-    const recruiterModels = await this.recruiterRepo.findAll({ where: values, transaction: t, include: { model: UserModel, required: true } });
+    const recruiterModels = await this.recruiterRepo.findAll({
+      where: values,
+      transaction: t,
+      include: { model: UserModel, required: true },
+    });
+
     return recruiterModels.map((recruiterModel) => Recruiter.fromModel(recruiterModel));
   }
 
@@ -41,6 +48,7 @@ class RecruiterService {
       returning: true,
       transaction: t,
     });
+
     return Recruiter.fromModel(updatedModel[0]);
   }
 }

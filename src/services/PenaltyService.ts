@@ -12,11 +12,13 @@ class PenaltyService {
 
   async createPenalty(penalty: Penalty, t?: Transaction) {
     const penaltyModel = await this.penaltyRepo.create(penalty, { transaction: t });
+
     return Penalty.fromModel(penaltyModel);
   }
 
   async getPenalties(where: WhereOptions<PenaltyModel>, t?: Transaction) {
     const penaltymodels = await this.penaltyRepo.findAll({ where: where, transaction: t });
+
     return penaltymodels.map((penaltyModel) => Penalty.fromModel(penaltyModel));
   }
 
@@ -26,6 +28,7 @@ class PenaltyService {
       returning: true,
       transaction: t,
     });
+
     return Penalty.fromModel(updatedModel[0]);
   }
 

@@ -88,7 +88,8 @@ export const databaseProviders = [
         OffCampusOfferModel,
         OnCampusOfferModel,
       ]);
-      // sequelize.sync({ force: true });
+
+      //   await sequelize.sync({ force: true });
       return sequelize;
     },
   },

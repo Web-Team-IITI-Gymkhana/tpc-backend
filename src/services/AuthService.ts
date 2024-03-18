@@ -27,6 +27,7 @@ class AuthService {
       issuer: this.issuer,
       algorithm: this.algorithm,
     };
+
     return jwt.sign(payload, this.secretKey, options);
   }
 
@@ -51,7 +52,8 @@ class AuthService {
       if (!payload) {
         throw new HttpException("Unauthorized", HttpStatus.UNAUTHORIZED);
       }
-      return new User({ id: payload.sub, email: payload["email"], role: payload["userType"], name: payload["name"] });
+
+      return new User({ id: payload.sub, email: payload.email, role: payload.userType, name: payload.name });
     } catch (err) {
       throw new HttpException("Unauthorized", HttpStatus.UNAUTHORIZED);
     }

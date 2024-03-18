@@ -13,7 +13,7 @@ import {
   IsArray,
   IsObject,
   IsUUID,
-  IsBoolean
+  IsBoolean,
 } from "class-validator";
 import { SeasonType, CompanyCategory, Gender, Category } from "src/db/enums";
 import { Countries } from "src/db/enums/Country.enum";
@@ -69,7 +69,7 @@ export class CompanyDetailsDto {
   @IsOptional()
   website?: string;
 
-  @ApiProperty({ type: 'enum', enum: IndustryDomain })
+  @ApiProperty({ type: "enum", enum: IndustryDomain })
   @IsEnum(IndustryDomain)
   domains: IndustryDomain[];
   //Change
@@ -244,18 +244,18 @@ export class SelectionProcedureDetailsDto {
 
 export class SalaryDetailsDto {
   //Change Programs have been changed
-  @ApiPropertyOptional({type: String})
+  @ApiPropertyOptional({ type: String })
   @IsString()
   @IsOptional()
   salaryPeriod?: string;
   //Change number -> string.
 
-  @ApiPropertyOptional({ type: EligibilityDetailsDto})
-  @ValidateNested({each: true})
-  @Type(()=> EligibilityDetailsDto)
+  @ApiPropertyOptional({ type: EligibilityDetailsDto })
+  @ValidateNested({ each: true })
+  @Type(() => EligibilityDetailsDto)
   @IsOptional()
   criteria: EligibilityDetailsDto;
-  
+
   @ApiProperty({ type: Number })
   @IsNumber()
   baseSalary: number;
@@ -277,7 +277,7 @@ export class SalaryDetailsDto {
   @IsOptional()
   otherCompensations?: number;
 
-  @ApiPropertyOptional({ type: String})
+  @ApiPropertyOptional({ type: String })
   @IsString()
   @IsOptional()
   others?: string;
@@ -337,7 +337,7 @@ export class JobDetailsDto {
   @Type(() => SalaryDetailsDto)
   salaries: SalaryDetailsDto[];
 
-  @ApiPropertyOptional({ type: String})
+  @ApiPropertyOptional({ type: String })
   @IsString()
   @IsOptional()
   others?: string;
@@ -345,7 +345,7 @@ export class JobDetailsDto {
 }
 
 export class CreateJafDto {
-  @ApiProperty({ type: String})
+  @ApiProperty({ type: String })
   @IsUUID()
   seasonId: string;
 

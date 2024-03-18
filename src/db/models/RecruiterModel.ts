@@ -47,12 +47,12 @@ export class RecruiterModel extends Model<RecruiterModel> {
   company: CompanyModel;
 
   @Column({
-    type: sequelize.STRING
+    type: sequelize.STRING,
   })
   designation: string;
 
   @Column({
-    type: sequelize.STRING
+    type: sequelize.STRING,
   })
   landline: string;
 }

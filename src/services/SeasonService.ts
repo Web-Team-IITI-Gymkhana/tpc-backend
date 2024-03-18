@@ -12,11 +12,13 @@ class SeasonService {
 
   async createSeason(season: Season, t?: Transaction) {
     const seasonModel = await this.seasonRepo.create(season, { transaction: t });
+
     return Season.fromModel(seasonModel);
   }
 
   async getSeasons(where?: WhereOptions<SeasonModel>, t?: Transaction) {
     const seasonModels = await this.seasonRepo.findAll({ where: where, transaction: t });
+
     return seasonModels.map((seasonModel) => Season.fromModel(seasonModel));
   }
 

@@ -16,14 +16,14 @@ import {
 import { AuthGuard } from "@nestjs/passport";
 import { ApiBearerAuth } from "@nestjs/swagger";
 import { SALARY_SERVICE } from "src/constants";
-import { JobIdParamDto } from "src/dtos/job";
 import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
-import { UpdateOrFind } from "src/utils/utils";
+import { updateOrFind } from "src/utils/utils";
 import { Salary } from "src/entities/Salary";
 import { CreateSalariesDto, SalaryIdParamDto, UpdateSalaryDto } from "src/dtos/salary";
 import SalaryService from "src/services/SalaryService";
+import { UUID } from "crypto";
 
 @Controller("/jobs/:jobId/salary")
 @ApiBearerAuth("jwt")
@@ -33,63 +33,68 @@ export class SalaryController {
 
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
-  async getSalaries(@Param() param: JobIdParamDto) {
-    const salaries = await this.salaryService.getSalaries({ jobId: param.jobId });
+  async getSalaries(@Param("jobId") jobId: string) {
+    const salaries = await this.salaryService.getSalaries({ jobId: jobId });
+
     return { salaries: salaries };
   }
 
-  // @Post()
-  // @UseInterceptors(ClassSerializerInterceptor)
-  // @UseInterceptors(TransactionInterceptor)
-  // async createSalaries(
-  //   @Param() param: JobIdParamDto,
-  //   @Body() body: CreateSalariesDto,
-  //   @TransactionParam() transaction: Transaction
-  // ) {
-  //   const promises = [];
-  //   for (const salary of body.salaries) {
-  //     promises.push(
-  //       this.salaryService.createOrGetSalary(
-  //         new Salary({
-  //           jobId: param.jobId,
-  //           salary: salary.salary,
-  //           salaryPeriod: salary.salaryPeriod,
-  //           metadata: salary.metadata,
-  //           constraints: salary.constraints,
-  //         }),
-  //         transaction
-  //       )
-  //     );
-  //   }
-  //   const salaries = await Promise.all(promises);
-  //   return { salaries: salaries };
-  // }
+  /*
+   * @Post()
+   * @UseInterceptors(ClassSerializerInterceptor)
+   * @UseInterceptors(TransactionInterceptor)
+   * async createSalaries(
+   *   @Param() param: JobIdParamDto,
+   *   @Body() body: CreateSalariesDto,
+   *   @TransactionParam() transaction: Transaction
+   * ) {
+   *   const promises = [];
+   *   for (const salary of body.salaries) {
+   *     promises.push(
+   *       this.salaryService.createOrGetSalary(
+   *         new Salary({
+   *           jobId: param.jobId,
+   *           salary: salary.salary,
+   *           salaryPeriod: salary.salaryPeriod,
+   *           metadata: salary.metadata,
+   *           constraints: salary.constraints,
+   *         }),
+   *         transaction
+   *       )
+   *     );
+   *   }
+   *   const salaries = await Promise.all(promises);
+   *   return { salaries: salaries };
+   * }
+   */
 
   @Put("/:salaryId")
   @UseInterceptors(ClassSerializerInterceptor)
   @UseInterceptors(TransactionInterceptor)
-  async updateSalary(@Param() param: JobIdParamDto & SalaryIdParamDto, @Body() body: UpdateSalaryDto) {
+  async updateSalary(@Param("salaryId") salaryId: string, @Body() body: UpdateSalaryDto) {
     const [salary] = await this.salaryService.getSalaries({
-      id: param.salaryId,
+      id: salaryId,
     });
     if (!salary) {
-      throw new HttpException(`Salary with SalaryId: ${param.salaryId} not found`, HttpStatus.NOT_FOUND);
+      throw new HttpException(`Salary with SalaryId: ${salaryId} not found`, HttpStatus.NOT_FOUND);
     }
 
-    const newSalary = await UpdateOrFind(param.salaryId, body, this.salaryService, "updateSalary", "getSalaries");
+    const newSalary = await updateOrFind(salaryId, body, this.salaryService, "updateSalary", "getSalaries");
+
     return { salary: newSalary };
   }
 
   @Delete("/:salaryId")
   @UseInterceptors(ClassSerializerInterceptor)
-  async deleteSalary(@Param() param: JobIdParamDto & SalaryIdParamDto) {
+  async deleteSalary(@Param("salaryId") salaryId: string) {
     const [salary] = await this.salaryService.getSalaries({
-      id: param.salaryId,
+      id: salaryId,
     });
     if (!salary) {
-      throw new HttpException(`Salary with SalaryId: ${param.salaryId} not found`, HttpStatus.NOT_FOUND);
+      throw new HttpException(`Salary with SalaryId: ${salaryId} not found`, HttpStatus.NOT_FOUND);
     }
-    const deleted = await this.salaryService.deleteSalary(param.salaryId);
+    const deleted = await this.salaryService.deleteSalary(salaryId);
+
     return { deleted: deleted };
   }
 }

@@ -27,8 +27,7 @@ import { Role } from "src/db/enums";
 import { CompanyIdParamDto } from "src/dtos/company";
 import { HttpException } from "@nestjs/common/exceptions";
 import { HttpStatus } from "@nestjs/common/enums";
-import { UpdateOrFind } from "src/utils/utils";
-
+import { updateOrFind } from "src/utils/utils";
 
 @Controller("faculty")
 @ApiBearerAuth("jwt")
@@ -37,22 +36,24 @@ export class FacultyController {
   constructor(
     @Inject(FACULTY_SERVICE) private facultyService: FacultyService,
     @Inject(USER_SERVICE) private userService: UserService
-  ) { }
+  ) {}
 
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
   async getFaculties(@Query() query: GetFacultyDto) {
-    const faculties = await this.facultyService.getFaculties({
-      id: query.id,
-      userId: query.userId,
-      department: query.department,
-    },
+    const faculties = await this.facultyService.getFaculties(
+      {
+        id: query.id,
+        userId: query.userId,
+        department: query.department,
+      },
       {
         id: query.userId,
         name: query.name,
         email: query.email,
         contact: query.contact,
-      });
+      }
+    );
     return { faculties: faculties };
   }
 
@@ -98,16 +99,16 @@ export class FacultyController {
       Faculty[`department`] = params.department;
     }
     if (params.name) {
-      User['name'] = params.name;
+      User["name"] = params.name;
     }
     if (params.email) {
-      User['email'] = params.email;
+      User["email"] = params.email;
     }
     if (params.contact) {
-      User['contact'] = params.contact;
+      User["contact"] = params.contact;
     }
     if (params.role) {
-      User['role'] = params.role;
+      User["role"] = params.role;
     }
 
     return { Faculty, User };
@@ -128,7 +129,7 @@ export class FacultyController {
       throw new HttpException(`Faculty with FacultyId: ${param.facultyId} not found`, HttpStatus.NOT_FOUND);
     }
     const { Faculty, User } = this.querybuilder(body);
-    const newFaculty = await UpdateOrFind(
+    const newFaculty = await updateOrFind(
       param.facultyId,
       Faculty,
       this.facultyService,
@@ -136,7 +137,14 @@ export class FacultyController {
       "getFaculties",
       transaction
     );
-    const newUser = await UpdateOrFind(newFaculty.userId, User, this.userService, "updateUser", "getUserById", transaction);
+    const newUser = await updateOrFind(
+      newFaculty.userId,
+      User,
+      this.userService,
+      "updateUser",
+      "getUserById",
+      transaction
+    );
     newFaculty.user = newUser;
     return { faculty: newFaculty };
   }

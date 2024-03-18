@@ -5,7 +5,7 @@ export class Event {
   id?: string;
   jobId: string;
   type: EventType;
-  roundNumber: Number;
+  roundNumber: number;
   status: EventStatus;
   metadata?: object;
   startDateTime?: Date;
@@ -17,7 +17,7 @@ export class Event {
     id?: string;
     jobId: string;
     type: EventType;
-    roundNumber: Number;
+    roundNumber: number;
     status: EventStatus;
     metadata?: object;
     startDateTime?: Date;

@@ -25,7 +25,7 @@ export class EventModel extends Model<EventModel> {
 
   @Unique("JobTypeRoundNoUnique")
   @Column({ allowNull: false, defaultValue: 1, type: DataType.INTEGER })
-  roundNumber: Number;
+  roundNumber: number;
 
   @Column({ allowNull: false, type: sequelize.STRING })
   status: string;

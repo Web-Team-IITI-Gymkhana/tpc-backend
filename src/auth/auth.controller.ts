@@ -25,6 +25,7 @@ export class AuthController {
   @UseInterceptors(ClassSerializerInterceptor)
   async signup(@Body() body: UserSignUpDto) {
     const user = await this.userService.createUser(new User({ name: body.name, email: body.email, role: body.role }));
+
     return { user: user };
   }
 
@@ -38,6 +39,7 @@ export class AuthController {
       );
     }
     const token = await this.authService.vendJWT(user);
+
     return { accessToken: token };
   }
 }

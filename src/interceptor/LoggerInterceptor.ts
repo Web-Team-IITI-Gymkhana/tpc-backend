@@ -20,10 +20,12 @@ export class LoggerInterceptor implements NestInterceptor {
     return next.handle().pipe(
       map((data) => {
         this.logger.log(`${logMessage} ${this.getTimeDelta(startTime)}ms `);
+
         return data;
       }),
       catchError((err) => {
         this.logger.error(`${logMessage} ${this.getTimeDelta(startTime)}ms ${err.message} ${err.stack}`);
+
         return throwError(() => err);
       })
     );

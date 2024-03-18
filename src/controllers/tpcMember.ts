@@ -26,7 +26,7 @@ import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
 import { ApiBearerAuth } from "@nestjs/swagger";
 import { AuthGuard } from "@nestjs/passport";
-import { UpdateOrFind } from "src/utils/utils";
+import { updateOrFind } from "src/utils/utils";
 
 @Controller("/tpcMembers")
 @ApiBearerAuth("jwt")
@@ -35,27 +35,29 @@ export class TpcMemberController {
   constructor(
     @Inject(TPC_MEMBER_SERVICE) private tpcMemberService: TpcMemberService,
     @Inject(USER_SERVICE) private userService: UserService
-  ) { }
+  ) {}
 
   @Get()
   @UseInterceptors(ClassSerializerInterceptor)
   async getTpcMembers(@Query() query: GetTpcMemberQueryDto) {
-    const tpcMembers = await this.tpcMemberService.getTpcMembers({
-      id: query.id,
-      userId: query.userId,
-      role: query.role,
-      department: query.department,
-    },
+    const tpcMembers = await this.tpcMemberService.getTpcMembers(
+      {
+        id: query.id,
+        userId: query.userId,
+        role: query.role,
+        department: query.department,
+      },
       {
         id: query.userId,
         name: query.name,
         email: query.email,
         contact: query.contact,
-
-      });
+      }
+    );
     for (const tpcMember of tpcMembers) {
       tpcMember.user = await this.userService.getUserById(tpcMember.userId);
     }
+
     return { tpcMembers: tpcMembers };
   }
 
@@ -94,12 +96,13 @@ export class TpcMemberController {
       );
     }
     const tpcMembers = await Promise.all(promises);
+
     return { tpcMembers: tpcMembers };
   }
 
   querybuilder(params) {
-    let TpcMember = {};
-    let User = {};
+    const TpcMember = {};
+    const User = {};
 
     if (params.department) {
       TpcMember[`department`] = params.department;
@@ -136,7 +139,7 @@ export class TpcMemberController {
       throw new HttpException(`TpcMember with TpcMemberId: ${param.tpcMemberId} not found`, HttpStatus.NOT_FOUND);
     }
     const { TpcMember, User } = this.querybuilder(body);
-    const newTpcMember = await UpdateOrFind(
+    const newTpcMember = await updateOrFind(
       param.tpcMemberId,
       TpcMember,
       this.tpcMemberService,
@@ -144,8 +147,16 @@ export class TpcMemberController {
       "getTpcMembers",
       transaction
     );
-    const newUser = await UpdateOrFind(newTpcMember.userId, User, this.userService, "updateUser", "getUserById", transaction);
+    const newUser = await updateOrFind(
+      newTpcMember.userId,
+      User,
+      this.userService,
+      "updateUser",
+      "getUserById",
+      transaction
+    );
     newTpcMember.user = newUser;
+
     return { tpcMember: newTpcMember };
   }
 
@@ -157,6 +168,7 @@ export class TpcMemberController {
       throw new HttpException(`TpcMember with TpcMemberId: ${param.tpcMemberId} not found`, HttpStatus.NOT_FOUND);
     }
     const deleted = await this.tpcMemberService.deleteTpcMember(param.tpcMemberId);
+
     //Can be a student even if he/she isnt a TPC member so not deleting from user table.
     return { deleted: deleted };
   }
