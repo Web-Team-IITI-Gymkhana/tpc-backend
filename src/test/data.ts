@@ -1,32 +1,22 @@
-import { Category, CompanyCategory, Gender, Role, SeasonType, TpcMemberRole } from "src/db/enums";
-import { Company } from "src/entities/Company";
-import { Faculty } from "src/entities/Faculty";
-import { Recruiter } from "src/entities/Recruiter";
-import { Season } from "src/entities/Season";
-import { Student } from "src/entities/Student";
-import { TpcMember } from "src/entities/TpcMember";
-import { User } from "src/entities/User";
 import { randomUUID } from "crypto";
-import { Countries } from "src/db/enums/Country.enum";
-import { Job } from "src/entities/Job";
-import { SelectionProcedureDetailsDto } from "src/dtos/jaf";
-import { SelectionMode } from "src/db/enums/selectionMode.enum";
-import { AddressDto } from "src/dtos/jaf";
+import { Category, CompanyCategory, Gender, Role, SeasonType, TpcMemberRole } from "src/enums";
+import { Countries } from "src/enums/Country.enum";
+import { SelectionMode } from "src/enums/selectionMode.enum";
 
-export const SEASON1: Season = {
+export const SEASON1 = {
   id: randomUUID(),
   type: SeasonType.PLACEMENT,
   year: "2023",
 };
 
-export const SEASON2: Season = {
+export const SEASON2 = {
   type: SeasonType.INTERN,
   year: "2023",
 };
 
 export const SEASONS = [SEASON1, SEASON2];
 
-export const ADDRESS1: AddressDto = {
+export const ADDRESS1 = {
   line1: "line1",
   line2: "line2",
   city: "city",
@@ -35,7 +25,7 @@ export const ADDRESS1: AddressDto = {
   country: Countries.IND,
 };
 
-export const ADDRESS2: AddressDto = {
+export const ADDRESS2 = {
   line1: "line10",
   line2: "line20",
   city: "city",
@@ -44,7 +34,7 @@ export const ADDRESS2: AddressDto = {
   country: Countries.IND,
 };
 
-export const COMPANY1: Company = {
+export const COMPANY1 = {
   id: randomUUID(),
   name: "company1",
   category: CompanyCategory.PSU,
@@ -52,7 +42,7 @@ export const COMPANY1: Company = {
   yearOfEstablishment: 2004,
 };
 
-export const COMPANY2: Company = {
+export const COMPANY2 = {
   id: randomUUID(),
   name: "company2",
   category: CompanyCategory.MNC,
@@ -62,7 +52,7 @@ export const COMPANY2: Company = {
 
 export const COMPANIES = [COMPANY1, COMPANY2];
 
-export const USER1: User = {
+export const USER1 = {
   id: randomUUID(),
   name: "User 1",
   email: "user1@test.com",
@@ -70,7 +60,7 @@ export const USER1: User = {
   role: Role.ADMIN,
 };
 
-export const USER2: User = {
+export const USER2 = {
   id: randomUUID(),
   name: "User 2",
   email: "user2@test.com",
@@ -78,7 +68,7 @@ export const USER2: User = {
   role: Role.STUDENT,
 };
 
-export const USER3: User = {
+export const USER3 = {
   id: randomUUID(),
   name: "User 3",
   email: "user3@test.com",
@@ -86,7 +76,7 @@ export const USER3: User = {
   role: Role.RECRUITER,
 };
 
-export const USER4: User = {
+export const USER4 = {
   id: randomUUID(),
   name: "User 4",
   email: "user4@test.com",
@@ -94,7 +84,7 @@ export const USER4: User = {
   role: Role.FACULTY,
 };
 
-export const USER5: User = {
+export const USER5 = {
   id: randomUUID(),
   name: "User 5",
   email: "user5@test.com",
@@ -104,7 +94,7 @@ export const USER5: User = {
 
 export const USERS = [USER1, USER2, USER3, USER4, USER5];
 
-export const STUDENT1: Student = {
+export const STUDENT1 = {
   userId: USER2.id,
   cpi: 7.0,
   programId: "program1",
@@ -113,7 +103,7 @@ export const STUDENT1: Student = {
   rollNo: "230001001",
 };
 
-export const RECRUITER1: Recruiter = {
+export const RECRUITER1 = {
   id: randomUUID(),
   companyId: COMPANY1.id,
   userId: USER3.id,
@@ -123,21 +113,21 @@ export const RECRUITER1: Recruiter = {
 
 export const RECRUITERS = [RECRUITER1];
 
-export const FACULTY1: Faculty = {
+export const FACULTY1 = {
   department: "department1",
   userId: USER4.id,
 };
 
-export const TPC_MEMBER1: TpcMember = {
+export const TPC_MEMBER1 = {
   id: randomUUID(),
   userId: USER5.id,
   department: "department2",
   role: TpcMemberRole.MANAGER,
 };
 
-export const TpcMembers = [TPC_MEMBER1];
+export const TPC_MEMBERS = [TPC_MEMBER1];
 
-export const SelectionProcedure: SelectionProcedureDetailsDto = {
+export const selectionProcedure = {
   selectionMode: SelectionMode.OFFLINE,
   shortlistFromResume: true,
   groupDiscussion: true,
@@ -145,16 +135,16 @@ export const SelectionProcedure: SelectionProcedureDetailsDto = {
   interviews: [],
 };
 
-export const Job1 = {
+export const JOB1 = {
   seasonId: SEASON1.id,
   recruiterId: RECRUITER1.id,
   companyId: COMPANY1.id,
   role: "SDE",
   skills: "None",
   location: "Anything",
-  selectionProcedure: SelectionProcedure,
+  selectionProcedure: selectionProcedure,
   active: true,
   currentStatus: "INITIALIZED",
 };
 
-export const JOBS = [Job1];
+export const JOBS = [JOB1];

@@ -9,16 +9,15 @@ import {
   HttpStatus,
 } from "@nestjs/common";
 import { UserLogInDto, UserSignUpDto } from "./auth.dto";
-import { User } from "src/entities/User";
-import { AUTH_SERVICE, USER_SERVICE } from "src/constants";
-import UserService from "src/services/UserService";
-import AuthService from "src/services/AuthService";
+import { User } from "src/auth/User";
+import { UserService } from "src/auth/UserService";
+import { AuthService } from "src/auth/AuthService";
 
 @Controller("/auth")
 export class AuthController {
   constructor(
-    @Inject(USER_SERVICE) private userService: UserService,
-    @Inject(AUTH_SERVICE) private authService: AuthService
+    private userService: UserService,
+    private authService: AuthService
   ) {}
 
   @Post("/")

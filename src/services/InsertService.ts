@@ -24,9 +24,8 @@ import {
   UserModel,
 } from "src/db/models";
 
-import { SEASONS, USERS, JOBS, RECRUITERS, COMPANIES, TpcMembers } from "../test/data"; // Update the path
+import { SEASONS, USERS, JOBS, RECRUITERS, COMPANIES, TPC_MEMBERS } from "../test/data";
 import { omit } from "lodash";
-import { Program } from "src/entities/Program";
 
 @Injectable()
 export class InsertService {
@@ -49,7 +48,7 @@ export class InsertService {
   async insert() {
     await this.seasonRepo.bulkCreate(SEASONS, { updateOnDuplicate: ["id"] });
     await this.companyRepo.bulkCreate(
-      COMPANIES.map((Company) => omit(Company, "jobs")),
+      COMPANIES.map((company) => omit(company, "jobs")),
       { updateOnDuplicate: ["id"] }
     );
     await this.userRepo.bulkCreate(USERS, { updateOnDuplicate: ["id"] });
@@ -59,7 +58,7 @@ export class InsertService {
     );
     await this.jobRepo.bulkCreate(JOBS, { updateOnDuplicate: ["id"] });
     await this.tpcMemberRepo.bulkCreate(
-      TpcMembers.map((tpcMember) => omit(tpcMember, "user")),
+      TPC_MEMBERS.map((tpcMember) => omit(tpcMember, "user")),
       { updateOnDuplicate: ["id"] }
     );
     const programs = this.getDefaultPrograms();
@@ -67,12 +66,12 @@ export class InsertService {
   }
 
   private getDefaultPrograms() {
-    const programs: Program[] = [];
+    const programs = [];
     for (const year of YEARS) {
       for (const course of Object.keys(COURSE_BRANCH_MAP)) {
         const branches = COURSE_BRANCH_MAP[course];
         for (const branch of branches) {
-          programs.push(new Program({ course: course, branch: branch, year: year }));
+          programs.push({ course: course, branch: branch, year: year });
         }
       }
     }

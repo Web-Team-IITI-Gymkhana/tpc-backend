@@ -1,7 +1,3 @@
-import { ApiPropertyOptional } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsArray, IsNumber, IsOptional, IsString } from "class-validator";
-
 export const SEQUELIZE_DAO = "SEQUELIZE",
   USER_DAO = "USER_DAO",
   STUDENT_DAO = "STUDENT_DAO",
@@ -23,36 +19,14 @@ export const SEQUELIZE_DAO = "SEQUELIZE",
   ON_CAMPUS_OFFER_DAO = "ON_CAMPUS_OFFER_DAO",
   OFF_CAMPUS_OFFER_DAO = "OFF_CAMPUS_OFFER_DAO";
 
-export const AUTH_SERVICE = "AUTH_SERVICE",
-  TPC_MEMBER_SERVICE = "TPC_MEMBER_SERVICE",
-  PROGRAM_SERVICE = "PROGRAM_SERVICE",
-  USER_SERVICE = "USER_SERVICE",
-  STUDENT_SERVICE = "STUDENT_SERVICE",
-  EVENT_SERVICE = "EVENT_SERVICE",
-  RECRUITER_SERVICE = "RECRUITER_SERVICE",
-  SEASON_SERVICE = "SEASON_SERVICE",
-  COMPANY_SERVICE = "COMPANY_SERVICE",
-  JAF_SERVICE = "JAF_SERVICE",
-  JOB_SERVICE = "JOB_SERVICE",
-  JOB_STATUS_SERVICE = "JOB_STATUS_SERVICE",
-  PENALTY_SERVICE = "PENALTY_SERVICE",
-  JOB_COORDINATOR_SERVICE = "JOB_COORDINATOR_SERVICE",
-  FACULTY_SERVICE = "FACULTY_SERVICE",
-  FACULTY_APPROVAL_REQUEST_SERVICE = "FACULTY_APPROVAL_REQUEST_SERVICE",
-  SALARY_SERVICE = "SALARY_SERVICE",
-  OFF_CAMPUS_OFFER_SERVICE = "OFF_CAMPUS_OFFER_SERVICE",
-  INSERT_SERVICE = "INSERT_SERVICE",
-  FILE_SERVICE = "FILE_SERVICE",
-  ON_CAMPUS_OFFER_SERVICE = "ON_CAMPUS_OFFER_SERVICE";
-
-export enum COURSES {
+export enum CourseEnum {
   BTECH = "BTECH",
   MTECH = "MTECH",
   MSC = "MSC",
   MS_RESEARCH = "MS_RESEARCH",
   PHD = "PHD",
 }
-export enum BRANCHES {
+export enum BranchesEnum {
   MECHANICAL = "MECHANICAL",
   ELECTRICAL = "ELECTRICAL",
   CIVIL = "CIVIL",
@@ -82,90 +56,48 @@ export enum BRANCHES {
 }
 
 export const COURSE_BRANCH_MAP = {
-  [COURSES.BTECH]: [BRANCHES.MECHANICAL, BRANCHES.ELECTRICAL],
+  [CourseEnum.BTECH]: [BranchesEnum.MECHANICAL, BranchesEnum.ELECTRICAL],
 
-  [COURSES.MTECH]: [
-    BRANCHES.SPACE_ENG,
-    BRANCHES.COMMUNICATION_SIGNAL,
-    BRANCHES.VLSI_DESIGN,
-    BRANCHES.ELECTRIC_VEHICLE,
-    BRANCHES.ADVANCED_MANUFACTURING,
-    BRANCHES.MECHANICAL_SYSTEM_DESIGN,
-    BRANCHES.THERMAL_ENERGY_SYSTEM,
-    BRANCHES.MATERIAL_SCIENCE,
-    BRANCHES.METALLURGICAL_ENG,
+  [CourseEnum.MTECH]: [
+    BranchesEnum.SPACE_ENG,
+    BranchesEnum.COMMUNICATION_SIGNAL,
+    BranchesEnum.VLSI_DESIGN,
+    BranchesEnum.ELECTRIC_VEHICLE,
+    BranchesEnum.ADVANCED_MANUFACTURING,
+    BranchesEnum.MECHANICAL_SYSTEM_DESIGN,
+    BranchesEnum.THERMAL_ENERGY_SYSTEM,
+    BranchesEnum.MATERIAL_SCIENCE,
+    BranchesEnum.METALLURGICAL_ENG,
   ],
 
-  [COURSES.MSC]: [
-    BRANCHES.ASTRONOMY,
-    BRANCHES.BIOTECHNOLOGY,
-    BRANCHES.CHEMISTRY,
-    BRANCHES.MATHEMATICS,
-    BRANCHES.PHYSICS,
+  [CourseEnum.MSC]: [
+    BranchesEnum.ASTRONOMY,
+    BranchesEnum.BIOTECHNOLOGY,
+    BranchesEnum.CHEMISTRY,
+    BranchesEnum.MATHEMATICS,
+    BranchesEnum.PHYSICS,
   ],
 
-  [COURSES.MS_RESEARCH]: [
-    BRANCHES.SPACE_SCIENCE,
-    BRANCHES.COMPUTER_SCIENCE,
-    BRANCHES.ELECTRICAL,
-    BRANCHES.HSS,
-    BRANCHES.MECHANICAL,
+  [CourseEnum.MS_RESEARCH]: [
+    BranchesEnum.SPACE_SCIENCE,
+    BranchesEnum.COMPUTER_SCIENCE,
+    BranchesEnum.ELECTRICAL,
+    BranchesEnum.HSS,
+    BranchesEnum.MECHANICAL,
   ],
 
-  [COURSES.PHD]: [
-    BRANCHES.ASTRONOMY,
-    BRANCHES.BIOSCIENCES,
-    BRANCHES.CHEMISTRY,
-    BRANCHES.CIVIL,
-    BRANCHES.COMPUTER_SCIENCE,
-    BRANCHES.ELECTRICAL,
-    BRANCHES.HSS,
-    BRANCHES.MATHEMATICS,
-    BRANCHES.MECHANICAL,
-    BRANCHES.METALLURGICAL,
-    BRANCHES.PHYSICS,
+  [CourseEnum.PHD]: [
+    BranchesEnum.ASTRONOMY,
+    BranchesEnum.BIOSCIENCES,
+    BranchesEnum.CHEMISTRY,
+    BranchesEnum.CIVIL,
+    BranchesEnum.COMPUTER_SCIENCE,
+    BranchesEnum.ELECTRICAL,
+    BranchesEnum.HSS,
+    BranchesEnum.MATHEMATICS,
+    BranchesEnum.MECHANICAL,
+    BranchesEnum.METALLURGICAL,
+    BranchesEnum.PHYSICS,
   ],
 };
 export const YEARS = ["2023", "2024", "2025"];
-
-export enum OrderByEnum {
-  DESC = "DESC",
-  ASC = "ASC",
-}
-
-export class MatchOptionsString {
-  @ApiPropertyOptional({
-    type: Array<string>,
-  })
-  @IsArray()
-  @IsString({ each: true })
-  @IsOptional()
-  eq?: Array<string>;
-}
-
-export class MatchOptionsNumber {
-  @ApiPropertyOptional({
-    type: Array<number>,
-  })
-  @IsArray()
-  @IsNumber({}, { each: true })
-  @IsOptional()
-  @Type(() => Number)
-  eq?: Array<number>;
-
-  @ApiPropertyOptional({
-    type: Number,
-  })
-  @IsNumber()
-  @IsOptional()
-  @Type(() => Number)
-  lt?: number;
-
-  @ApiPropertyOptional({
-    type: Number,
-  })
-  @IsNumber()
-  @IsOptional()
-  @Type(() => Number)
-  gt?: number;
-}

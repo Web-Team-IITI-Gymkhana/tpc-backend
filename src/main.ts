@@ -4,12 +4,14 @@ import { AppModule } from "./app.module";
 import Helmet from "helmet";
 import { WinstonModule } from "nest-winston";
 import * as winston from "winston";
-import { isProductionEnv } from "./utils/utils";
+import { isProductionEnv } from "./utils";
 import { SwaggerModule, DocumentBuilder, SwaggerDocumentOptions, SwaggerCustomOptions } from "@nestjs/swagger";
 import { HttpExceptionFilter } from "./interceptor/ExceptionFilter";
 import { LoggerInterceptor } from "./interceptor/LoggerInterceptor";
-import * as dotenv from "dotenv";
-dotenv.config();
+import { env, EnvironmentVariables } from "./config";
+
+const environmentVariables: EnvironmentVariables = env();
+
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
     logger: createWinstonLogger(),
@@ -27,7 +29,7 @@ async function bootstrap(): Promise<void> {
     })
   );
 
-  await app.listen(process.env.PORT);
+  await app.listen(environmentVariables.PORT);
   console.log(`Application is running on: ${await app.getUrl()}`);
 }
 
@@ -66,7 +68,7 @@ function createSwagger(app: INestApplication) {
       persistAuthorization: true,
     },
   };
-  SwaggerModule.setup(process.env.ROOT_DOCS_PATH || "/api/v1", app, document, customOptions);
+  SwaggerModule.setup(environmentVariables.ROOT_DOCS_PATH || "/api/v1", app, document, customOptions);
 }
 
 function createWinstonLogger(): LoggerService {

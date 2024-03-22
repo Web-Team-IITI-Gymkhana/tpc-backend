@@ -2,14 +2,13 @@ import { CallHandler, ExecutionContext, Injectable, NestInterceptor, Logger } fr
 import { Request } from "express";
 import { Observable, throwError } from "rxjs";
 import { catchError, map } from "rxjs/operators";
-import { RequestDto } from "src/entities/Request";
 
 @Injectable()
 export class LoggerInterceptor implements NestInterceptor {
   private logger = new Logger("Request");
 
   public intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
-    const req: RequestDto = context.switchToHttp().getRequest();
+    const req = context.switchToHttp().getRequest();
     const userName = req?.user?.email || "anonymous";
     const { statusCode } = context.switchToHttp().getResponse();
     const { method, url, ip } = req;

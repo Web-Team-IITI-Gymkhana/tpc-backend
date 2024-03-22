@@ -1,130 +1,97 @@
+/* eslint-disable @typescript-eslint/ban-types */
+import { applyDecorators, ParseArrayPipe, ValidationPipe } from "@nestjs/common";
+import { ApiExtraModels, ApiQuery, getSchemaPath } from "@nestjs/swagger";
 import { isArray, isObject } from "lodash";
 import { Op } from "sequelize";
 import { Transaction } from "sequelize";
+
+export interface IOptions {
+  offset?: number;
+  limit?: number;
+}
 
 export const isProductionEnv = (): boolean => {
   return process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging";
 };
 
-export const queryBuilder = (query: object, entity) => {
-  for (const key in query) {
-    if (typeof query[key] == "string" || typeof query[key] == "number" || typeof query[key] == "boolean") {
-      entity[key] = query[key];
-    } else if (typeof query[key] == "object") {
-      entity[key] = Object.assign(entity[key], query[key]);
-    } else {
-      throw Error(`queryBuilder does not support type ${typeof query[key]} at key ${key}`);
-    }
-  }
+export async function bulkOperate(objectName, functionName, params, t?: Transaction) {
+  const promises = [];
+  for (const param of params) promises.push(objectName[functionName](...param, t));
+  const ans = await Promise.all(promises);
 
-  return entity;
-};
-
-export function getQueryValues(where) {
-  const values = {};
-  for (const key in where) {
-    if (where[key]) {
-      if (isObject(where[key])) {
-        values[key] = Object.assign({}, where[key]);
-      } else {
-        values[key] = where[key];
-      }
-    }
-  }
-
-  return values;
+  return ans;
 }
 
-export function optionsFactory(from?: number, to?: number) {
-  const options = {};
-  if (from && to) {
-    options["offset"] = from;
-    options["limit"] = to - from + 1;
+export function optionsFactory(where) {
+  const options: IOptions = {};
+  if (where.from !== undefined && where.to !== undefined) {
+    options.offset = where.from;
+    options.limit = where.to - where.from + 1;
   }
 
   return options;
 }
 
-/**
- *  Takes in an object and a model and returns the fields present in both.
- *   This may cause issue when passing the field 'id' as all models have that field with the same name.
- *   So we also pass an argument BaseModel to prevent that from happening returning id iff the model is a baseModel.
- *   This may cause issue when fields of different models have same name.
- */
-export function conformToModel(object, model, baseModel) {
+export function conformToModel(object, model) {
   const attributes = model.getAttributes();
   const result = {};
   for (const key in attributes) {
-    if (key == "id" && !baseModel) continue;
     if (object[key]) {
       if (typeof object[key] === "object") result[key] = Object.assign({}, object[key]);
       else result[key] = object[key];
+      delete object[key];
     }
   }
 
   return result;
 }
 
-export async function updateOrFind(
-  id: string,
-  fieldsToUpdate: object,
-  obj: any,
-  funcUpdate: any,
-  funcFind: any,
-  t?: Transaction
-) {
-  if (Object.keys(fieldsToUpdate).length) {
-    const ans = await obj[funcUpdate](id, fieldsToUpdate, t);
+export function pipeTransformArray(object, toType) {
+  const pipe = new ParseArrayPipe({
+    whitelist: true,
+    items: toType,
+  });
 
-    return ans;
-  } else {
-    try {
-      const ans = await obj[funcFind]({ id: id }, t);
-      if (isArray(ans)) {
-        return ans[0];
-      }
-
-      return ans;
-    } catch {
-      const ans = await obj[funcFind](id, t);
-      if (isArray(ans)) {
-        return ans[0];
-      }
-
-      return ans;
-    }
-  }
+  return pipe.transform(object, { type: "body" });
 }
 
-/**  This converts our gt,lt,eq syntax to the sequelize accepted syntax. */
-export function makeFilter(where) {
+export function pipeTransform(object, toType) {
+  const pipe = new ValidationPipe({
+    whitelist: true,
+    expectedType: toType,
+  });
+
+  return pipe.transform(object, { type: "body" });
+}
+
+export function flatten(obj) {
   const res = {};
-  for (const key in where) {
-    const ans = {};
-    if (where[key].gt) ans[Op.gt] = where[key].gt;
-    if (where[key].lt) ans[Op.lt] = where[key].lt;
-    if (where[key].eq) ans[Op.in] = where[key].eq;
-    res[key] = ans;
+
+  function flattenObj(object) {
+    for (const key in object) {
+      if (typeof object[key] === "object") flattenObj(object[key]);
+      else if (res[key] === undefined) res[key] = object[key];
+    }
   }
+
+  flattenObj(obj);
 
   return res;
 }
 
-/**
- *   Converts the orderBy to the proper format: an array.
- */
-export function find_order(orderBy, model) {
-  const ans = [];
-  for (const key in orderBy) ans.push(key, orderBy[key]);
-
-  return ans;
-}
-
-/**  Uses promises to perform some async function n no of times.*/
-export async function bulkOperate(objectName, functionName, data, t?: Transaction) {
-  const promises = [];
-  for (const value of data) promises.push(objectName[functionName](value, t));
-  const ans = await Promise.all(promises);
-
-  return ans;
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export function ApiFilterQuery(fieldName: string, filterDto: Function) {
+  return applyDecorators(
+    ApiExtraModels(filterDto),
+    ApiQuery({
+      required: false,
+      name: fieldName,
+      style: "deepObject",
+      explode: true,
+      type: "object",
+      schema: {
+        $ref: getSchemaPath(filterDto),
+      },
+    })
+  );
 }

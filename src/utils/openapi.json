@@ -1,0 +1,274 @@
+{
+  "openapi": "3.0.0",
+  "paths": {
+    "/api/v1/health": {
+      "get": { "operationId": "App.getHello", "parameters": [], "responses": { "200": { "description": "" } } }
+    },
+    "/api/v1/auth": {
+      "post": {
+        "operationId": "Auth.signup",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserSignUpDto" } } }
+        },
+        "responses": { "201": { "description": "" } }
+      }
+    },
+    "/api/v1/auth/login": {
+      "post": {
+        "operationId": "Auth.login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "$ref": "#/components/schemas/UserLogInDto" } } }
+        },
+        "responses": { "201": { "description": "" } }
+      }
+    },
+    "/api/v1/students": {
+      "get": {
+        "operationId": "Student.getStudents",
+        "parameters": [
+          { "name": "from", "required": false, "in": "query", "schema": { "type": "number" } },
+          { "name": "to", "required": false, "in": "query", "schema": { "type": "number" } },
+          {
+            "name": "id",
+            "required": false,
+            "in": "query",
+            "schema": { "$ref": "#/components/schemas/MatchOptionsUUID" }
+          },
+          {
+            "name": "filterBy[userId]",
+            "required": false,
+            "allOf": [{ "$ref": "#/components/schemas/MatchOptionsUUID" }],
+            "in": "query",
+            "schema": {}
+          },
+          {
+            "name": "name",
+            "required": false,
+            "in": "query",
+            "schema": { "$ref": "#/components/schemas/MatchOptionsString" }
+          },
+          {
+            "name": "rollNo",
+            "required": false,
+            "in": "query",
+            "schema": { "$ref": "#/components/schemas/MatchOptionsString" }
+          },
+          {
+            "name": "course",
+            "required": false,
+            "in": "query",
+            "schema": { "$ref": "#/components/schemas/MatchOptionsString" }
+          },
+          {
+            "name": "branch",
+            "required": false,
+            "in": "query",
+            "schema": { "$ref": "#/components/schemas/MatchOptionsString" }
+          },
+          {
+            "name": "year",
+            "required": false,
+            "in": "query",
+            "schema": { "$ref": "#/components/schemas/MatchOptionsString" }
+          },
+          {
+            "name": "gender",
+            "required": false,
+            "in": "query",
+            "schema": { "$ref": "#/components/schemas/MatchOptionsString" }
+          },
+          {
+            "name": "cpi",
+            "required": false,
+            "in": "query",
+            "schema": { "$ref": "#/components/schemas/MatchOptionsNumber" }
+          },
+          {
+            "name": "category",
+            "required": false,
+            "in": "query",
+            "schema": { "$ref": "#/components/schemas/MatchOptionsString" }
+          },
+          {
+            "name": "email",
+            "required": false,
+            "in": "query",
+            "schema": { "$ref": "#/components/schemas/MatchOptionsString" }
+          },
+          {
+            "name": "contact",
+            "required": false,
+            "in": "query",
+            "schema": { "$ref": "#/components/schemas/MatchOptionsString" }
+          },
+          { "required": false, "name": "id", "in": "query", "schema": { "enum": ["DESC", "ASC"], "type": "string" } },
+          {
+            "required": false,
+            "name": "userId",
+            "in": "query",
+            "schema": { "enum": ["DESC", "ASC"], "type": "string" }
+          },
+          { "required": false, "name": "name", "in": "query", "schema": { "enum": ["DESC", "ASC"], "type": "string" } },
+          {
+            "required": false,
+            "name": "email",
+            "in": "query",
+            "schema": { "enum": ["DESC", "ASC"], "type": "string" }
+          },
+          {
+            "required": false,
+            "name": "contact",
+            "in": "query",
+            "schema": { "enum": ["DESC", "ASC"], "type": "string" }
+          },
+          {
+            "required": false,
+            "name": "rollNo",
+            "in": "query",
+            "schema": { "enum": ["DESC", "ASC"], "type": "string" }
+          },
+          {
+            "required": false,
+            "name": "course",
+            "in": "query",
+            "schema": { "enum": ["DESC", "ASC"], "type": "string" }
+          },
+          {
+            "required": false,
+            "name": "branch",
+            "in": "query",
+            "schema": { "enum": ["DESC", "ASC"], "type": "string" }
+          },
+          { "required": false, "name": "year", "in": "query", "schema": { "enum": ["DESC", "ASC"], "type": "string" } },
+          {
+            "required": false,
+            "name": "gender",
+            "in": "query",
+            "schema": { "enum": ["DESC", "ASC"], "type": "string" }
+          },
+          { "required": false, "name": "cpi", "in": "query", "schema": { "enum": ["DESC", "ASC"], "type": "string" } },
+          {
+            "required": false,
+            "name": "category",
+            "in": "query",
+            "schema": { "enum": ["DESC", "ASC"], "type": "string" }
+          }
+        ],
+        "responses": { "200": { "description": "" } }
+      },
+      "post": {
+        "operationId": "Student.createStudents",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "type": "array", "items": { "type": "string" } } } }
+        },
+        "responses": { "201": { "description": "" } }
+      },
+      "patch": {
+        "operationId": "Student.updateStudents",
+        "parameters": [],
+        "responses": { "200": { "description": "" } }
+      },
+      "delete": {
+        "operationId": "Student.deleteStudents",
+        "parameters": [],
+        "responses": { "200": { "description": "" } }
+      }
+    },
+    "/api/v1/students/{id}": {
+      "get": {
+        "operationId": "Student.getStudent",
+        "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "" } }
+      }
+    },
+    "/api/v1/recruiters": {
+      "get": {
+        "operationId": "Recruiter.getRecruiters",
+        "parameters": [],
+        "responses": { "200": { "description": "" } }
+      },
+      "post": {
+        "operationId": "Recruiter.createRecruiters",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "type": "array", "items": { "type": "string" } } } }
+        },
+        "responses": { "201": { "description": "" } }
+      },
+      "patch": {
+        "operationId": "Recruiter.updateRecruiters",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": { "application/json": { "schema": { "type": "array", "items": { "type": "string" } } } }
+        },
+        "responses": { "200": { "description": "" } }
+      },
+      "delete": {
+        "operationId": "Recruiter.deleteRecruiters",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "query",
+            "schema": { "type": "array", "items": { "type": "string" } }
+          }
+        ],
+        "responses": { "200": { "description": "" } }
+      }
+    },
+    "/api/v1/recruiters/{id}": {
+      "get": {
+        "operationId": "Recruiter.getRecruiter",
+        "parameters": [{ "name": "id", "required": true, "in": "path", "schema": { "type": "string" } }],
+        "responses": { "200": { "description": "" } }
+      }
+    }
+  },
+  "info": { "title": "TPC Backend API", "description": "API for TPC backend", "version": "0.0.1", "contact": {} },
+  "tags": [{ "name": "TPCBackend", "description": "" }],
+  "servers": [],
+  "components": {
+    "securitySchemes": { "jwt": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" } },
+    "schemas": {
+      "UserSignUpDto": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string" },
+          "name": { "type": "string" },
+          "role": { "type": "string", "enum": ["STUDENT", "RECRUITER", "ADMIN", "TPC_MEMBER", "FACULTY"] },
+          "contact": { "type": "string" }
+        },
+        "required": ["email", "role"]
+      },
+      "UserLogInDto": {
+        "type": "object",
+        "properties": {
+          "email": { "type": "string", "description": "user email" },
+          "role": { "type": "string", "enum": ["STUDENT", "RECRUITER", "ADMIN", "TPC_MEMBER", "FACULTY"] }
+        },
+        "required": ["email", "role"]
+      },
+      "MatchOptionsUUID": { "type": "object", "properties": { "eq": { "type": "function" } } },
+      "MatchOptionsString": {
+        "type": "object",
+        "properties": { "eq": { "type": "array", "items": { "type": "string" } } }
+      },
+      "MatchOptionsNumber": {
+        "type": "object",
+        "properties": {
+          "eq": { "type": "array", "items": { "type": "string" } },
+          "lt": { "type": "number" },
+          "gt": { "type": "number" }
+        }
+      }
+    }
+  }
+}

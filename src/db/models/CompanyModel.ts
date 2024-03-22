@@ -1,8 +1,8 @@
 import { Table, Column, Model, DataType, HasMany } from "sequelize-typescript";
 import sequelize, { Sequelize } from "sequelize";
-import { CompanyCategory } from "../enums";
+import { CompanyCategory } from "../../enums";
 import { JobModel } from "./JobModel";
-import IndustryDomain from "../enums/industryDomains.enum";
+import IndustryDomain from "../../enums/industryDomains.enum";
 
 @Table({
   tableName: "Company",
@@ -19,7 +19,7 @@ export class CompanyModel extends Model<CompanyModel> {
   @Column({
     allowNull: false,
   })
-  name: string;
+  companyName: string;
 
   @Column
   website: string;

@@ -1,7 +1,7 @@
 import sequelize from "sequelize";
 import { BelongsTo, Column, ForeignKey, Model, Table } from "sequelize-typescript";
 import { JobModel } from "./JobModel";
-import { Gender, Category } from "../enums";
+import { Gender, Category } from "../../enums";
 
 @Table({
   tableName: "Salary",
