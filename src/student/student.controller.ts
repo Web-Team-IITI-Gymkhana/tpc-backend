@@ -25,19 +25,20 @@ import { Role } from "src/enums";
 import { UpdateStudentDto } from "./dtos/studentPatch.dto";
 
 @Controller("students")
-@ApiTags("Student Handler for Admin side")
+@ApiTags("Student")
 export class StudentController {
   constructor(private studentService: StudentService) {}
 
   @Get()
   @ApiOperation({
     description:
-      // eslint-disable-next-line max-len
-      "Refer the object in q but after making the object using nested json seperate it by underscores and send it. Dont try using swagger wont work. Dont forge to add q to the nested json as so: {q:{}}",
+      "Refer the object in q but after making the object using nested json\
+      seperate it by underscores and send it. Dont try using swagger wont work.\
+      Dont forge to add q to the nested json as so: {q:{}}",
   })
   @ApiFilterQuery("q", GetStudentQueryDto)
   @ApiResponse({ type: GetStudentsReturnDto, isArray: true })
-  @UseInterceptors(QueryInterceptor)
+  //   @UseInterceptors(QueryInterceptor) // can remove this
   async getStudents(@Query("q") where: GetStudentQueryDto) {
     const ans = await this.studentService.getStudents(where);
 

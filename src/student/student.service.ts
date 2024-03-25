@@ -2,7 +2,7 @@ import { Injectable, Inject, NotFoundException } from "@nestjs/common";
 import { FindOptions, Transaction } from "sequelize";
 import { STUDENT_DAO, USER_DAO } from "src/constants";
 import { PenaltyModel, ProgramModel, StudentModel, UserModel } from "src/db/models";
-import { optionsFactory, parseFilter, parseOrder } from "src/utils";
+import { parsePagesize, parseFilter, parseOrder } from "src/utils";
 
 @Injectable()
 export class StudentService {
@@ -12,7 +12,8 @@ export class StudentService {
   ) {}
 
   async getStudents(where) {
-    const findOptions: FindOptions<StudentModel> = {
+    // eslint-disable-next-line prefer-const
+    let findOptions: FindOptions<StudentModel> = {
       include: [
         {
           model: UserModel,
@@ -24,20 +25,14 @@ export class StudentService {
         },
       ],
     };
-    const options = optionsFactory(where);
-    Object.assign(findOptions, options);
-    const filterBy = where.filterBy || {};
-    findOptions.order = parseOrder(where.orderBy || {});
 
-    if (filterBy.user) {
-      findOptions.include[0].where = parseFilter(filterBy.user);
-      delete filterBy.user;
-    }
-    if (filterBy.program) {
-      findOptions.include[1].where = parseFilter(filterBy.program);
-      delete filterBy.program;
-    }
-    findOptions.where = parseFilter(filterBy);
+    // Add page size options
+    const pageOptions = parsePagesize(where);
+    Object.assign(findOptions, pageOptions);
+    // Apply filter
+    parseFilter(findOptions, where.filterBy || {});
+    // Apply order
+    findOptions.order = parseOrder(where.orderBy || {});
 
     const ans = await this.studentRepo.findAll(findOptions);
 

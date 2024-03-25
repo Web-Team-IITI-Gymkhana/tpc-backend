@@ -1,4 +1,4 @@
-import { INestApplication, LoggerService, RequestMethod, ValidationPipe } from "@nestjs/common";
+import { INestApplication, LoggerService, RequestMethod, ValidationPipe, Logger } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import Helmet from "helmet";
@@ -24,13 +24,16 @@ async function bootstrap(): Promise<void> {
   app.useGlobalFilters(new HttpExceptionFilter());
   app.useGlobalPipes(
     new ValidationPipe({
-      forbidUnknownValues: false,
+      whitelist: true,
+      forbidNonWhitelisted: true,
       transform: true,
     })
   );
 
   await app.listen(environmentVariables.PORT);
-  console.log(`Application is running on: ${await app.getUrl()}`);
+
+  const logger = new Logger("main");
+  logger.log(`Application is running on: ${await app.getUrl()}`);
 }
 
 function createSwagger(app: INestApplication) {

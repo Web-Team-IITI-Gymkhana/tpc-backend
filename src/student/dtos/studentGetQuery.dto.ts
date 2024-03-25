@@ -286,5 +286,5 @@ export class GetStudentQueryDto {
   @IsOptional()
   @ValidateNested()
   @Type(() => OrderOptionsStudentDto)
-  orderBy: OrderOptionsStudentDto;
+  orderBy?: OrderOptionsStudentDto;
 }

@@ -11,7 +11,7 @@ export class EnvironmentVariables {
 }
 
 export function env(): EnvironmentVariables {
-  dotenv.config();
+  dotenv.config({ override: true });
 
   const ans: EnvironmentVariables = {
     PORT: Number(process.env.PORT),
@@ -20,7 +20,7 @@ export function env(): EnvironmentVariables {
     DB_PASSWORD: process.env.DB_PASSWORD,
     DB_HOST: process.env.DB_HOST,
     DB_PORT: Number(process.env.DB_PORT),
-    ROOT_DOCS_PATH: process.env.ROOT_DOCS_PATH,
+    ROOT_DOCS_PATH: process.env.ROOT_DOCS_PATH || "/api/v1",
   };
 
   for (const key in ans) {

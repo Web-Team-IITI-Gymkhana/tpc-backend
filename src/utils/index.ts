@@ -1,4 +1,4 @@
-import { conformToModel, isProductionEnv, optionsFactory, bulkOperate } from "./utils";
-import { parseFilter, parseOrder } from "./filter";
+import { conformToModel, isProductionEnv, bulkOperate } from "./utils";
+import { parseFilter, parseOrder, parsePagesize } from "./filter";
 
-export { conformToModel, isProductionEnv, optionsFactory, bulkOperate, parseFilter, parseOrder };
+export { conformToModel, isProductionEnv, parsePagesize, bulkOperate, parseFilter, parseOrder };

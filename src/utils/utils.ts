@@ -5,11 +5,6 @@ import { isArray, isObject } from "lodash";
 import { Op } from "sequelize";
 import { Transaction } from "sequelize";
 
-export interface IOptions {
-  offset?: number;
-  limit?: number;
-}
-
 export const isProductionEnv = (): boolean => {
   return process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging";
 };
@@ -20,16 +15,6 @@ export async function bulkOperate(objectName, functionName, params, t?: Transact
   const ans = await Promise.all(promises);
 
   return ans;
-}
-
-export function optionsFactory(where) {
-  const options: IOptions = {};
-  if (where.from !== undefined && where.to !== undefined) {
-    options.offset = where.from;
-    options.limit = where.to - where.from + 1;
-  }
-
-  return options;
 }
 
 export function conformToModel(object, model) {
