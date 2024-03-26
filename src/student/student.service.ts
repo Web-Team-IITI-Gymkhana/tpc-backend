@@ -1,7 +1,7 @@
 import { Injectable, Inject, NotFoundException } from "@nestjs/common";
 import { FindOptions, Transaction } from "sequelize";
 import { STUDENT_DAO, USER_DAO } from "src/constants";
-import { PenaltyModel, ProgramModel, StudentModel, UserModel } from "src/db/models";
+import { PenaltyModel, ProgramModel, ResumeModel, StudentModel, UserModel } from "src/db/models";
 import { parsePagesize, parseFilter, parseOrder } from "src/utils";
 
 @Injectable()
@@ -53,6 +53,10 @@ export class StudentService {
         {
           model: PenaltyModel,
           as: "penalties", //Not many penalties per student.
+        },
+        {
+          model: ResumeModel,
+          as: "resumes",
         },
       ],
     });
@@ -107,15 +111,10 @@ export class StudentService {
     const ans = await this.studentRepo.findByPk(id);
     if (!ans) throw new NotFoundException(`No student with id: ${id} Found`);
 
-    await this.studentRepo.destroy({
-      where: { id: id },
-      transaction: t,
-    });
-
     await this.userRepo.destroy({
       where: { id: ans.userId },
       transaction: t,
-    });
+    }); //Cascading Delete
 
     return true;
   }

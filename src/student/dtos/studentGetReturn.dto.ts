@@ -14,7 +14,7 @@ import {
 } from "class-validator";
 import { Category, Gender } from "src/enums";
 
-export class GetStudentUsersReturnDto {
+export class GetUsersReturnDto {
   @ApiProperty({
     type: String,
   })
@@ -34,7 +34,7 @@ export class GetStudentUsersReturnDto {
   contact: string;
 }
 
-export class GetStudentProgramsReturnDto {
+export class GetProgramsReturnDto {
   @ApiProperty({
     type: String,
   })
@@ -118,18 +118,18 @@ export class GetStudentReturnDto {
   cpi: number;
 
   @ApiProperty({
-    type: GetStudentUsersReturnDto,
+    type: GetUsersReturnDto,
   })
   @ValidateNested({ each: true })
-  @Type(() => GetStudentUsersReturnDto)
-  user: GetStudentUsersReturnDto;
+  @Type(() => GetUsersReturnDto)
+  user: GetUsersReturnDto;
 
   @ApiProperty({
-    type: GetStudentProgramsReturnDto,
+    type: GetProgramsReturnDto,
   })
   @ValidateNested({ each: true })
-  @Type(() => GetStudentProgramsReturnDto)
-  program: GetStudentProgramsReturnDto;
+  @Type(() => GetProgramsReturnDto)
+  program: GetProgramsReturnDto;
 
   @ApiPropertyOptional({
     type: GetStudentResumeReturnDto,
@@ -192,16 +192,16 @@ export class GetStudentsReturnDto {
   cpi: number;
 
   @ApiProperty({
-    type: GetStudentUsersReturnDto,
+    type: GetUsersReturnDto,
   })
   @ValidateNested({ each: true })
-  @Type(() => GetStudentUsersReturnDto)
-  user: GetStudentUsersReturnDto;
+  @Type(() => GetUsersReturnDto)
+  user: GetUsersReturnDto;
 
   @ApiProperty({
-    type: GetStudentProgramsReturnDto,
+    type: GetProgramsReturnDto,
   })
   @ValidateNested({ each: true })
-  @Type(() => GetStudentProgramsReturnDto)
-  program: GetStudentProgramsReturnDto;
+  @Type(() => GetProgramsReturnDto)
+  program: GetProgramsReturnDto;
 }
