@@ -1,6 +1,7 @@
 import * as dotenv from "dotenv";
 
-export class EnvironmentVariables {
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export interface EnvironmentVariables {
   PORT: number;
   DB_NAME: string;
   DB_USERNAME: string;
@@ -8,6 +9,8 @@ export class EnvironmentVariables {
   DB_HOST: string;
   DB_PORT: number;
   ROOT_DOCS_PATH: string;
+  USER_SECRET: string;
+  RECRUITER_SECRET: string;
 }
 
 export function env(): EnvironmentVariables {
@@ -21,6 +24,8 @@ export function env(): EnvironmentVariables {
     DB_HOST: process.env.DB_HOST,
     DB_PORT: Number(process.env.DB_PORT),
     ROOT_DOCS_PATH: process.env.ROOT_DOCS_PATH || "/api/v1",
+    USER_SECRET: process.env.USER_SECRET,
+    RECRUITER_SECRET: process.env.RECRUITER_SECRET,
   };
 
   for (const key in ans) {

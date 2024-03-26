@@ -1,9 +1,11 @@
-import { Inject, Injectable, Logger } from "@nestjs/common";
+import { Global, Inject, Injectable, Logger } from "@nestjs/common";
 import { Transaction } from "sequelize";
 import { USER_DAO } from "src/constants";
 import { Role } from "src/enums";
 import { UserModel } from "src/db/models";
-import { User } from "./User";
+import { User } from "../auth/User";
+
+@Global()
 @Injectable()
 export class UserService {
   private logger = new Logger(UserService.name);

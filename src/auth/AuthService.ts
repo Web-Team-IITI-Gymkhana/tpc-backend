@@ -2,18 +2,20 @@ import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
 import { User } from "./User";
 import * as jwt from "jsonwebtoken";
 import { ExtractJwt, StrategyOptions } from "passport-jwt";
+import { env } from "src/config";
 
 @Injectable()
 export class AuthService {
   private logger = new Logger(AuthService.name);
-  private secretKey = "secret";
+  private secretKey = env().USER_SECRET;
   private issuer = "tpc.iiti.ac.in";
   private audience = "tpc-backend";
   private expiry = 7 * 24 * 60 * 60;
   private algorithm: jwt.Algorithm = "HS256";
 
-  async vendJWT(user: User) {
+  async vendJWT(user: User, secretKey?: string) {
     const payload = {
+      id: user.id,
       userType: user.role,
       email: user.email,
       name: user.name,
@@ -26,7 +28,7 @@ export class AuthService {
       algorithm: this.algorithm,
     };
 
-    return jwt.sign(payload, this.secretKey, options);
+    return jwt.sign(payload, secretKey || this.secretKey, options);
   }
 
   getJwtOptions(): StrategyOptions {
@@ -40,9 +42,9 @@ export class AuthService {
     };
   }
 
-  async parseJWT(token: string) {
+  async parseJWT(token: string, secretKey?: string) {
     try {
-      const payload = jwt.verify(token, this.secretKey, {
+      const payload = jwt.verify(token, secretKey || this.secretKey, {
         algorithms: [this.algorithm],
         audience: this.audience,
         issuer: this.issuer,
