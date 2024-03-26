@@ -263,6 +263,7 @@ export class GetStudentQueryDto {
   })
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
   from?: number;
 
   @ApiPropertyOptional({
@@ -270,6 +271,7 @@ export class GetStudentQueryDto {
   })
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
   to?: number;
 
   @ApiPropertyOptional({

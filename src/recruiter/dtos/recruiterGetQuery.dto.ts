@@ -147,6 +147,7 @@ export class GetRecruiterQueryDto {
   })
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
   from?: number;
 
   @ApiPropertyOptional({
@@ -154,6 +155,7 @@ export class GetRecruiterQueryDto {
   })
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
   to?: number;
 
   @ApiPropertyOptional({
