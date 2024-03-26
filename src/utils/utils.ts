@@ -1,61 +1,82 @@
+/* eslint-disable @typescript-eslint/ban-types */
+import { applyDecorators, ParseArrayPipe, ValidationPipe } from "@nestjs/common";
+import { ApiExtraModels, ApiQuery, getSchemaPath } from "@nestjs/swagger";
 import { isArray, isObject } from "lodash";
+import { Op } from "sequelize";
 import { Transaction } from "sequelize";
 
 export const isProductionEnv = (): boolean => {
   return process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging";
 };
 
-export const queryBuilder = (query: object, entity) => {
-  for (const key in query) {
-    if (typeof query[key] == "string" || typeof query[key] == "number" || typeof query[key] == "boolean") {
-      entity[key] = query[key];
-    } else if (typeof query[key] == "object") {
-      entity[key] = Object.assign(entity[key], query[key]);
-    } else {
-      throw Error(`queryBuilder does not support type ${typeof query[key]} at key ${key}`);
-    }
-  }
-  return entity;
-};
+export async function bulkOperate(objectName, functionName, params, t?: Transaction) {
+  const promises = [];
+  for (const param of params) promises.push(objectName[functionName](...param, t));
+  const ans = await Promise.all(promises);
 
-export function getQueryValues(where) {
-  let values = {};
-  for (const key in where) {
-    if (where[key]) {
-      if (isObject(where[key])) {
-        values[key] = Object.assign({}, where[key]);
-      } else {
-        values[key] = where[key];
-      }
-    }
-  }
-  return values;
+  return ans;
 }
 
-export async function UpdateOrFind(
-  id: string,
-  fieldsToUpdate: object,
-  obj: any,
-  funcUpdate: any,
-  funcFind: any,
-  t?: Transaction
-) {
-  if (Object.keys(fieldsToUpdate).length) {
-    const ans = await obj[funcUpdate](id, fieldsToUpdate, t);
-    return ans;
-  } else {
-    try {
-      const ans = await obj[funcFind]({ id: id }, t);
-      if (isArray(ans)) {
-        return ans[0];
-      }
-      return ans;
-    } catch {
-      const ans = await obj[funcFind](id, t);
-      if (isArray(ans)) {
-        return ans[0];
-      }
-      return ans;
+export function conformToModel(object, model) {
+  const attributes = model.getAttributes();
+  const result = {};
+  for (const key in attributes) {
+    if (object[key]) {
+      if (typeof object[key] === "object") result[key] = Object.assign({}, object[key]);
+      else result[key] = object[key];
+      delete object[key];
     }
   }
+
+  return result;
+}
+
+export function pipeTransformArray(object, toType) {
+  const pipe = new ParseArrayPipe({
+    whitelist: true,
+    items: toType,
+  });
+
+  return pipe.transform(object, { type: "body" });
+}
+
+export function pipeTransform(object, toType) {
+  const pipe = new ValidationPipe({
+    whitelist: true,
+    expectedType: toType,
+  });
+
+  return pipe.transform(object, { type: "body" });
+}
+
+export function flatten(obj) {
+  const res = {};
+
+  function flattenObj(object) {
+    for (const key in object) {
+      if (typeof object[key] === "object") flattenObj(object[key]);
+      else if (res[key] === undefined) res[key] = object[key];
+    }
+  }
+
+  flattenObj(obj);
+
+  return res;
+}
+
+// eslint-disable-next-line @typescript-eslint/naming-convention
+export function ApiFilterQuery(fieldName: string, filterDto: Function) {
+  return applyDecorators(
+    ApiExtraModels(filterDto),
+    ApiQuery({
+      required: false,
+      name: fieldName,
+      style: "deepObject",
+      explode: true,
+      type: "object",
+      schema: {
+        $ref: getSchemaPath(filterDto),
+      },
+    })
+  );
 }

@@ -1,6 +1,7 @@
 import sequelize from "sequelize";
-import { Column, ForeignKey, Model, Table } from "sequelize-typescript";
+import { BelongsTo, Column, ForeignKey, Model, Table } from "sequelize-typescript";
 import { JobModel } from "./JobModel";
+import { Gender, Category } from "../../enums";
 
 @Table({
   tableName: "Salary",
@@ -19,20 +20,39 @@ export class SalaryModel extends Model<SalaryModel> {
   jobId: string;
 
   @Column
-  salaryPeriod: number;
+  salaryPeriod: string;
 
   @Column
-  salary: number;
+  others: string;
 
   @Column({
     type: sequelize.JSONB,
     defaultValue: sequelize.Sequelize.literal("'{}'::jsonb"),
   })
-  constraints: object;
+  criteria: object;
 
   @Column({
-    type: sequelize.JSONB,
-    defaultValue: sequelize.Sequelize.literal("'{}'::jsonb"),
+    type: sequelize.INTEGER,
   })
-  metadata: object;
+  baseSalary: number;
+
+  @Column({
+    type: sequelize.INTEGER,
+  })
+  totalCTC: number;
+
+  @Column({
+    type: sequelize.INTEGER,
+  })
+  takeHomeSalary: number;
+
+  @Column({
+    type: sequelize.INTEGER,
+  })
+  grossSalary: number;
+
+  @Column({
+    type: sequelize.INTEGER,
+  })
+  otherCompensations: number;
 }

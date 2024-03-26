@@ -6,6 +6,8 @@ import { SeasonModel } from "./SeasonModel";
 import { RecruiterModel } from "./RecruiterModel";
 import { JobStatusModel } from "./JobStatusModel";
 import { SalaryModel } from "./SalaryModel";
+import { JobCoordinatorModel } from "./JobCoordinatorModel";
+import { FacultyApprovalRequestModel } from "./FacultyApprovalRequestModel";
 
 @Table({
   tableName: "Job",
@@ -59,25 +61,82 @@ export class JobModel extends Model<JobModel> {
   @Column
   role: string;
 
-  @Column({ allowNull: false, type: DataType.JSONB(), defaultValue: Sequelize.literal("'{}'::jsonb") })
-  metadata: object;
-
-  @Column({ allowNull: false, type: DataType.JSONB(), defaultValue: Sequelize.literal("'{}'::jsonb") })
-  eligibility: object;
+  @Column
+  others: string;
 
   @Column({ defaultValue: false })
   active: boolean;
 
-  @Column({ allowNull: true, type: sequelize.UUID })
-  currentStatusId: string;
+  @Column({ type: sequelize.STRING })
+  currentStatus: string;
 
-  // Delete JobStatus onDelete of Job
-  @HasOne(() => JobStatusModel, {
-    as: "currentStatus",
-    foreignKey: "jobId",
-    onDelete: "CASCADE",
+  @Column({
+    type: sequelize.JSONB,
+    defaultValue: Sequelize.literal("'{}'::jsonb"),
   })
-  currentStatus: JobStatusModel;
+  companyDetailsFilled: object;
+
+  @Column({
+    type: sequelize.JSONB,
+    defaultValue: Sequelize.literal("'{}'::jsonb"),
+  })
+  recruiterDetailsFilled: object;
+
+  @Column({
+    type: sequelize.JSONB,
+    defaultValue: Sequelize.literal("'{}'::jsonb"),
+  })
+  selectionProcedure: object;
+
+  @Column({
+    type: sequelize.STRING,
+  })
+  description: string;
+
+  @Column({
+    type: sequelize.STRING,
+  })
+  attachment: string;
+
+  @Column({
+    type: sequelize.STRING,
+  })
+  skills: string;
+
+  @Column({
+    type: sequelize.STRING,
+  })
+  location: string;
+
+  @Column({
+    type: sequelize.INTEGER,
+  })
+  noOfVacancies: number;
+
+  @Column({
+    type: sequelize.DATE,
+  })
+  offerLetterReleaseDate: string;
+
+  @Column({
+    type: sequelize.DATE,
+  })
+  joiningDate: string;
+
+  @Column({
+    type: sequelize.INTEGER,
+  })
+  duration: number;
+
+  /*
+   * //Restrict the deletion of status that is the current Status for a job.
+   * @BelongsTo(() => JobStatusModel, {
+   * as: "currentStatus",
+   * foreignKey: "currentStatusId",
+   * constraints: false,
+   * })
+   * currentStatus: JobStatusModel;
+   */
 
   // Delete Job Status onDelete of Job
   @HasMany(() => JobStatusModel, {
@@ -86,12 +145,26 @@ export class JobModel extends Model<JobModel> {
   })
   jobStatuses: JobStatusModel[];
 
+  //Delete Job onDelete of Job.
+  @HasMany(() => JobCoordinatorModel, {
+    foreignKey: "jobId",
+    onDelete: "CASCADE",
+  })
+  jobCoordinators: JobCoordinatorModel[];
+
+  //Delete Faculy Approval Request on delete of Job
+  @HasMany(() => FacultyApprovalRequestModel, {
+    foreignKey: "jobId",
+    onDelete: "CASCADE",
+  })
+  facultyApprovalRequests: FacultyApprovalRequestModel[];
+
   // Delete Events onDelete of Job
   @HasMany(() => EventModel, {
     foreignKey: "jobId",
     onDelete: "CASCADE",
   })
-  events: Event[];
+  events: EventModel[];
 
   // Delete Salary onDelete of Job
   @HasMany(() => SalaryModel, {

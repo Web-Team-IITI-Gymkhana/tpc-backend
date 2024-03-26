@@ -45,4 +45,14 @@ export class RecruiterModel extends Model<RecruiterModel> {
     onDelete: "CASCADE",
   })
   company: CompanyModel;
+
+  @Column({
+    type: sequelize.STRING,
+  })
+  designation: string;
+
+  @Column({
+    type: sequelize.STRING,
+  })
+  landline: string;
 }

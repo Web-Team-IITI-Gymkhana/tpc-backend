@@ -21,7 +21,7 @@ import {
   FacultyApprovalRequestModel,
   TpcMemberModel,
 } from "./models";
-import { isProductionEnv } from "../utils/utils";
+import { isProductionEnv } from "../utils";
 import {
   APPLICATION_DAO,
   COMPANY_DAO,
@@ -43,25 +43,22 @@ import {
   TPC_MEMBER_DAO,
   USER_DAO,
 } from "src/constants";
+import { env, EnvironmentVariables } from "src/config";
 
 export const databaseProviders = [
   {
     provide: "SEQUELIZE",
     useFactory: async () => {
-      const dbName = process.env.DB_NAME as string;
-      const dbUser = process.env.DB_USERNAME as string;
-      const dbHost = process.env.DB_HOST;
-      const dbDriver = "postgres";
-      const dbPassword = process.env.DB_PASSWORD as string;
-      const dbPort = Number(process.env.DB_PORT);
+      const environmentVariables: EnvironmentVariables = env();
+      const { DB_NAME, DB_HOST, DB_PASSWORD, DB_PORT, DB_USERNAME } = environmentVariables;
 
-      const sequelize = new Sequelize(dbName, dbUser, dbPassword, {
-        host: dbHost,
-        dialect: dbDriver,
-        port: dbPort,
+      const sequelize = new Sequelize(DB_NAME, DB_USERNAME, DB_PASSWORD, {
+        host: DB_HOST,
+        dialect: "postgres",
+        port: DB_PORT,
         logging: isProductionEnv() ? false : (msg) => Logger.debug(msg),
         pool: {
-          max: 5,
+          max: 2,
           min: 1,
           acquire: 30000,
           idle: 10000,
@@ -88,7 +85,9 @@ export const databaseProviders = [
         OffCampusOfferModel,
         OnCampusOfferModel,
       ]);
-      // sequelize.sync({ force: true });
+
+      // await sequelize.sync({ alter: true });
+
       return sequelize;
     },
   },

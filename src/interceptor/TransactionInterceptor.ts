@@ -16,6 +16,7 @@ export class TransactionInterceptor implements NestInterceptor {
     const req = httpContext.getRequest();
     const transaction: Transaction = await this.sequelizeInstance.transaction();
     req.transaction = transaction;
+
     return next.handle().pipe(
       tap(async () => {
         await transaction.commit();
