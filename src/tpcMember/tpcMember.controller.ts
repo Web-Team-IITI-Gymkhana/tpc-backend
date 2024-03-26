@@ -1,27 +1,32 @@
-import { Body, Controller, Delete, Get, Param, Patch, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query } from "@nestjs/common";
 import { GetTpcMemberQueryDto } from "./dtos/tpcMemberGetQuery.dto";
 import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { GetTpcMemberReturnDto, GetTpcMembersReturnDto } from "./dtos/tpcMemberGetReturn.dto";
-import { ApiFilterQuery } from "src/utils/utils";
+import { ApiFilterQuery, pipeTransform, pipeTransformArray } from "src/utils/utils";
 import { CreateTpcMemberDto } from "./dtos/tpcMemberPost.dto";
 import { UpdateTpcMemberDto } from "./dtos/tpcMemberPatch.dto";
+import { TpcMemberService } from "./tpcMember.service";
 
 @Controller("tpcMembers")
 @ApiTags("TPC Member")
 export class TpcMemberController {
-  constructor() {}
+  constructor(private tpcMemberService: TpcMemberService) {}
 
   @Get()
   @ApiResponse({ type: GetTpcMembersReturnDto, isArray: true })
   @ApiFilterQuery("q", GetTpcMemberQueryDto)
   async getTpcMembers(@Query("q") where: GetTpcMemberQueryDto) {
-    return "Hello";
+    const ans = await this.tpcMemberService.getTpcMembers(where);
+
+    return pipeTransformArray(ans, GetTpcMembersReturnDto);
   }
 
   @Get("/:id")
   @ApiResponse({ type: GetTpcMemberReturnDto })
-  async getTpcMember(@Param("id") id: string) {
-    return "Hello";
+  async getTpcMember(@Param("id", new ParseUUIDPipe()) id: string) {
+    const ans = await this.tpcMemberService.getTpcMember(id);
+
+    return pipeTransform(ans, GetTpcMemberReturnDto);
   }
 
   @Post()

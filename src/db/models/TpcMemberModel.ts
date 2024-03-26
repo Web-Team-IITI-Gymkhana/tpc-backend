@@ -1,6 +1,8 @@
-import { ForeignKey, Column, BelongsTo, Table, Model } from "sequelize-typescript";
+import { ForeignKey, Column, BelongsTo, Table, Model, HasMany } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { UserModel } from "./UserModel";
+import { JobModel } from "./JobModel";
+import { JobCoordinatorModel } from "./JobCoordinatorModel";
 
 @Table({
   tableName: "TpcMember",
@@ -30,4 +32,10 @@ export class TpcMemberModel extends Model<TpcMemberModel> {
 
   @Column({ allowNull: false, type: sequelize.STRING })
   role: string;
+
+  @HasMany(() => JobCoordinatorModel, {
+    foreignKey: "tpcMemberId",
+    onDelete: "CASACDE",
+  })
+  jobCoordinators: JobCoordinatorModel[];
 }

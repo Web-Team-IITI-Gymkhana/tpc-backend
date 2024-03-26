@@ -1,6 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsString, IsUUID, ValidateNested } from "class-validator";
+import { IsEnum, IsString, IsUUID, ValidateNested } from "class-validator";
+import { TpcMemberRole } from "src/enums";
+import { JobCoordinatorRole } from "src/enums/jobCoordinatorRole";
 import { GetJobsReturnDto } from "src/job/dtos/jobGetReturn.dto";
 import { GetUsersReturnDto } from "src/student/dtos/studentGetReturn.dto";
 
@@ -37,6 +39,22 @@ export class GetTpcMembersReturnDto {
   user: GetUsersReturnDto;
 }
 
+export class GetJobCoordinatorsReturnDto {
+  @ApiProperty({
+    enum: JobCoordinatorRole,
+    example: "PRIMARY/SECONDARY",
+  })
+  @IsEnum(JobCoordinatorRole)
+  role: JobCoordinatorRole;
+
+  @ApiProperty({
+    type: GetJobsReturnDto,
+  })
+  @ValidateNested()
+  @Type(() => GetJobsReturnDto)
+  job: GetJobsReturnDto;
+}
+
 export class GetTpcMemberReturnDto {
   @ApiProperty({
     type: String,
@@ -70,9 +88,10 @@ export class GetTpcMemberReturnDto {
   user: GetUsersReturnDto;
 
   @ApiProperty({
-    type: GetJobsReturnDto,
+    type: GetJobCoordinatorsReturnDto,
+    isArray: true,
   })
   @ValidateNested({ each: true })
-  @Type(() => GetJobsReturnDto)
-  jobs: GetJobsReturnDto[];
+  @Type(() => GetJobCoordinatorsReturnDto)
+  jobCoordinators: GetJobCoordinatorsReturnDto[];
 }
