@@ -107,6 +107,7 @@ export class GetStudentReturnDto {
 
   @ApiProperty({
     enum: Gender,
+    example: "MALE/FEMALE",
   })
   @IsEnum(Gender)
   gender: Gender;
@@ -181,6 +182,7 @@ export class GetStudentsReturnDto {
 
   @ApiProperty({
     enum: Gender,
+    example: "MALE/FEMALE",
   })
   @IsEnum(Gender)
   gender: Gender;

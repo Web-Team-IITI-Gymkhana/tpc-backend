@@ -19,7 +19,7 @@ export class CompanyModel extends Model<CompanyModel> {
   @Column({
     allowNull: false,
   })
-  companyName: string;
+  name: string;
 
   @Column
   website: string;
@@ -47,9 +47,9 @@ export class CompanyModel extends Model<CompanyModel> {
   size: number;
 
   @Column({
-    type: sequelize.INTEGER,
+    type: sequelize.STRING,
   })
-  yearOfEstablishment: number;
+  yearOfEstablishment: string;
 
   @Column({
     type: sequelize.STRING,

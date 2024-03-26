@@ -39,7 +39,7 @@ export const COMPANY1 = {
   name: "company1",
   category: CompanyCategory.PSU,
   address: ADDRESS1,
-  yearOfEstablishment: 2004,
+  yearOfEstablishment: "2000",
 };
 
 export const COMPANY2 = {
@@ -47,7 +47,7 @@ export const COMPANY2 = {
   name: "company2",
   category: CompanyCategory.MNC,
   address: ADDRESS2,
-  yearOfEstablishment: 2004,
+  yearOfEstablishment: "2004",
 };
 
 export const COMPANIES = [COMPANY1, COMPANY2];

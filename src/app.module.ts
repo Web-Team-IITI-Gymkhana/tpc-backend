@@ -12,9 +12,10 @@ import { UserService } from "./auth/UserService";
 import { AuthController } from "./auth/auth.controller";
 import { StudentModule } from "./student/student.module";
 import { FlowerController } from "./example/example.controller";
+import { RecruiterModule } from "./recruiter/recruiter.module";
 
 @Module({
-  imports: [ConfigModule.forRoot(), { module: DatabaseModule, global: true }, StudentModule],
+  imports: [ConfigModule.forRoot(), { module: DatabaseModule, global: true }, StudentModule, RecruiterModule],
   controllers: [AppController, AuthController, FlowerController],
   providers: [Logger, JwtStrategy, TransactionInterceptor, QueryInterceptor, AppService, AuthService, UserService],
 })
