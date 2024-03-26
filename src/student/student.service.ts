@@ -60,6 +60,7 @@ export class StudentService {
         },
       ],
     });
+    if (!ans) throw new NotFoundException(`The Student with id: ${id} Not Found`);
 
     const res: StudentModel & { totalPenalty?: number } = ans.get({ plain: true });
     res.totalPenalty = 0;

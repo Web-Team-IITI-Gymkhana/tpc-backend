@@ -52,6 +52,7 @@ export class RecuiterService {
         },
       ],
     });
+    if (!ans) throw new NotFoundException(`The Recruiter with id: ${id} Not Found`);
 
     return ans.get({ plain: true });
   }

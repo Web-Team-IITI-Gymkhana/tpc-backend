@@ -26,10 +26,11 @@ export class GetTpcMembersReturnDto {
   department: string;
 
   @ApiProperty({
-    type: String,
+    enum: TpcMemberRole,
+    example: "MANAGER/COORDINATOR",
   })
-  @IsString()
-  role: string;
+  @IsEnum(TpcMemberRole)
+  role: TpcMemberRole;
 
   @ApiProperty({
     type: GetUsersReturnDto,
@@ -75,10 +76,11 @@ export class GetTpcMemberReturnDto {
   department: string;
 
   @ApiProperty({
-    type: String,
+    enum: TpcMemberRole,
+    example: "MANAGER/COORDINATOR",
   })
-  @IsString()
-  role: string;
+  @IsEnum(TpcMemberRole)
+  role: TpcMemberRole;
 
   @ApiProperty({
     type: GetUsersReturnDto,
