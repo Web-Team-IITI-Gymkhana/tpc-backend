@@ -53,7 +53,7 @@ export class StudentModel extends Model<StudentModel> {
     type: sequelize.ENUM(...Object.values(GenderEnum)),
     allowNull: false,
   })
-  gender: string;
+  gender: GenderEnum;
 
   @Column({
     type: sequelize.FLOAT,

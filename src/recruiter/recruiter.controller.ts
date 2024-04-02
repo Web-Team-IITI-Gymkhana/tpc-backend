@@ -22,7 +22,7 @@ import { ApiFilterQuery, pipeTransform, pipeTransformArray } from "src/utils/uti
 import { GetRecruiterReturnDto, GetRecruitersReturnDto } from "./dtos/recruiterGetReturn.dto";
 import { CreateRecruiterDto } from "./dtos/recruiterPost.dto";
 import { UpdateRecruiterDto } from "./dtos/recruiterPatch.dto";
-import { ApiBody, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 
 @Controller("recruiters")
 @ApiTags("Recruiter")
@@ -31,6 +31,7 @@ export class RecruiterController {
 
   @Get()
   @ApiFilterQuery("q", GetRecruiterQueryDto)
+  @ApiOperation({ description: "Please Refer to the GetRecruiterQueryDto for the Schema Ctrl+F it." })
   @ApiResponse({ type: GetRecruitersReturnDto, isArray: true })
   async getRecruiters(@Query("q") where: GetRecruiterQueryDto) {
     const ans = await this.recruiterService.getRecruiters(where);

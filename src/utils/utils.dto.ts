@@ -12,11 +12,17 @@ export class MatchOptionsString {
   @IsString({ each: true })
   @IsOptional()
   eq?: Array<string>;
+
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
+  lk?: string;
 }
 
 export class MatchOptionsNumber {
   @ApiPropertyOptional({
-    type: Array<number>,
+    type: Number,
+    isArray: true,
   })
   @IsArray()
   @IsNumber({}, { each: true })
@@ -51,16 +57,16 @@ export class MatchOptionsUUID {
   eq?: string[];
 }
 
-export function createMatchOptionsEnum<Enum>(enumType) {
+export function createMatchOptionsEnum(enumType) {
   class MatchOptionsEnum {
     @ApiPropertyOptional({
       enum: enumType,
       isArray: true,
     })
     @IsOptional()
-    @IsEnum(enumType)
+    @IsEnum(enumType, { each: true })
     @Type(() => enumType)
-    eq?: Enum;
+    eq?: Array<typeof enumType>;
   }
 
   return MatchOptionsEnum;

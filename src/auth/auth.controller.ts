@@ -29,14 +29,6 @@ export class AuthController {
     private emailService: EmailService
   ) {}
 
-  @Post("/")
-  @UseInterceptors(ClassSerializerInterceptor)
-  async signup(@Body() body: UserSignUpDto) {
-    const user = await this.userService.createUser(new User({ name: body.name, email: body.email, role: body.role }));
-
-    return { user: user };
-  }
-
   @Post("/login")
   async login(@Body() body: UserLogInDto) {
     const user = await this.userService.getUserByEmail(body.email, body.role);

@@ -42,6 +42,7 @@ import { TestTypesEnum } from "src/enums/testTypes.enum";
 import { InterviewTypesEnum } from "src/enums/interviewTypes.enum";
 import { OfferStatusEnum } from "src/enums/offerStatus.enum";
 import { JobCoordinatorRoleEnum } from "src/enums/jobCoordinatorRole";
+import { FacultyApprovalStatusEnum } from "src/enums/facultyApproval.enum";
 
 export const SEASONS: Optional<SeasonModel, NullishPropertiesOf<SeasonModel>>[] = Array.from({ length: 5 }, () => ({
   id: faker.string.uuid(),
@@ -294,7 +295,7 @@ export const FACULTY_APPROVAL_REQUESTS: Optional<
       id: faker.string.uuid(),
       salaryId: salary.id,
       facultyId: faculty.id,
-      approved: faker.datatype.boolean(),
+      status: faker.helpers.enumValue(FacultyApprovalStatusEnum),
       remarks: faker.datatype.boolean() ? faker.lorem.sentence() : undefined,
     })
   )

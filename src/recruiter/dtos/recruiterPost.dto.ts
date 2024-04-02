@@ -4,28 +4,20 @@ import { IsOptional, IsString, IsUUID, ValidateNested } from "class-validator";
 import { CreateUserDto } from "src/student/dtos/studentPost.dto";
 
 export class CreateRecruiterDto {
-  @ApiProperty({
-    type: String,
-  })
+  @ApiProperty({ type: String })
   @IsUUID()
   companyId: string;
 
-  @ApiProperty({
-    type: String,
-  })
+  @ApiProperty({ type: String })
   @IsString()
   designation: string;
 
-  @ApiPropertyOptional({
-    type: String,
-  })
+  @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsString()
   landline?: string;
 
-  @ApiProperty({
-    type: CreateUserDto,
-  })
+  @ApiProperty({ type: CreateUserDto })
   @ValidateNested()
   @Type(() => CreateUserDto)
   user: CreateUserDto;

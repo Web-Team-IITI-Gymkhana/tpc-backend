@@ -7,7 +7,7 @@ import * as path from "path";
 export class FileService {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async uploadFile(file: any): Promise<string> {
-    const folderName = process.env.FOLDER_NAME;
+    const folderName = process.env.UPLOAD_DIR;
     const filename = uuidv4() + path.extname(file.originalname);
     const filePath = path.join(folderName, filename);
     const ans = await fs.writeFile(filePath, file.buffer);

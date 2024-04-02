@@ -44,7 +44,6 @@ export function pipeTransform(object, toType) {
   const pipe = new ValidationPipe({
     whitelist: true,
     expectedType: toType,
-    skipNullProperties: true,
   });
 
   return pipe.transform(object, { type: "body" });

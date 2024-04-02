@@ -1,209 +1,157 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import {
-  IsArray,
-  IsBoolean,
-  IsEmail,
-  IsEnum,
-  IsNumber,
-  IsObject,
-  IsOptional,
-  IsString,
-  IsUUID,
-  ValidateNested,
-} from "class-validator";
-import { CategoryEnum, GenderEnum } from "src/enums";
+import { IsBoolean, IsEmail, IsEnum, IsNumber, IsOptional, IsString, IsUUID, ValidateNested } from "class-validator";
+import { CategoryEnum, GenderEnum, RoleEnum } from "src/enums";
+import { DepartmentEnum } from "src/enums/department.enum";
 
 export class GetUsersReturnDto {
-  @ApiProperty({
-    type: String,
-  })
-  @IsString()
-  name: string;
+  @ApiProperty({ type: String })
+  @IsUUID()
+  id: string;
 
-  @ApiProperty({
-    type: String,
-  })
+  @ApiProperty({ type: String })
   @IsEmail()
   email: string;
 
-  @ApiProperty({
-    type: String,
-  })
+  @ApiProperty({ type: String })
+  @IsString()
+  name: string;
+
+  @ApiProperty({ type: String })
   @IsString()
   contact: string;
+
+  @ApiProperty({ enum: RoleEnum })
+  @IsEnum(RoleEnum)
+  role: RoleEnum;
 }
 
 export class GetProgramsReturnDto {
-  @ApiProperty({
-    type: String,
-  })
+  @ApiProperty({ type: String })
+  @IsUUID()
+  id: string;
+
+  @ApiProperty({ type: String })
   @IsString()
   course: string;
 
-  @ApiProperty({
-    type: String,
-  })
+  @ApiProperty({ type: String })
   @IsString()
   branch: string;
 
-  @ApiProperty({
-    type: String,
-  })
+  @ApiProperty({ enum: DepartmentEnum })
+  @IsEnum(DepartmentEnum)
+  department: DepartmentEnum;
+
+  @ApiProperty({ type: String })
   @IsString()
   year: string;
 }
 
-export class GetStudentResumeReturnDto {
-  @ApiProperty({
-    type: String,
-  })
-  @IsString()
+export class GetResumesReturnDto {
+  @ApiProperty({ type: String })
+  @IsUUID()
   id: string;
 
-  @ApiProperty({
-    type: Object,
-  })
-  @IsObject()
-  metadata: object;
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
+  filepath?: string;
 
-  @ApiProperty({
-    type: Boolean,
-  })
+  @ApiProperty({ type: Boolean })
   @IsBoolean()
   verified: boolean;
 }
 
-export class GetStudentReturnDto {
-  @ApiProperty({
-    type: String,
-  })
+export class GetStudentsReturnDto {
+  @ApiProperty({ type: String })
   @IsUUID()
   id: string;
 
-  @ApiProperty({
-    type: String,
-  })
+  //To remove
+  @ApiProperty({ type: String })
   @IsUUID()
   userId: string;
 
-  @ApiProperty({
-    type: String,
-  })
+  //To remove
+  @ApiProperty({ type: String })
   @IsUUID()
   programId: string;
 
-  @ApiProperty({
-    type: String,
-  })
+  @ApiProperty({ type: String })
   @IsString()
   rollNo: string;
 
-  @ApiProperty({
-    type: String,
-  })
-  @IsString()
-  category: string;
+  @ApiProperty({ enum: CategoryEnum })
+  @IsEnum(CategoryEnum)
+  category: CategoryEnum;
 
-  @ApiProperty({
-    enum: GenderEnum,
-    example: "MALE/FEMALE",
-  })
+  @ApiProperty({ enum: GenderEnum })
   @IsEnum(GenderEnum)
   gender: GenderEnum;
 
-  @ApiProperty({
-    type: Number,
-  })
+  @ApiProperty({ type: Number })
   @IsNumber()
   cpi: number;
 
-  @ApiProperty({
-    type: GetUsersReturnDto,
-  })
-  @ValidateNested({ each: true })
+  @ApiProperty({ type: GetUsersReturnDto })
+  @ValidateNested()
   @Type(() => GetUsersReturnDto)
   user: GetUsersReturnDto;
 
-  @ApiProperty({
-    type: GetProgramsReturnDto,
-  })
-  @ValidateNested({ each: true })
+  @ApiProperty({ type: GetProgramsReturnDto })
+  @ValidateNested()
   @Type(() => GetProgramsReturnDto)
   program: GetProgramsReturnDto;
-
-  @ApiPropertyOptional({
-    type: GetStudentResumeReturnDto,
-  })
-  @IsArray()
-  @IsOptional()
-  @ValidateNested({ each: true })
-  @Type(() => GetStudentResumeReturnDto)
-  resumes: GetStudentResumeReturnDto[];
-
-  @ApiProperty({
-    type: Number,
-  })
-  @IsNumber()
-  @Type(() => Number)
-  totalPenalty: number;
 }
 
-export class GetStudentsReturnDto {
-  @ApiProperty({
-    type: String,
-  })
+export class GetStudentReturnDto {
+  @ApiProperty({ type: String })
   @IsUUID()
   id: string;
 
-  @ApiProperty({
-    type: String,
-  })
+  //To remove
+  @ApiProperty({ type: String })
   @IsUUID()
   userId: string;
 
-  @ApiProperty({
-    type: String,
-  })
+  //To remove
+  @ApiProperty({ type: String })
   @IsUUID()
   programId: string;
 
-  @ApiProperty({
-    type: String,
-  })
+  @ApiProperty({ type: String })
   @IsString()
   rollNo: string;
 
-  @ApiProperty({
-    type: String,
-  })
-  @IsString()
-  category: string;
+  @ApiProperty({ enum: CategoryEnum })
+  @IsEnum(CategoryEnum)
+  category: CategoryEnum;
 
-  @ApiProperty({
-    enum: GenderEnum,
-    example: "MALE/FEMALE",
-  })
+  @ApiProperty({ enum: GenderEnum })
   @IsEnum(GenderEnum)
   gender: GenderEnum;
 
-  @ApiProperty({
-    type: Number,
-  })
+  @ApiProperty({ type: Number })
   @IsNumber()
   cpi: number;
 
-  @ApiProperty({
-    type: GetUsersReturnDto,
-  })
-  @ValidateNested({ each: true })
+  @ApiProperty({ type: GetUsersReturnDto })
+  @ValidateNested()
   @Type(() => GetUsersReturnDto)
   user: GetUsersReturnDto;
 
-  @ApiProperty({
-    type: GetProgramsReturnDto,
-  })
-  @ValidateNested({ each: true })
+  @ApiProperty({ type: GetProgramsReturnDto })
+  @ValidateNested()
   @Type(() => GetProgramsReturnDto)
   program: GetProgramsReturnDto;
+
+  @ApiProperty({ type: GetResumesReturnDto, isArray: true })
+  @ValidateNested({ each: true })
+  @Type(() => GetResumesReturnDto)
+  resumes: GetResumesReturnDto[];
+
+  @ApiProperty({ type: Number })
+  @IsNumber()
+  totalPenalty: number;
 }

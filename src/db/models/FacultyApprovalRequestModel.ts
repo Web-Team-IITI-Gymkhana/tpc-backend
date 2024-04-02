@@ -3,6 +3,7 @@ import sequelize from "sequelize";
 import { FacultyModel } from "./FacultyModel";
 import { JobModel } from "./JobModel";
 import { SalaryModel } from "./SalaryModel";
+import { FacultyApprovalStatusEnum } from "src/enums/facultyApproval.enum";
 
 @Table({
   tableName: "FacultyApprovalRequest",
@@ -40,8 +41,12 @@ export class FacultyApprovalRequestModel extends Model<FacultyApprovalRequestMod
   })
   salary: SalaryModel;
 
-  @Column({ type: sequelize.BOOLEAN, defaultValue: false, allowNull: false })
-  approved: boolean;
+  @Column({
+    type: sequelize.ENUM(...Object.values(FacultyApprovalStatusEnum)),
+    defaultValue: FacultyApprovalStatusEnum.PENDING,
+    allowNull: false,
+  })
+  status: FacultyApprovalStatusEnum;
 
   @Column({
     type: sequelize.STRING,

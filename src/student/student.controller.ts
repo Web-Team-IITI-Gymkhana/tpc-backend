@@ -31,10 +31,7 @@ export class StudentController {
 
   @Get()
   @ApiOperation({
-    description:
-      "Refer the object in q but after making the object using nested json\
-      seperate it by underscores and send it. Dont try using swagger wont work.\
-      Dont forge to add q to the nested json as so: {q:{}}",
+    description: "Please Refer to the GetStudentQueryDto for the Schema Ctrl+F it.",
   })
   @ApiFilterQuery("q", GetStudentQueryDto)
   @ApiResponse({ type: GetStudentsReturnDto, isArray: true })

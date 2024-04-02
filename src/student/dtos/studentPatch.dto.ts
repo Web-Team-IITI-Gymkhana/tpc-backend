@@ -1,21 +1,22 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsEmail, IsNumber, IsOptional, IsString, IsUUID, ValidateNested } from "class-validator";
+import { IsEmail, IsEnum, IsNumber, IsOptional, IsString, IsUUID, ValidateNested } from "class-validator";
+import { CategoryEnum, GenderEnum, RoleEnum } from "src/enums";
 
 export class UpdateUserDto {
   @ApiPropertyOptional({ type: String })
-  @IsString()
   @IsOptional()
-  name?: string;
-
-  @ApiPropertyOptional({ type: String })
   @IsEmail()
-  @IsOptional()
   email?: string;
 
   @ApiPropertyOptional({ type: String })
-  @IsString()
   @IsOptional()
+  @IsString()
+  name?: string;
+
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
   contact?: string;
 }
 
@@ -24,34 +25,34 @@ export class UpdateStudentDto {
   @IsUUID()
   id: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsOptional()
-  rollNo?: string;
-
-  @ApiPropertyOptional({ type: String })
-  @IsUUID()
-  @IsOptional()
-  programId?: string;
-
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsOptional()
-  category?: string;
-
-  @ApiPropertyOptional({ type: Number })
-  @IsNumber()
-  @IsOptional()
-  cpi?: number;
-
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsOptional()
-  gender?: string;
-
   @ApiPropertyOptional({ type: UpdateUserDto })
   @IsOptional()
   @ValidateNested()
   @Type(() => UpdateUserDto)
-  user: UpdateUserDto;
+  user?: UpdateUserDto;
+
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
+  rollNo?: string;
+
+  @ApiPropertyOptional({ enum: CategoryEnum })
+  @IsOptional()
+  @IsEnum(CategoryEnum)
+  category?: CategoryEnum;
+
+  @ApiPropertyOptional({ enum: GenderEnum })
+  @IsOptional()
+  @IsEnum(GenderEnum)
+  gender?: GenderEnum;
+
+  @ApiPropertyOptional({ type: Number })
+  @IsOptional()
+  @IsNumber()
+  cpi?: number;
+
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsUUID()
+  programId?: string;
 }

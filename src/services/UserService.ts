@@ -12,12 +12,6 @@ export class UserService {
 
   constructor(@Inject(USER_DAO) private userRepo: typeof UserModel) {}
 
-  async createUser(user: User, t?: Transaction) {
-    const userModel = await this.userRepo.create(user, { transaction: t });
-
-    return User.fromModel(userModel);
-  }
-
   async getOrCreateUser(user: User, t?: Transaction) {
     const [userModel] = await this.userRepo.findOrCreate({
       where: { email: user.email, role: user.role },
