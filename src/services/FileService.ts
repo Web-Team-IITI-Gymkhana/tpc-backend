@@ -5,6 +5,7 @@ import * as path from "path";
 
 @Injectable()
 export class FileService {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   async uploadFile(file: any): Promise<string> {
     const folderName = process.env.FOLDER_NAME;
     const filename = uuidv4() + path.extname(file.originalname);

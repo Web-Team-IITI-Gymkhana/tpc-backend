@@ -3,10 +3,7 @@ import { ValidationPipe } from "@nestjs/common";
 
 @Injectable()
 export class RemoveNullValidationPipe extends ValidationPipe {
-  constructor(args) {
-    super(args);
-  }
-  async transform(value: any, metadata: ArgumentMetadata) {
+  async transform(value: object, metadata: ArgumentMetadata) {
     // Call the parent class's transform method to perform standard validation
     const transformedValue = await super.transform(value, metadata);
 

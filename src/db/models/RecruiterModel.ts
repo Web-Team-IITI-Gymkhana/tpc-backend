@@ -20,6 +20,7 @@ export class RecruiterModel extends Model<RecruiterModel> {
   @ForeignKey(() => UserModel)
   @Column({
     unique: true,
+    allowNull: false,
     type: sequelize.UUID,
   })
   userId: string;
@@ -48,6 +49,7 @@ export class RecruiterModel extends Model<RecruiterModel> {
 
   @Column({
     type: sequelize.STRING,
+    allowNull: false,
   })
   designation: string;
 

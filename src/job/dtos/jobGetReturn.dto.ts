@@ -1,24 +1,10 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsEnum, IsString, IsUUID, ValidateNested } from "class-validator";
-import { SeasonType } from "src/enums";
+import { SeasonTypeEnum } from "src/enums";
 import { GetCompaniesReturnDto } from "src/recruiter/dtos/recruiterGetReturn.dto";
 
 export class GetSeasonsReturnDto {
-  @ApiProperty({
-    type: String,
-  })
-  @IsString()
-  year: string;
-
-  @ApiProperty({
-    enum: SeasonType,
-  })
-  @IsEnum(SeasonType)
-  type: SeasonType;
-}
-
-export class GetJobsReturnDto {
   @ApiProperty({
     type: String,
   })
@@ -28,14 +14,22 @@ export class GetJobsReturnDto {
   @ApiProperty({
     type: String,
   })
-  @IsUUID()
-  seasonId: string;
+  @IsString()
+  year: string;
 
+  @ApiProperty({
+    enum: SeasonTypeEnum,
+  })
+  @IsEnum(SeasonTypeEnum)
+  type: SeasonTypeEnum;
+}
+
+export class GetJobsReturnDto {
   @ApiProperty({
     type: String,
   })
   @IsUUID()
-  companyId: string;
+  id: string;
 
   @ApiProperty({
     type: String,

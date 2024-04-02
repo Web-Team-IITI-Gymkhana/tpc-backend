@@ -7,7 +7,6 @@ import {
   StudentModel,
   FacultyModel,
   JobModel,
-  JobStatusModel,
   EventModel,
   CompanyModel,
   PenaltyModel,
@@ -73,7 +72,6 @@ export const databaseProviders = [
         SeasonModel,
         CompanyModel,
         JobModel,
-        JobStatusModel,
         EventModel,
         ResumeModel,
         ApplicationModel,
@@ -86,7 +84,7 @@ export const databaseProviders = [
         OnCampusOfferModel,
       ]);
 
-      // await sequelize.sync({ alter: true });
+      // await sequelize.sync({ force: true });
 
       return sequelize;
     },
@@ -125,10 +123,6 @@ export const spacesProviders = [
   {
     provide: JOB_DAO,
     useValue: JobModel,
-  },
-  {
-    provide: JOB_STATUS_DAO,
-    useValue: JobStatusModel,
   },
   {
     provide: EVENT_DAO,

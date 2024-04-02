@@ -6,6 +6,7 @@ import { ProgramModel } from "./ProgramModel";
 import { OffCampusOfferModel } from "./OffCampusOfferModel";
 import { ResumeModel } from "./ResumeModel";
 import { OnCampusOfferModel } from "./OnCampusOfferModel";
+import { CategoryEnum, GenderEnum } from "src/enums";
 
 @Table({
   tableName: "Student",
@@ -36,23 +37,34 @@ export class StudentModel extends Model<StudentModel> {
   user: UserModel;
 
   @Unique("UserRollNo")
-  @Column
-  rollNo: string;
-
-  @Column
-  category: string;
-
   @Column({
     type: sequelize.STRING,
+    allowNull: false,
+  })
+  rollNo: string;
+
+  @Column({
+    type: sequelize.ENUM(...Object.values(CategoryEnum)),
+    allowNull: false,
+  })
+  category: CategoryEnum;
+
+  @Column({
+    type: sequelize.ENUM(...Object.values(GenderEnum)),
+    allowNull: false,
   })
   gender: string;
 
-  @Column
+  @Column({
+    type: sequelize.FLOAT,
+    allowNull: false,
+  })
   cpi: number;
 
   @ForeignKey(() => ProgramModel)
   @Column({
     type: sequelize.UUID,
+    allowNull: false,
   })
   programId: string;
 

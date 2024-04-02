@@ -2,6 +2,7 @@ import { Table, Column, Model, ForeignKey, Unique, BelongsTo } from "sequelize-t
 import sequelize from "sequelize";
 import { FacultyModel } from "./FacultyModel";
 import { JobModel } from "./JobModel";
+import { SalaryModel } from "./SalaryModel";
 
 @Table({
   tableName: "FacultyApprovalRequest",
@@ -17,7 +18,7 @@ export class FacultyApprovalRequestModel extends Model<FacultyApprovalRequestMod
 
   @Unique("FacultyJob")
   @ForeignKey(() => FacultyModel)
-  @Column({ type: sequelize.UUID, unique: true })
+  @Column({ type: sequelize.UUID, unique: true, allowNull: false })
   facultyId: string;
 
   // Delete Faculty Approval Request onDelete of Faculty
@@ -28,20 +29,22 @@ export class FacultyApprovalRequestModel extends Model<FacultyApprovalRequestMod
   faculty: FacultyModel;
 
   @Unique("FacultyJob")
-  @ForeignKey(() => JobModel)
-  @Column({ type: sequelize.UUID, unique: true })
-  jobId: string;
+  @ForeignKey(() => SalaryModel)
+  @Column({ type: sequelize.UUID, unique: true, allowNull: false })
+  salaryId: string;
 
   // Delete Faculty Approval Request onDelete of Job
-  @BelongsTo(() => JobModel, {
-    foreignKey: "jobId",
+  @BelongsTo(() => SalaryModel, {
+    foreignKey: "salaryId",
     onDelete: "CASCADE",
   })
-  job: JobModel;
+  salary: SalaryModel;
 
-  @Column({ type: sequelize.BOOLEAN, defaultValue: false })
+  @Column({ type: sequelize.BOOLEAN, defaultValue: false, allowNull: false })
   approved: boolean;
 
-  @Column
-  remarks: string;
+  @Column({
+    type: sequelize.STRING,
+  })
+  remarks?: string;
 }

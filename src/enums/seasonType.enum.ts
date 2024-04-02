@@ -1,4 +1,4 @@
-export enum SeasonType {
+export enum SeasonTypeEnum {
   INTERN = "INTERN",
   PLACEMENT = "PLACEMENT",
 }

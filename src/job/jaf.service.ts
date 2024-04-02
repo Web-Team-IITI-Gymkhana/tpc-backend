@@ -1,92 +1,63 @@
-/*
- * import { Inject, Injectable, Logger } from "@nestjs/common";
- * import { omit } from "lodash";
- * import sequelize from "sequelize";
- * import { Sequelize, Transaction, WhereOptions } from "sequelize";
- * import { COMPANY_DAO, JOB_DAO, JOB_STATUS_DAO, RECRUITER_DAO } from "src/constants";
- * import { JobStatusType } from "src/enums";
- * import { CompanyModel, JobModel, JobStatusModel, RecruiterModel, SeasonModel } from "src/db/models";
- * import { Job } from "src/entities/Job";
- * import { JobStatus } from "src/entities/JobStatus";
- * import { getQueryValues } from "src/utils/utils";
- *
- * @Injectable()
- * class JafService {
- * private logger = new Logger(JafService.name);
- *
- * constructor(
- *  @Inject(JOB_DAO) private jobRepo: typeof JobModel,
- *  @Inject(COMPANY_DAO) private companyRepo: typeof CompanyModel,
- *  @Inject(RECRUITER_DAO) private recruiterRepo: typeof RecruiterModel,
- *  @Inject(JOB_STATUS_DAO) private jobStatusRepo: typeof JobStatusModel
- * ) {}
- *
- * async createJob(job: Job, t?: Transaction) {
- *  const obj = getQueryValues(job);
- *  const jobModel = await this.jobRepo.create(omit(obj, "company", "season", "recruiter", "currentStatus"), {
- *    transaction: t,
- *  });
- *
- *  return Job.fromModel(jobModel);
- * }
- *
- * async getJobs(): Promise<Job[]> {
- *  const ans = await this.jobRepo.findAll();
- *
- *  return ans.map((job) => Job.fromModel(job));
- * }
- *
- * async updateJob(jobId: string, fieldsToUpdate: object, transaction?: Transaction): Promise<Job> {
- *  // eslint-disable-next-line @typescript-eslint/no-unused-vars
- *  const [_, updatedJob] = await this.jobRepo.update(fieldsToUpdate, {
- *    where: { id: jobId },
- *    returning: true,
- *    transaction,
- *  });
- *
- *  return Job.fromModel(updatedJob[0]);
- * }
- *
- * async upsertJobStatusAndUpdateCurrent(jobStatus: JobStatus, transaction?: Transaction) {
- *  const pr1 = this.jobStatusRepo.upsert(jobStatus, {
- *    transaction: transaction,
- *  });
- *  const pr2 = this.jobRepo.findOne({
- *    where: { id: jobStatus.jobId },
- *    include: {
- *      model: JobStatusModel,
- *      as: "currentStatus",
- *      required: true,
- *    },
- *    transaction: transaction,
- *  });
- *  const [[instance], prevJob] = await Promise.all([pr1, pr2]);
- *  const prevStatus = prevJob.currentStatus;
- *  if (prevStatus == JobStatusType.INITIALIZED && jobStatus.status == JobStatusType.SCHEDULED) {
- *    const company = await this.companyRepo.create(prevJob.companyDetailsFilled, {
- *      transaction: transaction,
- *    });
- *    prevJob.recruiterDetailsFilled["companyId"] = company.id;
- *    const recruiter = await this.recruiterRepo.create(prevJob.recruiterDetailsFilled, {
- *      transaction: transaction,
- *    });
- *    const job = await this.updateJob(
- *      instance.jobId,
- *      { currentStatusId: instance.id, companyId: company.id, recruiterId: recruiter.id },
- *      transaction
- *    );
- *
- *    return job;
- *  }
- *  const job = await this.updateJob(instance.jobId, { currentStatusId: instance.id }, transaction);
- *
- *  return job;
- * }
- *
- * async deleteJob(jobId: string, t?: Transaction) {
- *  return !!(await this.jobRepo.destroy({ where: { id: jobId }, transaction: t }));
- * }
- * }
- *
- * export default JafService;
- */
+import { Inject, Injectable } from "@nestjs/common";
+import { Optional, Sequelize, Transaction } from "sequelize";
+import { NullishPropertiesOf } from "sequelize/types/utils";
+import {
+  JOB_DAO,
+  PROGRAM_DAO,
+  SALARY_DAO,
+  SEASON_DAO,
+  SEQUELIZE_DAO,
+  DUMMY_COMPANY,
+  DUMMY_RECRUITER,
+} from "src/constants";
+import { JobModel, ProgramModel, SalaryModel, SeasonModel } from "src/db/models";
+import { CategoryEnum, GenderEnum } from "src/enums";
+import { CountriesEnum } from "src/enums/Country.enum";
+import { IndustryDomainEnum } from "src/enums/industryDomains.enum";
+import { InterviewTypesEnum } from "src/enums/interviewTypes.enum";
+import { TestTypesEnum } from "src/enums/testTypes.enum";
+
+@Injectable()
+export class JafService {
+  constructor(
+    @Inject(JOB_DAO) private jobRepo: typeof JobModel,
+    @Inject(SEASON_DAO) private seasonRepo: typeof SeasonModel,
+    @Inject(PROGRAM_DAO) private programRepo: typeof ProgramModel,
+    @Inject(SALARY_DAO) private salaryRepo: typeof SalaryModel,
+    @Inject(SEQUELIZE_DAO) private sequelizeInstance: Sequelize
+  ) {}
+
+  async createJaf(
+    jaf: Optional<JobModel, NullishPropertiesOf<JobModel>>,
+    salaries: Optional<SalaryModel, NullishPropertiesOf<SalaryModel>>[],
+    t: Transaction
+  ) {
+    jaf.companyId = DUMMY_COMPANY.id;
+    jaf.recruiterId = DUMMY_RECRUITER.id;
+
+    const ans = await this.jobRepo.create(jaf, {
+      transaction: t,
+    });
+    const salariesWithJobId = salaries.map((salary) => ({ ...salary, jobId: ans.id }));
+    await this.salaryRepo.bulkCreate(salariesWithJobId, {
+      transaction: t,
+    });
+
+    return ans.id;
+  }
+
+  async getJafDetails() {
+    const [seasons, programs] = await Promise.all([this.seasonRepo.findAll(), this.programRepo.findAll()]);
+
+    return {
+      seasons: seasons,
+      programs: programs,
+      genders: Object.values(GenderEnum),
+      categories: Object.values(CategoryEnum),
+      testTypes: Object.values(TestTypesEnum),
+      domains: Object.values(IndustryDomainEnum),
+      interviewTypes: Object.values(InterviewTypesEnum),
+      countries: Object.values(CountriesEnum),
+    };
+  }
+}

@@ -18,7 +18,7 @@ import { ApiFilterQuery, pipeTransform, pipeTransformArray } from "src/utils/uti
 import { CreateTpcMemberDto } from "./dtos/tpcMemberPost.dto";
 import { UpdateTpcMemberDto } from "./dtos/tpcMemberPatch.dto";
 import { TpcMemberService } from "./tpcMember.service";
-import { Role } from "src/enums";
+import { RoleEnum } from "src/enums";
 import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
@@ -52,7 +52,7 @@ export class TpcMemberController {
     @Body(new ParseArrayPipe({ items: CreateTpcMemberDto })) body: CreateTpcMemberDto[]
   ): Promise<string[]> {
     const tpcMembers = body.map((data) => {
-      data.user.role = Role.TPC_MEMBER;
+      data.user.role = RoleEnum.TPC_MEMBER;
 
       return data;
     });

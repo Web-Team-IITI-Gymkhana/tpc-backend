@@ -1,81 +1,63 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, Logger } from "@nestjs/common";
+import { Sequelize } from "sequelize-typescript";
 import {
-  COMPANY_DAO,
-  COURSE_BRANCH_MAP,
-  FACULTY_DAO,
-  JOB_DAO,
-  PROGRAM_DAO,
-  RECRUITER_DAO,
-  SEASON_DAO,
-  STUDENT_DAO,
-  TPC_MEMBER_DAO,
-  USER_DAO,
-  YEARS,
-} from "src/constants";
-import {
-  CompanyModel,
-  FacultyModel,
-  JobModel,
-  ProgramModel,
-  RecruiterModel,
-  SeasonModel,
-  StudentModel,
-  TpcMemberModel,
-  UserModel,
-} from "src/db/models";
-
-import { SEASONS, USERS, JOBS, RECRUITERS, COMPANIES, TPC_MEMBERS } from "../test/data";
-import { omit } from "lodash";
+  SEASONS,
+  USERS,
+  COMPANIES,
+  FACULTIES,
+  PROGRAMS,
+  TPC_MEMBERS,
+  STUDENTS,
+  RECRUITERS,
+  RESUMES,
+  JOBS,
+  SALARIES,
+  PENALTIES,
+  ON_CAMPUS_OFFERS,
+  OFF_CAMPUS_OFFERS,
+  JOB_COORDINATORS,
+  FACULTY_APPROVAL_REQUESTS,
+  EVENTS,
+  APPLICATIONS,
+} from "src/test/data";
+import { DUMMY_COMPANY, DUMMY_RECRUITER, DUMMY_USER } from "src/constants";
 
 @Injectable()
 export class InsertService {
-  constructor(
-    @Inject(SEASON_DAO) private seasonRepo: typeof SeasonModel,
-    @Inject(COMPANY_DAO) private companyRepo: typeof CompanyModel,
-    @Inject(USER_DAO) private userRepo: typeof UserModel,
-    @Inject(STUDENT_DAO) private studentRepo: typeof StudentModel,
-    @Inject(RECRUITER_DAO) private recruiterRepo: typeof RecruiterModel,
-    @Inject(FACULTY_DAO) private facultyRepo: typeof FacultyModel,
-    @Inject(TPC_MEMBER_DAO) private tpcMemberRepo: typeof TpcMemberModel,
-    @Inject(JOB_DAO) private jobRepo: typeof JobModel,
-    @Inject(PROGRAM_DAO) private programRepo: typeof ProgramModel
-  ) {}
+  private logger = new Logger(InsertService.name);
+
+  constructor(@Inject("SEQUELIZE") private readonly sequelizeInstance: Sequelize) {}
 
   async onModuleInit() {
     // await this.insert();
   }
 
   async insert() {
-    await this.seasonRepo.bulkCreate(SEASONS, { updateOnDuplicate: ["id"] });
-    await this.companyRepo.bulkCreate(
-      COMPANIES.map((company) => omit(company, "jobs")),
-      { updateOnDuplicate: ["id"] }
-    );
-    await this.userRepo.bulkCreate(USERS, { updateOnDuplicate: ["id"] });
-    await this.recruiterRepo.bulkCreate(
-      RECRUITERS.map((recruiter) => omit(recruiter, "user", "company")),
-      { updateOnDuplicate: ["id"] }
-    );
-    await this.jobRepo.bulkCreate(JOBS, { updateOnDuplicate: ["id"] });
-    await this.tpcMemberRepo.bulkCreate(
-      TPC_MEMBERS.map((tpcMember) => omit(tpcMember, "user")),
-      { updateOnDuplicate: ["id"] }
-    );
-    const programs = this.getDefaultPrograms();
-    await this.programRepo.bulkCreate(programs, { updateOnDuplicate: ["id"] });
-  }
+    const seasons = await this.sequelizeInstance.models.SeasonModel.bulkCreate(SEASONS);
+    const users = await this.sequelizeInstance.models.UserModel.bulkCreate(USERS);
+    const programs = await this.sequelizeInstance.models.ProgramModel.bulkCreate(PROGRAMS);
+    const companies = await this.sequelizeInstance.models.CompanyModel.bulkCreate(COMPANIES);
+    const faculties = await this.sequelizeInstance.models.FacultyModel.bulkCreate(FACULTIES);
+    const tpcMembers = await this.sequelizeInstance.models.TpcMemberModel.bulkCreate(TPC_MEMBERS);
+    const students = await this.sequelizeInstance.models.StudentModel.bulkCreate(STUDENTS);
+    const penalties = await this.sequelizeInstance.models.PenaltyModel.bulkCreate(PENALTIES);
+    const recruiters = await this.sequelizeInstance.models.RecruiterModel.bulkCreate(RECRUITERS);
+    const resumes = await this.sequelizeInstance.models.ResumeModel.bulkCreate(RESUMES);
+    const jobs = await this.sequelizeInstance.models.JobModel.bulkCreate(JOBS);
+    const salaries = await this.sequelizeInstance.models.SalaryModel.bulkCreate(SALARIES);
+    const onCampusOffers = await this.sequelizeInstance.models.OnCampusOfferModel.bulkCreate(ON_CAMPUS_OFFERS);
+    const offCampusOffers = await this.sequelizeInstance.models.OffCampusOfferModel.bulkCreate(OFF_CAMPUS_OFFERS);
+    const jobCoordinators = await this.sequelizeInstance.models.JobCoordinatorModel.bulkCreate(JOB_COORDINATORS);
+    const approvals =
+      await this.sequelizeInstance.models.FacultyApprovalRequestModel.bulkCreate(FACULTY_APPROVAL_REQUESTS);
+    const events = await this.sequelizeInstance.models.EventModel.bulkCreate(EVENTS);
+    const applications = await this.sequelizeInstance.models.ApplicationModel.bulkCreate(APPLICATIONS);
+    await this.sequelizeInstance.models.CompanyModel.create(DUMMY_COMPANY);
+    await this.sequelizeInstance.models.UserModel.create(DUMMY_USER);
+    await this.sequelizeInstance.models.RecruiterModel.create(DUMMY_RECRUITER);
 
-  private getDefaultPrograms() {
-    const programs = [];
-    for (const year of YEARS) {
-      for (const course of Object.keys(COURSE_BRANCH_MAP)) {
-        const branches = COURSE_BRANCH_MAP[course];
-        for (const branch of branches) {
-          programs.push({ course: course, branch: branch, year: year });
-        }
-      }
-    }
+    this.logger.log("Successfully Inserted");
 
-    return programs;
+    return true;
   }
 }

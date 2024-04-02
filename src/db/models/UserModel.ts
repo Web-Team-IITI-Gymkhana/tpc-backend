@@ -1,5 +1,6 @@
-import { Table, Column, Model, IsEmail, Unique } from "sequelize-typescript";
+import { Table, Column, Model, IsEmail, Unique, AllowNull } from "sequelize-typescript";
 import sequelize from "sequelize";
+import { RoleEnum } from "src/enums";
 
 @Table({
   tableName: "User",
@@ -25,12 +26,16 @@ export class UserModel extends Model<UserModel> {
   })
   name: string;
 
-  @Column
+  @Column({
+    type: sequelize.STRING,
+    allowNull: false,
+  })
   contact: string;
 
   @Unique("EmailRole")
   @Column({
     allowNull: false,
+    type: sequelize.ENUM(...Object.values(RoleEnum)),
   })
-  role: string;
+  role: RoleEnum;
 }

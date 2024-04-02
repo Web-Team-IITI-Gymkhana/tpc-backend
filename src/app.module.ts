@@ -14,6 +14,8 @@ import { RecruiterModule } from "./recruiter/recruiter.module";
 import { TpcMemberModule } from "./tpcMember/tpcMember.module";
 import { EmailService } from "./services/EmailService";
 import { AuthModule } from "./auth/auth.module";
+import { ServiceModule } from "./services/service.module";
+import { JobModule } from "./job/job.module";
 
 @Module({
   imports: [
@@ -23,8 +25,10 @@ import { AuthModule } from "./auth/auth.module";
     StudentModule,
     RecruiterModule,
     TpcMemberModule,
+    { module: ServiceModule, global: true },
+    JobModule,
   ],
-  controllers: [AppController, FlowerController],
-  providers: [Logger, TransactionInterceptor, QueryInterceptor, AppService, UserService, EmailService],
+  controllers: [AppController],
+  providers: [Logger, TransactionInterceptor, QueryInterceptor, AppService],
 })
 export class AppModule {}

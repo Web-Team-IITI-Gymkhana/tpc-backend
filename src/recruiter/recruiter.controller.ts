@@ -16,7 +16,7 @@ import { QueryInterceptor } from "src/interceptor/QueryInterceptor";
 import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
-import { Role } from "src/enums";
+import { RoleEnum } from "src/enums";
 import { GetRecruiterQueryDto } from "./dtos/recruiterGetQuery.dto";
 import { ApiFilterQuery, pipeTransform, pipeTransformArray } from "src/utils/utils";
 import { GetRecruiterReturnDto, GetRecruitersReturnDto } from "./dtos/recruiterGetReturn.dto";
@@ -53,7 +53,7 @@ export class RecruiterController {
     @Body(new ParseArrayPipe({ items: CreateRecruiterDto })) body: CreateRecruiterDto[]
   ): Promise<string[]> {
     const recruiters = body.map((data) => {
-      data.user.role = Role.RECRUITER;
+      data.user.role = RoleEnum.RECRUITER;
 
       return data;
     });

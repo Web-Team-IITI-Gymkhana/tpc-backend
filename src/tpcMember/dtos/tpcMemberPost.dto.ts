@@ -1,7 +1,7 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsEnum, IsString, ValidateNested } from "class-validator";
-import { TpcMemberRole } from "src/enums";
+import { TpcMemberRoleEnum } from "src/enums";
 import { CreateUserDto } from "src/student/dtos/studentPost.dto";
 
 export class CreateTpcMemberDto {
@@ -12,10 +12,10 @@ export class CreateTpcMemberDto {
   department: string;
 
   @ApiProperty({
-    enum: TpcMemberRole,
+    enum: TpcMemberRoleEnum,
   })
-  @IsEnum(TpcMemberRole)
-  role: TpcMemberRole;
+  @IsEnum(TpcMemberRoleEnum)
+  role: TpcMemberRoleEnum;
 
   @ApiProperty({
     type: CreateUserDto,

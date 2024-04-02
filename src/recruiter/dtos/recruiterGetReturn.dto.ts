@@ -2,8 +2,8 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsArray, IsEnum, IsNumber, IsOptional, IsString, IsUrl, IsUUID, ValidateNested } from "class-validator";
 import { Is } from "sequelize-typescript";
-import { CompanyCategory } from "src/enums";
-import IndustryDomain from "src/enums/industryDomains.enum";
+import { CompanyCategoryEnum } from "src/enums";
+import { IndustryDomainEnum } from "src/enums/industryDomains.enum";
 import { AddressDto } from "src/job/dtos/jaf.dto";
 import { GetUsersReturnDto } from "src/student/dtos/studentGetReturn.dto";
 
@@ -30,19 +30,19 @@ export class GetCompanyReturnDto {
   website?: string;
 
   @ApiProperty({
-    enum: IndustryDomain,
+    enum: IndustryDomainEnum,
     isArray: true,
   })
-  @IsEnum(IndustryDomain, { each: true })
+  @IsEnum(IndustryDomainEnum, { each: true })
   @IsArray()
-  domains: IndustryDomain[];
+  domains: IndustryDomainEnum[];
 
   @ApiPropertyOptional({
-    enum: CompanyCategory,
+    enum: CompanyCategoryEnum,
   })
   @IsOptional()
-  @IsEnum(CompanyCategory)
-  category: CompanyCategory;
+  @IsEnum(CompanyCategoryEnum)
+  category: CompanyCategoryEnum;
 
   @ApiProperty({
     type: AddressDto,

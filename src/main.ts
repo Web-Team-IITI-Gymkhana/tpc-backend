@@ -11,6 +11,7 @@ import { LoggerInterceptor } from "./interceptor/LoggerInterceptor";
 import { env, EnvironmentVariables } from "./config";
 
 const environmentVariables: EnvironmentVariables = env();
+const logger = new Logger("main");
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
@@ -32,7 +33,6 @@ async function bootstrap(): Promise<void> {
 
   await app.listen(environmentVariables.PORT);
 
-  const logger = new Logger("main");
   logger.log(`Application is running on: ${await app.getUrl()}`);
 }
 
@@ -91,7 +91,6 @@ function createWinstonLogger(): LoggerService {
 }
 
 bootstrap().catch((err) => {
-  // tslint:disable-next-line:no-console
-  console.error(err);
+  logger.error(err);
   process.exit(1);
 });

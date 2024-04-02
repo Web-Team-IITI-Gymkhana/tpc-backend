@@ -1,4 +1,4 @@
-export enum JobStatusType {
+export enum JobStatusTypeEnum {
   INITIALIZED = "INITIALIZED",
   SCHEDULED = "SCHEDULED",
   PPT_DONE = "PPT_DONE",

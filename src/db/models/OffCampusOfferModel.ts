@@ -3,6 +3,7 @@ import { BelongsTo, Column, ForeignKey, Model, Table, Unique } from "sequelize-t
 import { CompanyModel } from "./CompanyModel";
 import { SeasonModel } from "./SeasonModel";
 import { StudentModel } from "./StudentModel";
+import { OfferStatusEnum } from "src/enums/offerStatus.enum";
 
 @Table({
   tableName: "OffCampusOffer",
@@ -16,14 +17,14 @@ export class OffCampusOfferModel extends Model<OffCampusOfferModel> {
   })
   id: string;
 
-  @Unique("StudentSeasonCompanyUnique")
+  @Unique("Student-Season-CompanyUnique")
   @ForeignKey(() => StudentModel)
-  @Column(sequelize.UUID)
+  @Column({ type: sequelize.UUID, allowNull: false })
   studentId: string;
 
-  @Unique("StudentSeasonCompanyUnique")
+  @Unique("Student-Season-CompanyUnique")
   @ForeignKey(() => SeasonModel)
-  @Column(sequelize.UUID)
+  @Column({ type: sequelize.UUID, allowNull: false })
   seasonId: string;
 
   // Delete Off Campus Offer onDelete of Season
@@ -33,9 +34,9 @@ export class OffCampusOfferModel extends Model<OffCampusOfferModel> {
   })
   season: SeasonModel;
 
-  @Unique("StudentSeasonCompanyUnique")
+  @Unique("Student-Season-CompanyUnique")
   @ForeignKey(() => CompanyModel)
-  @Column(sequelize.UUID)
+  @Column({ type: sequelize.UUID, allowNull: false })
   companyId: string;
 
   // Restrict Delete Off Campus Offer onDelete of Company
@@ -45,21 +46,33 @@ export class OffCampusOfferModel extends Model<OffCampusOfferModel> {
   })
   company: CompanyModel;
 
-  @Column
+  @Column({
+    type: sequelize.FLOAT,
+    allowNull: false,
+  })
   salary: number;
 
-  @Column
-  salaryPeriod: number;
+  @Column({
+    type: sequelize.STRING,
+  })
+  salaryPeriod: string;
 
   @Column({
-    type: sequelize.JSONB,
-    defaultValue: sequelize.Sequelize.literal("'{}'::jsonb"),
+    type: sequelize.STRING,
   })
-  metadata: object;
+  metadata: string;
 
-  @Column
-  offerType: string;
+  @Column({
+    type: sequelize.STRING,
+    allowNull: false,
+  })
+  role: string;
 
-  @Column
-  status: string;
+  //@todo make enum of this.
+  @Column({
+    type: sequelize.ENUM(...Object.values(OfferStatusEnum)),
+    allowNull: false,
+    defaultValue: OfferStatusEnum.ONGOING,
+  })
+  status: OfferStatusEnum;
 }

@@ -1,7 +1,7 @@
 import { Global, Inject, Injectable, Logger } from "@nestjs/common";
 import { Transaction } from "sequelize";
 import { USER_DAO } from "src/constants";
-import { Role } from "src/enums";
+import { RoleEnum } from "src/enums";
 import { UserModel } from "src/db/models";
 import { User } from "../auth/User";
 
@@ -34,7 +34,7 @@ export class UserService {
     return userModel && User.fromModel(userModel);
   }
 
-  async getUserByEmail(email: string, role: Role, t?: Transaction) {
+  async getUserByEmail(email: string, role: RoleEnum, t?: Transaction) {
     const userModel = await this.userRepo.findOne({ where: { email: email, role: role }, transaction: t });
 
     return userModel && User.fromModel(userModel);

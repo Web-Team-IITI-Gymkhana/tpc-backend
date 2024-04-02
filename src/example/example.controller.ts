@@ -49,7 +49,6 @@ export class FlowerController {
   @ApiOperation({ summary: " List/Filter" })
   @ApiFilterQuery("q", ThingFiltersDto)
   async list(@Query("q") filters: ThingFiltersDto): Promise<void> {
-    console.log(filters);
     /*
      * from: filters[name]=thing1&filters[description]=thing2
      * to: { name: "thing1", description: "thing2"

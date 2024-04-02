@@ -14,23 +14,15 @@ import {
   IsObject,
   IsUUID,
   IsBoolean,
+  IsDate,
 } from "class-validator";
-import { SeasonType, CompanyCategory, Gender, Category } from "src/enums";
-import { Countries } from "src/enums/Country.enum";
-import IndustryDomain from "src/enums/industryDomains.enum";
-import { InterviewTypes } from "src/enums/interviewTypes.enum";
-import { SelectionMode } from "src/enums/selectionMode.enum";
-import { TestTypes } from "src/enums/testTypes.enum";
-
-export class SeasonDetailsDto {
-  @ApiProperty({ type: String })
-  @IsString()
-  year: string;
-
-  @ApiProperty({ enum: SeasonType })
-  @IsEnum(SeasonType)
-  type: SeasonType;
-}
+import { SeasonTypeEnum, GenderEnum, CategoryEnum, CompanyCategoryEnum } from "src/enums";
+import { CountriesEnum } from "src/enums/Country.enum";
+import { DepartmentEnum } from "src/enums/department.enum";
+import { IndustryDomainEnum } from "src/enums/industryDomains.enum";
+import { InterviewTypesEnum } from "src/enums/interviewTypes.enum";
+import { SelectionModeEnum } from "src/enums/selectionMode.enum";
+import { TestTypesEnum } from "src/enums/testTypes.enum";
 
 export class AddressDto {
   @ApiProperty({ type: String })
@@ -54,52 +46,72 @@ export class AddressDto {
   @IsString()
   zipCode: string;
 
-  @ApiProperty({ type: String })
-  @IsEnum(Countries)
-  country: Countries;
+  @ApiProperty({ enum: CountriesEnum })
+  @IsEnum(CountriesEnum)
+  country: CountriesEnum;
 }
 
 export class CompanyDetailsDto {
-  @ApiProperty({ type: String })
+  @ApiProperty({
+    type: String,
+  })
   @IsString()
   name: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsUrl()
+  @ApiPropertyOptional({
+    type: String,
+  })
   @IsOptional()
+  @IsString()
   website?: string;
 
-  @ApiProperty({ type: "enum", enum: IndustryDomain })
-  @IsEnum(IndustryDomain)
-  domains: IndustryDomain[];
-  //Change
+  @ApiPropertyOptional({
+    enum: IndustryDomainEnum,
+    isArray: true,
+  })
+  @IsOptional()
+  @IsEnum(IndustryDomainEnum, { each: true })
+  domains?: IndustryDomainEnum[];
 
-  @ApiProperty({ enum: CompanyCategory })
-  @IsEnum(CompanyCategory)
-  category: CompanyCategory;
+  @ApiProperty({
+    enum: CompanyCategoryEnum,
+  })
+  @IsEnum(CompanyCategoryEnum)
+  category: CompanyCategoryEnum;
 
-  @ApiProperty({ type: AddressDto })
-  @ValidateNested({ each: true })
+  @ApiProperty({
+    type: AddressDto,
+  })
+  @ValidateNested()
   @Type(() => AddressDto)
   address: AddressDto;
 
-  @ApiPropertyOptional({ type: Number })
-  @IsNumber()
+  @ApiPropertyOptional({
+    type: Number,
+  })
   @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
   size?: number;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
-  yearOfEstablishment: number;
-
-  @ApiPropertyOptional({ type: String })
+  @ApiProperty({
+    type: String,
+  })
   @IsString()
+  yearOfEstablishment: string;
+
+  @ApiPropertyOptional({
+    type: String,
+  })
   @IsOptional()
+  @IsString()
   annualTurnover?: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsUrl()
+  @ApiPropertyOptional({
+    type: String,
+  })
   @IsOptional()
+  @IsString()
   socialMediaLink?: string;
 }
 
@@ -112,13 +124,13 @@ export class RecruiterDetailsDto {
   @IsString()
   designation: string;
 
-  @ApiProperty({ type: String, format: "email" })
+  @ApiProperty({ type: String })
   @IsEmail()
   email: string;
 
   @ApiProperty({ type: String })
-  @IsPhoneNumber()
-  contact: string; // Include Calling code.
+  @IsString()
+  contact: string;
 
   @ApiPropertyOptional({ type: String })
   @IsString()
@@ -130,93 +142,97 @@ export class EligibilityDetailsDto {
   @ApiPropertyOptional({ type: [String] })
   @IsArray()
   @IsOptional()
-  @IsString({ each: true })
+  @IsUUID("all", { each: true })
   programs?: string[];
 
-  @ApiPropertyOptional({ enum: Gender, isArray: true })
+  @ApiPropertyOptional({ enum: GenderEnum, isArray: true })
   @IsArray()
   @IsOptional()
-  @IsEnum(Gender, { each: true })
-  genders?: Gender[];
+  @IsEnum(GenderEnum, { each: true })
+  genders?: GenderEnum[];
 
-  @ApiPropertyOptional({ enum: Category, isArray: true })
+  @ApiPropertyOptional({ enum: CategoryEnum, isArray: true })
   @IsArray()
   @IsOptional()
-  @IsEnum(Category, { each: true })
-  categories?: Category[];
+  @IsEnum(CategoryEnum, { each: true })
+  categories?: CategoryEnum[];
 
   @ApiPropertyOptional({ type: Number })
   @IsNumber()
   @IsOptional()
+  @Type(() => Number)
   minCPI?: number;
 
   @ApiPropertyOptional({ type: Number })
   @IsNumber()
   @IsOptional()
+  @Type(() => Number)
   tenthMarks?: number;
 
   @ApiPropertyOptional({ type: Number })
   @IsNumber()
   @IsOptional()
+  @Type(() => Number)
   twelthMarks?: number;
+
+  facultyApprovals?: DepartmentEnum[];
 }
 
 export class RequirementsDetailsDto {
   @ApiPropertyOptional({ type: Number })
   @IsNumber()
   @IsOptional()
+  @Type(() => Number)
   numberOfMembers?: number;
 
   @ApiPropertyOptional({ type: Number })
   @IsNumber()
   @IsOptional()
+  @Type(() => Number)
   numberOfRooms?: number;
 
   @ApiPropertyOptional({ type: String })
   @IsString()
   @IsOptional()
   otherRequirements?: string;
-  //Change to string
 }
 
 export class TestDetailsDto {
-  @ApiProperty({ enum: TestTypes })
-  @IsEnum(TestTypes)
-  type: TestTypes;
+  @ApiProperty({ enum: TestTypesEnum })
+  @IsEnum(TestTypesEnum)
+  type: TestTypesEnum;
 
   @ApiPropertyOptional()
   @IsNumber()
   @IsOptional()
+  @Type(() => Number)
   duration?: number;
-  //Change
 }
 
 export class InterviewDetailsDto {
-  @ApiProperty({ enum: InterviewTypes })
-  @IsEnum(InterviewTypes)
-  type: InterviewTypes;
+  @ApiProperty({ enum: InterviewTypesEnum })
+  @IsEnum(InterviewTypesEnum)
+  type: InterviewTypesEnum;
 
   @ApiPropertyOptional()
   @IsNumber()
   @IsOptional()
+  @Type(() => Number)
   duration?: number;
-  //Change
 }
 
 export class SelectionProcedureDetailsDto {
-  @ApiProperty({ enum: SelectionMode })
-  @IsEnum(SelectionMode)
-  selectionMode: SelectionMode;
+  @ApiProperty({ enum: SelectionModeEnum })
+  @IsEnum(SelectionModeEnum)
+  selectionMode: SelectionModeEnum;
 
   @ApiProperty({ type: Boolean })
   @IsBoolean()
   shortlistFromResume: boolean;
-  //Change
 
   @ApiProperty({ type: Boolean })
   @IsBoolean()
   groupDiscussion: boolean;
-  //Change
 
   @ApiProperty({ type: [TestDetailsDto] })
   @IsArray()
@@ -230,137 +246,164 @@ export class SelectionProcedureDetailsDto {
   @Type(() => InterviewDetailsDto)
   interviews: InterviewDetailsDto[];
 
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsOptional()
-  others?: string;
-
   @ApiPropertyOptional({ type: RequirementsDetailsDto })
   @ValidateNested({ each: true })
   @Type(() => RequirementsDetailsDto)
   @IsOptional()
   requirements?: RequirementsDetailsDto;
-}
-
-export class SalaryDetailsDto {
-  //Change Programs have been changed
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsOptional()
-  salaryPeriod?: string;
-  //Change number -> string.
-
-  @ApiPropertyOptional({ type: EligibilityDetailsDto })
-  @ValidateNested({ each: true })
-  @Type(() => EligibilityDetailsDto)
-  @IsOptional()
-  criteria: EligibilityDetailsDto;
-
-  @ApiProperty({ type: Number })
-  @IsNumber()
-  baseSalary: number;
-
-  @ApiProperty({ type: Number })
-  @IsNumber()
-  totalCTC: number;
-
-  @ApiProperty({ type: Number })
-  @IsNumber()
-  takeHomeSalary: number;
-
-  @ApiProperty({ type: Number })
-  @IsNumber()
-  grossSalary: number;
-
-  @ApiPropertyOptional({ type: Number })
-  @IsNumber()
-  @IsOptional()
-  otherCompensations?: number;
 
   @ApiPropertyOptional({ type: String })
   @IsString()
   @IsOptional()
   others?: string;
-  //Change to string
+}
+
+export class SalaryDetailsDto {
+  @ApiPropertyOptional({ type: String })
+  @IsString()
+  @IsOptional()
+  salaryPeriod?: string;
+
+  @ApiProperty({ type: EligibilityDetailsDto })
+  @ValidateNested({ each: true })
+  @Type(() => EligibilityDetailsDto)
+  criteria: EligibilityDetailsDto;
+
+  @ApiProperty({ type: Number })
+  @IsNumber()
+  @Type(() => Number)
+  baseSalary: number;
+
+  @ApiProperty({ type: Number })
+  @IsNumber()
+  @Type(() => Number)
+  totalCTC: number;
+
+  @ApiProperty({ type: Number })
+  @IsNumber()
+  @Type(() => Number)
+  takeHomeSalary: number;
+
+  @ApiProperty({ type: Number })
+  @IsNumber()
+  @Type(() => Number)
+  grossSalary: number;
+
+  @ApiProperty({ type: Number })
+  @IsNumber()
+  @Type(() => Number)
+  otherCompensations: number;
+
+  @ApiPropertyOptional({ type: String })
+  @IsString()
+  @IsOptional()
+  others?: string;
 }
 
 export class JobDetailsDto {
-  @ApiProperty({ type: String })
+  @ApiProperty({
+    type: String,
+  })
+  @IsUUID()
+  seasonId: string;
+
+  recruiterId: string;
+  companyId: string;
+
+  @ApiProperty({
+    type: String,
+  })
   @IsString()
   role: string;
 
-  @ApiPropertyOptional({ type: String })
+  @ApiPropertyOptional({
+    type: String,
+  })
+  @IsOptional()
   @IsString()
-  @IsOptional()
-  description?: string;
+  others?: string;
 
-  //Change attachment is removed.
+  @ApiProperty({ type: CompanyDetailsDto })
+  @ValidateNested({ each: true })
+  @Type(() => CompanyDetailsDto)
+  companyDetailsFilled: CompanyDetailsDto;
 
-  @ApiProperty({ type: String })
-  @IsString()
-  skills: string;
-
-  @ApiProperty({ type: String })
-  @IsString()
-  location: string;
-
-  @ApiPropertyOptional({ type: Number })
-  @IsNumber()
-  @IsOptional()
-  noOfVacancies?: number;
-
-  //Change Basic Crteria Removed.
-
-  @ApiPropertyOptional({ type: String })
-  @IsDateString()
-  @IsOptional()
-  offerLetterReleaseDate?: string;
-
-  @ApiPropertyOptional({ type: String })
-  @IsDateString()
-  @IsOptional()
-  joiningDate?: string;
-
-  @ApiPropertyOptional({ type: Number })
-  @IsNumber()
-  @IsOptional()
-  duration?: number;
+  @ApiProperty({ type: RecruiterDetailsDto })
+  @ValidateNested({ each: true })
+  @Type(() => RecruiterDetailsDto)
+  recruiterDetailsFilled: RecruiterDetailsDto;
 
   @ApiProperty({ type: SelectionProcedureDetailsDto })
   @ValidateNested({ each: true })
   @Type(() => SelectionProcedureDetailsDto)
   selectionProcedure: SelectionProcedureDetailsDto;
 
-  @ApiProperty({ type: [SalaryDetailsDto] })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => SalaryDetailsDto)
-  salaries: SalaryDetailsDto[];
-
-  @ApiPropertyOptional({ type: String })
-  @IsString()
+  @ApiPropertyOptional({
+    type: String,
+  })
   @IsOptional()
-  others?: string;
-  //Change.
+  @IsString()
+  description?: string;
+
+  attachment?: string;
+
+  @ApiPropertyOptional({
+    type: String,
+  })
+  @IsOptional()
+  @IsString()
+  skills?: string;
+
+  @ApiProperty({
+    type: String,
+  })
+  @IsString()
+  location: string;
+
+  @ApiPropertyOptional({
+    type: Number,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  noOfVacancies?: number;
+
+  @ApiPropertyOptional({
+    type: Date,
+  })
+  @IsOptional()
+  @IsDateString()
+  offerLetterReleaseDate?: string;
+
+  @ApiPropertyOptional({
+    type: Date,
+  })
+  @IsOptional()
+  @IsDateString()
+  joiningDate?: string;
+
+  @ApiPropertyOptional({
+    type: Number,
+  })
+  @IsOptional()
+  @IsNumber()
+  @Type(() => Number)
+  duration?: number;
 }
 
 export class CreateJafDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
-  seasonId: string;
-
-  @ApiProperty({ type: CompanyDetailsDto })
-  @ValidateNested({ each: true })
-  @Type(() => CompanyDetailsDto)
-  company: CompanyDetailsDto;
-
-  @ApiProperty({ type: RecruiterDetailsDto })
-  @ValidateNested({ each: true })
-  @Type(() => RecruiterDetailsDto)
-  recruiter: RecruiterDetailsDto;
-
-  @ApiProperty({ type: JobDetailsDto })
-  @ValidateNested({ each: true })
+  @ApiProperty({
+    type: JobDetailsDto,
+  })
+  @ValidateNested()
   @Type(() => JobDetailsDto)
   job: JobDetailsDto;
+
+  @ApiProperty({
+    type: SalaryDetailsDto,
+    isArray: true,
+  })
+  @ValidateNested({ each: true })
+  @Type(() => SalaryDetailsDto)
+  salaries: SalaryDetailsDto[];
 }

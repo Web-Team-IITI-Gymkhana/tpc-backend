@@ -3,23 +3,21 @@ import { Observable } from "rxjs";
 
 @Injectable()
 export class QueryInterceptor implements NestInterceptor {
-  constructor() {}
-
-  async intercept(context: ExecutionContext, next: CallHandler<any>): Promise<Observable<any>> {
+  async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<CallHandler>> {
     const httpContext = context.switchToHttp();
     const req = httpContext.getRequest();
     const query = req.query;
     const ans = {};
 
-    for (const i in query) {
-      const nestedValues = i.split("_");
-      let ans1 = ans;
-      for (let j = 0; j < nestedValues.length - 1; j++) {
-        const k = nestedValues[j];
-        if (!ans1[k]) ans1[k] = {};
-        ans1 = ans1[k];
+    for (const key in query) {
+      const nestedValues = key.split("_");
+      let target = ans;
+      for (let index = 0; index < nestedValues.length - 1; index++) {
+        const nestedKey = nestedValues[index];
+        if (!target[nestedKey]) target[nestedKey] = {};
+        target = target[nestedKey];
       }
-      ans1[nestedValues[nestedValues.length - 1]] = query[i];
+      target[nestedValues[nestedValues.length - 1]] = query[key];
     }
     req.query = ans;
 

@@ -21,7 +21,7 @@ import { ApiFilterQuery, pipeTransform, pipeTransformArray } from "src/utils/uti
 import { GetStudentReturnDto, GetStudentsReturnDto } from "./dtos/studentGetReturn.dto";
 import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { CreateStudentDto } from "./dtos/studentPost.dto";
-import { Role } from "src/enums";
+import { RoleEnum } from "src/enums";
 import { UpdateStudentDto } from "./dtos/studentPatch.dto";
 
 @Controller("students")
@@ -60,7 +60,7 @@ export class StudentController {
     @Body(new ParseArrayPipe({ items: CreateStudentDto })) body: CreateStudentDto[]
   ): Promise<string[]> {
     const students = body.map((data) => {
-      data.user.role = Role.STUDENT;
+      data.user.role = RoleEnum.STUDENT;
 
       return data;
     });

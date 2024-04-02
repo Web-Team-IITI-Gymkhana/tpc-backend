@@ -1,13 +1,13 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { UserModel } from "src/db/models";
-import { Role } from "src/enums";
+import { RoleEnum } from "src/enums";
 
 export class User {
   id?: string;
   name: string;
   email: string;
   contact?: string;
-  role: Role;
+  role: RoleEnum;
   createdAt?: Date;
   updatedAt?: Date;
 
@@ -16,7 +16,7 @@ export class User {
     name: string;
     email: string;
     contact?: string;
-    role?: Role;
+    role?: RoleEnum;
     createdAt?: string;
     updatedAt?: string;
   }) {
@@ -29,7 +29,7 @@ export class User {
       name: user.name,
       email: user.email,
       contact: user.contact,
-      role: user.role as Role,
+      role: user.role as RoleEnum,
       createdAt: user.createdAt,
       updatedAt: user.updatedAt,
     });

@@ -3,7 +3,7 @@ import { IsString, IsOptional, ValidateNested, IsEnum, IsNumber } from "class-va
 import { MatchOptionsString, MatchOptionsNumber, MatchOptionsUUID } from "src/utils/utils.dto";
 import { OrderByEnum } from "src/enums/orderBy.enum";
 import { Type } from "class-transformer";
-import { Category } from "src/enums";
+import { CategoryEnum } from "src/enums";
 
 export class FilterOptionsProgramDto {
   @ApiPropertyOptional({

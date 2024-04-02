@@ -3,6 +3,8 @@ import sequelize from "sequelize";
 import { UserModel } from "./UserModel";
 import { JobModel } from "./JobModel";
 import { JobCoordinatorModel } from "./JobCoordinatorModel";
+import { TpcMemberRoleEnum } from "src/enums";
+import { DepartmentEnum } from "src/enums/department.enum";
 
 @Table({
   tableName: "TpcMember",
@@ -16,11 +18,11 @@ export class TpcMemberModel extends Model<TpcMemberModel> {
   })
   id: string;
 
-  @Column({ allowNull: false, type: sequelize.STRING })
-  department: string;
+  @Column({ allowNull: false, type: sequelize.ENUM(...Object.values(DepartmentEnum)) })
+  department: DepartmentEnum;
 
   @ForeignKey(() => UserModel)
-  @Column({ type: sequelize.UUID, unique: true })
+  @Column({ type: sequelize.UUID, unique: true, allowNull: false })
   userId: string;
 
   // Delete TpcMember onDelete of User
@@ -30,12 +32,12 @@ export class TpcMemberModel extends Model<TpcMemberModel> {
   })
   user: UserModel;
 
-  @Column({ allowNull: false, type: sequelize.STRING })
-  role: string;
+  @Column({ allowNull: false, type: sequelize.ENUM(...Object.values(TpcMemberRoleEnum)) })
+  role: TpcMemberRoleEnum;
 
   @HasMany(() => JobCoordinatorModel, {
     foreignKey: "tpcMemberId",
-    onDelete: "CASACDE",
+    onDelete: "CASCADE",
   })
   jobCoordinators: JobCoordinatorModel[];
 }

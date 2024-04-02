@@ -12,7 +12,7 @@ import {
   IsUUID,
   ValidateNested,
 } from "class-validator";
-import { Category, Gender } from "src/enums";
+import { CategoryEnum, GenderEnum } from "src/enums";
 
 export class GetUsersReturnDto {
   @ApiProperty({
@@ -106,11 +106,11 @@ export class GetStudentReturnDto {
   category: string;
 
   @ApiProperty({
-    enum: Gender,
+    enum: GenderEnum,
     example: "MALE/FEMALE",
   })
-  @IsEnum(Gender)
-  gender: Gender;
+  @IsEnum(GenderEnum)
+  gender: GenderEnum;
 
   @ApiProperty({
     type: Number,
@@ -181,11 +181,11 @@ export class GetStudentsReturnDto {
   category: string;
 
   @ApiProperty({
-    enum: Gender,
+    enum: GenderEnum,
     example: "MALE/FEMALE",
   })
-  @IsEnum(Gender)
-  gender: Gender;
+  @IsEnum(GenderEnum)
+  gender: GenderEnum;
 
   @ApiProperty({
     type: Number,
