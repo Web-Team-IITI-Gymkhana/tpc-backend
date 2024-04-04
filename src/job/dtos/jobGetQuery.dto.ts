@@ -1,180 +1,177 @@
-import { ApiPropertyOptional, ApiProperty } from "@nestjs/swagger";
-import { IsString, IsOptional, ValidateNested, IsEnum, IsNumber } from "class-validator";
-import { MatchOptionsString, MatchOptionsNumber, MatchOptionsUUID } from "src/utils/utils.dto";
-import { OrderByEnum } from "src/enums/orderBy.enum";
+import { ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { CategoryEnum, RoleEnum } from "src/enums";
-import { GetSeasonsReturnDto } from "./jobGetReturn.dto";
-import { GetCompaniesReturnDto } from "src/recruiter/dtos/recruiterGetReturn.dto";
+import { IsEnum, IsNumber, IsOptional, ValidateNested } from "class-validator";
+import { JobStatusTypeEnum, SeasonTypeEnum } from "src/enums";
+import { OrderByEnum } from "src/enums/orderBy.enum";
 import { FilterOptionsCompanyDto, OrderOptionsCompanyDto } from "src/recruiter/dtos/recruiterGetQuery.dto";
+import { createMatchOptionsEnum, MatchOptionsBool, MatchOptionsString, MatchOptionsUUID } from "src/utils/utils.dto";
 
-export class FilterOptionsSeasonsDto {
-  @ApiPropertyOptional({
-    type: MatchOptionsString,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => MatchOptionsString)
-  id?: MatchOptionsString;
-
-  @ApiPropertyOptional({
-    type: MatchOptionsString,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => MatchOptionsString)
-  year?: MatchOptionsString;
-
-  @ApiPropertyOptional({
-    type: MatchOptionsString,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => MatchOptionsString)
-  type?: MatchOptionsString;
-}
-
-export class OrderOptionsSeasonsDto {
-  @ApiPropertyOptional({
-    enum: OrderByEnum,
-    example: "ASC/DESC",
-  })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
-  id?: OrderByEnum;
-
-  @ApiPropertyOptional({
-    enum: OrderByEnum,
-    example: "ASC/DESC",
-  })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
-  year?: OrderByEnum;
-
-  @ApiPropertyOptional({
-    enum: OrderByEnum,
-    example: "ASC/DESC",
-  })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
-  type?: OrderByEnum;
-}
-
-class FilterOptionsJobDto {
-  @ApiPropertyOptional({
-    type: MatchOptionsUUID,
-  })
+export class FilterOptionsSeasonDto {
+  @ApiPropertyOptional({ type: MatchOptionsUUID })
   @IsOptional()
   @ValidateNested()
   @Type(() => MatchOptionsUUID)
   id?: MatchOptionsUUID;
 
-  @ApiPropertyOptional({
-    type: MatchOptionsString,
-  })
+  @ApiPropertyOptional({ type: MatchOptionsString })
   @IsOptional()
   @ValidateNested()
-  @Type(() => String)
+  @Type(() => MatchOptionsString)
+  year?: MatchOptionsString;
+
+  @ApiPropertyOptional({ enum: createMatchOptionsEnum(SeasonTypeEnum) })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => createMatchOptionsEnum(SeasonTypeEnum))
+  type?: string;
+}
+
+export class FilterOptionsJobsDto {
+  @ApiPropertyOptional({ type: MatchOptionsUUID })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MatchOptionsUUID)
+  id?: MatchOptionsUUID;
+
+  //Remove this.
+  @ApiPropertyOptional({ type: MatchOptionsUUID })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MatchOptionsUUID)
+  seasonId?: MatchOptionsUUID;
+
+  //Remove this.
+  @ApiPropertyOptional({ type: MatchOptionsUUID })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MatchOptionsUUID)
+  companyId?: MatchOptionsUUID;
+
+  @ApiPropertyOptional({ type: MatchOptionsUUID })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MatchOptionsUUID)
+  recruiterId?: MatchOptionsUUID;
+
+  @ApiPropertyOptional({ type: MatchOptionsString })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => MatchOptionsString)
   role?: MatchOptionsString;
 
-  @ApiPropertyOptional({
-    type: MatchOptionsString,
-  })
+  @ApiPropertyOptional({ type: MatchOptionsBool })
   @IsOptional()
   @ValidateNested()
-  @Type(() => String)
-  currentStatus?: MatchOptionsString;
+  @Type(() => MatchOptionsBool)
+  active?: MatchOptionsBool;
 
-  @ApiPropertyOptional({
-    type: FilterOptionsCompanyDto,
-  })
+  @ApiPropertyOptional({ enum: createMatchOptionsEnum(JobStatusTypeEnum) })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => createMatchOptionsEnum(JobStatusTypeEnum))
+  currentStatus?: string;
+
+  @ApiPropertyOptional({ type: FilterOptionsCompanyDto })
   @IsOptional()
   @ValidateNested()
   @Type(() => FilterOptionsCompanyDto)
   company?: FilterOptionsCompanyDto;
 
-  // to be done
-  @ApiPropertyOptional({
-    type: FilterOptionsSeasonsDto,
-  })
+  @ApiPropertyOptional({ type: FilterOptionsSeasonDto })
   @IsOptional()
   @ValidateNested()
-  @Type(() => FilterOptionsSeasonsDto)
-  season?: FilterOptionsSeasonsDto;
+  @Type(() => FilterOptionsSeasonDto)
+  season?: FilterOptionsSeasonDto;
 }
 
-class OrderOptionsJobDto {
-  @ApiPropertyOptional({
-    enum: OrderByEnum,
-    example: "ASC/DESC",
-  })
+export class OrderOptionsSeasonDto {
+  @ApiPropertyOptional({ enum: OrderByEnum })
   @IsOptional()
   @IsEnum(OrderByEnum)
   id?: OrderByEnum;
 
-  @ApiPropertyOptional({
-    enum: OrderByEnum,
-    example: "ASC/DESC",
-  })
+  @ApiPropertyOptional({ enum: OrderByEnum })
+  @IsOptional()
+  @IsEnum(OrderByEnum)
+  year?: OrderByEnum;
+
+  @ApiPropertyOptional({ enum: OrderByEnum })
+  @IsOptional()
+  @IsEnum(OrderByEnum)
+  type?: OrderByEnum;
+}
+
+export class OrderOptionsJobsDto {
+  @ApiPropertyOptional({ enum: OrderByEnum })
+  @IsOptional()
+  @IsEnum(OrderByEnum)
+  id?: OrderByEnum;
+
+  @ApiPropertyOptional({ enum: OrderByEnum })
+  @IsOptional()
+  @IsEnum(OrderByEnum)
+  seasonId?: OrderByEnum;
+
+  @ApiPropertyOptional({ enum: OrderByEnum })
+  @IsOptional()
+  @IsEnum(OrderByEnum)
+  companyId?: OrderByEnum;
+
+  @ApiPropertyOptional({ enum: OrderByEnum })
+  @IsOptional()
+  @IsEnum(OrderByEnum)
+  recruiterId?: OrderByEnum;
+
+  @ApiPropertyOptional({ enum: OrderByEnum })
   @IsOptional()
   @IsEnum(OrderByEnum)
   role?: OrderByEnum;
 
-  @ApiPropertyOptional({
-    enum: OrderByEnum,
-    example: "ASC/DESC",
-  })
+  @ApiPropertyOptional({ enum: OrderByEnum })
+  @IsOptional()
+  @IsEnum(OrderByEnum)
+  active?: OrderByEnum;
+
+  @ApiPropertyOptional({ enum: OrderByEnum })
   @IsOptional()
   @IsEnum(OrderByEnum)
   currentStatus?: OrderByEnum;
 
-  @ApiPropertyOptional({
-    type: OrderOptionsCompanyDto,
-  })
+  @ApiPropertyOptional({ type: OrderOptionsCompanyDto })
   @IsOptional()
   @ValidateNested()
   @Type(() => OrderOptionsCompanyDto)
   company?: OrderOptionsCompanyDto;
 
-  @ApiPropertyOptional({
-    type: OrderOptionsSeasonsDto,
-  })
+  @ApiPropertyOptional({ type: OrderOptionsSeasonDto })
   @IsOptional()
   @ValidateNested()
-  @Type(() => OrderOptionsSeasonsDto)
-  season?: OrderOptionsSeasonsDto;
+  @Type(() => OrderOptionsSeasonDto)
+  season?: OrderOptionsSeasonDto;
 }
 
 export class GetJobQueryDto {
-  @ApiPropertyOptional({
-    type: Number,
-  })
+  @ApiPropertyOptional({ type: Number })
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
   from?: number;
 
-  @ApiPropertyOptional({
-    type: Number,
-  })
+  @ApiPropertyOptional({ type: Number })
   @IsOptional()
   @IsNumber()
   @Type(() => Number)
   to?: number;
 
-  @ApiPropertyOptional({
-    type: FilterOptionsJobDto,
-  })
+  @ApiPropertyOptional({ type: FilterOptionsJobsDto })
   @IsOptional()
   @ValidateNested()
-  @Type(() => FilterOptionsJobDto)
-  filterBy?: FilterOptionsJobDto;
+  @Type(() => FilterOptionsJobsDto)
+  filterBy?: FilterOptionsJobsDto;
 
-  @ApiPropertyOptional({
-    type: OrderOptionsJobDto,
-  })
+  @ApiPropertyOptional({ type: OrderOptionsJobsDto })
   @IsOptional()
   @ValidateNested()
-  @Type(() => OrderOptionsJobDto)
-  orderBy?: OrderOptionsJobDto;
+  @Type(() => OrderOptionsJobsDto)
+  orderBy?: OrderOptionsJobsDto;
 }

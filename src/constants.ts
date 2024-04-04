@@ -271,3 +271,11 @@ export const DUMMY_RECRUITER: Optional<RecruiterModel, NullishPropertiesOf<Recru
   companyId: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
   designation: "Dummy",
 };
+
+export const LOGIN_USER: Optional<UserModel, NullishPropertiesOf<UserModel>> = {
+  id: "8c740c84-9762-4f47-bc27-4f7e7ef4158d",
+  email: "user@test.com",
+  name: "Test User",
+  contact: "Test",
+  role: RoleEnum.ADMIN,
+};

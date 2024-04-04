@@ -1,4 +1,4 @@
-import { Table, Column, Model, ForeignKey, BelongsTo } from "sequelize-typescript";
+import { Table, Column, Model, ForeignKey, BelongsTo, Unique } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { UserModel } from "./UserModel";
 import { DepartmentEnum } from "src/enums/department.enum";
@@ -15,6 +15,7 @@ export class FacultyModel extends Model<FacultyModel> {
   })
   id: string;
 
+  @Unique("Department-Unique")
   @Column({ allowNull: false, type: sequelize.ENUM(...Object.values(DepartmentEnum)) })
   department: DepartmentEnum;
 

@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { FindOptions, Transaction } from "sequelize";
 import { RECRUITER_DAO, USER_DAO } from "src/constants";
-import { CompanyModel, RecruiterModel, UserModel } from "src/db/models";
+import { CompanyModel, JobModel, RecruiterModel, UserModel } from "src/db/models";
 import { parseFilter, parseOrder, parsePagesize } from "src/utils";
 
 @Injectable()

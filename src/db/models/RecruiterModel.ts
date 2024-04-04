@@ -1,8 +1,9 @@
-import { Table, Column, Model, ForeignKey, BelongsTo, Unique } from "sequelize-typescript";
+import { Table, Column, Model, ForeignKey, BelongsTo, Unique, HasMany } from "sequelize-typescript";
 import sequelize from "sequelize";
 
 import { UserModel } from "./UserModel";
 import { CompanyModel } from "./CompanyModel";
+import { JobModel } from "./JobModel";
 
 @Table({
   tableName: "Recruiter",
@@ -57,4 +58,9 @@ export class RecruiterModel extends Model<RecruiterModel> {
     type: sequelize.STRING,
   })
   landline: string;
+
+  @HasMany(() => JobModel, {
+    foreignKey: "recruiterId",
+  })
+  jobs: JobModel[];
 }

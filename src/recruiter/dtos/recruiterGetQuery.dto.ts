@@ -120,11 +120,13 @@ export class GetRecruiterQueryDto {
   @ApiPropertyOptional({ type: Number })
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
   from?: number;
 
   @ApiPropertyOptional({ type: Number })
   @IsOptional()
   @IsNumber()
+  @Type(() => Number)
   to?: number;
 
   @ApiPropertyOptional({ type: FilterOptionsRecruiterDto })

@@ -62,7 +62,7 @@ export class CompanyDetailsDto {
     type: String,
   })
   @IsOptional()
-  @IsString()
+  @IsUrl()
   website?: string;
 
   @ApiPropertyOptional({
@@ -111,7 +111,7 @@ export class CompanyDetailsDto {
     type: String,
   })
   @IsOptional()
-  @IsString()
+  @IsUrl()
   socialMediaLink?: string;
 }
 

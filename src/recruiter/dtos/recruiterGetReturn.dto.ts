@@ -98,7 +98,6 @@ export class GetRecruitersReturnDto {
   landline?: string;
 }
 
-
 export class GetRecruiterReturnDto {
   @ApiProperty({ type: String })
   @IsUUID()

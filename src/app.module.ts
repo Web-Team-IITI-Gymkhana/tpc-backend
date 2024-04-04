@@ -16,6 +16,7 @@ import { EmailService } from "./services/EmailService";
 import { AuthModule } from "./auth/auth.module";
 import { ServiceModule } from "./services/service.module";
 import { JobModule } from "./job/job.module";
+import { PenaltyModule } from "./penalties/penalty.module";
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { JobModule } from "./job/job.module";
     TpcMemberModule,
     { module: ServiceModule, global: true },
     JobModule,
+    PenaltyModule,
   ],
   controllers: [AppController],
   providers: [Logger, TransactionInterceptor, QueryInterceptor, AppService],

@@ -20,7 +20,7 @@ import {
   EVENTS,
   APPLICATIONS,
 } from "src/test/data";
-import { DUMMY_COMPANY, DUMMY_RECRUITER, DUMMY_USER } from "src/constants";
+import { DUMMY_COMPANY, DUMMY_RECRUITER, DUMMY_USER, LOGIN_USER } from "src/constants";
 
 @Injectable()
 export class InsertService {
@@ -55,6 +55,7 @@ export class InsertService {
     await this.sequelizeInstance.models.CompanyModel.create(DUMMY_COMPANY);
     await this.sequelizeInstance.models.UserModel.create(DUMMY_USER);
     await this.sequelizeInstance.models.RecruiterModel.create(DUMMY_RECRUITER);
+    await this.sequelizeInstance.models.UserModel.create(LOGIN_USER);
 
     this.logger.log("Successfully Inserted");
 

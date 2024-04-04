@@ -20,10 +20,6 @@ export class GetUsersReturnDto {
   @ApiProperty({ type: String })
   @IsString()
   contact: string;
-
-  @ApiProperty({ enum: RoleEnum })
-  @IsEnum(RoleEnum)
-  role: RoleEnum;
 }
 
 export class GetProgramsReturnDto {

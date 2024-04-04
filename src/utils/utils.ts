@@ -1,9 +1,12 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { applyDecorators, ParseArrayPipe, ValidationPipe } from "@nestjs/common";
+import { applyDecorators, InternalServerErrorException } from "@nestjs/common";
 import { ApiExtraModels, ApiQuery, getSchemaPath } from "@nestjs/swagger";
+import { ValidationError } from "class-validator";
 import { isArray, isObject } from "lodash";
 import { Op } from "sequelize";
 import { Transaction } from "sequelize";
+import { RemoveNullArrayPipe } from "src/interceptor/RemoveNullArrayPipe";
+import { RemoveNullValidationPipe } from "src/interceptor/RemoveNullPipe";
 
 export const isProductionEnv = (): boolean => {
   return process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging";
@@ -31,22 +34,43 @@ export function conformToModel(object, model) {
   return result;
 }
 
-export function pipeTransformArray(object, toType) {
-  const pipe = new ParseArrayPipe({
-    whitelist: true,
-    items: toType,
-  });
+function exceptionFactoryPipe(errors: ValidationError[]) {
+  const message = ["Return Type Mismatch on: "];
 
-  return pipe.transform(object, { type: "body" });
+  for (const error of errors) {
+    let res = "";
+
+    for (const key in error.constraints) res += `(${key}: ${error.constraints[key]})`;
+    message.push(res);
+  }
+
+  return new InternalServerErrorException({
+    message: message,
+  });
 }
 
-export function pipeTransform(object, toType) {
-  const pipe = new ValidationPipe({
+export async function pipeTransformArray(objects, toType) {
+  const pipe = new RemoveNullArrayPipe({
     whitelist: true,
-    expectedType: toType,
+    items: toType,
+    exceptionFactory: exceptionFactoryPipe,
   });
 
-  return pipe.transform(object, { type: "body" });
+  const ans = await pipe.transform(objects, { type: "body" });
+
+  return ans;
+}
+
+export async function pipeTransform(object, toType) {
+  const pipe = new RemoveNullValidationPipe({
+    whitelist: true,
+    expectedType: toType,
+    exceptionFactory: exceptionFactoryPipe,
+  });
+
+  const ans = await pipe.transform(object, { type: "body" });
+
+  return ans;
 }
 
 export function flatten(obj) {

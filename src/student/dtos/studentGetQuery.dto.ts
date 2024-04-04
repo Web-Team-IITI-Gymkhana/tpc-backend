@@ -30,12 +30,6 @@ export class FilterOptionsUserDto {
   @ValidateNested()
   @Type(() => MatchOptionsString)
   contact?: MatchOptionsString;
-
-  @ApiPropertyOptional({ type: createMatchOptionsEnum(RoleEnum) })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => createMatchOptionsEnum(RoleEnum))
-  role?: string;
 }
 
 export class FilterOptionsProgramDto {
@@ -90,11 +84,6 @@ export class OrderOptionsUserDto {
   @IsOptional()
   @IsEnum(OrderByEnum)
   contact?: OrderByEnum;
-
-  @ApiPropertyOptional({ enum: OrderByEnum })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
-  role?: OrderByEnum;
 }
 
 export class OrderOptionsProgramDto {
