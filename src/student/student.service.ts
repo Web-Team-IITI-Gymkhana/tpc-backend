@@ -3,6 +3,7 @@ import { FindOptions, Transaction } from "sequelize";
 import { STUDENT_DAO, USER_DAO } from "src/constants";
 import { PenaltyModel, ProgramModel, ResumeModel, StudentModel, UserModel } from "src/db/models";
 import { parsePagesize, parseFilter, parseOrder } from "src/utils";
+import { GetStudentQueryDto } from "./dtos/studentGetQuery.dto";
 
 @Injectable()
 export class StudentService {
@@ -11,7 +12,7 @@ export class StudentService {
     @Inject(USER_DAO) private userRepo: typeof UserModel
   ) {}
 
-  async getStudents(where) {
+  async getStudents(where: GetStudentQueryDto) {
     // eslint-disable-next-line prefer-const
     let findOptions: FindOptions<StudentModel> = {
       include: [
@@ -103,20 +104,20 @@ export class StudentService {
       );
     }
 
-    await Promise.all(pr);
-
-    return true;
+    return await Promise.all(pr);
   }
 
-  async deleteStudent(id: string, t: Transaction) {
-    const ans = await this.studentRepo.findByPk(id);
-    if (!ans) throw new NotFoundException(`No student with id: ${id} Found`);
+  async deleteStudents(pids: string[], t: Transaction) {
+    const students = await this.studentRepo.findAll({
+      where: { id: pids },
+      attributes: ["userId"],
+    });
 
-    await this.userRepo.destroy({
-      where: { id: ans.userId },
-      transaction: t,
-    }); //Cascading Delete
+    const userIds = students.map((student) => student.userId);
 
-    return true;
+    return await this.userRepo.destroy({
+      where: { id: userIds },
+      transaction: t, //Cascading Delete
+    });
   }
 }

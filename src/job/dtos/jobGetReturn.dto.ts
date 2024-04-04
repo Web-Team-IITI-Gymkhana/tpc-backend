@@ -12,11 +12,12 @@ import {
 import { JobStatusTypeEnum, SeasonTypeEnum } from "src/enums";
 import { GetCompaniesReturnDto } from "src/recruiter/dtos/recruiterGetReturn.dto";
 import { Type } from "class-transformer";
-import { CompanyDetailsDto, RecruiterDetailsDto, SelectionProcedureDetailsDto } from "./jaf.dto";
+import { CompanyDetailsDto, RecruiterDetailsDto, SalaryDetailsDto, SelectionProcedureDetailsDto } from "./jaf.dto";
 import { omit } from "lodash";
 import { GetUsersReturnDto } from "src/student/dtos/studentGetReturn.dto";
 import { JobCoordinatorRoleEnum } from "src/enums/jobCoordinatorRole";
 import { GetTpcMembersReturnDto } from "src/tpcMember/dtos/tpcMemberGetReturn.dto";
+import { GetSalariesReturnDto, GetSalaryReturnDto } from "src/salary/dtos/get.dto";
 
 export class GetSeasonsReturnDto {
   @ApiProperty({ type: String })
@@ -230,4 +231,9 @@ export class GetJobReturnDto {
   @ValidateNested()
   @Type(() => GetJobCoordinatorsReturnDto)
   jobCoordinators: GetJobCoordinatorsReturnDto;
+
+  @ApiProperty({ type: GetSalaryReturnDto, isArray: true })
+  @ValidateNested({ each: true })
+  @Type(() => GetSalaryReturnDto)
+  salaries: GetSalaryReturnDto[];
 }

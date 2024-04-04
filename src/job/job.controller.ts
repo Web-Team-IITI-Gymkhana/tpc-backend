@@ -21,7 +21,7 @@ import { ApiBody, ApiExtraModels, ApiOperation, ApiQuery, ApiResponse, ApiTags }
 import { JobService } from "./job.service";
 import { GetJobQueryDto } from "./dtos/jobGetQuery.dto";
 import { GetStudentQueryDto } from "src/student/dtos/studentGetQuery.dto";
-import { GetJobsReturnDto } from "./dtos/jobGetReturn.dto";
+import { GetJobReturnDto, GetJobsReturnDto } from "./dtos/jobGetReturn.dto";
 import { UpdateJobDto } from "./dtos/jobUpdate.dto";
 
 @Controller("jobs")
@@ -39,11 +39,11 @@ export class JobController {
   }
 
   @Get("/:id")
-  @ApiResponse({ type: GetJobsReturnDto })
+  @ApiResponse({ type: GetJobReturnDto })
   async getJob(@Param("id", new ParseUUIDPipe()) id: string) {
     const ans = await this.jobService.getJob(id);
 
-    return pipeTransform(ans, GetJobsReturnDto);
+    return pipeTransform(ans, GetJobReturnDto);
   }
 
   /*

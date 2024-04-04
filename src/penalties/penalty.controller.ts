@@ -6,7 +6,7 @@ import { GetPenaltyQueryDto } from "./dtos/query.dto";
 import { CreatePenaltyDto } from "./dtos/post.dto";
 import { GetPenaltiesReturnDto } from "./dtos/get.dto";
 
-@Controller()
+@Controller("penalties")
 @ApiTags("Penalty")
 export class PenaltyController {
   constructor(private penaltyService: PenaltyService) {}

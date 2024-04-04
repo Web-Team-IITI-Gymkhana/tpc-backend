@@ -3,6 +3,7 @@ import { Type } from "class-transformer";
 import { IsArray, IsEnum, IsNumber, IsObject, IsOptional, IsString, IsUUID, ValidateNested } from "class-validator";
 import { CategoryEnum, GenderEnum } from "src/enums";
 import { DepartmentEnum } from "src/enums/department.enum";
+import { GetFacultyApprovalsReturnDto } from "src/facultyApproval/dtos/facultyApprovalGetReturn.dto";
 
 export class GetSalariesReturnDto {
   @ApiProperty({ type: String })
@@ -71,7 +72,7 @@ export class CriteriaDto {
   @Type(() => Number)
   twelthMarks?: number;
 
-  @ApiPropertyOptional({ type: DepartmentEnum, isArray: true })
+  @ApiPropertyOptional({ enum: DepartmentEnum, isArray: true })
   @IsOptional()
   @IsArray()
   @IsEnum(DepartmentEnum, { each: true })
@@ -121,4 +122,9 @@ export class GetSalaryReturnDto {
   @ApiProperty({ type: Number })
   @IsNumber()
   otherCompensations: number;
+
+  @ApiProperty({ type: GetFacultyApprovalsReturnDto, isArray: true })
+  @ValidateNested({ each: true })
+  @Type(() => GetFacultyApprovalsReturnDto)
+  facultyApprovalRequests: GetFacultyApprovalsReturnDto[];
 }

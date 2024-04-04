@@ -1,8 +1,6 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
-import { plainToClass, plainToInstance, Type } from "class-transformer";
+import { Type } from "class-transformer";
 import { IsArray, IsBoolean, IsEnum, IsNumber, IsOptional, IsString, IsUUID } from "class-validator";
-import { randomUUID } from "crypto";
-import { symlink } from "fs";
 
 export class MatchOptionsString {
   @ApiPropertyOptional({
@@ -54,7 +52,7 @@ export class MatchOptionsUUID {
   @IsArray()
   @IsUUID("all", { each: true })
   @IsOptional()
-  eq?: string[];
+  eq?: Array<string>;
 }
 
 export function createMatchOptionsEnum(enumType) {

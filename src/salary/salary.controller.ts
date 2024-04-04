@@ -13,12 +13,13 @@ import {
 import { SalaryService } from "./salary.service";
 import { ApiFilterQuery } from "src/utils/utils";
 import { GetSalaryQueryDto } from "./dtos/query.dto";
-import { ApiBody, ApiOperation, ApiResponse } from "@nestjs/swagger";
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { GetSalariesReturnDto, GetSalaryReturnDto } from "./dtos/get.dto";
 import { CreateSalaryDto } from "./dtos/post.dto";
 import { UpdateSalaryDto } from "./dtos/patch.dto";
 
-@Controller()
+@Controller("salaries")
+@ApiTags("Salary")
 export class SalaryController {
   constructor(private salaryService: SalaryService) {}
 

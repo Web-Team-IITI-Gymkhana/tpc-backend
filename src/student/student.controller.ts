@@ -84,9 +84,7 @@ export class StudentController {
   @UseInterceptors(TransactionInterceptor)
   async deleteStudents(@Query("id") ids: string | string[], @TransactionParam() t: Transaction) {
     const pids = typeof ids === "string" ? [ids] : ids;
-    const pr = pids.map((id) => this.studentService.deleteStudent(id, t));
-    const ans = await Promise.all(pr);
 
-    return ans;
+    return await this.studentService.deleteStudents(pids, t);
   }
 }
