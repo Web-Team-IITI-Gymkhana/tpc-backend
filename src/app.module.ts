@@ -19,6 +19,8 @@ import { StudentViewJobModule } from "./student-view/job/job.module";
 import { InterviewExperienceModule } from "./student-view/interview-experiences/ie.module";
 import { StudentOfferModule } from "./student-view/offers/offer.module";
 import { UserModule } from "./user/user.module";
+import { SeasonModule } from "./season/season.module";
+import { RegistrationsModule } from "./registrations/registrations.module";
 
 @Module({
   imports: [
@@ -38,6 +40,8 @@ import { UserModule } from "./user/user.module";
     InterviewExperienceModule,
     StudentOfferModule,
     UserModule,
+    SeasonModule,
+    RegistrationsModule,
   ],
   controllers: [AppController],
   providers: [Logger, TransactionInterceptor, QueryInterceptor, AppService],

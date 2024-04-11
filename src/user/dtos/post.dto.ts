@@ -4,10 +4,6 @@ import { RoleEnum } from "src/enums";
 
 export class CreateUserDto {
   @ApiProperty({ type: String })
-  @IsUUID()
-  id: string;
-
-  @ApiProperty({ type: String })
   @IsString()
   name: string;
 
