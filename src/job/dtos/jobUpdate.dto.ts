@@ -1,6 +1,17 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsBoolean, IsDateString, IsEnum, IsNumber, IsOptional, IsString, IsUUID } from "class-validator";
+import {
+  IsBoolean,
+  IsDateString,
+  IsEnum,
+  IsNumber,
+  IsOptional,
+  IsString,
+  IsUUID,
+  ValidateNested,
+} from "class-validator";
 import { JobStatusTypeEnum } from "src/enums";
+import { SelectionProcedureDetailsDto } from "./jaf.dto";
+import { Type } from "class-transformer";
 
 export class UpdateJobDto {
   @ApiProperty({ type: String })
@@ -85,4 +96,10 @@ export class UpdateJobDto {
   @IsOptional()
   @IsNumber()
   duration?: number;
+
+  @ApiPropertyOptional({ type: SelectionProcedureDetailsDto })
+  @IsOptional()
+  @ValidateNested()
+  @Type(() => SelectionProcedureDetailsDto)
+  selectionProcedure?: SelectionProcedureDetailsDto;
 }

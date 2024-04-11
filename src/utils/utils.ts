@@ -1,9 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { applyDecorators, InternalServerErrorException } from "@nestjs/common";
+import { applyDecorators, InternalServerErrorException, ParseArrayPipe, Type } from "@nestjs/common";
 import { ApiExtraModels, ApiQuery, getSchemaPath } from "@nestjs/swagger";
 import { ValidationError } from "class-validator";
-import { isArray, isObject } from "lodash";
-import { Op } from "sequelize";
 import { Transaction } from "sequelize";
 import { RemoveNullArrayPipe } from "src/interceptor/RemoveNullArrayPipe";
 import { RemoveNullValidationPipe } from "src/interceptor/RemoveNullPipe";
@@ -37,12 +35,7 @@ export function conformToModel(object, model) {
 function exceptionFactoryPipe(errors: ValidationError[]) {
   const message = ["Return Type Mismatch on: "];
 
-  for (const error of errors) {
-    let res = "";
-
-    for (const key in error.constraints) res += `(${key}: ${error.constraints[key]})`;
-    message.push(res);
-  }
+  for (const error of errors) message.push(JSON.stringify(error, null, 2));
 
   return new InternalServerErrorException({
     message: message,
@@ -103,4 +96,8 @@ export function ApiFilterQuery(fieldName: string, filterDto: Function) {
       },
     })
   );
+}
+
+export function createArrayPipe(items: Type<unknown>) {
+  return new ParseArrayPipe({ items: items, whitelist: true, forbidNonWhitelisted: true });
 }

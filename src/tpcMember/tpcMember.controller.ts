@@ -14,7 +14,7 @@ import {
 import { GetTpcMemberQueryDto } from "./dtos/tpcMemberGetQuery.dto";
 import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { GetTpcMemberReturnDto, GetTpcMembersReturnDto } from "./dtos/tpcMemberGetReturn.dto";
-import { ApiFilterQuery, pipeTransform, pipeTransformArray } from "src/utils/utils";
+import { ApiFilterQuery, createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
 import { CreateTpcMemberDto } from "./dtos/tpcMemberPost.dto";
 import { UpdateTpcMemberDto } from "./dtos/tpcMemberPatch.dto";
 import { TpcMemberService } from "./tpcMember.service";
@@ -48,9 +48,7 @@ export class TpcMemberController {
   @Post()
   @ApiBody({ type: CreateTpcMemberDto, isArray: true })
   @ApiResponse({ type: String, isArray: true, description: "Array of Ids" })
-  async createTpcMembers(
-    @Body(new ParseArrayPipe({ items: CreateTpcMemberDto })) body: CreateTpcMemberDto[]
-  ): Promise<string[]> {
+  async createTpcMembers(@Body(createArrayPipe(CreateTpcMemberDto)) body: CreateTpcMemberDto[]): Promise<string[]> {
     const tpcMembers = body.map((data) => {
       data.user.role = RoleEnum.TPC_MEMBER;
 
@@ -65,7 +63,10 @@ export class TpcMemberController {
   @Patch()
   @UseInterceptors(TransactionInterceptor)
   @ApiBody({ type: UpdateTpcMemberDto, isArray: true })
-  async updateTpcMembers(@Body() body: UpdateTpcMemberDto[], @TransactionParam() t: Transaction) {
+  async updateTpcMembers(
+    @Body(createArrayPipe(UpdateTpcMemberDto)) body: UpdateTpcMemberDto[],
+    @TransactionParam() t: Transaction
+  ) {
     const pr = body.map((data) => this.tpcMemberService.updateTpcMember(data, t));
     const ans = await Promise.all(pr);
 
@@ -75,8 +76,7 @@ export class TpcMemberController {
   @Delete()
   async deleteTpcMembers(@Query("id") ids: string | string[]) {
     const pids = typeof ids === "string" ? [ids] : ids;
-    const pr = pids.map((id) => this.tpcMemberService.deleteTpcMember(id));
-    const ans = await Promise.all(pr);
+    const ans = await this.tpcMemberService.deleteTpcMembers(pids);
 
     return ans;
   }

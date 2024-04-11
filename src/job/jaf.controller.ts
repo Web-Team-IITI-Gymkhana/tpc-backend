@@ -10,7 +10,7 @@ import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
 
 @Controller("jaf")
-@ApiTags("Job")
+@ApiTags("Jaf")
 export class JafController {
   constructor(private jafService: JafService) {}
 

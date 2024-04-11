@@ -18,7 +18,7 @@ import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
 import { RoleEnum } from "src/enums";
 import { GetRecruiterQueryDto } from "./dtos/recruiterGetQuery.dto";
-import { ApiFilterQuery, pipeTransform, pipeTransformArray } from "src/utils/utils";
+import { ApiFilterQuery, createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
 import { GetRecruiterReturnDto, GetRecruitersReturnDto } from "./dtos/recruiterGetReturn.dto";
 import { CreateRecruiterDto } from "./dtos/recruiterPost.dto";
 import { UpdateRecruiterDto } from "./dtos/recruiterPatch.dto";
@@ -50,9 +50,7 @@ export class RecruiterController {
   @Post()
   @ApiResponse({ type: String, isArray: true, description: "Array of ids" })
   @ApiBody({ type: CreateRecruiterDto, isArray: true })
-  async createRecruiters(
-    @Body(new ParseArrayPipe({ items: CreateRecruiterDto })) body: CreateRecruiterDto[]
-  ): Promise<string[]> {
+  async createRecruiters(@Body(createArrayPipe(CreateRecruiterDto)) body: CreateRecruiterDto[]): Promise<string[]> {
     const recruiters = body.map((data) => {
       data.user.role = RoleEnum.RECRUITER;
 
@@ -67,7 +65,7 @@ export class RecruiterController {
   @ApiBody({ type: UpdateRecruiterDto, isArray: true })
   @UseInterceptors(TransactionInterceptor)
   async updateRecruiters(
-    @Body(new ParseArrayPipe({ items: UpdateRecruiterDto })) recruiters: UpdateRecruiterDto[],
+    @Body(createArrayPipe(UpdateRecruiterDto)) recruiters: UpdateRecruiterDto[],
     @TransactionParam() t: Transaction
   ) {
     const pr = recruiters.map((recruiter) => this.recruiterService.updateRecruiter(recruiter, t));
@@ -78,11 +76,9 @@ export class RecruiterController {
 
   @Delete()
   @ApiQuery({ name: "id", type: String, isArray: true })
-  @UseInterceptors(TransactionInterceptor)
-  async deleteRecruiters(@Query() ids: string | string[], @TransactionParam() t: Transaction) {
+  async deleteRecruiters(@Query() ids: string | string[]) {
     const pids = typeof ids === "string" ? [ids] : ids;
-    const pr = pids.map((id) => this.recruiterService.deleteRecruiter(id, t));
-    const ans = await Promise.all(pr);
+    const ans = await this.recruiterService.deleteRecruiters(pids);
 
     return ans;
   }

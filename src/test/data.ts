@@ -11,7 +11,13 @@ import {
 import { CountriesEnum } from "src/enums/Country.enum";
 import { faker } from "@faker-js/faker";
 import { IndustryDomainEnum } from "src/enums/industryDomains.enum";
-import { AddressDto, EligibilityDetailsDto, SelectionProcedureDetailsDto } from "src/job/dtos/jaf.dto";
+import {
+  AddressDto,
+  CompanyDetailsDto,
+  EligibilityDetailsDto,
+  RecruiterDetailsDto,
+  SelectionProcedureDetailsDto,
+} from "src/job/dtos/jaf.dto";
 import {
   ApplicationModel,
   CompanyModel,
@@ -43,6 +49,7 @@ import { InterviewTypesEnum } from "src/enums/interviewTypes.enum";
 import { OfferStatusEnum } from "src/enums/offerStatus.enum";
 import { JobCoordinatorRoleEnum } from "src/enums/jobCoordinatorRole";
 import { FacultyApprovalStatusEnum } from "src/enums/facultyApproval.enum";
+import { RegistrationModel } from "src/db/models/RegistrationModel";
 
 export const SEASONS: Optional<SeasonModel, NullishPropertiesOf<SeasonModel>>[] = Array.from({ length: 5 }, () => ({
   id: faker.string.uuid(),
@@ -95,12 +102,14 @@ export const USERS: Optional<UserModel, NullishPropertiesOf<UserModel>>[] = Arra
   };
 });
 
+export const DEPARTMENTS = faker.helpers.arrayElements(Object.values(DepartmentEnum), 5);
+
 export const FACULTIES: Optional<FacultyModel, NullishPropertiesOf<FacultyModel>>[] = Array.from(
   { length: 5 },
   (_, idx) => ({
     id: faker.string.uuid(),
     userId: USERS[20 + idx].id,
-    department: faker.helpers.enumValue(DepartmentEnum),
+    department: DEPARTMENTS[idx],
   })
 );
 
@@ -119,10 +128,12 @@ export const STUDENTS: Optional<StudentModel, NullishPropertiesOf<StudentModel>>
   (_, idx) => ({
     id: faker.string.uuid(),
     userId: USERS[idx].id,
+    tenthMarks: faker.number.float({ min: 6, max: 10 }),
+    twelthMarks: faker.number.float({ min: 6, max: 10 }),
     rollNo: faker.string.numeric({ length: 9, allowLeadingZeros: false }),
     category: faker.helpers.enumValue(CategoryEnum),
     gender: faker.helpers.enumValue(GenderEnum),
-    cpi: faker.number.float(),
+    cpi: faker.number.float({ min: 6, max: 10 }),
     programId: faker.helpers.arrayElement(PROGRAMS).id,
   })
 );
@@ -171,6 +182,34 @@ export const SELECTION_PROCEDURES: SelectionProcedureDetailsDto[] = Array.from({
   others: faker.datatype.boolean() ? faker.string.alpha() : undefined,
 }));
 
+export const COMPANIES_DETAILS_FILLED: CompanyDetailsDto[] = Array.from({ length: 5 }, (_, idx) => ({
+  name: faker.company.name(),
+  website: faker.datatype.boolean() ? faker.internet.url() : undefined,
+  domains: Array.from({ length: idx }, () => faker.helpers.enumValue(IndustryDomainEnum)),
+  category: faker.helpers.enumValue(CompanyCategoryEnum),
+  address: ADDRESSES[idx],
+  size: faker.datatype.boolean() ? faker.number.int({ max: MAX_INT }) : undefined,
+  yearOfEstablishment: String(faker.date.anytime().getFullYear()),
+  annualTurnover: faker.datatype.boolean() ? String(faker.number.int()) : undefined,
+  socialMediaLink: faker.datatype.boolean() ? faker.internet.url() : undefined,
+}));
+
+export const RECRUITERS_DETAILS_FILLED: RecruiterDetailsDto[] = Array.from(
+  { length: 5 },
+  (_, idx): RecruiterDetailsDto => {
+    const firstName = faker.person.firstName();
+    const lastName = faker.person.lastName();
+
+    return {
+      name: firstName + " " + lastName,
+      email: faker.internet.email({ firstName: firstName, lastName: lastName }),
+      designation: faker.person.jobTitle(),
+      contact: String(faker.phone.number()),
+      landline: faker.datatype.boolean() ? faker.string.numeric({ length: 7 }) : undefined,
+    };
+  }
+);
+
 export const JOBS: Optional<JobModel, NullishPropertiesOf<JobModel>>[] = Array.from({ length: 5 }, (_, idx) => ({
   id: faker.string.uuid(),
   seasonId: faker.helpers.arrayElement(SEASONS).id,
@@ -180,6 +219,8 @@ export const JOBS: Optional<JobModel, NullishPropertiesOf<JobModel>>[] = Array.f
   others: faker.datatype.boolean() ? faker.string.alpha() : undefined,
   active: faker.datatype.boolean(),
   currentStatus: faker.helpers.enumValue(JobStatusTypeEnum),
+  companyDetailsFilled: COMPANIES_DETAILS_FILLED[idx],
+  recruiterDetailsFilled: RECRUITERS_DETAILS_FILLED[idx],
   selectionProcedure: SELECTION_PROCEDURES[idx],
   description: faker.datatype.boolean() ? faker.string.alpha() : undefined,
   attachment: faker.datatype.boolean() ? faker.string.alpha() : undefined,
@@ -321,4 +362,14 @@ export const APPLICATIONS: Optional<ApplicationModel, NullishPropertiesOf<Applic
     studentId: student.id,
     resumeId: faker.helpers.arrayElement(RESUMES.filter((resume) => resume.studentId === student.id)).id,
   }))
+);
+
+export const REGISTRATIONS: Optional<RegistrationModel, NullishPropertiesOf<RegistrationModel>>[] = STUDENTS.flatMap(
+  (student) =>
+    SEASONS.map((season) => ({
+      id: faker.string.uuid(),
+      seasonId: season.id,
+      studentId: student.id,
+      registered: faker.datatype.boolean(),
+    }))
 );

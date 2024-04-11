@@ -85,7 +85,7 @@ export class StudentService {
 
   async updateStudent(student, t: Transaction) {
     const ans = await this.studentRepo.findByPk(student.id);
-    if (!ans) throw new NotFoundException(`No student with id: ${student.id} Found`);
+    if (!ans) return [student.id];
 
     const pr = [];
     pr.push(
@@ -104,10 +104,10 @@ export class StudentService {
       );
     }
 
-    return await Promise.all(pr);
+    return [];
   }
 
-  async deleteStudents(pids: string[], t: Transaction) {
+  async deleteStudents(pids: string[]) {
     const students = await this.studentRepo.findAll({
       where: { id: pids },
       attributes: ["userId"],
@@ -117,7 +117,6 @@ export class StudentService {
 
     return await this.userRepo.destroy({
       where: { id: userIds },
-      transaction: t, //Cascading Delete
     });
   }
 }

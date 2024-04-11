@@ -7,6 +7,7 @@ import { OffCampusOfferModel } from "./OffCampusOfferModel";
 import { ResumeModel } from "./ResumeModel";
 import { OnCampusOfferModel } from "./OnCampusOfferModel";
 import { CategoryEnum, GenderEnum } from "src/enums";
+import { RegistrationModel } from "./RegistrationModel";
 
 @Table({
   tableName: "Student",
@@ -61,6 +62,18 @@ export class StudentModel extends Model<StudentModel> {
   })
   cpi: number;
 
+  @Column({
+    type: sequelize.FLOAT,
+    allowNull: false,
+  })
+  tenthMarks: number;
+
+  @Column({
+    type: sequelize.FLOAT,
+    allowNull: false,
+  })
+  twelthMarks: number;
+
   @ForeignKey(() => ProgramModel)
   @Column({
     type: sequelize.UUID,
@@ -102,4 +115,10 @@ export class StudentModel extends Model<StudentModel> {
     onDelete: "CASCADE",
   })
   resumes: ResumeModel[];
+
+  @HasMany(() => RegistrationModel, {
+    foreignKey: "studentId",
+    onDelete: "CASCADE",
+  })
+  registrations: RegistrationModel[];
 }

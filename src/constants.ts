@@ -23,7 +23,9 @@ export const SEQUELIZE_DAO = "SEQUELIZE",
   APPLICATION_DAO = "APPLICATION_DAO",
   PENALTY_DAO = "PENALTY_DAO",
   ON_CAMPUS_OFFER_DAO = "ON_CAMPUS_OFFER_DAO",
-  OFF_CAMPUS_OFFER_DAO = "OFF_CAMPUS_OFFER_DAO";
+  OFF_CAMPUS_OFFER_DAO = "OFF_CAMPUS_OFFER_DAO",
+  INTERVIEW_EXPERIENCE_DAO = "INTERVIEW_EXPERIENCE_DAO",
+  REGISTRATIONS_DAO = "REGISTRATIONS_DAO";
 
 export const allCourses = [
   // Bachelor of Technology (BTech)
@@ -279,3 +281,8 @@ export const LOGIN_USER: Optional<UserModel, NullishPropertiesOf<UserModel>> = {
   contact: "Test",
   role: RoleEnum.ADMIN,
 };
+
+export const RESUME_SIZE_LIMIT = 102400; // 1MB
+export const IE_SIZE_LIMIT = RESUME_SIZE_LIMIT * 10; // 10MB.
+
+export const ROLES_KEY = "roles";

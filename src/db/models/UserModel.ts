@@ -1,6 +1,9 @@
-import { Table, Column, Model, IsEmail, Unique, AllowNull } from "sequelize-typescript";
+import { Table, Column, Model, IsEmail, Unique, AllowNull, HasOne } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { RoleEnum } from "src/enums";
+import { StudentModel } from "./StudentModel";
+import { RecruiterModel } from "./RecruiterModel";
+import { FacultyModel } from "./FacultyModel";
 
 @Table({
   tableName: "User",
@@ -38,4 +41,19 @@ export class UserModel extends Model<UserModel> {
     type: sequelize.ENUM(...Object.values(RoleEnum)),
   })
   role: RoleEnum;
+
+  @HasOne(() => StudentModel, {
+    foreignKey: "userId",
+  })
+  student: StudentModel;
+
+  @HasOne(() => RecruiterModel, {
+    foreignKey: "userId",
+  })
+  recruiter: RecruiterModel;
+
+  @HasOne(() => FacultyModel, {
+    foreignKey: "userId",
+  })
+  faculty: FacultyModel;
 }

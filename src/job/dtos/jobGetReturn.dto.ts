@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import {
   IsBoolean,
+  IsDate,
   IsDateString,
   IsEnum,
   IsNumber,
@@ -9,7 +10,7 @@ import {
   IsUUID,
   ValidateNested,
 } from "class-validator";
-import { JobStatusTypeEnum, SeasonTypeEnum } from "src/enums";
+import { EventTypeEnum, JobStatusTypeEnum, SeasonTypeEnum } from "src/enums";
 import { GetCompaniesReturnDto } from "src/recruiter/dtos/recruiterGetReturn.dto";
 import { Type } from "class-transformer";
 import { CompanyDetailsDto, RecruiterDetailsDto, SalaryDetailsDto, SelectionProcedureDetailsDto } from "./jaf.dto";
@@ -31,6 +32,37 @@ export class GetSeasonsReturnDto {
   @ApiProperty({ enum: SeasonTypeEnum })
   @IsEnum(SeasonTypeEnum)
   type: SeasonTypeEnum;
+}
+
+export class GetEventsReturnDto {
+  @ApiProperty({ type: String })
+  @IsUUID()
+  id: string;
+
+  @ApiProperty({ type: String })
+  @IsUUID()
+  jobId: string;
+
+  @ApiProperty({ type: Number })
+  @IsNumber()
+  roundNumber: number;
+
+  @ApiProperty({ enum: EventTypeEnum })
+  @IsEnum(EventTypeEnum)
+  type: EventTypeEnum;
+
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
+  metadata?: string;
+
+  @ApiProperty({ type: String })
+  @IsDate()
+  startDateTime: Date;
+
+  @ApiProperty({ type: String })
+  @IsDate()
+  endDateTime: Date;
 }
 
 class GetJobRecruiterReturnDto {
@@ -227,13 +259,18 @@ export class GetJobReturnDto {
   @Type(() => GetJobRecruiterReturnDto)
   recruiter: GetJobRecruiterReturnDto;
 
-  @ApiProperty({ type: GetJobCoordinatorsReturnDto })
-  @ValidateNested()
+  @ApiProperty({ type: GetJobCoordinatorsReturnDto, isArray: true })
+  @ValidateNested({ each: true })
   @Type(() => GetJobCoordinatorsReturnDto)
-  jobCoordinators: GetJobCoordinatorsReturnDto;
+  jobCoordinators: GetJobCoordinatorsReturnDto[];
 
   @ApiProperty({ type: GetSalaryReturnDto, isArray: true })
   @ValidateNested({ each: true })
   @Type(() => GetSalaryReturnDto)
   salaries: GetSalaryReturnDto[];
+
+  @ApiProperty({ type: GetEventsReturnDto, isArray: true })
+  @ValidateNested({ each: true })
+  @Type(() => GetEventsReturnDto)
+  events: GetEventsReturnDto[];
 }

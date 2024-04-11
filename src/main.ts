@@ -8,9 +8,9 @@ import { isProductionEnv } from "./utils";
 import { SwaggerModule, DocumentBuilder, SwaggerDocumentOptions, SwaggerCustomOptions } from "@nestjs/swagger";
 import { HttpExceptionFilter } from "./interceptor/ExceptionFilter";
 import { LoggerInterceptor } from "./interceptor/LoggerInterceptor";
-import { env, EnvironmentVariables } from "./config";
+import { env, IEnvironmentVariables } from "./config";
 
-const environmentVariables: EnvironmentVariables = env();
+const environmentVariables: IEnvironmentVariables = env();
 const logger = new Logger("main");
 
 async function bootstrap(): Promise<void> {
@@ -44,7 +44,7 @@ function createSwagger(app: INestApplication) {
     .setTitle("TPC Backend API")
     .setDescription("API for TPC backend")
     .setVersion(version)
-    .addTag("TPCBackend")
+    .addTag("TPC Backend")
     .addBearerAuth(
       {
         type: "http",

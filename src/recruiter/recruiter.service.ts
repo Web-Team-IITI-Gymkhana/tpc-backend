@@ -96,14 +96,11 @@ export class RecuiterService {
     return true;
   }
 
-  async deleteRecruiter(id, t: Transaction) {
-    const ans = await this.recruiterRepo.findByPk(id);
-    if (!ans) throw new NotFoundException(`The recruiter with id: ${id} not found`);
+  async deleteRecruiters(ids: string[]) {
+    const ans = await this.recruiterRepo.findAll({ where: { id: ids, attribute: ["userId"] } });
+    const userIds = ans.map((recruiter) => recruiter.userId);
+    const res = await this.userRepo.destroy({ where: { id: userIds } });
 
-    await this.userRepo.destroy({
-      where: { id: ans.userId },
-    });
-
-    return true;
+    return res;
   }
 }

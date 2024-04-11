@@ -55,12 +55,12 @@ export class OffCampusOfferModel extends Model<OffCampusOfferModel> {
   @Column({
     type: sequelize.STRING,
   })
-  salaryPeriod: string;
+  salaryPeriod?: string;
 
   @Column({
     type: sequelize.STRING,
   })
-  metadata: string;
+  metadata?: string;
 
   @Column({
     type: sequelize.STRING,

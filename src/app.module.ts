@@ -14,6 +14,11 @@ import { JobModule } from "./job/job.module";
 import { PenaltyModule } from "./penalties/penalty.module";
 import { FacultyApprovalModule } from "./facultyApproval/facultyApproval.module";
 import { SalaryModule } from "./salary/salary.module";
+import { StudentViewModule } from "./student-view/students/student.module";
+import { StudentViewJobModule } from "./student-view/job/job.module";
+import { InterviewExperienceModule } from "./student-view/interview-experiences/ie.module";
+import { StudentOfferModule } from "./student-view/offers/offer.module";
+import { UserModule } from "./user/user.module";
 
 @Module({
   imports: [
@@ -28,6 +33,11 @@ import { SalaryModule } from "./salary/salary.module";
     PenaltyModule,
     FacultyApprovalModule,
     SalaryModule,
+    StudentViewModule,
+    StudentViewJobModule,
+    InterviewExperienceModule,
+    StudentOfferModule,
+    UserModule,
   ],
   controllers: [AppController],
   providers: [Logger, TransactionInterceptor, QueryInterceptor, AppService],

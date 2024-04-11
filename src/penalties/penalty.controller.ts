@@ -1,7 +1,7 @@
 import { Body, Controller, Delete, Get, ParseArrayPipe, Patch, Post, Query } from "@nestjs/common";
 import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { PenaltyService } from "./penalty.service";
-import { ApiFilterQuery } from "src/utils/utils";
+import { ApiFilterQuery, pipeTransformArray } from "src/utils/utils";
 import { GetPenaltyQueryDto } from "./dtos/query.dto";
 import { CreatePenaltyDto } from "./dtos/post.dto";
 import { GetPenaltiesReturnDto } from "./dtos/get.dto";
@@ -16,18 +16,25 @@ export class PenaltyController {
   @ApiResponse({ type: GetPenaltiesReturnDto, isArray: true })
   @ApiOperation({ description: "Refer to GetPenaltyQueryDto for schema. Ctrl+F it for more details" })
   async getPenalties(@Query("q") where: GetPenaltyQueryDto) {
-    return this.penaltyService.getPenalties(where);
+    const ans = await this.penaltyService.getPenalties(where);
+
+    return pipeTransformArray(ans, GetPenaltiesReturnDto);
   }
 
   @Post()
   @ApiBody({ type: CreatePenaltyDto, isArray: true })
   @ApiResponse({ type: String, isArray: true, description: "Array of UUIDS" })
   async createPenalties(@Body(new ParseArrayPipe({ items: CreatePenaltyDto })) penalties: CreatePenaltyDto[]) {
-    return this.penaltyService.createPenalties(penalties);
+    const ans = await this.penaltyService.createPenalties(penalties);
+
+    return ans;
   }
 
   @Delete()
-  async deletePenalties(@Query() ids: string | string[]) {
-    return this.penaltyService.deletePenalties(ids);
+  async deletePenalties(@Query("id") ids: string | string[]) {
+    const pids = typeof ids === "string" ? [ids] : ids;
+    const ans = await this.penaltyService.deletePenalties(pids);
+
+    return ans;
   }
 }

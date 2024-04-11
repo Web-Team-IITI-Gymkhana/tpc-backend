@@ -27,6 +27,7 @@ import {
   EVENT_DAO,
   FACULTY_APPROVAL_REQUEST_DAO,
   FACULTY_DAO,
+  INTERVIEW_EXPERIENCE_DAO,
   JOB_COORDINATOR_DAO,
   JOB_DAO,
   JOB_STATUS_DAO,
@@ -35,6 +36,7 @@ import {
   PENALTY_DAO,
   PROGRAM_DAO,
   RECRUITER_DAO,
+  REGISTRATIONS_DAO,
   RESUME_DAO,
   SALARY_DAO,
   SEASON_DAO,
@@ -42,13 +44,15 @@ import {
   TPC_MEMBER_DAO,
   USER_DAO,
 } from "src/constants";
-import { env, EnvironmentVariables } from "src/config";
+import { env, IEnvironmentVariables } from "src/config";
+import { RegistrationModel } from "./models/RegistrationModel";
+import { InterviewExperienceModel } from "./models/InterviewExperienceModel";
 
 export const databaseProviders = [
   {
     provide: "SEQUELIZE",
     useFactory: async () => {
-      const environmentVariables: EnvironmentVariables = env();
+      const environmentVariables: IEnvironmentVariables = env();
       const { DB_NAME, DB_HOST, DB_PASSWORD, DB_PORT, DB_USERNAME } = environmentVariables;
 
       const sequelize = new Sequelize(DB_NAME, DB_USERNAME, DB_PASSWORD, {
@@ -82,6 +86,8 @@ export const databaseProviders = [
         PenaltyModel,
         OffCampusOfferModel,
         OnCampusOfferModel,
+        RegistrationModel,
+        InterviewExperienceModel,
       ]);
 
       // await sequelize.sync({ force: true });
@@ -163,5 +169,13 @@ export const spacesProviders = [
   {
     provide: OFF_CAMPUS_OFFER_DAO,
     useValue: OffCampusOfferModel,
+  },
+  {
+    provide: REGISTRATIONS_DAO,
+    useValue: RegistrationModel,
+  },
+  {
+    provide: INTERVIEW_EXPERIENCE_DAO,
+    useValue: InterviewExperienceModel,
   },
 ];

@@ -5,7 +5,7 @@ import { JobCoordinatorRoleEnum } from "src/enums/jobCoordinatorRole";
 export class CreateJobCoordinatorsDto {
   @ApiProperty({ type: String })
   @IsUUID()
-  id: string;
+  tpcMemberId: string;
 
   @ApiProperty({ enum: JobCoordinatorRoleEnum })
   @IsEnum(JobCoordinatorRoleEnum)

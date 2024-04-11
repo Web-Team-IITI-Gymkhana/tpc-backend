@@ -1,7 +1,8 @@
 import sequelize from "sequelize";
-import { BelongsTo, Column, ForeignKey, Model, Table } from "sequelize-typescript";
+import { BelongsTo, Column, ForeignKey, HasMany, Model, Table } from "sequelize-typescript";
 import { JobModel } from "./JobModel";
 import { GenderEnum, CategoryEnum } from "../../enums";
+import { FacultyApprovalRequestModel } from "./FacultyApprovalRequestModel";
 
 @Table({
   tableName: "Salary",
@@ -21,6 +22,11 @@ export class SalaryModel extends Model<SalaryModel> {
     allowNull: false,
   })
   jobId: string;
+
+  @BelongsTo(() => JobModel, {
+    foreignKey: "jobId",
+  })
+  job: JobModel;
 
   @Column({
     type: sequelize.STRING,
@@ -68,4 +74,10 @@ export class SalaryModel extends Model<SalaryModel> {
     allowNull: false,
   })
   otherCompensations: number;
+
+  @HasMany(() => FacultyApprovalRequestModel, {
+    foreignKey: "salaryId",
+    onDelete: "CASCADE",
+  })
+  facultyApprovalRequests: FacultyApprovalRequestModel[];
 }

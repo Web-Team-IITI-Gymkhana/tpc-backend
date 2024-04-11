@@ -1,33 +1,28 @@
 import { Injectable, Inject, NotFoundException } from "@nestjs/common";
-import { FindOptions, Transaction } from "sequelize";
-import { JOB_DAO, SEASON_DAO, STUDENT_DAO, USER_DAO } from "src/constants";
+import { FindOptions } from "sequelize";
+import { JOB_COORDINATOR_DAO, JOB_DAO } from "src/constants";
 import {
   CompanyModel,
   EventModel,
-  FacultyApprovalRequestModel,
-  FacultyModel,
   JobCoordinatorModel,
   JobModel,
-  PenaltyModel,
-  ProgramModel,
   RecruiterModel,
-  ResumeModel,
   SalaryModel,
   SeasonModel,
-  StudentModel,
   TpcMemberModel,
   UserModel,
 } from "src/db/models";
-import { parsePagesize, parseFilter, parseOrder } from "src/utils";
-import { GetJobQueryDto } from "./dtos/jobGetQuery.dto";
+import { parseFilter, parseOrder, parsePagesize } from "src/utils";
 
 @Injectable()
 export class JobService {
-  constructor(@Inject(JOB_DAO) private jobRepo: typeof JobModel) {}
+  constructor(
+    @Inject(JOB_DAO) private jobRepo: typeof JobModel,
+    @Inject(JOB_COORDINATOR_DAO) private jobCoordinatorRepo: typeof JobCoordinatorModel
+  ) {}
 
-  async getJobs(where: GetJobQueryDto) {
-    // eslint-disable-next-line prefer-const
-    let findOptions: FindOptions<JobModel> = {
+  async getJobs(where) {
+    const findOptions: FindOptions<JobModel> = {
       include: [
         {
           model: SeasonModel,
@@ -40,12 +35,10 @@ export class JobService {
       ],
     };
 
-    // Add page size options
     const pageOptions = parsePagesize(where);
     Object.assign(findOptions, pageOptions);
-    // Apply filter
+
     parseFilter(findOptions, where.filterBy || {});
-    // Apply order
     findOptions.order = parseOrder(where.orderBy || {});
 
     const ans = await this.jobRepo.findAll(findOptions);
@@ -57,40 +50,22 @@ export class JobService {
     const ans = await this.jobRepo.findByPk(id, {
       include: [
         {
+          model: RecruiterModel,
+          as: "recruiter",
+          include: [
+            {
+              model: UserModel,
+              as: "user",
+            },
+          ],
+        },
+        {
           model: SeasonModel,
           as: "season",
         },
         {
           model: CompanyModel,
           as: "company",
-        },
-        {
-          model: RecruiterModel,
-          as: "recruiter",
-        },
-        {
-          model: SalaryModel,
-          as: "salaries",
-        },
-        {
-          model: EventModel,
-          as: "events",
-        },
-        {
-          model: FacultyApprovalRequestModel,
-          as: "facultyApprovalRequests",
-          include: [
-            {
-              model: FacultyModel,
-              as: "faculty",
-              include: [
-                {
-                  model: UserModel,
-                  as: "user",
-                },
-              ],
-            },
-          ],
         },
         {
           model: JobCoordinatorModel,
@@ -108,31 +83,46 @@ export class JobService {
             },
           ],
         },
+        {
+          model: SalaryModel,
+          as: "salaries",
+        },
+        {
+          model: EventModel,
+          as: "events",
+        },
       ],
     });
 
-    if (!ans) throw new NotFoundException(`The Job with id: ${id} Not Found`);
-    const res: JobModel = ans.get({ plain: true });
-
-    return res;
+    return ans.get({ plain: true });
   }
 
-  async updateJob(job, t: Transaction) {
-    const ans = await this.jobRepo.findByPk(job.id);
-    if (!ans) throw new NotFoundException(`No Job with id: ${job.id} Found`);
+  async updateJob(job) {
+    const id = job.id;
+    const ans = await this.jobRepo.findByPk(id);
 
-    await this.jobRepo.update(job, {
-      where: { id: ans.id },
-      transaction: t,
-    });
+    if (!ans) throw new NotFoundException(`The Job with id: ${id} not found`);
+
+    const res = await this.jobRepo.update(job, { where: { id: id } });
 
     return true;
   }
 
-  async deleteJobs(pids: string[], t: Transaction) {
-    return await this.jobRepo.destroy({
-      where: { id: pids },
-      transaction: t,
-    });
+  async addJobCoordinators(jobCoordinators) {
+    const ans = await this.jobCoordinatorRepo.bulkCreate(jobCoordinators);
+
+    return ans.map((jobCoordinator) => jobCoordinator.id);
+  }
+
+  async deleteJobs(ids: string[]) {
+    const ans = await this.jobRepo.destroy({ where: { id: ids } });
+
+    return ans;
+  }
+
+  async deleteJobCoordinators(ids: string[]) {
+    const ans = await this.jobCoordinatorRepo.destroy({ where: { id: ids } });
+
+    return ans;
   }
 }

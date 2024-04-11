@@ -19,6 +19,7 @@ import {
   FACULTY_APPROVAL_REQUESTS,
   EVENTS,
   APPLICATIONS,
+  REGISTRATIONS,
 } from "src/test/data";
 import { DUMMY_COMPANY, DUMMY_RECRUITER, DUMMY_USER, LOGIN_USER } from "src/constants";
 
@@ -52,6 +53,7 @@ export class InsertService {
       await this.sequelizeInstance.models.FacultyApprovalRequestModel.bulkCreate(FACULTY_APPROVAL_REQUESTS);
     const events = await this.sequelizeInstance.models.EventModel.bulkCreate(EVENTS);
     const applications = await this.sequelizeInstance.models.ApplicationModel.bulkCreate(APPLICATIONS);
+    const registerations = await this.sequelizeInstance.models.RegistrationModel.bulkCreate(REGISTRATIONS);
     await this.sequelizeInstance.models.CompanyModel.create(DUMMY_COMPANY);
     await this.sequelizeInstance.models.UserModel.create(DUMMY_USER);
     await this.sequelizeInstance.models.RecruiterModel.create(DUMMY_RECRUITER);

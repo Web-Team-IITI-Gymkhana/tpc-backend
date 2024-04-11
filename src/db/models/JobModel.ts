@@ -8,6 +8,7 @@ import { SalaryModel } from "./SalaryModel";
 import { JobCoordinatorModel } from "./JobCoordinatorModel";
 import { FacultyApprovalRequestModel } from "./FacultyApprovalRequestModel";
 import { JobStatusTypeEnum } from "src/enums";
+import { ApplicationModel } from "./ApplicationModel";
 
 @Table({
   tableName: "Job",
@@ -148,31 +149,12 @@ export class JobModel extends Model<JobModel> {
   })
   duration?: number;
 
-  /*
-   * //Restrict the deletion of status that is the current Status for a job.
-   * @BelongsTo(() => JobStatusModel, {
-   * as: "currentStatus",
-   * foreignKey: "currentStatusId",
-   * constraints: false,
-   * })
-   * currentStatus: JobStatusModel;
-   */
-
-  // Delete Job Status onDelete of Job
-
-  //Delete Job onDelete of Job.
+  //Delete Job Coordinators onDelete of Job.
   @HasMany(() => JobCoordinatorModel, {
     foreignKey: "jobId",
     onDelete: "CASCADE",
   })
   jobCoordinators: JobCoordinatorModel[];
-
-  //Delete Faculy Approval Request on delete of Job
-  @HasMany(() => FacultyApprovalRequestModel, {
-    foreignKey: "jobId",
-    onDelete: "CASCADE",
-  })
-  facultyApprovalRequests: FacultyApprovalRequestModel[];
 
   // Delete Events onDelete of Job
   @HasMany(() => EventModel, {
@@ -187,4 +169,10 @@ export class JobModel extends Model<JobModel> {
     onDelete: "CASCADE",
   })
   salaries: SalaryModel[];
+
+  @HasMany(() => ApplicationModel, {
+    foreignKey: "jobId",
+    onDelete: "CASCADE",
+  })
+  applications: ApplicationModel[];
 }
