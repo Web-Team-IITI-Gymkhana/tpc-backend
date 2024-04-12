@@ -86,7 +86,7 @@ export const databaseProviders = [
         OnCampusOfferModel,
       ]);
 
-      // await sequelize.sync({ alter: true });
+      await sequelize.sync({ alter: true });
 
       return sequelize;
     },

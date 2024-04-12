@@ -14,6 +14,9 @@ import { RecruiterModule } from "./recruiter/recruiter.module";
 import { TpcMemberModule } from "./tpcMember/tpcMember.module";
 import { EmailService } from "./services/EmailService";
 import { AuthModule } from "./auth/auth.module";
+import { CompanyService } from "./company/company.service";
+import { CompanyController } from "./company/company.controller";
+import { CompanyModule } from "./company/company.module";
 
 @Module({
   imports: [
@@ -23,8 +26,9 @@ import { AuthModule } from "./auth/auth.module";
     StudentModule,
     RecruiterModule,
     TpcMemberModule,
+    CompanyModule,
   ],
-  controllers: [AppController, FlowerController],
-  providers: [Logger, TransactionInterceptor, QueryInterceptor, AppService, UserService, EmailService],
+  controllers: [AppController, FlowerController, CompanyController],
+  providers: [Logger, TransactionInterceptor, QueryInterceptor, AppService, UserService, EmailService, CompanyService],
 })
 export class AppModule {}
