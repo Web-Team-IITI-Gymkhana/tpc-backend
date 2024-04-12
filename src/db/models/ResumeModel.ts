@@ -1,5 +1,5 @@
 import sequelize, { Sequelize } from "sequelize";
-import { Column, ForeignKey, Model, Table } from "sequelize-typescript";
+import { BelongsTo, Column, ForeignKey, Model, Table } from "sequelize-typescript";
 import { StudentModel } from "./StudentModel";
 
 @Table({
@@ -20,6 +20,12 @@ export class ResumeModel extends Model<ResumeModel> {
     allowNull: false,
   })
   studentId: string;
+
+  @BelongsTo(() => StudentModel, {
+    foreignKey: "studentId",
+    onDelete: "CASCADE",
+  })
+  student: StudentModel;
 
   @Column({
     type: sequelize.STRING,

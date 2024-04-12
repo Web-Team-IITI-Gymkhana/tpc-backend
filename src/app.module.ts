@@ -21,6 +21,9 @@ import { StudentOfferModule } from "./student-view/offers/offer.module";
 import { UserModule } from "./user/user.module";
 import { SeasonModule } from "./season/season.module";
 import { RegistrationsModule } from "./registrations/registrations.module";
+import { FacultyModule } from "./faculty/faculty.module";
+import { ProgramModule } from "./program/program.module";
+import { ResumeModule } from "./resume/resume.module";
 
 @Module({
   imports: [
@@ -42,6 +45,9 @@ import { RegistrationsModule } from "./registrations/registrations.module";
     UserModule,
     SeasonModule,
     RegistrationsModule,
+    FacultyModule,
+    ProgramModule,
+    ResumeModule,
   ],
   controllers: [AppController],
   providers: [Logger, TransactionInterceptor, QueryInterceptor, AppService],

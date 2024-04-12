@@ -15,6 +15,7 @@ export class RegistrationsService {
         {
           model: StudentModel,
           as: "student",
+          required: true,
           include: [
             {
               model: UserModel,

@@ -1,8 +1,8 @@
 import { Body, Controller, Delete, Get, Post, Query } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { RegistrationsService } from "./registrations.service";
 import { RegistrationsQueryDto } from "./dtos/query.dto";
-import { createArrayPipe, pipeTransformArray } from "src/utils/utils";
+import { ApiFilterQuery, createArrayPipe, pipeTransformArray } from "src/utils/utils";
 import { RegistrationReturnDto } from "./dtos/get.dto";
 import { CreateRegistrationDto } from "./dtos/post.dto";
 
@@ -12,6 +12,9 @@ export class RegistrationsController {
   constructor(private registrationsService: RegistrationsService) {}
 
   @Get()
+  @ApiFilterQuery("q", RegistrationsQueryDto)
+  @ApiResponse({ type: RegistrationReturnDto, isArray: true })
+  @ApiOperation({ description: "Refer to RegistrationsQueryDto schema." })
   async getRegistrations(@Query("q") where: RegistrationsQueryDto) {
     const ans = await this.registrationsService.getRegistrations(where);
 
@@ -19,6 +22,7 @@ export class RegistrationsController {
   }
 
   @Post()
+  @ApiBody({ type: CreateRegistrationDto, isArray: true })
   async createRegistrations(@Body(createArrayPipe(CreateRegistrationDto)) registrations: CreateRegistrationDto[]) {
     const ans = await this.registrationsService.createRegistrations(registrations);
 

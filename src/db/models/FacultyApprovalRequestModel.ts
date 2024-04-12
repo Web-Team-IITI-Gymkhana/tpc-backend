@@ -25,7 +25,7 @@ export class FacultyApprovalRequestModel extends Model<FacultyApprovalRequestMod
   // Delete Faculty Approval Request onDelete of Faculty
   @BelongsTo(() => FacultyModel, {
     foreignKey: "facultyId",
-    onDelete: "CASCADE",
+    onDelete: "RESTRICT",
   })
   faculty: FacultyModel;
 
