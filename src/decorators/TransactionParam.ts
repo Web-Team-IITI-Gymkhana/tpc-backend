@@ -5,6 +5,7 @@ import { createParamDecorator, ExecutionContext } from "@nestjs/common";
  * for transation, the method should have the decorator
  * @UseInterceptors(TransactionInterceptor)
  */
+// eslint-disable-next-line @typescript-eslint/naming-convention
 export const TransactionParam = createParamDecorator((_data: unknown, ctx: ExecutionContext) => {
   const req = ctx.switchToHttp().getRequest();
 

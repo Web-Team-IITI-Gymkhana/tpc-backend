@@ -5,7 +5,6 @@ export * from "./FacultyModel";
 export * from "./SeasonModel";
 export * from "./CompanyModel";
 export * from "./JobModel";
-export * from "./JobStatusModel";
 export * from "./EventModel";
 export * from "./FacultyApprovalRequestModel";
 export * from "./JobCoordinatorModel";

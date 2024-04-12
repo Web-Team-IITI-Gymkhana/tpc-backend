@@ -1,4 +1,4 @@
-export enum TestTypes {
+export enum TestTypesEnum {
   APTITUDE = "APTITUDE",
   TECHNICAL = "TECHNICAL",
   ASSIGNMENT = "ASSIGNMENT",

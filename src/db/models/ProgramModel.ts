@@ -1,5 +1,6 @@
 import sequelize from "sequelize";
 import { Model, Table, Column, Unique } from "sequelize-typescript";
+import { DepartmentEnum } from "src/enums/department.enum";
 
 @Table({
   tableName: "Program",
@@ -13,15 +14,30 @@ export class ProgramModel extends Model<ProgramModel> {
   })
   id: string;
 
-  @Unique("CoursBranchYearUnique")
-  @Column
+  @Unique("Course-Branch-Year-Unique")
+  @Column({
+    type: sequelize.STRING,
+    allowNull: false,
+  })
   course: string;
 
-  @Unique("CoursBranchYearUnique")
-  @Column
+  @Unique("Course-Branch-Year-Unique")
+  @Column({
+    type: sequelize.STRING,
+    allowNull: false,
+  })
   branch: string;
 
-  @Unique("CoursBranchYearUnique")
-  @Column
+  @Column({
+    type: sequelize.ENUM(...Object.values(DepartmentEnum)),
+    allowNull: false,
+  })
+  department: DepartmentEnum;
+
+  @Unique("Course-Branch-Year-Unique")
+  @Column({
+    type: sequelize.STRING,
+    allowNull: false,
+  })
   year: string;
 }

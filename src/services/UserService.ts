@@ -1,9 +1,9 @@
 import { Global, Inject, Injectable, Logger } from "@nestjs/common";
 import { Transaction } from "sequelize";
 import { USER_DAO } from "src/constants";
-import { Role } from "src/enums";
-import { UserModel } from "src/db/models";
-import { User } from "../auth/User";
+import { RoleEnum } from "src/enums";
+import { FacultyModel, RecruiterModel, StudentModel, UserModel } from "src/db/models";
+import { IUser } from "src/auth/User";
 
 @Global()
 @Injectable()
@@ -12,45 +12,39 @@ export class UserService {
 
   constructor(@Inject(USER_DAO) private userRepo: typeof UserModel) {}
 
-  async createUser(user: User, t?: Transaction) {
-    const userModel = await this.userRepo.create(user, { transaction: t });
-
-    return User.fromModel(userModel);
-  }
-
-  async getOrCreateUser(user: User, t?: Transaction) {
-    const [userModel] = await this.userRepo.findOrCreate({
-      where: { email: user.email, role: user.role },
-      defaults: user,
-      transaction: t,
+  async getUserByEmail(email: string): Promise<IUser> {
+    const userModel = await this.userRepo.findOne({
+      where: { email: email },
+      attributes: ["id"],
+      include: [
+        {
+          model: StudentModel,
+          as: "student",
+          attributes: ["id"],
+        },
+        {
+          model: RecruiterModel,
+          as: "recruiter",
+          attributes: ["id"],
+        },
+        {
+          model: FacultyModel,
+          as: "faculty",
+          attributes: ["id"],
+        },
+      ],
     });
+    if (!userModel) return undefined;
 
-    return User.fromModel(userModel);
-  }
+    const ans: IUser = {
+      id: userModel.id,
+      email: email,
+      role: userModel.role,
+      studentId: userModel.student?.id,
+      recruiterId: userModel.recruiter?.id,
+      facultyId: userModel.faculty?.id,
+    };
 
-  async getUserById(id: string, t?: Transaction) {
-    const userModel = await this.userRepo.findOne({ where: { id: id }, transaction: t });
-
-    return userModel && User.fromModel(userModel);
-  }
-
-  async getUserByEmail(email: string, role: Role, t?: Transaction) {
-    const userModel = await this.userRepo.findOne({ where: { email: email, role: role }, transaction: t });
-
-    return userModel && User.fromModel(userModel);
-  }
-
-  async deleteUser(userId: string, t?: Transaction) {
-    return !!(await this.userRepo.destroy({ where: { id: userId }, transaction: t }));
-  }
-
-  async updateUser(userId: string, fieldsToUpdate: object, t?: Transaction) {
-    const [_, updatedModel] = await this.userRepo.update(fieldsToUpdate, {
-      where: { id: userId },
-      returning: true,
-      transaction: t,
-    });
-
-    return User.fromModel(updatedModel[0]);
+    return ans;
   }
 }

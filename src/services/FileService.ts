@@ -1,16 +1,33 @@
 import { Injectable } from "@nestjs/common";
-import { v4 as uuidv4 } from "uuid";
-import * as fs from "fs/promises";
+import * as fsp from "fs/promises";
+import * as fs from "fs";
 import * as path from "path";
+import { env } from "src/config";
 
 @Injectable()
 export class FileService {
-  async uploadFile(file: any): Promise<string> {
-    const folderName = process.env.FOLDER_NAME;
-    const filename = uuidv4() + path.extname(file.originalname);
-    const filePath = path.join(folderName, filename);
-    const ans = await fs.writeFile(filePath, file.buffer);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async uploadFile(filePath, file: any): Promise<boolean> {
+    await fsp.writeFile(filePath, file.buffer);
 
-    return filename;
+    return true;
+  }
+
+  getFile(filepath: string): fs.ReadStream {
+    const stream = fs.createReadStream(filepath);
+
+    return stream;
+  }
+
+  async deleteFile(filePath: string): Promise<boolean> {
+    await fsp.unlink(filePath);
+
+    return true;
+  }
+
+  async getFileasBuffer(filepath: string): Promise<Buffer> {
+    const ans = await fsp.readFile(filepath);
+
+    return ans;
   }
 }

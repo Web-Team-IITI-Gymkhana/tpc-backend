@@ -1,5 +1,8 @@
-import { Table, Column, Model, Unique } from "sequelize-typescript";
+import { Table, Column, Model, Unique, HasMany } from "sequelize-typescript";
 import sequelize from "sequelize";
+import { SeasonTypeEnum } from "src/enums";
+import { JobModel } from "./JobModel";
+import { RegistrationModel } from "./RegistrationModel";
 
 @Table({
   tableName: "Season",
@@ -13,13 +16,24 @@ export class SeasonModel extends Model<SeasonModel> {
   })
   id: string;
 
-  @Unique("TypeYearUnique")
+  @Unique("Type-Year-Unique")
   @Column({ allowNull: false })
   year: string;
 
-  @Unique("TypeYearUnique")
+  @Unique("Type-Year-Unique")
   @Column({
-    type: sequelize.STRING,
+    type: sequelize.ENUM(...Object.values(SeasonTypeEnum)),
+    allowNull: false,
   })
-  type: string;
+  type: SeasonTypeEnum;
+
+  @HasMany(() => JobModel, {
+    foreignKey: "seasonId",
+  })
+  jobs: JobModel[];
+
+  @HasMany(() => RegistrationModel, {
+    foreignKey: "seasonId",
+  })
+  registrations: RegistrationModel[];
 }

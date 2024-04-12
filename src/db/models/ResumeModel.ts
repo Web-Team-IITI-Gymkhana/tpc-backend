@@ -17,15 +17,15 @@ export class ResumeModel extends Model<ResumeModel> {
   @ForeignKey(() => StudentModel)
   @Column({
     type: sequelize.UUID,
+    allowNull: false,
   })
   studentId: string;
 
   @Column({
-    type: sequelize.JSONB,
-    defaultValue: Sequelize.literal("'{}'::jsonb"),
+    type: sequelize.STRING,
   })
-  metadata: object;
+  filepath?: string;
 
-  @Column({ type: sequelize.BOOLEAN, defaultValue: false })
+  @Column({ type: sequelize.BOOLEAN, defaultValue: false, allowNull: false })
   verified: boolean;
 }

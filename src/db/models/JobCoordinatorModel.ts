@@ -2,6 +2,7 @@ import { Table, Column, Model, ForeignKey, Unique, BelongsTo } from "sequelize-t
 import sequelize from "sequelize";
 import { JobModel } from "./JobModel";
 import { TpcMemberModel } from "./TpcMemberModel";
+import { JobCoordinatorRoleEnum } from "src/enums/jobCoordinatorRole";
 
 @Table({
   tableName: "JobCoordinator",
@@ -17,7 +18,7 @@ export class JobCoordinatorModel extends Model<JobCoordinatorModel> {
 
   @Unique("TpcMemberJob")
   @ForeignKey(() => TpcMemberModel)
-  @Column({ type: sequelize.UUID })
+  @Column({ type: sequelize.UUID, allowNull: false })
   tpcMemberId: string;
 
   // Delete Job Coordinator onDelete of Tpc Member
@@ -29,7 +30,7 @@ export class JobCoordinatorModel extends Model<JobCoordinatorModel> {
 
   @Unique("TpcMemberJob")
   @ForeignKey(() => JobModel)
-  @Column({ type: sequelize.UUID })
+  @Column({ type: sequelize.UUID, allowNull: false })
   jobId: string;
 
   // Delete Job Coordinator onDelete of Job
@@ -39,6 +40,6 @@ export class JobCoordinatorModel extends Model<JobCoordinatorModel> {
   })
   job: JobModel;
 
-  @Column({ allowNull: false, type: sequelize.STRING })
-  role: string;
+  @Column({ allowNull: false, type: sequelize.ENUM(...Object.values(JobCoordinatorRoleEnum)) })
+  role: JobCoordinatorRoleEnum;
 }

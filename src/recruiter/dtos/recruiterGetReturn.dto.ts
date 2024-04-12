@@ -1,174 +1,134 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsArray, IsEnum, IsNumber, IsOptional, IsString, IsUrl, IsUUID, ValidateNested } from "class-validator";
-import { Is } from "sequelize-typescript";
-import { CompanyCategory } from "src/enums";
-import IndustryDomain from "src/enums/industryDomains.enum";
+import { IsEnum, IsNumber, IsOptional, IsString, IsUrl, IsUUID, ValidateNested } from "class-validator";
+import { CompanyCategoryEnum } from "src/enums";
+import { IndustryDomainEnum } from "src/enums/industryDomains.enum";
 import { AddressDto } from "src/job/dtos/jaf.dto";
 import { GetUsersReturnDto } from "src/student/dtos/studentGetReturn.dto";
 
 export class GetCompaniesReturnDto {
-  @ApiProperty({
-    type: String,
-  })
+  @ApiProperty({ type: String })
+  @IsUUID()
+  id: string;
+
+  @ApiProperty({ type: String })
   @IsString()
   name: string;
 }
 
 export class GetCompanyReturnDto {
-  @ApiProperty({
-    type: String,
-  })
+  @ApiProperty({ type: String })
+  @IsUUID()
+  id: string;
+
+  @ApiProperty({ type: String })
   @IsString()
   name: string;
 
-  @ApiPropertyOptional({
-    type: String,
-  })
+  @ApiPropertyOptional({ type: String })
   @IsOptional()
-  @IsString()
+  @IsUrl()
   website?: string;
 
-  @ApiProperty({
-    enum: IndustryDomain,
-    isArray: true,
-  })
-  @IsEnum(IndustryDomain, { each: true })
-  @IsArray()
-  domains: IndustryDomain[];
+  @ApiProperty({ enum: IndustryDomainEnum, isArray: true })
+  @IsEnum(IndustryDomainEnum, { each: true })
+  domains: IndustryDomainEnum[];
 
-  @ApiPropertyOptional({
-    enum: CompanyCategory,
-  })
-  @IsOptional()
-  @IsEnum(CompanyCategory)
-  category: CompanyCategory;
+  @ApiProperty({ enum: CompanyCategoryEnum })
+  @IsEnum(CompanyCategoryEnum)
+  category: CompanyCategoryEnum;
 
-  @ApiProperty({
-    type: AddressDto,
-  })
+  @ApiProperty({ type: AddressDto })
   @ValidateNested()
   @Type(() => AddressDto)
   address: AddressDto;
 
-  @ApiPropertyOptional({
-    type: Number,
-  })
+  @ApiPropertyOptional({ type: Number })
   @IsOptional()
   @IsNumber()
   size?: number;
 
-  @ApiPropertyOptional({
-    type: String,
-  })
-  @IsOptional()
+  @ApiProperty({ type: String })
   @IsString()
-  yearOfEstablishment?: string;
+  yearOfEstablishment: string;
 
-  @ApiPropertyOptional({
-    type: String,
-  })
+  @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsString()
   annualTurnover?: string;
 
-  @ApiProperty({
-    type: String,
-  })
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
   @IsUrl()
-  socialMediaLink: string;
+  socialMediaLink?: string;
 }
 
 export class GetRecruitersReturnDto {
-  @ApiProperty({
-    type: String,
-  })
+  @ApiProperty({ type: String })
   @IsUUID()
   id: string;
 
-  @ApiProperty({
-    type: String,
-  })
-  @IsUUID()
-  companyId: string;
-
-  @ApiProperty({
-    type: String,
-  })
+  //Remove this.
+  @ApiProperty({ type: String })
   @IsUUID()
   userId: string;
 
-  @ApiProperty({
-    type: String,
-  })
-  @IsString()
-  designation: string;
-
-  @ApiPropertyOptional({
-    type: String,
-  })
-  @IsOptional()
-  @IsString()
-  landline?: string;
-
-  @ApiProperty({
-    type: GetUsersReturnDto,
-  })
+  @ApiProperty({ type: GetUsersReturnDto })
   @ValidateNested()
   @Type(() => GetUsersReturnDto)
   user: GetUsersReturnDto;
 
-  @ApiProperty({
-    type: GetCompaniesReturnDto,
-  })
+  //Remove this.
+  @ApiProperty({ type: String })
+  @IsUUID()
+  companyId: string;
+
+  @ApiProperty({ type: GetCompaniesReturnDto })
   @ValidateNested()
   @Type(() => GetCompaniesReturnDto)
   company: GetCompaniesReturnDto;
-}
 
-export class GetRecruiterReturnDto {
-  @ApiProperty({
-    type: String,
-  })
-  @IsUUID()
-  id: string;
-
-  @ApiProperty({
-    type: String,
-  })
-  @IsUUID()
-  companyId: string;
-
-  @ApiProperty({
-    type: String,
-  })
-  @IsUUID()
-  userId: string;
-
-  @ApiProperty({
-    type: String,
-  })
+  @ApiProperty({ type: String })
   @IsString()
   designation: string;
 
-  @ApiPropertyOptional({
-    type: String,
-  })
+  @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsString()
   landline?: string;
+}
 
-  @ApiProperty({
-    type: GetUsersReturnDto,
-  })
+export class GetRecruiterReturnDto {
+  @ApiProperty({ type: String })
+  @IsUUID()
+  id: string;
+
+  //Remove this.
+  @ApiProperty({ type: String })
+  @IsUUID()
+  userId: string;
+
+  @ApiProperty({ type: GetUsersReturnDto })
   @ValidateNested()
   @Type(() => GetUsersReturnDto)
   user: GetUsersReturnDto;
 
-  @ApiProperty({
-    type: GetCompanyReturnDto,
-  })
+  //Remove this.
+  @ApiProperty({ type: String })
+  @IsUUID()
+  companyId: string;
+
+  @ApiProperty({ type: GetCompanyReturnDto })
   @ValidateNested()
   @Type(() => GetCompanyReturnDto)
   company: GetCompanyReturnDto;
+
+  @ApiProperty({ type: String })
+  @IsString()
+  designation: string;
+
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
+  landline?: string;
 }

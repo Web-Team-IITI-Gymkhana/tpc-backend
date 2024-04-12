@@ -1,142 +1,36 @@
-// import {
-//   Body,
-//   Controller,
-//   Get,
-//   HttpException,
-//   HttpStatus,
-//   Inject,
-//   Post,
-//   Query,
-//   UploadedFile,
-//   UseGuards,
-//   UseInterceptors,
-// } from "@nestjs/common";
-// import { AuthGuard } from "@nestjs/passport";
-// import { FileInterceptor } from "@nestjs/platform-express";
-// import { ApiBearerAuth } from "@nestjs/swagger";
-// import { randomUUID } from "crypto";
-// import sequelize from "sequelize";
-// import { Transaction } from "sequelize";
-// import {
-//   FILE_SERVICE,
-//   JAF_SERVICE,
-//   JOB_STATUS_SERVICE,
-//   PROGRAM_SERVICE,
-//   SALARY_SERVICE,
-//   SEASON_SERVICE,
-// } from "src/constants";
-// import { Category, Gender, JobStatusType } from "src/db/enums";
-// import { Countries } from "src/db/enums/Country.enum";
-// import IndustryDomain from "src/db/enums/industryDomains.enum";
-// import { InterviewTypes } from "src/db/enums/interviewTypes.enum";
-// import { TestTypes } from "src/db/enums/testTypes.enum";
-// import { TransactionParam } from "src/decorators/TransactionParam";
-// import { CreateJafDto, SalaryDetailsDto, TestDetailsDto } from "src/jaf/jaf.dto";
-// import { QueryInterceptor } from "src/interceptor/QueryInterceptor";
-// import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
-// import EventService from "src/services/EventService";
-// import { FileService } from "src/services/FileService";
-// import JafService from "src/jaf/jaf.service";
-// import JobStatusService from "src/services/JobStatusService";
-// import ProgramService from "src/services/ProgramService";
-// import SalaryService from "src/services/SalaryService";
-// import SeasonService from "src/services/SeasonService";
-// import { v4 as uuidv4 } from "uuid";
+import { Controller, Get, Post, Patch, Param, UseInterceptors, Body, UploadedFiles } from "@nestjs/common";
+import { JafService } from "./jaf.service";
+import { CreateJafDto } from "./dtos/jaf.dto";
+import { omit } from "lodash";
+import { JobStatusTypeEnum } from "src/enums";
+import { FileInterceptor } from "@nestjs/platform-express";
+import { ApiBody, ApiTags } from "@nestjs/swagger";
+import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
+import { TransactionParam } from "src/decorators/TransactionParam";
+import { Transaction } from "sequelize";
 
-// @Controller("jaf")
-// @ApiBearerAuth("jwt")
-// // @UseGuards(AuthGuard("jwt"))
-// export class JafController {
-//   constructor(
-//     @Inject(SEASON_SERVICE) private seasonService: SeasonService,
-//     @Inject(JAF_SERVICE) private jobService: JafService,
-//     @Inject(SALARY_SERVICE) private salaryService: SalaryService,
-//     @Inject(PROGRAM_SERVICE) private programService: ProgramService,
-//     @Inject(JOB_STATUS_SERVICE) private jobStatusService: JobStatusService,
-//     @Inject(FILE_SERVICE) private fileService: FileService
-//   ) {}
+@Controller("jaf")
+@ApiTags("Jaf")
+export class JafController {
+  constructor(private jafService: JafService) {}
 
-//   async createSalaries(salaries: SalaryDetailsDto[], jobId: string, t: Transaction) {
-//     console.log(salaries);
-//     const promises = [];
-//     for (const salary of salaries) {
-//       promises.push(
-//         this.salaryService.createSalary(
-//           {
-//             jobId: jobId,
-//             salaryPeriod: salary.salaryPeriod,
-//             criteria: salary.criteria,
-//             baseSalary: salary.baseSalary,
-//             totalCTC: salary.totalCTC,
-//             takeHomeSalary: salary.takeHomeSalary,
-//             grossSalary: salary.grossSalary,
-//             otherCompensations: salary.otherCompensations,
-//             others: salary.others,
-//           },
-//           t
-//         )
-//       );
-//     }
-//     const newSalaries = await Promise.all(promises);
+  @Get()
+  async getJafDetails() {
+    const ans = await this.jafService.getJafDetails();
 
-//     return newSalaries;
-//   }
+    return ans;
+  }
 
-//   @Get()
-//   async getJaf() {
-//     const ans = {};
-//     const season = this.seasonService.getSeasons();
-//     const programs = this.programService.getPrograms();
-//     ans.genders = Object.values(Gender);
-//     ans.categories = Object.values(Category);
-//     ans.testTypes = Object.values(TestTypes);
-//     ans.domains = Object.values(IndustryDomain);
-//     ans.interviewTypes = Object.values(InterviewTypes);
-//     ans.countries = Object.values(Countries);
-//     [ans.seasons, ans.programs] = await Promise.all([season, programs]);
+  @Post()
+  @UseInterceptors(FileInterceptor("files"))
+  @UseInterceptors(TransactionInterceptor)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  async createJaf(@Body() jaf: CreateJafDto, @UploadedFiles() files: any, @TransactionParam() t: Transaction) {
+    const salaries = jaf.salaries;
+    const job = jaf.job;
 
-//     return ans;
-//   }
+    const ans = await this.jafService.createJaf(job, salaries, t);
 
-//   @UseInterceptors(TransactionInterceptor)
-//   @UseInterceptors(FileInterceptor("attachment"))
-//   @Post()
-//   async createJaf(@Body() body: CreateJafDto, @TransactionParam() t: Transaction, @UploadedFile() file: any) {
-//     let attachment = undefined;
-//     if (file) {
-//       attachment = this.fileService.uploadFile(file);
-//     }
-//     const job = await this.jobService.createJob(
-//       {
-//         seasonId: body.seasonId,
-//         role: body.job.role,
-//         description: body.job.description,
-//         skills: body.job.skills,
-//         attachment: attachment,
-//         location: body.job.location,
-//         noOfVacancies: body.job.noOfVacancies,
-//         offerLetterReleaseDate: body.job.offerLetterReleaseDate,
-//         joiningDate: body.job.joiningDate,
-//         duration: body.job.duration,
-//         selectionProcedure: body.job.selectionProcedure,
-//         others: body.job.others,
-//         companyDetailsFilled: body.company,
-//         recruiterDetailsFilled: body.recruiter,
-//         active: false,
-//       },
-//       t
-//     );
-
-//     const salaries = await this.createSalaries(body.job.salaries, job.id, t);
-//     const status = await this.jobStatusService.createJobStatus({ jobId: job.id, status: JobStatusType.INITIALIZED }, t);
-//     const newJob = await this.jobService.updateJob(
-//       job.id,
-//       {
-//         currentStatusId: status.id,
-//       },
-//       t
-//     );
-
-//     return newJob;
-//   }
-// }
+    return ans;
+  }
+}

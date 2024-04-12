@@ -1,4 +1,4 @@
-export enum FacultyApproval {
+export enum FacultyApprovalStatusEnum {
   APPROVED = "APPROVED",
   REJECTED = "REJECTED",
   PENDING = "PENDING",

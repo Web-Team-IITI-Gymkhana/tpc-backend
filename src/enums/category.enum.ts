@@ -1,7 +1,7 @@
-export enum Category {
+export enum CategoryEnum {
   GENERAL = "GENERAL",
-  OBC = "SCHEDULED",
-  SC = "IN_PROCESS",
-  ST = "COMPLETED",
+  OBC = "OBC",
+  SC = "SC",
+  ST = "ST",
   PWD = "PWD",
 }

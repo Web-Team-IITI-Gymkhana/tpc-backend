@@ -3,6 +3,7 @@ import sequelize from "sequelize";
 
 import { StudentModel } from "./StudentModel";
 import { SalaryModel } from "./SalaryModel";
+import { OfferStatusEnum } from "src/enums/offerStatus.enum";
 
 @Table({
   tableName: "OnCampusOffer",
@@ -20,6 +21,7 @@ export class OnCampusOfferModel extends Model<OnCampusOfferModel> {
   @ForeignKey(() => StudentModel)
   @Column({
     type: sequelize.UUID,
+    allowNull: false,
   })
   studentId: string;
 
@@ -27,6 +29,7 @@ export class OnCampusOfferModel extends Model<OnCampusOfferModel> {
   @ForeignKey(() => SalaryModel)
   @Column({
     type: sequelize.UUID,
+    allowNull: false,
   })
   salaryId: string;
 
@@ -37,6 +40,8 @@ export class OnCampusOfferModel extends Model<OnCampusOfferModel> {
   })
   salary: SalaryModel;
 
-  @Column
-  status: string;
+  @Column({
+    type: sequelize.ENUM(...Object.values(OfferStatusEnum)),
+  })
+  status: OfferStatusEnum;
 }
