@@ -24,6 +24,9 @@ import { StudentOfferModule } from "./student-view/offers/offer.module";
 import { UserModule } from "./user/user.module";
 import { SeasonModule } from "./season/season.module";
 import { RegistrationsModule } from "./registrations/registrations.module";
+import { FlowerController } from "./example/example.controller";
+import { UserService } from "./user/user.service";
+import { EmailService } from "./services/EmailService";
 
 @Module({
   imports: [
@@ -50,4 +53,4 @@ import { RegistrationsModule } from "./registrations/registrations.module";
   controllers: [AppController, FlowerController, CompanyController],
   providers: [Logger, TransactionInterceptor, QueryInterceptor, AppService, UserService, EmailService, CompanyService],
 })
-export class AppModule { }
+export class AppModule {}
