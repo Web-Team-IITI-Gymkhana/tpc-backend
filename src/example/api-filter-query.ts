@@ -9,8 +9,6 @@ import { ApiExtraModels, ApiQuery, getSchemaPath } from "@nestjs/swagger";
 // eslint-disable-next-line max-len
 // eslint-disable-next-line @typescript-eslint/ban-types,@typescript-eslint/explicit-module-boundary-types, @typescript-eslint/naming-convention
 export function ApiFilterQuery(fieldName: string, filterDto: Function) {
-  console.log(getSchemaPath(filterDto));
-
   return applyDecorators(
     ApiExtraModels(filterDto),
     ApiQuery({

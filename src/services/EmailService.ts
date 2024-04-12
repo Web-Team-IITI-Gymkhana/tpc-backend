@@ -1,6 +1,6 @@
 // email.service.ts
 
-import { Global, HttpException, Injectable } from "@nestjs/common";
+import { Global, HttpException, Injectable, Logger } from "@nestjs/common";
 import { globalAgent } from "http";
 import * as nodemailer from "nodemailer";
 import { http } from "winston";
@@ -15,8 +15,9 @@ export class EmailService {
       pass: "teip bqxo gxkg gwkw",
     },
   });
+  private logger = new Logger(EmailService.name);
 
-  async sendEmail(to: string, token: string): Promise<any> {
+  async sendEmail(to: string, token: string): Promise<boolean> {
     const mailOptions = {
       from: "manasw649@gmail.com",
       to,
@@ -26,10 +27,10 @@ export class EmailService {
 
     await this.transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
-        console.error("Error sending email1:", error);
+        this.logger.error("Error sending email1:", error);
         throw new HttpException("Error sending email", 500);
       } else {
-        console.log("Email sent1:", info.response);
+        this.logger.log("Email sent1:", info.response);
       }
     });
 

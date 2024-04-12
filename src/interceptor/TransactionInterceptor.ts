@@ -11,7 +11,7 @@ import { Sequelize } from "sequelize-typescript";
 export class TransactionInterceptor implements NestInterceptor {
   constructor(@Inject("SEQUELIZE") private readonly sequelizeInstance: Sequelize) {}
 
-  async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<any>> {
+  async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<CallHandler>> {
     const httpContext = context.switchToHttp();
     const req = httpContext.getRequest();
     const transaction: Transaction = await this.sequelizeInstance.transaction();

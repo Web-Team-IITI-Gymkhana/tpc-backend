@@ -4,36 +4,26 @@ import { IsOptional, IsString, IsUUID, ValidateNested } from "class-validator";
 import { UpdateUserDto } from "src/student/dtos/studentPatch.dto";
 
 export class UpdateRecruiterDto {
-  @ApiProperty({
-    type: String,
-  })
+  @ApiProperty({ type: String })
   @IsUUID()
   id: string;
 
-  @ApiPropertyOptional({
-    type: String,
-  })
+  @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsUUID()
   companyId?: string;
 
-  @ApiPropertyOptional({
-    type: String,
-  })
+  @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsString()
   designation?: string;
 
-  @ApiPropertyOptional({
-    type: String,
-  })
+  @ApiPropertyOptional({ type: String })
   @IsOptional()
   @IsString()
   landline?: string;
 
-  @ApiPropertyOptional({
-    type: UpdateUserDto,
-  })
+  @ApiPropertyOptional({ type: UpdateUserDto })
   @IsOptional()
   @ValidateNested()
   @Type(() => UpdateUserDto)

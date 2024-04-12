@@ -11,10 +11,11 @@ export function parseFilter(findOptions, filterBy) {
   const res = {};
   for (const key in filterBy) {
     const val = filterBy[key];
-    if (val.eq !== undefined || val.lt !== undefined || val.gt !== undefined) res[key] = {};
+    if (val.eq !== undefined || val.lt !== undefined || val.gt !== undefined || val.lk !== undefined) res[key] = {};
     if (val.eq !== undefined) res[key][Op.in] = val.eq;
     if (val.gt !== undefined) res[key][Op.gt] = val.gt;
     if (val.lt !== undefined) res[key][Op.lt] = val.lt;
+    if (val.lk !== undefined) res[key][Op.iLike] = `%${val.lk}%`;
   }
 
   if (Object.keys(res).length > 0) findOptions.where = res;

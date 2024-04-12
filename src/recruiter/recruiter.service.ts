@@ -1,7 +1,7 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { FindOptions, Transaction } from "sequelize";
 import { RECRUITER_DAO, USER_DAO } from "src/constants";
-import { CompanyModel, RecruiterModel, UserModel } from "src/db/models";
+import { CompanyModel, JobModel, RecruiterModel, UserModel } from "src/db/models";
 import { parseFilter, parseOrder, parsePagesize } from "src/utils";
 
 @Injectable()
@@ -96,14 +96,11 @@ export class RecuiterService {
     return true;
   }
 
-  async deleteRecruiter(id, t: Transaction) {
-    const ans = await this.recruiterRepo.findByPk(id);
-    if (!ans) throw new NotFoundException(`The recruiter with id: ${id} not found`);
+  async deleteRecruiters(ids: string[]) {
+    const ans = await this.recruiterRepo.findAll({ where: { id: ids, attribute: ["userId"] } });
+    const userIds = ans.map((recruiter) => recruiter.userId);
+    const res = await this.userRepo.destroy({ where: { id: userIds } });
 
-    await this.userRepo.destroy({
-      where: { id: ans.userId },
-    });
-
-    return true;
+    return res;
   }
 }

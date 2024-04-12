@@ -107,14 +107,11 @@ export class TpcMemberService {
     return true;
   }
 
-  async deleteTpcMember(id: string) {
-    const ans = await this.tpcMemberRepo.findByPk(id);
-    if (!ans) throw new NotFoundException(`The id: ${id} Not Found`);
+  async deleteTpcMembers(ids: string[]) {
+    const ans = await this.tpcMemberRepo.findAll({ where: { id: ids }, attributes: ["userId"] });
+    const userIds = ans.map((tpcMember) => tpcMember.userId);
+    const res = await this.userRepo.destroy({ where: { id: userIds } });
 
-    await this.userRepo.destroy({
-      where: { id: ans.userId },
-    });
-
-    return true;
+    return res;
   }
 }

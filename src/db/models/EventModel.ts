@@ -1,6 +1,7 @@
 import { Table, Column, Model, ForeignKey, Unique, DataType } from "sequelize-typescript";
 import sequelize, { Sequelize } from "sequelize";
 import { JobModel } from "./JobModel";
+import { EventTypeEnum } from "src/enums";
 
 @Table({
   tableName: "Event",
@@ -14,28 +15,27 @@ export class EventModel extends Model<EventModel> {
   })
   id: string;
 
-  @Unique("JobTypeRoundNoUnique")
+  @Unique("Job-RoundNo-Unique")
   @ForeignKey(() => JobModel)
-  @Column({ type: sequelize.UUID })
+  @Column({
+    type: sequelize.UUID,
+    allowNull: false,
+  })
   jobId: string;
 
-  @Unique("JobTypeRoundNoUnique")
-  @Column({ allowNull: false, type: sequelize.STRING })
-  type: string;
-
-  @Unique("JobTypeRoundNoUnique")
+  @Unique("Job-RoundNo-Unique")
   @Column({ allowNull: false, defaultValue: 1, type: DataType.INTEGER })
   roundNumber: number;
 
-  @Column({ allowNull: false, type: sequelize.STRING })
-  status: string;
+  @Column({ allowNull: false, type: sequelize.ENUM(...Object.values(EventTypeEnum)) })
+  type: EventTypeEnum;
 
-  @Column({ allowNull: true, type: DataType.JSONB(), defaultValue: Sequelize.literal("'{}'::jsonb") })
-  metadata: object;
+  @Column({ type: sequelize.STRING })
+  metadata?: string;
 
-  @Column({ type: sequelize.DATE })
+  @Column({ type: sequelize.DATE, allowNull: false })
   startDateTime: Date;
 
-  @Column({ type: sequelize.DATE })
+  @Column({ type: sequelize.DATE, allowNull: false })
   endDateTime: Date;
 }

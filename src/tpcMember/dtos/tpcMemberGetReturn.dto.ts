@@ -1,8 +1,8 @@
 import { ApiProperty } from "@nestjs/swagger";
 import { Type } from "class-transformer";
 import { IsEnum, IsString, IsUUID, ValidateNested } from "class-validator";
-import { TpcMemberRole } from "src/enums";
-import { JobCoordinatorRole } from "src/enums/jobCoordinatorRole";
+import { TpcMemberRoleEnum } from "src/enums";
+import { JobCoordinatorRoleEnum } from "src/enums/jobCoordinatorRole";
 import { GetJobsReturnDto } from "src/job/dtos/jobGetReturn.dto";
 import { GetUsersReturnDto } from "src/student/dtos/studentGetReturn.dto";
 
@@ -26,11 +26,11 @@ export class GetTpcMembersReturnDto {
   department: string;
 
   @ApiProperty({
-    enum: TpcMemberRole,
+    enum: TpcMemberRoleEnum,
     example: "MANAGER/COORDINATOR",
   })
-  @IsEnum(TpcMemberRole)
-  role: TpcMemberRole;
+  @IsEnum(TpcMemberRoleEnum)
+  role: TpcMemberRoleEnum;
 
   @ApiProperty({
     type: GetUsersReturnDto,
@@ -42,11 +42,11 @@ export class GetTpcMembersReturnDto {
 
 export class GetJobCoordinatorsReturnDto {
   @ApiProperty({
-    enum: JobCoordinatorRole,
+    enum: JobCoordinatorRoleEnum,
     example: "PRIMARY/SECONDARY",
   })
-  @IsEnum(JobCoordinatorRole)
-  role: JobCoordinatorRole;
+  @IsEnum(JobCoordinatorRoleEnum)
+  role: JobCoordinatorRoleEnum;
 
   @ApiProperty({
     type: GetJobsReturnDto,
@@ -76,11 +76,11 @@ export class GetTpcMemberReturnDto {
   department: string;
 
   @ApiProperty({
-    enum: TpcMemberRole,
+    enum: TpcMemberRoleEnum,
     example: "MANAGER/COORDINATOR",
   })
-  @IsEnum(TpcMemberRole)
-  role: TpcMemberRole;
+  @IsEnum(TpcMemberRoleEnum)
+  role: TpcMemberRoleEnum;
 
   @ApiProperty({
     type: GetUsersReturnDto,

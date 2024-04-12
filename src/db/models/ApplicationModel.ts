@@ -21,6 +21,7 @@ export class ApplicationModel extends Model<ApplicationModel> {
   @ForeignKey(() => EventModel)
   @Column({
     type: sequelize.UUID,
+    allowNull: false,
   })
   eventId: string;
 
@@ -31,10 +32,11 @@ export class ApplicationModel extends Model<ApplicationModel> {
   })
   event: EventModel;
 
-  @Unique("JobStudentResume")
+  @Unique("Job-Student-Unique")
   @ForeignKey(() => JobModel)
   @Column({
     type: sequelize.UUID,
+    allowNull: false,
   })
   jobId: string;
 
@@ -45,10 +47,11 @@ export class ApplicationModel extends Model<ApplicationModel> {
   })
   job: JobModel;
 
-  @Unique("JobStudentResume")
+  @Unique("Job-Student-Unique")
   @ForeignKey(() => StudentModel)
   @Column({
     type: sequelize.UUID,
+    allowNull: false,
   })
   studentId: string;
 
@@ -59,13 +62,10 @@ export class ApplicationModel extends Model<ApplicationModel> {
   })
   student: StudentModel;
 
-  @Column
-  status: string;
-
-  @Unique("JobStudentResume")
   @ForeignKey(() => ResumeModel)
   @Column({
     type: sequelize.UUID,
+    allowNull: false,
   })
   resumeId: string;
 

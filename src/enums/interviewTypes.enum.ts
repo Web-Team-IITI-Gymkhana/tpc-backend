@@ -1,4 +1,4 @@
-export enum InterviewTypes {
+export enum InterviewTypesEnum {
   HR = "HR",
   TECHNICAL = "TECHNICAL",
 }

@@ -1,8 +1,9 @@
-import { Table, Column, Model, ForeignKey, BelongsTo, Unique } from "sequelize-typescript";
+import { Table, Column, Model, ForeignKey, BelongsTo, Unique, HasMany } from "sequelize-typescript";
 import sequelize from "sequelize";
 
 import { UserModel } from "./UserModel";
 import { CompanyModel } from "./CompanyModel";
+import { JobModel } from "./JobModel";
 
 @Table({
   tableName: "Recruiter",
@@ -20,6 +21,7 @@ export class RecruiterModel extends Model<RecruiterModel> {
   @ForeignKey(() => UserModel)
   @Column({
     unique: true,
+    allowNull: false,
     type: sequelize.UUID,
   })
   userId: string;
@@ -48,6 +50,7 @@ export class RecruiterModel extends Model<RecruiterModel> {
 
   @Column({
     type: sequelize.STRING,
+    allowNull: false,
   })
   designation: string;
 
@@ -55,4 +58,9 @@ export class RecruiterModel extends Model<RecruiterModel> {
     type: sequelize.STRING,
   })
   landline: string;
+
+  @HasMany(() => JobModel, {
+    foreignKey: "recruiterId",
+  })
+  jobs: JobModel[];
 }

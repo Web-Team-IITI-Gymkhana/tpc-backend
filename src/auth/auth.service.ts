@@ -1,8 +1,8 @@
 import { HttpException, HttpStatus, Injectable, Logger } from "@nestjs/common";
-import { User } from "./User";
 import * as jwt from "jsonwebtoken";
 import { ExtractJwt, StrategyOptions } from "passport-jwt";
 import { env } from "src/config";
+import { IUser } from "./User";
 
 @Injectable()
 export class AuthService {
@@ -13,22 +13,17 @@ export class AuthService {
   private expiry = 7 * 24 * 60 * 60;
   private algorithm: jwt.Algorithm = "HS256";
 
-  async vendJWT(user: User, secretKey?: string) {
-    const payload = {
-      id: user.id,
-      userType: user.role,
-      email: user.email,
-      name: user.name,
-    };
+  async vendJWT(user: IUser, secretKey?: string) {
+    console.log(user);
     const options: jwt.SignOptions = {
       expiresIn: this.expiry,
-      subject: user.id,
+      subject: user.email,
       audience: this.audience,
       issuer: this.issuer,
       algorithm: this.algorithm,
     };
 
-    return jwt.sign(payload, secretKey || this.secretKey, options);
+    return jwt.sign(user, secretKey || this.secretKey, options);
   }
 
   getJwtOptions(): StrategyOptions {
@@ -53,7 +48,14 @@ export class AuthService {
         throw new HttpException("Unauthorized", HttpStatus.UNAUTHORIZED);
       }
 
-      return new User({ id: payload.sub, email: payload.email, role: payload.userType, name: payload.name });
+      const ans: IUser = {
+        id: payload.id,
+        email: payload.email,
+        role: payload.role,
+        recruiterId: payload.recruiterId,
+      };
+
+      return ans;
     } catch (err) {
       throw new HttpException("Unauthorized", HttpStatus.UNAUTHORIZED);
     }

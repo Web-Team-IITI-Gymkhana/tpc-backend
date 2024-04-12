@@ -1,8 +1,6 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsArray, IsNumber, IsOptional, IsString, IsUUID } from "class-validator";
-import { randomUUID } from "crypto";
-import { symlink } from "fs";
+import { IsArray, IsBoolean, IsEnum, IsNumber, IsOptional, IsString, IsUUID } from "class-validator";
 
 export class MatchOptionsString {
   @ApiPropertyOptional({
@@ -12,11 +10,17 @@ export class MatchOptionsString {
   @IsString({ each: true })
   @IsOptional()
   eq?: Array<string>;
+
+  @ApiPropertyOptional({ type: String })
+  @IsOptional()
+  @IsString()
+  lk?: string;
 }
 
 export class MatchOptionsNumber {
   @ApiPropertyOptional({
-    type: Array<number>,
+    type: Number,
+    isArray: true,
   })
   @IsArray()
   @IsNumber({}, { each: true })
@@ -48,5 +52,29 @@ export class MatchOptionsUUID {
   @IsArray()
   @IsUUID("all", { each: true })
   @IsOptional()
-  eq?: string[];
+  eq?: Array<string>;
+}
+
+export function createMatchOptionsEnum(enumType) {
+  class MatchOptionsEnum {
+    @ApiPropertyOptional({
+      enum: enumType,
+      isArray: true,
+    })
+    @IsOptional()
+    @IsEnum(enumType, { each: true })
+    @Type(() => enumType)
+    eq?: Array<typeof enumType>;
+  }
+
+  return MatchOptionsEnum;
+}
+
+export class MatchOptionsBool {
+  @ApiPropertyOptional({ type: Boolean, isArray: true })
+  @IsArray()
+  @IsOptional()
+  @IsBoolean({ each: true })
+  @Type(() => Boolean)
+  eq?: boolean[];
 }

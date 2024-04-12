@@ -16,12 +16,24 @@ export class PenaltyModel extends Model<PenaltyModel> {
   id: string;
 
   @ForeignKey(() => StudentModel)
-  @Column({ type: sequelize.UUID })
+  @Column({ type: sequelize.UUID, allowNull: false })
   studentId: string;
 
-  @Column
+  @BelongsTo(() => StudentModel, {
+    foreignKey: "studentId",
+    onDelete: "CASCADE",
+  })
+  student: StudentModel;
+
+  @Column({
+    type: sequelize.INTEGER,
+    allowNull: false,
+  })
   penalty: number;
 
-  @Column
+  @Column({
+    type: sequelize.STRING,
+    allowNull: false,
+  })
   reason: string;
 }

@@ -6,6 +6,8 @@ import { ProgramModel } from "./ProgramModel";
 import { OffCampusOfferModel } from "./OffCampusOfferModel";
 import { ResumeModel } from "./ResumeModel";
 import { OnCampusOfferModel } from "./OnCampusOfferModel";
+import { CategoryEnum, GenderEnum } from "src/enums";
+import { RegistrationModel } from "./RegistrationModel";
 
 @Table({
   tableName: "Student",
@@ -36,23 +38,46 @@ export class StudentModel extends Model<StudentModel> {
   user: UserModel;
 
   @Unique("UserRollNo")
-  @Column
-  rollNo: string;
-
-  @Column
-  category: string;
-
   @Column({
     type: sequelize.STRING,
+    allowNull: false,
   })
-  gender: string;
+  rollNo: string;
 
-  @Column
+  @Column({
+    type: sequelize.ENUM(...Object.values(CategoryEnum)),
+    allowNull: false,
+  })
+  category: CategoryEnum;
+
+  @Column({
+    type: sequelize.ENUM(...Object.values(GenderEnum)),
+    allowNull: false,
+  })
+  gender: GenderEnum;
+
+  @Column({
+    type: sequelize.FLOAT,
+    allowNull: false,
+  })
   cpi: number;
+
+  @Column({
+    type: sequelize.FLOAT,
+    allowNull: false,
+  })
+  tenthMarks: number;
+
+  @Column({
+    type: sequelize.FLOAT,
+    allowNull: false,
+  })
+  twelthMarks: number;
 
   @ForeignKey(() => ProgramModel)
   @Column({
     type: sequelize.UUID,
+    allowNull: false,
   })
   programId: string;
 
@@ -90,4 +115,10 @@ export class StudentModel extends Model<StudentModel> {
     onDelete: "CASCADE",
   })
   resumes: ResumeModel[];
+
+  @HasMany(() => RegistrationModel, {
+    foreignKey: "studentId",
+    onDelete: "CASCADE",
+  })
+  registrations: RegistrationModel[];
 }

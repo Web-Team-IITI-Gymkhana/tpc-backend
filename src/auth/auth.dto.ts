@@ -1,6 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsEmail, IsEnum, IsString } from "class-validator";
-import { Role } from "src/enums";
+import { RoleEnum } from "src/enums";
 
 export class UserSignUpDto {
   @ApiProperty({
@@ -13,9 +13,9 @@ export class UserSignUpDto {
   })
   name: string;
   @ApiProperty({
-    enum: Role,
+    enum: RoleEnum,
   })
-  role: Role;
+  role: RoleEnum;
 
   @ApiPropertyOptional()
   contact: string;
@@ -30,10 +30,10 @@ export class UserLogInDto {
   email: string;
 
   @ApiProperty({
-    enum: Role,
+    enum: RoleEnum,
   })
-  @IsEnum(Role)
-  role: Role;
+  @IsEnum(RoleEnum)
+  role: RoleEnum;
 }
 
 export class PasswordlessLoginDto {

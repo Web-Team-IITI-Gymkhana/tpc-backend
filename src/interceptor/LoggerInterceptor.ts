@@ -1,5 +1,4 @@
 import { CallHandler, ExecutionContext, Injectable, NestInterceptor, Logger } from "@nestjs/common";
-import { Request } from "express";
 import { Observable, throwError } from "rxjs";
 import { catchError, map } from "rxjs/operators";
 
@@ -7,7 +6,7 @@ import { catchError, map } from "rxjs/operators";
 export class LoggerInterceptor implements NestInterceptor {
   private logger = new Logger("Request");
 
-  public intercept(context: ExecutionContext, next: CallHandler): Observable<any> {
+  public intercept(context: ExecutionContext, next: CallHandler): Observable<CallHandler> {
     const req = context.switchToHttp().getRequest();
     const userName = req?.user?.email || "anonymous";
     const { statusCode } = context.switchToHttp().getResponse();

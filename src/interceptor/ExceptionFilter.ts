@@ -13,7 +13,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
 
     let message, status, code;
     if (error.name === "SequelizeUniqueConstraintError") {
-      console.error(error);
+      this.logger.error(error);
       message = error["errors"]
         .map((e) => `${e.instance?.constructor?.name} id must be unique, ${e.instance?.name} already exists.`)
         .join();
@@ -39,7 +39,7 @@ export class HttpExceptionFilter implements ExceptionFilter {
       status = error?.getStatus() || 500;
     } else {
       this.logger.error("Unknown error happened");
-      console.error(error);
+      this.logger.error(error);
       message = "Unknown error happened";
       status = HttpStatus.INTERNAL_SERVER_ERROR;
     }

@@ -8,9 +8,10 @@ import { isProductionEnv } from "./utils";
 import { SwaggerModule, DocumentBuilder, SwaggerDocumentOptions, SwaggerCustomOptions } from "@nestjs/swagger";
 import { HttpExceptionFilter } from "./interceptor/ExceptionFilter";
 import { LoggerInterceptor } from "./interceptor/LoggerInterceptor";
-import { env, EnvironmentVariables } from "./config";
+import { env, IEnvironmentVariables } from "./config";
 
-const environmentVariables: EnvironmentVariables = env();
+const environmentVariables: IEnvironmentVariables = env();
+const logger = new Logger("main");
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
@@ -32,7 +33,6 @@ async function bootstrap(): Promise<void> {
 
   await app.listen(environmentVariables.PORT);
 
-  const logger = new Logger("main");
   logger.log(`Application is running on: ${await app.getUrl()}`);
 }
 
@@ -44,7 +44,7 @@ function createSwagger(app: INestApplication) {
     .setTitle("TPC Backend API")
     .setDescription("API for TPC backend")
     .setVersion(version)
-    .addTag("TPCBackend")
+    .addTag("TPC Backend")
     .addBearerAuth(
       {
         type: "http",
@@ -91,7 +91,6 @@ function createWinstonLogger(): LoggerService {
 }
 
 bootstrap().catch((err) => {
-  // tslint:disable-next-line:no-console
   console.error(err);
   process.exit(1);
 });
