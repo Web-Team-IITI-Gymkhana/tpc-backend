@@ -29,6 +29,7 @@ export class SalaryService {
         },
       ],
     });
+    if (!ans) throw new NotFoundException(`The Salary with id: ${id} Not Found`);
 
     return ans.get({ plain: true });
   }

@@ -62,7 +62,7 @@ export class FacultyService {
       ],
     });
 
-    if (!ans) throw new NotFoundException("Faculty not found");
+    if (!ans) throw new NotFoundException(`Faculty with id: ${id} not found`);
 
     return ans.get({ plain: true });
   }

@@ -45,7 +45,7 @@ class CompanyReturnDto {
   name: string;
 }
 
-class JobReturnDto {
+export class JobFacultyReturnDto {
   @ApiProperty({ type: String })
   @IsUUID()
   id: string;
@@ -74,10 +74,10 @@ class SalaryReturnDto {
   @IsNumber()
   totalCTC: number;
 
-  @ApiProperty({ type: JobReturnDto })
+  @ApiProperty({ type: JobFacultyReturnDto })
   @ValidateNested()
-  @Type(() => JobReturnDto)
-  job: JobReturnDto;
+  @Type(() => JobFacultyReturnDto)
+  job: JobFacultyReturnDto;
 }
 
 class FacultyApprovalReturnDto {

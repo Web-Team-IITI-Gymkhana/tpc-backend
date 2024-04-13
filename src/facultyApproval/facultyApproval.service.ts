@@ -1,94 +1,112 @@
-import { Injectable, Inject, NotFoundException } from "@nestjs/common";
+import { Injectable, Inject } from "@nestjs/common";
+import sequelize from "sequelize";
 import { FindOptions, Transaction } from "sequelize";
-import { parsePagesize, parseFilter, parseOrder } from "src/utils";
-import { CreateFacultyApprovalDto } from "./dtos/facultyApprovalPost.dto";
-import { UpdateFacultyApprovalDto } from "./dtos/facultyApprovalPatch.dto";
-import { FACULTY_APPROVAL_REQUEST_DAO } from "src/constants";
-import { FacultyApprovalRequestModel, FacultyModel, UserModel } from "src/db/models";
-import { FacultyApprovalGetQueryDto } from "./dtos/facultyApprovalGetQuery.dto";
+import { FACULTY_APPROVAL_REQUEST_DAO, FACULTY_DAO, SALARY_DAO } from "src/constants";
+import {
+  CompanyModel,
+  FacultyApprovalRequestModel,
+  FacultyModel,
+  JobModel,
+  SalaryModel,
+  SeasonModel,
+  UserModel,
+} from "src/db/models";
+import { CriteriaDto } from "src/salary/dtos/get.dto";
+import { parseFilter, parseOrder, parsePagesize } from "src/utils";
 
 @Injectable()
 export class FacultyApprovalService {
-  constructor(@Inject(FACULTY_APPROVAL_REQUEST_DAO) private facultyApprovalRepo: typeof FacultyApprovalRequestModel) {}
+  constructor(
+    @Inject(FACULTY_APPROVAL_REQUEST_DAO) private facultyApprovalRepo: typeof FacultyApprovalRequestModel,
+    @Inject(SALARY_DAO) private salaryRepo: typeof SalaryModel,
+    @Inject(FACULTY_DAO) private facultyRepo: typeof FacultyModel
+  ) {}
 
-  async getFacultyApprovals(where: FacultyApprovalGetQueryDto) {
+  async getFacultyApprovalRequests(where) {
     const findOptions: FindOptions<FacultyApprovalRequestModel> = {
       include: [
         {
           model: FacultyModel,
           as: "faculty",
+          required: true,
           include: [
             {
               model: UserModel,
               as: "user",
+            },
+          ],
+        },
+        {
+          model: SalaryModel,
+          as: "salary",
+          required: true,
+          include: [
+            {
+              model: JobModel,
+              as: "job",
+              required: true,
+              include: [
+                {
+                  model: SeasonModel,
+                  as: "season",
+                },
+                {
+                  model: CompanyModel,
+                  as: "company",
+                },
+              ],
             },
           ],
         },
       ],
     };
-    // Add page size options
+
     const pageOptions = parsePagesize(where);
     Object.assign(findOptions, pageOptions);
-    // Apply filter
     parseFilter(findOptions, where.filterBy || {});
-    // Apply order
     findOptions.order = parseOrder(where.orderBy || {});
 
     const ans = await this.facultyApprovalRepo.findAll(findOptions);
 
-    return ans.map((obj) => obj.get({ plain: true }));
+    return ans.map((req) => req.get({ plain: true }));
   }
 
-  async getFacultyApproval(id: string) {
-    const ans = await this.facultyApprovalRepo.findByPk(id, {
-      include: [
-        {
-          model: FacultyModel,
-          as: "faculty",
-          include: [
-            {
-              model: UserModel,
-              as: "user",
-            },
-          ],
-        },
-      ],
-    });
-    if (!ans) {
-      throw new NotFoundException(`Faculty approval with id ${id} not found`);
-    }
+  async createFacultyApprovalRequests(salaryId, facReqs, t: Transaction) {
+    const [ans, salary, faculties] = await Promise.all([
+      this.facultyApprovalRepo.bulkCreate(facReqs, { transaction: t }),
+      this.salaryRepo.findByPk(salaryId),
+      this.facultyRepo.findAll({ where: { id: facReqs.map((req) => req.facultyId) } }),
+    ]);
 
-    return ans.get({ plain: true });
+    const depts = faculties.map((faculty) => faculty.department);
+    const criteria: CriteriaDto = salary.criteria;
+    const approvals = criteria.facultyApprovals || [];
+    approvals.push(...depts);
+    criteria.facultyApprovals = approvals;
+
+    await this.salaryRepo.update({ criteria: criteria }, { where: { id: salary.id }, transaction: t });
+
+    return ans.map((req) => req.id);
   }
 
-  /*
-   * async createFacultyApprovals(facultyApprovals: CreateFacultyApprovalDto[]): Promise<string[]> {
-   *   const createdIds: string[] = [];
-   *   for (const approval of facultyApprovals) {
-   *     const createdApproval = await this.facultyApprovalRepo.create(approval);
-   *     createdIds.push(createdApproval.id);
-   *   }
-   *
-   *    return createdIds;
-   *  }
-   */
+  async deleteFacultyApprovalRequest(id: string, t: Transaction) {
+    const [facReq, salary] = await Promise.all([
+      this.facultyApprovalRepo.findByPk(id, { include: [{ model: FacultyModel, as: "faculty" }] }),
+      this.salaryRepo.findOne({
+        where: sequelize.literal(`"id" IN (SELECT "salaryId" FROM "FacultyApprovalRequest" where "id" = '${id}')`),
+      }),
+    ]);
 
-  async updateFacultyApproval(approval: UpdateFacultyApprovalDto, t: Transaction) {
-    const ans = await this.facultyApprovalRepo.findByPk(approval.id);
-    if (!ans) {
-      throw new NotFoundException(`Faculty approval with id ${approval.id} not found`);
-    }
+    const department = facReq.faculty.department;
+    const criteria: CriteriaDto = salary.criteria;
+    const approvals = criteria.facultyApprovals;
+    criteria.facultyApprovals = approvals.filter((dept) => dept !== department);
 
-    return await this.facultyApprovalRepo.update(approval, {
-      where: { id: ans.id },
-      transaction: t,
-    });
-  }
+    const [_, ans] = await Promise.all([
+      this.salaryRepo.update({ criteria: criteria }, { where: { id: salary.id } }),
+      this.facultyApprovalRepo.destroy({ where: { id: id } }),
+    ]);
 
-  async deleteFacultyApprovals(pids: string[], t: Transaction) {
-    return await this.facultyApprovalRepo.destroy({
-      where: { id: pids },
-      transaction: t,
-    });
+    return ans;
   }
 }

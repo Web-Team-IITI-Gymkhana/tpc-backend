@@ -3,4 +3,6 @@ export enum EventTypeEnum {
   PPT = "PPT",
   INTERVIEW = "INTERVIEW",
   TEST = "TEST",
+  APPLICATION = "APPLICATION",
+  COMPLETED = "COMPLETED",
 }

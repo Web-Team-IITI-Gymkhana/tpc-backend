@@ -1,4 +1,4 @@
-import { Inject, Injectable } from "@nestjs/common";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { Transaction, WhereOptions } from "sequelize";
 import { REGISTRATIONS_DAO, RESUME_DAO, STUDENT_DAO } from "src/constants";
 import { PenaltyModel, ProgramModel, ResumeModel, SeasonModel, StudentModel, UserModel } from "src/db/models";
@@ -39,6 +39,7 @@ export class StudentService {
         },
       ],
     });
+    if (!ans) throw new NotFoundException(`The Student with id: ${id} Not Found`);
 
     return ans.get({ plain: true });
   }

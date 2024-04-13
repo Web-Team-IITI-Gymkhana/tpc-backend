@@ -30,7 +30,7 @@ export class InsertService {
   constructor(@Inject("SEQUELIZE") private readonly sequelizeInstance: Sequelize) {}
 
   async onModuleInit() {
-    // await this.insert();
+    await this.insert();
   }
 
   async insert() {

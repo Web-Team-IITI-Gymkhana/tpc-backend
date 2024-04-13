@@ -69,49 +69,20 @@ export class TpcMemberService {
   }
 
   async createTpcMembers(tpcMembers) {
-    const ans = await this.tpcMemberRepo.bulkCreate(tpcMembers, {
-      include: [
-        {
-          model: UserModel,
-          as: "user",
-        },
-      ],
-    });
+    const ans = await this.tpcMemberRepo.bulkCreate(tpcMembers);
 
     return ans.map((tpcMember) => tpcMember.id);
   }
 
-  async updateTpcMember(tpcMember, t: Transaction) {
-    const ans = await this.tpcMemberRepo.findByPk(tpcMember.id);
-    if (!ans) throw new NotFoundException(`The id: ${tpcMember.id} Not Found`);
+  async updateTpcMember(tpcMember) {
+    const [ans] = await this.tpcMemberRepo.update(tpcMember, { where: { id: tpcMember.id } });
 
-    const pr = [];
-    pr.push(
-      this.tpcMemberRepo.update(tpcMember, {
-        where: { id: ans.id },
-        transaction: t,
-      })
-    );
-
-    if (tpcMember.user) {
-      pr.push(
-        this.userRepo.update(tpcMember.user, {
-          where: { id: ans.userId },
-          transaction: t,
-        })
-      );
-    }
-
-    await Promise.all(pr);
-
-    return true;
+    return ans > 0 ? [] : [tpcMember.id];
   }
 
   async deleteTpcMembers(ids: string[]) {
-    const ans = await this.tpcMemberRepo.findAll({ where: { id: ids }, attributes: ["userId"] });
-    const userIds = ans.map((tpcMember) => tpcMember.userId);
-    const res = await this.userRepo.destroy({ where: { id: userIds } });
+    const ans = await this.tpcMemberRepo.destroy({ where: { id: ids } });
 
-    return res;
+    return ans;
   }
 }

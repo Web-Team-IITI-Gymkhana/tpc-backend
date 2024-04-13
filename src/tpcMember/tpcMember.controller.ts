@@ -49,28 +49,18 @@ export class TpcMemberController {
   @ApiBody({ type: CreateTpcMemberDto, isArray: true })
   @ApiResponse({ type: String, isArray: true, description: "Array of Ids" })
   async createTpcMembers(@Body(createArrayPipe(CreateTpcMemberDto)) body: CreateTpcMemberDto[]): Promise<string[]> {
-    const tpcMembers = body.map((data) => {
-      data.user.role = RoleEnum.TPC_MEMBER;
-
-      return data;
-    });
-
-    const ans = await this.tpcMemberService.createTpcMembers(tpcMembers);
+    const ans = await this.tpcMemberService.createTpcMembers(body);
 
     return ans;
   }
 
   @Patch()
-  @UseInterceptors(TransactionInterceptor)
   @ApiBody({ type: UpdateTpcMemberDto, isArray: true })
-  async updateTpcMembers(
-    @Body(createArrayPipe(UpdateTpcMemberDto)) body: UpdateTpcMemberDto[],
-    @TransactionParam() t: Transaction
-  ) {
-    const pr = body.map((data) => this.tpcMemberService.updateTpcMember(data, t));
+  async updateTpcMembers(@Body(createArrayPipe(UpdateTpcMemberDto)) body: UpdateTpcMemberDto[]) {
+    const pr = body.map((data) => this.tpcMemberService.updateTpcMember(data));
     const ans = await Promise.all(pr);
 
-    return ans;
+    return ans.flat();
   }
 
   @Delete()

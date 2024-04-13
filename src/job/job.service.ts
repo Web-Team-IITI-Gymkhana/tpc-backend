@@ -93,6 +93,7 @@ export class JobService {
         },
       ],
     });
+    if (!ans) throw new NotFoundException(`The Job with id: ${id} Not Found`);
 
     return ans.get({ plain: true });
   }

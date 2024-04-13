@@ -63,6 +63,10 @@ export class GetEventsReturnDto {
   @ApiProperty({ type: String })
   @IsDate()
   endDateTime: Date;
+
+  @ApiProperty({ type: Boolean })
+  @IsBoolean()
+  visibleToRecruiter: boolean;
 }
 
 class GetJobRecruiterReturnDto {

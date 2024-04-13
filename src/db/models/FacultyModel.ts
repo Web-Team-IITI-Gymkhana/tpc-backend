@@ -33,7 +33,7 @@ export class FacultyModel extends Model<FacultyModel> {
 
   @HasMany(() => FacultyApprovalRequestModel, {
     foreignKey: "facultyId",
-    onDelete: "RESTRICT",
+    onDelete: "CASCADE",
   })
   facultyApprovalRequests: FacultyApprovalRequestModel[];
 }

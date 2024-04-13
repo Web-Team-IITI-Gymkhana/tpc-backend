@@ -24,6 +24,8 @@ import { RegistrationsModule } from "./registrations/registrations.module";
 import { FacultyModule } from "./faculty/faculty.module";
 import { ProgramModule } from "./program/program.module";
 import { ResumeModule } from "./resume/resume.module";
+import { EventModule } from "./event/event.module";
+import { CompanyModule } from "./company/company.module";
 
 @Module({
   imports: [
@@ -48,6 +50,8 @@ import { ResumeModule } from "./resume/resume.module";
     FacultyModule,
     ProgramModule,
     ResumeModule,
+    EventModule,
+    CompanyModule,
   ],
   controllers: [AppController],
   providers: [Logger, TransactionInterceptor, QueryInterceptor, AppService],

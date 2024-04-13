@@ -38,4 +38,7 @@ export class EventModel extends Model<EventModel> {
 
   @Column({ type: sequelize.DATE, allowNull: false })
   endDateTime: Date;
+
+  @Column({ type: sequelize.BOOLEAN, allowNull: false, defaultValue: false })
+  visibleToRecruiter: boolean;
 }

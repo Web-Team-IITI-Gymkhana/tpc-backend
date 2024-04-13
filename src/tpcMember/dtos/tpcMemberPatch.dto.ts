@@ -1,6 +1,7 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsOptional, IsString, IsUUID, ValidateNested } from "class-validator";
+import { IsEnum, IsOptional, IsString, IsUUID, ValidateNested } from "class-validator";
+import { TpcMemberRoleEnum } from "src/enums";
 import { UpdateUserDto } from "src/student/dtos/studentPatch.dto";
 
 export class UpdateTpcMemberDto {
@@ -17,18 +18,8 @@ export class UpdateTpcMemberDto {
   @IsString()
   department?: string;
 
-  @ApiPropertyOptional({
-    type: String,
-  })
+  @ApiPropertyOptional({ enum: TpcMemberRoleEnum })
   @IsOptional()
-  @IsString()
-  role?: string;
-
-  @ApiPropertyOptional({
-    type: UpdateUserDto,
-  })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => UpdateUserDto)
-  user?: UpdateUserDto;
+  @IsEnum(TpcMemberRoleEnum)
+  role?: TpcMemberRoleEnum;
 }
