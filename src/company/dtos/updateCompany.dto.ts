@@ -1,6 +1,6 @@
 import { IsString, IsOptional, IsArray, IsEnum, IsNumber, IsUrl, IsUUID } from "class-validator";
-import IndustryDomain from "../../enums/industryDomains.enum";
-import { CompanyCategory } from "../../enums";
+import { IndustryDomainEnum } from "../../enums/industryDomains.enum";
+import { CompanyCategoryEnum } from "../../enums";
 
 export class UpdateCompanyDto {
   @IsUUID()
@@ -15,13 +15,13 @@ export class UpdateCompanyDto {
   website?: string;
 
   @IsArray()
-  @IsEnum(IndustryDomain, { each: true })
+  @IsEnum(IndustryDomainEnum, { each: true })
   @IsOptional()
-  domains?: IndustryDomain[];
+  domains?: IndustryDomainEnum[];
 
-  @IsEnum(CompanyCategory)
+  @IsEnum(CompanyCategoryEnum)
   @IsOptional()
-  category?: CompanyCategory;
+  category?: CompanyCategoryEnum;
 
   @IsString()
   @IsOptional()

@@ -12,12 +12,7 @@ export class CompanyService {
 
   async getAllCompanies(where: GetCompanyQueryDto) {
     const findOptions: FindOptions<CompanyModel> = {
-      include: [
-        {
-          model: JobModel,
-          as: "job",
-        },
-      ],
+      include: [{}],
     };
 
     // Add page size options
@@ -33,73 +28,23 @@ export class CompanyService {
     return companies.map((company) => company.get({ plain: true }));
   }
 
-  async createCompany(body, t: Transaction) {
-    const createdIds = [];
+  async createCompany(body) {
+    const ans = await this.companyRepo.bulkCreate(body);
 
-    try {
-      for (const item of body) {
-        const createdItem = await this.companyRepo.create(item, { transaction: t });
-        createdIds.push(createdItem.id);
-      }
-
-      await t.commit();
-
-      return createdIds;
-    } catch (error) {
-      await t.rollback();
-      throw error;
-    }
+    return ans.map((company) => company.id);
   }
 
-  async updateCompany(ids: UpdateCompanyDto[], t: Transaction) {
-    const updatedCompanyIds: string[] = [];
+  async updateCompany(company) {
+    const id = company.id;
+    const [res] = await this.companyRepo.update(company, { where: { id: id } });
 
-    try {
-      // Loop through each ID and update the corresponding company record
-      for (const id of ids) {
-        // Find the existing company record by ID
-        const company = await this.companyRepo.findByPk(id.id, { transaction: t });
-
-        // If company not found, throw NotFoundException
-        if (!company) {
-          throw new NotFoundException(`Company with ID ${id.id} not found`);
-        }
-
-        // Update only the properties present in updateCompanyDto
-        Object.assign(company, id);
-
-        // Save the updated company record
-        await company.save({ transaction: t });
-        // Push the ID of the updated company to the array
-        updatedCompanyIds.push(company.id);
-      }
-
-      // Commit the transaction
-      await t.commit();
-
-      // Return the array of updated company IDs
-      return updatedCompanyIds;
-    } catch (error) {
-      // Rollback the transaction if an error occurs
-      await t.rollback();
-      throw error;
-    }
+    return res > 0 ? [] : [id];
   }
 
   async deleteCompany(ids: string[], t: Transaction) {
-    try {
-      // Delete all rows with the given IDs
-      const rowsDeleted = await this.companyRepo.destroy({ where: { id: ids }, transaction: t });
+    const rowsDeleted = await this.companyRepo.destroy({ where: { id: ids }, transaction: t });
 
-      // Commit the transaction
-      await t.commit();
-
-      // Return the number of rows deleted
-      return rowsDeleted;
-    } catch (error) {
-      // Rollback the transaction if an error occurs
-      await t.rollback();
-      throw error;
-    }
+    // Return the number of rows deleted
+    return rowsDeleted;
   }
 }

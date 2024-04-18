@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Patch, Delete, Body, Query, ParseArrayPipe, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Delete, Get, ParseArrayPipe, Patch, Post, Query, UseInterceptors } from "@nestjs/common";
 import { CompanyService } from "./company.service";
 import { CreateCompanyDto } from "./dtos/createCompany.dto";
 import { UpdateCompanyDto } from "./dtos/updateCompany.dto";
@@ -7,6 +7,8 @@ import { ApiBody, ApiQuery } from "@nestjs/swagger";
 import { TransactionInterceptor } from "../interceptor/TransactionInterceptor";
 import { TransactionParam } from "../decorators/TransactionParam";
 import { Transaction } from "sequelize";
+import { pipeTransformArray } from "../utils/utils";
+import { GetCompanyReturnDto } from "../recruiter/dtos/recruiterGetReturn.dto";
 
 @Controller("company")
 export class CompanyController {
@@ -14,57 +16,33 @@ export class CompanyController {
 
   @Get()
   async getAllCompanies(@Query("q") where: GetCompanyQueryDto) {
-    try {
-      const companies = await this.companyService.getAllCompanies(where);
+    const companies = await this.companyService.getAllCompanies(where);
 
-      return { success: true, message: "Success", data: companies };
-    } catch (error) {
-      return { success: false, message: error.message };
-    }
+    return pipeTransformArray(companies, GetCompanyReturnDto);
   }
 
   @Post()
-  @UseInterceptors(TransactionInterceptor)
   @ApiBody({ type: CreateCompanyDto, isArray: true })
-  async createCompany(
-    @Body(new ParseArrayPipe({ items: CreateCompanyDto })) body: CreateCompanyDto[],
-    @TransactionParam() t: Transaction
-  ) {
-    try {
-      const createdCompanyIds = await this.companyService.createCompany(body, t);
-
-      return { success: true, message: "Created Successfully", data: createdCompanyIds };
-    } catch (error) {
-      return { success: false, message: error.message };
-    }
+  async createCompany(@Body(new ParseArrayPipe({ items: CreateCompanyDto })) body: CreateCompanyDto[]) {
+    return await this.companyService.createCompany(body);
   }
 
   @Patch()
   @ApiBody({ type: UpdateCompanyDto, isArray: true })
-  async updateCompany(
-    @Body(new ParseArrayPipe({ items: UpdateCompanyDto })) body: UpdateCompanyDto[],
-    @TransactionParam() t: Transaction
-  ) {
-    try {
-      const updatedCompanyIds = await this.companyService.updateCompany(body, t);
+  async updateCompany(@Body(new ParseArrayPipe({ items: UpdateCompanyDto })) companies: UpdateCompanyDto[]) {
+    const pr = companies.map((company) => this.companyService.updateCompany(company));
+    const ans = await Promise.all(pr);
 
-      return { success: true, message: "Updated Successfully", data: updatedCompanyIds };
-    } catch (error) {
-      return { success: false, message: error.message };
-    }
+    return ans.flat();
   }
 
   @Delete()
   @ApiQuery({ name: "id", type: String, isArray: true })
   @UseInterceptors(TransactionInterceptor)
   async deleteCompany(@Query("ids") ids: string | string[], @TransactionParam() t: Transaction) {
-    try {
-      const pids = typeof ids === "string" ? [ids] : ids;
-      const num = this.companyService.deleteCompany(pids, t);
+    const pids = typeof ids === "string" ? [ids] : ids;
+    const num = await this.companyService.deleteCompany(pids, t);
 
-      return { success: true, message: "Deleted Successfully", data: num };
-    } catch (error) {
-      return { success: false, message: error.message };
-    }
+    return num;
   }
 }

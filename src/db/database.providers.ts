@@ -90,7 +90,7 @@ export const databaseProviders = [
         InterviewExperienceModel,
       ]);
 
-      await sequelize.sync({ alter: true });
+      // await sequelize.sync({ alter: true });
 
       return sequelize;
     },

@@ -1,6 +1,6 @@
 import { IsString, IsOptional, IsArray, IsEnum, IsNumber, IsUrl, ValidateNested, IsEmail } from "class-validator";
-import { CompanyCategory, Role } from "../../enums";
-import IndustryDomain from "../../enums/industryDomains.enum";
+import { IndustryDomainEnum } from "../../enums/industryDomains.enum";
+import { CompanyCategoryEnum } from "../../enums";
 
 export class CreateCompanyDto {
   @IsString()
@@ -11,11 +11,11 @@ export class CreateCompanyDto {
   website?: string;
 
   @IsArray()
-  @IsEnum(IndustryDomain, { each: true })
-  domains: IndustryDomain[];
+  @IsEnum(IndustryDomainEnum, { each: true })
+  domains: IndustryDomainEnum[];
 
-  @IsEnum(CompanyCategory)
-  category: CompanyCategory;
+  @IsEnum(CompanyCategoryEnum)
+  category: CompanyCategoryEnum;
 
   @IsString()
   address: string;
