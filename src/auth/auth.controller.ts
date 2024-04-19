@@ -35,7 +35,7 @@ export class AuthController {
     private userService: UserService,
     private authService: AuthService,
     private emailService: EmailService
-  ) { }
+  ) {}
 
   @Post("login")
   async login(@Body() body: UserLogInDto) {
@@ -75,7 +75,7 @@ export class AuthController {
   @Get("google/login")
   @UseGuards(AuthGuard("google"))
   // eslint-disable-next-line @typescript-eslint/no-empty-function
-  async googleAuth(@Req() req) { }
+  async googleAuth(@Req() req) {}
 
   @Get("google/callback")
   @UseGuards(AuthGuard("google"))
@@ -91,4 +91,3 @@ export class AuthController {
     res.redirect(this.frontendUrl);
   }
 }
-
