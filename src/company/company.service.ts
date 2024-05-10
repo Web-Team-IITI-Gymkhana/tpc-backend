@@ -1,8 +1,7 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { UpdateCompanyDto } from "./dtos/updateCompany.dto";
+import { Inject, Injectable } from "@nestjs/common";
 import { GetCompanyQueryDto } from "./dtos/companyGetQuery.dto";
-import { FindOptions, Transaction } from "sequelize";
-import { CompanyModel, JobModel } from "../db/models";
+import { FindOptions } from "sequelize";
+import { CompanyModel } from "../db/models";
 import { parseFilter, parseOrder, parsePagesize } from "../utils";
 import { COMPANY_DAO } from "../constants"; // Assuming you have these DTO
 
@@ -41,8 +40,8 @@ export class CompanyService {
     return res > 0 ? [] : [id];
   }
 
-  async deleteCompany(ids: string[], t: Transaction) {
-    const rowsDeleted = await this.companyRepo.destroy({ where: { id: ids }, transaction: t });
+  async deleteCompany(ids: string[]) {
+    const rowsDeleted = await this.companyRepo.destroy({ where: { id: ids } });
 
     // Return the number of rows deleted
     return rowsDeleted;
