@@ -29,7 +29,6 @@ export class UpdateCompanyDto {
   @ApiPropertyOptional({ type: CompanyCategoryEnum })
   @IsEnum(CompanyCategoryEnum)
   @IsOptional()
-  @ValidateNested()
   category?: CompanyCategoryEnum;
 
   @ApiPropertyOptional({ type: String })
