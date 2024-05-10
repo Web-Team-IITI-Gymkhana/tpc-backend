@@ -1,94 +1,53 @@
-import { ApiPropertyOptional } from "@nestjs/swagger";
-import { IsEnum, IsNumber, IsOptional, IsUUID, ValidateNested } from "class-validator";
+import { NestedEnum, NestedNumber, NestedObject } from "src/decorators/dto";
+import { DepartmentEnum, OrderByEnum } from "src/enums";
 import { createMatchOptionsEnum, MatchOptionsString, MatchOptionsUUID } from "src/utils/utils.dto";
-import { Type } from "class-transformer";
-import { DepartmentEnum } from "src/enums/department.enum";
-import { OrderByEnum } from "src/enums/orderBy.enum";
-import { Is } from "sequelize-typescript";
 
 const departmentEnum = createMatchOptionsEnum(DepartmentEnum);
 
-class FilterOptionsProgramsDto {
-  @ApiPropertyOptional({ type: MatchOptionsUUID })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => MatchOptionsUUID)
-  id?: string;
+class FilterProgramsDto {
+  @NestedObject({ type: MatchOptionsUUID, optional: true })
+  id?: MatchOptionsUUID;
 
-  @ApiPropertyOptional({ type: MatchOptionsString })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => MatchOptionsString)
-  branch?: string;
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  branch?: MatchOptionsString;
 
-  @ApiPropertyOptional({ type: MatchOptionsString })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => MatchOptionsString)
-  course?: string;
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  course?: MatchOptionsString;
 
-  @ApiPropertyOptional({ type: MatchOptionsString })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => MatchOptionsString)
-  year?: string;
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  year?: MatchOptionsString;
 
-  @ApiPropertyOptional({ enum: createMatchOptionsEnum(DepartmentEnum) })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => createMatchOptionsEnum(DepartmentEnum))
+  @NestedObject({ type: departmentEnum, optional: true })
   department?: typeof departmentEnum;
 }
 
-export class OrderOptionsProgramDto {
-  @ApiPropertyOptional({ enum: OrderByEnum })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
+class OrderProgramsDto {
+  @NestedEnum(OrderByEnum, { optional: true })
   id?: OrderByEnum;
 
-  @ApiPropertyOptional({ enum: OrderByEnum })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
+  @NestedEnum(OrderByEnum, { optional: true })
   branch?: OrderByEnum;
 
-  @ApiPropertyOptional({ enum: OrderByEnum })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
+  @NestedEnum(OrderByEnum, { optional: true })
   course?: OrderByEnum;
 
-  @ApiPropertyOptional({ enum: OrderByEnum })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
+  @NestedEnum(OrderByEnum, { optional: true })
   year?: OrderByEnum;
 
-  @ApiPropertyOptional({ enum: OrderByEnum })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
+  @NestedEnum(OrderByEnum, { optional: true })
   department?: OrderByEnum;
 }
 
 export class ProgramsQueryDto {
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
+  @NestedNumber({ optional: true })
   from?: number;
 
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
+  @NestedNumber({ optional: true })
   to?: number;
 
-  @ApiPropertyOptional({ type: FilterOptionsProgramsDto })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => FilterOptionsProgramsDto)
-  filterBy?: FilterOptionsProgramsDto;
+  @NestedObject({ type: FilterProgramsDto, optional: true })
+  filterBy?: FilterProgramsDto;
 
-  @ApiPropertyOptional({ type: OrderOptionsProgramDto })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => OrderOptionsProgramDto)
-  orderBy?: OrderOptionsProgramDto;
+  @NestedObject({ type: OrderProgramsDto, optional: true })
+  orderBy?: OrderProgramsDto;
 }

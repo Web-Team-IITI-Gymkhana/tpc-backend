@@ -1,11 +1,9 @@
 import { Controller, Get, Query } from "@nestjs/common";
 import { ApiOperation } from "@nestjs/swagger";
-
 import { ApiFilterQuery } from "./api-filter-query";
-
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { IsEnum, IsOptional, IsString } from "class-validator";
-import { OrderByEnum } from "src/enums/orderBy.enum";
+import { OrderByEnum } from "src/enums";
 
 function parseEnum(ourEnum) {
   const arr = Object.keys(ourEnum);

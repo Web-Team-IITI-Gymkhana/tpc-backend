@@ -1,7 +1,8 @@
-import { Table, Column, Model, ForeignKey, Unique, DataType } from "sequelize-typescript";
+import { Table, Column, Model, ForeignKey, Unique, DataType, BelongsTo, HasMany } from "sequelize-typescript";
 import sequelize, { Sequelize } from "sequelize";
 import { JobModel } from "./JobModel";
 import { EventTypeEnum } from "src/enums";
+import { ApplicationModel } from "./ApplicationModel";
 
 @Table({
   tableName: "Event",
@@ -23,6 +24,12 @@ export class EventModel extends Model<EventModel> {
   })
   jobId: string;
 
+  @BelongsTo(() => JobModel, {
+    foreignKey: "jobId",
+    onDelete: "CASCADE",
+  })
+  job: JobModel;
+
   @Unique("Job-RoundNo-Unique")
   @Column({ allowNull: false, defaultValue: 1, type: DataType.INTEGER })
   roundNumber: number;
@@ -41,4 +48,10 @@ export class EventModel extends Model<EventModel> {
 
   @Column({ type: sequelize.BOOLEAN, allowNull: false, defaultValue: false })
   visibleToRecruiter: boolean;
+
+  @HasMany(() => ApplicationModel, {
+    foreignKey: "eventId",
+    onDelete: "RESTRICT",
+  })
+  applications: ApplicationModel[];
 }

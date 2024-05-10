@@ -1,59 +1,35 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsString, IsOptional, IsUUID, IsEnum, IsArray, ValidateNested, IsNumber } from "class-validator";
-import { Type } from "class-transformer";
-import { IndustryDomainEnum } from "src/enums/industryDomains.enum";
-import { CompanyCategoryEnum } from "src/enums";
+import { NestedString, NestedEnum, NestedUrl, NestedNumber, NestedObject, NestedUUID } from "src/decorators/dto";
+import { CompanyCategoryEnum, IndustryDomainEnum } from "src/enums";
 import { AddressDto } from "src/job/dtos/jaf.dto";
 
-export class UpdateCompanyDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+export class UpdateCompaniesDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
+  @NestedString({ optional: true })
   name?: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
-  website?: string;
-
-  @ApiPropertyOptional({ enum: IndustryDomainEnum, isArray: true, name: "domains(give complete object on change.)" })
-  @IsOptional()
-  @IsEnum(IndustryDomainEnum, { each: true })
-  @IsArray()
-  domains?: IndustryDomainEnum[];
-
-  @ApiPropertyOptional({ enum: CompanyCategoryEnum })
-  @IsOptional()
-  @IsEnum(CompanyCategoryEnum)
+  @NestedEnum(CompanyCategoryEnum, { optional: true })
   category?: CompanyCategoryEnum;
 
-  @ApiPropertyOptional({ type: AddressDto, name: "address(give complete object on change)." })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => AddressDto)
-  address?: AddressDto;
-
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @IsNumber()
-  size?: number;
-
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
+  @NestedString({ optional: true })
   yearOfEstablishment?: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
+  @NestedUrl({ optional: true })
+  website?: string;
+
+  @NestedNumber({ optional: true })
+  size?: number;
+
+  @NestedString({ optional: true })
   annualTurnover?: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
+  @NestedUrl({ optional: true })
   socialMediaLink?: string;
+
+  @NestedEnum(IndustryDomainEnum, { isArray: true, optional: true })
+  domains?: IndustryDomainEnum[];
+
+  @NestedObject({ type: AddressDto, optional: true })
+  address?: AddressDto;
 }

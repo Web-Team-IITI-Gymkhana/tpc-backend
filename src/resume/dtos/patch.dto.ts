@@ -1,12 +1,9 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsBoolean, IsUUID } from "class-validator";
+import { NestedBoolean, NestedUUID } from "src/decorators/dto";
 
-export class PatchResumeDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+export class UpdateResumesDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: Boolean })
-  @IsBoolean()
+  @NestedBoolean({})
   verified: boolean;
 }

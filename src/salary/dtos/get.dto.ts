@@ -1,130 +1,181 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsArray, IsEnum, IsNumber, IsObject, IsOptional, IsString, IsUUID, ValidateNested } from "class-validator";
-import { CategoryEnum, GenderEnum } from "src/enums";
-import { DepartmentEnum } from "src/enums/department.enum";
-import { GetFacultyApprovalsReturnDto } from "src/facultyApproval/dtos/facultyApprovalGetReturn.dto";
+import { NestedEmail, NestedEnum, NestedNumber, NestedObject, NestedString, NestedUUID } from "src/decorators/dto";
+import {
+  CategoryEnum,
+  DepartmentEnum,
+  FacultyApprovalStatusEnum,
+  GenderEnum,
+  OfferStatusEnum,
+  SeasonTypeEnum,
+} from "src/enums";
 
-export class GetSalariesReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+class CompanyDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: String })
-  @IsUUID()
-  jobId: string;
+  @NestedString({})
+  name: string;
+}
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
+class SeasonDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedString({})
+  year: string;
+
+  @NestedEnum(SeasonTypeEnum, {})
+  type: SeasonTypeEnum;
+}
+
+class JobDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedString({})
+  role: string;
+
+  @NestedObject({ type: CompanyDto })
+  company: CompanyDto;
+
+  @NestedObject({ type: SeasonDto })
+  season: SeasonDto;
+}
+
+export class GetSalariesDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedNumber({})
   baseSalary: number;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
+  @NestedNumber({})
   totalCTC: number;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
+  @NestedNumber({})
   takeHomeSalary: number;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
+  @NestedNumber({})
   grossSalary: number;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
+  @NestedNumber({})
   otherCompensations: number;
-}
 
-export class CriteriaDto {
-  @ApiPropertyOptional({ type: [String] })
-  @IsArray()
-  @IsOptional()
-  @IsUUID("all", { each: true })
-  programs?: string[];
-
-  @ApiPropertyOptional({ enum: GenderEnum, isArray: true })
-  @IsArray()
-  @IsOptional()
-  @IsEnum(GenderEnum, { each: true })
-  genders?: GenderEnum[];
-
-  @ApiPropertyOptional({ enum: CategoryEnum, isArray: true })
-  @IsArray()
-  @IsOptional()
-  @IsEnum(CategoryEnum, { each: true })
-  categories?: CategoryEnum[];
-
-  @ApiPropertyOptional({ type: Number })
-  @IsNumber()
-  @IsOptional()
-  @Type(() => Number)
-  minCPI?: number;
-
-  @ApiPropertyOptional({ type: Number })
-  @IsNumber()
-  @IsOptional()
-  @Type(() => Number)
-  tenthMarks?: number;
-
-  @ApiPropertyOptional({ type: Number })
-  @IsNumber()
-  @IsOptional()
-  @Type(() => Number)
-  twelthMarks?: number;
-
-  @ApiPropertyOptional({ enum: DepartmentEnum, isArray: true })
-  @IsOptional()
-  @IsArray()
-  @IsEnum(DepartmentEnum, { each: true })
-  facultyApprovals?: DepartmentEnum[];
-}
-
-export class GetSalaryReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
-  id: string;
-
-  @ApiProperty({ type: String })
-  @IsUUID()
-  jobId: string;
-
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
+  @NestedString({ optional: true })
   salaryPeriod?: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
+  @NestedObject({ type: JobDto })
+  job: JobDto;
+}
+
+class UserDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedString({})
+  name: string;
+
+  @NestedEmail({})
+  email: string;
+
+  @NestedString({})
+  contact: string;
+}
+
+class FacultyDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedEnum(DepartmentEnum, {})
+  department: DepartmentEnum;
+
+  @NestedObject({ type: UserDto })
+  user: UserDto;
+}
+
+class FacultyApprovalRequestsDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedEnum(FacultyApprovalStatusEnum, {})
+  status: FacultyApprovalStatusEnum;
+
+  @NestedString({ optional: true })
+  remarks?: string;
+
+  @NestedObject({ type: FacultyDto })
+  faculty: FacultyDto;
+}
+
+class ProgramDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedString({})
+  branch: string;
+
+  @NestedString({})
+  course: string;
+
+  @NestedString({})
+  year: string;
+
+  @NestedEnum(DepartmentEnum, {})
+  department: DepartmentEnum;
+}
+
+class StudentDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedString({})
+  rollNo: string;
+
+  @NestedObject({ type: UserDto })
+  user: UserDto;
+
+  @NestedObject({ type: ProgramDto })
+  program: ProgramDto;
+}
+
+class OnCampusOffersDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedEnum(OfferStatusEnum, {})
+  status: OfferStatusEnum;
+
+  @NestedObject({ type: StudentDto })
+  student: StudentDto;
+}
+
+export class GetSalaryDto extends GetSalariesDto {
+  @NestedString({ optional: true })
   others?: string;
 
-  @ApiProperty({ type: CriteriaDto })
-  @ValidateNested()
-  @Type(() => CriteriaDto)
-  criteria: CriteriaDto;
+  @NestedEnum(GenderEnum, { isArray: true, optional: true })
+  genders?: GenderEnum[];
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
-  baseSalary: number;
+  @NestedUUID({ isArray: true, optional: true })
+  programs?: string[];
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
-  totalCTC: number;
+  @NestedEnum(DepartmentEnum, { isArray: true })
+  facultyApprovals: DepartmentEnum[];
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
-  takeHomeSalary: number;
+  @NestedEnum(CategoryEnum, { isArray: true, optional: true })
+  categories?: CategoryEnum[];
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
-  grossSalary: number;
+  @NestedNumber({})
+  minCPI: number;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
-  otherCompensations: number;
+  @NestedNumber({})
+  tenthMarks: number;
 
-  @ApiProperty({ type: GetFacultyApprovalsReturnDto, isArray: true })
-  @ValidateNested({ each: true })
-  @Type(() => GetFacultyApprovalsReturnDto)
-  facultyApprovalRequests: GetFacultyApprovalsReturnDto[];
+  @NestedNumber({})
+  twelthMarks: number;
+
+  @NestedObject({ type: FacultyApprovalRequestsDto, isArray: true })
+  facultyApprovalRequests: FacultyApprovalRequestsDto[];
+
+  @NestedObject({ type: OnCampusOffersDto, isArray: true })
+  onCampusOffers: OnCampusOffersDto[];
 }

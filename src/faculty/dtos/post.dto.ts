@@ -1,15 +1,23 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsString, ValidateNested } from "class-validator";
-import { CreateUserDto } from "src/student/dtos/studentPost.dto";
+import { NestedEmail, NestedEnum, NestedObject, NestedString } from "src/decorators/dto";
+import { DepartmentEnum, RoleEnum } from "src/enums";
 
-export class CreateFacultyDto {
-  @ApiProperty({ type: String })
-  @IsString()
-  department: string;
+class CreateUserDto {
+  @NestedString({})
+  name: string;
 
-  @ApiProperty({ type: CreateUserDto })
-  @ValidateNested()
-  @Type(() => CreateUserDto)
+  @NestedEmail({})
+  email: string;
+
+  @NestedString({})
+  contact: string;
+
+  role?: RoleEnum;
+}
+
+export class CreateFacultiesDto {
+  @NestedEnum(DepartmentEnum, {})
+  department: DepartmentEnum;
+
+  @NestedObject({ type: CreateUserDto })
   user: CreateUserDto;
 }

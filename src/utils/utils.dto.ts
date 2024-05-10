@@ -106,3 +106,13 @@ export class MatchOptionsBool {
   @Type(() => Boolean)
   eq?: boolean[];
 }
+
+export class DeleteValuesDto {
+  @IsUUID("all", { each: true })
+  id: string | string[];
+}
+
+export class DeleteFilesDto {
+  @IsString({ each: true })
+  filename: string | string[];
+}

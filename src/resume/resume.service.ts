@@ -1,14 +1,28 @@
-import { Injectable, Inject } from "@nestjs/common";
-import { FindOptions } from "sequelize";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { RESUME_DAO } from "src/constants";
-import { ProgramModel, ResumeModel, StudentModel, UserModel } from "src/db/models";
+import {
+  ApplicationModel,
+  CompanyModel,
+  EventModel,
+  JobModel,
+  ProgramModel,
+  ResumeModel,
+  SalaryModel,
+  SeasonModel,
+  StudentModel,
+  UserModel,
+} from "src/db/models";
+import { ResumeQueryDto } from "./dtos/query.dto";
+import { FindOptions, Transaction } from "sequelize";
 import { parseFilter, parseOrder, parsePagesize } from "src/utils";
+import { CreateResumeDto } from "./dtos/post.dto";
+import { UpdateResumesDto } from "./dtos/patch.dto";
 
 @Injectable()
 export class ResumeService {
   constructor(@Inject(RESUME_DAO) private resumeRepo: typeof ResumeModel) {}
 
-  async getResumes(where) {
+  async getResumes(where: ResumeQueryDto) {
     const findOptions: FindOptions<ResumeModel> = {
       include: [
         {
@@ -39,9 +53,74 @@ export class ResumeService {
     return ans.map((resume) => resume.get({ plain: true }));
   }
 
-  async updateResume(resume) {
-    const [ans] = await this.resumeRepo.update({ verified: resume.verified }, { where: { id: resume.id } });
+  async getResume(id: string) {
+    const ans = await this.resumeRepo.findByPk(id, {
+      include: [
+        {
+          model: StudentModel,
+          as: "student",
+          include: [
+            {
+              model: UserModel,
+              as: "user",
+            },
+            {
+              model: ProgramModel,
+              as: "program",
+            },
+          ],
+        },
+        {
+          model: ApplicationModel,
+          as: "applications",
+          include: [
+            {
+              model: JobModel,
+              as: "job",
+              include: [
+                {
+                  model: CompanyModel,
+                  as: "company",
+                },
+                {
+                  model: SeasonModel,
+                  as: "season",
+                },
+                {
+                  model: SalaryModel,
+                  as: "salaries",
+                },
+              ],
+            },
+            {
+              model: EventModel,
+              as: "event",
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!ans) throw new NotFoundException(`Resume with id ${id} not found`);
+
+    return ans.get({ plain: true });
+  }
+
+  async createResume(resume: CreateResumeDto, t: Transaction) {
+    const ans = await this.resumeRepo.create(resume, { transaction: t });
+
+    return ans.id;
+  }
+
+  async updateResume(resume: UpdateResumesDto) {
+    const [ans] = await this.resumeRepo.update(resume, { where: { id: resume.id } });
 
     return ans > 0 ? [] : [resume.id];
+  }
+
+  async deleteResumes(filepaths: string | string[], t: Transaction) {
+    const ans = await this.resumeRepo.destroy({ where: { filepath: filepaths }, transaction: t });
+
+    return ans;
   }
 }

@@ -1,47 +1,45 @@
-import { Controller, Get, Query, Param, Post, Body, Patch, Delete } from "@nestjs/common";
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from "@nestjs/swagger";
+import { Controller, Patch, Query, Body, Param, ParseUUIDPipe, UseInterceptors, Delete } from "@nestjs/common";
 import { EventService } from "./event.service";
-import { ApplicationQueryDto, EventQueryDto } from "./dtos/query.dto";
+import { ApiTags, ApiResponse, ApiBody, ApiParam, ApiQuery, ApiOperation } from "@nestjs/swagger";
+import { ApplicationsQueryDto, EventsQueryDto } from "./dtos/query.dto";
 import { ApiFilterQuery, createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
-import { GetEventReturnDto, GetEventsReturnDto } from "./dtos/get.dto";
-import { CreateEventDto } from "./dtos/post.dto";
-import { AddApplicantsDto, UpdateEventsDto } from "./dtos/patch.dto";
+import { GetEventDto, GetEventsDto } from "./dtos/get.dto";
+import { CreateEventsDto } from "./dtos/post.dto";
+import { AddApplicationsDto, UpdateEventsDto } from "./dtos/patch.dto";
+import { DeleteValues, GetValue, GetValues, PatchValues, PostValues } from "src/decorators/controller";
+import { DeleteValuesDto } from "src/utils/utils.dto";
+import { QueryInterceptor } from "src/interceptor/QueryInterceptor";
 
-@Controller("event")
+@Controller("events")
 @ApiTags("Event")
 export class EventController {
   constructor(private eventService: EventService) {}
 
-  @Get()
-  @ApiFilterQuery("q", EventQueryDto)
-  @ApiOperation({ description: "Refer EventQueryDto for the schema." })
-  @ApiResponse({ type: GetEventsReturnDto, isArray: true })
-  async getEvents(@Query("q") where: EventQueryDto) {
+  @GetValues(EventsQueryDto, GetEventsDto)
+  async getEvents(@Query("q") where: EventsQueryDto) {
     const ans = await this.eventService.getEvents(where);
 
-    return pipeTransformArray(ans, GetEventsReturnDto);
+    return pipeTransformArray(ans, GetEventsDto);
   }
 
-  @Get("/:id")
-  @ApiFilterQuery("q", ApplicationQueryDto)
-  @ApiOperation({ description: "Refer ApplicationQueryDto for the schema." })
-  @ApiResponse({ type: GetEventReturnDto })
-  async getEvent(@Param("id") id: string, @Query("q") where: ApplicationQueryDto) {
+  @GetValue(GetEventDto)
+  @ApiFilterQuery("q", ApplicationsQueryDto)
+  @ApiOperation({ description: "Refer to ApplicationsQueryDto for details. " })
+  @UseInterceptors(QueryInterceptor)
+  async getEvent(@Param("id", new ParseUUIDPipe()) id: string, @Query("q") where: ApplicationsQueryDto) {
     const ans = await this.eventService.getEvent(id, where);
 
-    return pipeTransform(ans, GetEventReturnDto);
+    return pipeTransform(ans, GetEventDto);
   }
 
-  @Post()
-  @ApiBody({ type: CreateEventDto, isArray: true })
-  async createEvents(@Body(createArrayPipe(CreateEventDto)) events: CreateEventDto[]) {
+  @PostValues(CreateEventsDto)
+  async createEvents(@Body(createArrayPipe(CreateEventsDto)) events: CreateEventsDto[]) {
     const ans = await this.eventService.createEvents(events);
 
     return ans;
   }
 
-  @Patch()
-  @ApiBody({ type: UpdateEventsDto, isArray: true })
+  @PatchValues(UpdateEventsDto)
   async updateEvents(@Body(createArrayPipe(UpdateEventsDto)) events: UpdateEventsDto[]) {
     const pr = events.map((event) => this.eventService.updateEvent(event));
     const ans = await Promise.all(pr);
@@ -50,16 +48,30 @@ export class EventController {
   }
 
   @Patch("/:eventId")
-  async addApplications(@Param("eventId") eventId: string, @Body() application: AddApplicantsDto) {
-    const ans = await this.eventService.addApplications(eventId, application.emails);
+  @ApiParam({ name: "eventId", type: String })
+  @ApiBody({ type: AddApplicationsDto })
+  @ApiResponse({ type: Number })
+  async updateApplications(
+    @Param("eventId", new ParseUUIDPipe()) eventId: string,
+    @Body() application: AddApplicationsDto
+  ) {
+    const ans = await this.eventService.updateApplications(eventId, application.studentIds);
 
     return ans;
   }
 
-  @Delete()
-  async deleteEvents(@Query("id") ids: string | string[]) {
-    const pids = typeof ids === "string" ? [ids] : ids;
-    const ans = await this.eventService.deleteEvents(pids);
+  @Delete("/applications")
+  @ApiQuery({ name: "id", type: String, isArray: true })
+  @ApiResponse({ type: Number })
+  async deleteApplications(@Query() query: DeleteValuesDto) {
+    const ans = await this.eventService.deleteApplications(query.id);
+
+    return ans;
+  }
+
+  @DeleteValues()
+  async deleteEvents(@Query() query: DeleteValuesDto) {
+    const ans = await this.eventService.deleteEvents(query.id);
 
     return ans;
   }

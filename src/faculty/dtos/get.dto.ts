@@ -1,122 +1,90 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsEnum, IsNumber, IsOptional, IsString, IsUUID, ValidateNested, IsArray } from "class-validator";
-import { SeasonTypeEnum } from "src/enums";
-import { FacultyApprovalStatusEnum } from "src/enums/facultyApproval.enum";
-import { GetFacultyApprovalsReturnDto } from "src/facultyApproval/dtos/facultyApprovalGetReturn.dto";
-import { GetUsersReturnDto } from "src/student/dtos/studentGetReturn.dto";
+import { NestedEmail, NestedEnum, NestedNumber, NestedObject, NestedString, NestedUUID } from "src/decorators/dto";
+import { DepartmentEnum, SeasonTypeEnum, FacultyApprovalStatusEnum } from "src/enums";
 
-export class GetFacultiesReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+class UserDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
-  department: string;
+  @NestedString({})
+  name: string;
 
-  @ApiProperty({ type: GetUsersReturnDto })
-  @ValidateNested()
-  @Type(() => GetUsersReturnDto)
-  user: GetUsersReturnDto;
+  @NestedEmail({})
+  email: string;
+
+  @NestedString({})
+  contact: string;
 }
 
-class SeasonReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+export class GetFacultiesDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
-  year: string;
+  @NestedEnum(DepartmentEnum, {})
+  department: DepartmentEnum;
 
-  @ApiProperty({ enum: SeasonTypeEnum })
-  @IsEnum(SeasonTypeEnum)
-  type: SeasonTypeEnum;
+  @NestedObject({ type: UserDto })
+  user: UserDto;
 }
 
-class CompanyReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+class CompanyDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
   name: string;
 }
 
-export class JobFacultyReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+class SeasonDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
+  year: string;
+
+  @NestedEnum(SeasonTypeEnum, {})
+  type: SeasonTypeEnum;
+}
+
+class JobDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedString({})
   role: string;
 
-  @ApiProperty({ type: CompanyReturnDto })
-  @ValidateNested()
-  @Type(() => CompanyReturnDto)
-  company: CompanyReturnDto;
+  @NestedObject({ type: CompanyDto })
+  company: CompanyDto;
 
-  @ApiProperty({ type: SeasonReturnDto })
-  @ValidateNested()
-  @Type(() => SeasonReturnDto)
-  season: SeasonReturnDto;
+  @NestedObject({ type: SeasonDto })
+  season: SeasonDto;
 }
 
-class SalaryReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+class SalaryDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
+  @NestedNumber({})
   totalCTC: number;
 
-  @ApiProperty({ type: JobFacultyReturnDto })
-  @ValidateNested()
-  @Type(() => JobFacultyReturnDto)
-  job: JobFacultyReturnDto;
+  @NestedObject({ type: JobDto })
+  job: JobDto;
 }
 
-class FacultyApprovalReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+class FacultyApprovalRequestsDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ enum: FacultyApprovalStatusEnum })
-  @IsEnum(FacultyApprovalStatusEnum)
+  @NestedEnum(FacultyApprovalStatusEnum, {})
   status: FacultyApprovalStatusEnum;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
+  @NestedString({ optional: true })
   remarks?: string;
 
-  @ApiProperty({ type: SalaryReturnDto })
-  @ValidateNested()
-  @Type(() => SalaryReturnDto)
-  salary: SalaryReturnDto;
+  @NestedObject({ type: SalaryDto })
+  salary: SalaryDto;
 }
 
-export class GetFacultyReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
-  id: string;
-
-  @ApiProperty({ type: String })
-  @IsString()
-  department: string;
-
-  @ApiProperty({ type: GetUsersReturnDto })
-  @ValidateNested()
-  @Type(() => GetUsersReturnDto)
-  user: GetUsersReturnDto;
-
-  @ApiProperty({ type: FacultyApprovalReturnDto, isArray: true })
-  @ValidateNested({ each: true })
-  @Type(() => FacultyApprovalReturnDto)
-  @IsArray()
-  facultyApprovalRequests: FacultyApprovalReturnDto[];
+export class GetFacultyDto extends GetFacultiesDto {
+  @NestedObject({ type: FacultyApprovalRequestsDto, isArray: true })
+  facultyApprovalRequests: FacultyApprovalRequestsDto[];
 }

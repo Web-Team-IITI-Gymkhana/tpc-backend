@@ -1,12 +1,11 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsUUID } from "class-validator";
+import { NestedUUID } from "src/decorators/dto";
 
-export class CreateRegistrationDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+export class CreateRegistrationsDto {
+  @NestedUUID({})
   studentId: string;
 
-  @ApiProperty({ type: String })
-  @IsUUID()
+  @NestedUUID({})
   seasonId: string;
+
+  registered: boolean;
 }

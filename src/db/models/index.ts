@@ -16,3 +16,4 @@ export * from "./ProgramModel";
 export * from "./ResumeModel";
 export * from "./SalaryModel";
 export * from "./TpcMemberModel";
+export * from "./RegistrationModel";

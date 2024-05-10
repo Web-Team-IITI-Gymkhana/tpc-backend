@@ -1,8 +1,9 @@
 import { NullishPropertiesOf } from "sequelize/types/utils";
 import { CompanyModel, RecruiterModel, UserModel } from "./db/models";
-import { DepartmentEnum } from "./enums/department.enum";
 import { Optional } from "sequelize";
-import { CompanyCategoryEnum, RoleEnum } from "./enums";
+import { CompanyCategoryEnum, RoleEnum, DepartmentEnum } from "./enums";
+import path from "path";
+import { env } from "./config";
 
 export const SEQUELIZE_DAO = "SEQUELIZE",
   USER_DAO = "USER_DAO",
@@ -274,7 +275,7 @@ export const DUMMY_RECRUITER: Optional<RecruiterModel, NullishPropertiesOf<Recru
   designation: "Dummy",
 };
 
-export const LOGIN_USER: Optional<UserModel, NullishPropertiesOf<UserModel>> = {
+export const LOGIN_ADMIN: Optional<UserModel, NullishPropertiesOf<UserModel>> = {
   id: "8c740c84-9762-4f47-bc27-4f7e7ef4158d",
   email: "user@test.com",
   name: "Test User",
@@ -282,7 +283,20 @@ export const LOGIN_USER: Optional<UserModel, NullishPropertiesOf<UserModel>> = {
   role: RoleEnum.ADMIN,
 };
 
+export const LOGIN_STUDENT = {};
+
+export const LOGIN_FACULTY = {};
+
+export const LOGIN_RECRUITER = {};
+
+export const LOGIN_TPC_MEMBER = {};
+
 export const RESUME_SIZE_LIMIT = 102400; // 1MB
 export const IE_SIZE_LIMIT = RESUME_SIZE_LIMIT * 10; // 10MB.
+export const JD_SIZE_LIMIT = RESUME_SIZE_LIMIT * 10; // 10MB.
 
 export const ROLES_KEY = "roles";
+
+export const RESUME_FOLDER = path.join(env().UPLOAD_DIR, "resume");
+export const JD_FOLDER = path.join(env().UPLOAD_DIR, "jd");
+export const IE_FOLDER = path.join(env().UPLOAD_DIR, "ie");

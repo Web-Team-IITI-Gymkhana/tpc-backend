@@ -1,9 +1,9 @@
 import { Module } from "@nestjs/common";
 import { RecruiterController } from "./recruiter.controller";
-import { RecuiterService } from "./recruiter.service";
+import { RecruiterService } from "./recruiter.service";
 
 @Module({
   controllers: [RecruiterController],
-  providers: [RecuiterService],
+  providers: [RecruiterService],
 })
 export class RecruiterModule {}

@@ -1,21 +1,19 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsString, IsUUID } from "class-validator";
+import { NestedEmail, NestedEnum, NestedString, NestedUUID } from "src/decorators/dto";
 import { RoleEnum } from "src/enums";
 
-export class ReturnUserDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+export class GetUsersDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
   name: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedEmail({})
   email: string;
 
-  @ApiProperty({ enum: RoleEnum })
-  @IsEnum(RoleEnum)
+  @NestedString({})
+  contact: string;
+
+  @NestedEnum(RoleEnum, {})
   role: RoleEnum;
 }

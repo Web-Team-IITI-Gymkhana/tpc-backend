@@ -1,199 +1,76 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsEnum, IsNumber, IsOptional, IsString, IsUUID, ValidateNested, IsArray, IsBoolean } from "class-validator";
-import { CompanyCategoryEnum, JobStatusTypeEnum } from "src/enums";
-import { IndustryDomainEnum } from "src/enums/industryDomains.enum";
-import { OrderByEnum } from "src/enums/orderBy.enum";
+import {
+  NestedBoolean,
+  NestedEnum,
+  NestedNumber,
+  NestedObject,
+  NestedString,
+  NestedUrl,
+  NestedUUID,
+} from "src/decorators/dto";
+import { CompanyCategoryEnum, JobStatusTypeEnum, SeasonTypeEnum, IndustryDomainEnum } from "src/enums";
 import { AddressDto } from "src/job/dtos/jaf.dto";
-import { GetSeasonsReturnDto } from "src/job/dtos/jobGetReturn.dto";
-import { createMatchOptionsEnum, MatchOptionsString, MatchOptionsUUID } from "src/utils/utils.dto";
 
 export class GetCompaniesDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
   name: string;
 
-  @ApiProperty({ enum: CompanyCategoryEnum })
-  @IsEnum(CompanyCategoryEnum)
+  @NestedEnum(CompanyCategoryEnum, {})
   category: CompanyCategoryEnum;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
   yearOfEstablishment: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
+  @NestedUrl({ optional: true })
   website?: string;
 
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @IsNumber()
+  @NestedNumber({ optional: true })
   size?: number;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
+  @NestedString({ optional: true })
   annualTurnover?: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
+  @NestedUrl({ optional: true })
   socialMediaLink?: string;
 }
 
-const companyCategory = createMatchOptionsEnum(CompanyCategoryEnum);
-
-class FilterOptionsCompanyDto {
-  @ApiPropertyOptional({ type: MatchOptionsUUID })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => MatchOptionsUUID)
-  id?: MatchOptionsUUID;
-
-  @ApiPropertyOptional({ type: MatchOptionsString })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => MatchOptionsString)
-  name?: MatchOptionsString;
-
-  @ApiPropertyOptional({ type: MatchOptionsString })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => MatchOptionsString)
-  yearOfEstablishment?: MatchOptionsString;
-
-  @ApiPropertyOptional({ type: createMatchOptionsEnum(CompanyCategoryEnum) })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => createMatchOptionsEnum(CompanyCategoryEnum))
-  category?: typeof companyCategory;
-}
-
-class OrderOptionsCompanyDto {
-  @ApiPropertyOptional({ enum: OrderByEnum })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
-  id?: OrderByEnum;
-
-  @ApiPropertyOptional({ enum: OrderByEnum })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
-  name?: OrderByEnum;
-
-  @ApiPropertyOptional({ enum: OrderByEnum })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
-  yearOfEstablishment?: OrderByEnum;
-
-  @ApiPropertyOptional({ enum: OrderByEnum })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
-  category?: OrderByEnum;
-}
-
-export class CompanyQueryDto {
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  from?: number;
-
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  to?: number;
-
-  @ApiPropertyOptional({ type: FilterOptionsCompanyDto })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => FilterOptionsCompanyDto)
-  filterBy?: FilterOptionsCompanyDto;
-
-  @ApiPropertyOptional({ type: OrderOptionsCompanyDto })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => OrderOptionsCompanyDto)
-  orderBy?: OrderOptionsCompanyDto;
-}
-
-class JobReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+class SeasonDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
+  year: string;
+
+  @NestedEnum(SeasonTypeEnum, {})
+  type: SeasonTypeEnum;
+}
+
+class JobDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedString({})
   role: string;
 
-  @ApiProperty({ type: Boolean })
-  @IsBoolean()
+  @NestedBoolean({})
   active: boolean;
 
-  @ApiProperty({ enum: JobStatusTypeEnum })
-  @IsEnum(JobStatusTypeEnum)
+  @NestedEnum(JobStatusTypeEnum, {})
   currentStatus: JobStatusTypeEnum;
 
-  @ApiProperty({ type: GetSeasonsReturnDto })
-  @ValidateNested()
-  @Type(() => GetSeasonsReturnDto)
-  season: GetSeasonsReturnDto;
+  @NestedObject({ type: SeasonDto })
+  season: SeasonDto;
 }
 
-export class GetCompanyDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
-  id: string;
-
-  @ApiProperty({ type: String })
-  @IsString()
-  name: string;
-
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
-  website?: string;
-
-  @ApiPropertyOptional({ enum: IndustryDomainEnum, isArray: true })
-  @IsEnum(IndustryDomainEnum, { each: true })
-  @IsArray()
+export class GetCompanyDto extends GetCompaniesDto {
+  @NestedEnum(IndustryDomainEnum, { isArray: true })
   domains: IndustryDomainEnum[];
 
-  @ApiProperty({ enum: CompanyCategoryEnum })
-  @IsEnum(CompanyCategoryEnum)
-  category: CompanyCategoryEnum;
-
-  @ApiProperty({ type: AddressDto })
-  @ValidateNested()
-  @Type(() => AddressDto)
+  @NestedObject({ type: AddressDto })
   address: AddressDto;
 
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @IsNumber()
-  size?: number;
-
-  @ApiProperty({ type: String })
-  @IsString()
-  yearOfEstablishment: string;
-
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
-  annualTurnover?: string;
-
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
-  socialMediaLink?: string;
-
-  @ApiProperty({ type: JobReturnDto, isArray: true })
-  @ValidateNested({ each: true })
-  @Type(() => JobReturnDto)
-  jobs: JobReturnDto[];
+  @NestedObject({ type: JobDto, isArray: true })
+  jobs: JobDto[];
 }

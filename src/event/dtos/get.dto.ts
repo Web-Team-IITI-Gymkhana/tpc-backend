@@ -1,121 +1,143 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsNumber, IsUUID, IsEnum, IsOptional, IsString, IsDate, IsBoolean, ValidateNested } from "class-validator";
-import { EventTypeEnum } from "src/enums";
-import { JobFacultyReturnDto } from "src/faculty/dtos/get.dto";
-import { GetProgramsDto } from "src/program/dtos/get.dto";
-import { ResumeReturnDto } from "src/student-view/students/dtos/get.dto";
-import { GetUsersReturnDto } from "src/student/dtos/studentGetReturn.dto";
+import {
+  NestedNumber,
+  NestedUUID,
+  NestedEnum,
+  NestedString,
+  NestedDate,
+  NestedBoolean,
+  NestedObject,
+  NestedEmail,
+} from "src/decorators/dto";
+import { EventTypeEnum, SeasonTypeEnum, DepartmentEnum, IndustryDomainEnum } from "src/enums";
 
-export class GetEventsReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+class CompanyDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
-  roundNumber: number;
-
-  @ApiProperty({ enum: EventTypeEnum })
-  @IsEnum(EventTypeEnum)
-  type: EventTypeEnum;
-
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
-  metadata?: string;
-
-  @ApiProperty({ type: String })
-  @IsDate()
-  startDateTime: Date;
-
-  @ApiProperty({ type: String })
-  @IsDate()
-  endDateTime: Date;
-
-  @ApiProperty({ type: Boolean })
-  @IsBoolean()
-  visibleToRecruiter: boolean;
-
-  @ApiProperty({ type: JobFacultyReturnDto })
-  @ValidateNested()
-  @Type(() => JobFacultyReturnDto)
-  job: JobFacultyReturnDto;
+  @NestedString({})
+  name: string;
 }
 
-class StudentReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+class SeasonDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
+  year: string;
+
+  @NestedEnum(SeasonTypeEnum, {})
+  type: SeasonTypeEnum;
+}
+
+class JobDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedString({})
+  role: string;
+
+  @NestedObject({ type: CompanyDto })
+  company: CompanyDto;
+
+  @NestedObject({ type: SeasonDto })
+  season: SeasonDto;
+}
+
+export class GetEventsDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedNumber({})
+  roundNumber: number;
+
+  @NestedEnum(EventTypeEnum, {})
+  type: EventTypeEnum;
+
+  @NestedString({ optional: true })
+  metadata?: string;
+
+  @NestedDate({})
+  startDateTime: Date;
+
+  @NestedDate({})
+  endDateTime: Date;
+
+  @NestedBoolean({})
+  visibleToRecruiter: boolean;
+
+  @NestedObject({ type: JobDto })
+  job: JobDto;
+}
+
+class ResumeDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedString({})
+  filepath: string;
+
+  @NestedBoolean({})
+  verified: boolean;
+}
+
+class UserDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedString({})
+  name: string;
+
+  @NestedEmail({})
+  email: string;
+
+  @NestedString({})
+  contact: string;
+}
+
+class ProgramDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedString({})
+  branch: string;
+
+  @NestedString({})
+  course: string;
+
+  @NestedString({})
+  year: string;
+
+  @NestedEnum(DepartmentEnum, {})
+  department: DepartmentEnum;
+}
+
+class StudentDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedString({})
   rollNo: string;
 
-  @ApiProperty({ type: GetUsersReturnDto })
-  @ValidateNested()
-  @Type(() => GetUsersReturnDto)
-  user: GetUsersReturnDto;
+  @NestedObject({ type: UserDto })
+  user: UserDto;
 
-  @ApiProperty({ type: GetProgramsDto })
-  @ValidateNested()
-  @Type(() => GetProgramsDto)
-  program: GetProgramsDto;
+  @NestedObject({ type: ProgramDto })
+  program: ProgramDto;
 }
 
-class ApplicationReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+class ApplicationsDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: ResumeReturnDto })
-  @ValidateNested()
-  @Type(() => ResumeReturnDto)
-  resume: ResumeReturnDto;
+  @NestedObject({ type: StudentDto })
+  student: StudentDto;
 
-  @ApiProperty({ type: StudentReturnDto })
-  @ValidateNested()
-  @Type(() => StudentReturnDto)
-  student: StudentReturnDto;
+  @NestedObject({ type: ResumeDto })
+  resume: ResumeDto;
 }
 
-export class GetEventReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
-  id: string;
-
-  @ApiProperty({ type: Number })
-  @IsNumber()
-  roundNumber: number;
-
-  @ApiProperty({ enum: EventTypeEnum })
-  @IsEnum(EventTypeEnum)
-  type: EventTypeEnum;
-
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
-  metadata?: string;
-
-  @ApiProperty({ type: String })
-  @IsDate()
-  startDateTime: Date;
-
-  @ApiProperty({ type: String })
-  @IsDate()
-  endDateTime: Date;
-
-  @ApiProperty({ type: Boolean })
-  @IsBoolean()
-  visibleToRecruiter: boolean;
-
-  @ApiProperty({ type: JobFacultyReturnDto })
-  @ValidateNested()
-  @Type(() => JobFacultyReturnDto)
-  job: JobFacultyReturnDto;
-
-  @ApiProperty({ type: ApplicationReturnDto, isArray: true })
-  @ValidateNested({ each: true })
-  @Type(() => ApplicationReturnDto)
-  applications: ApplicationReturnDto[];
+export class GetEventDto extends GetEventsDto {
+  @NestedObject({ type: ApplicationsDto, isArray: true })
+  applications: ApplicationsDto[];
 }

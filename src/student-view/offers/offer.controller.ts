@@ -1,32 +1,31 @@
 import { Controller, Get, UseGuards } from "@nestjs/common";
-import { StudentOfferService } from "./offer.service";
+import { ApiResponse, ApiTags } from "@nestjs/swagger";
+import { OfferService } from "./offer.service";
+import { GetOffCampusOffersDto, GetOnCampusOffersDto } from "./dtos/get.dto";
+import { pipeTransformArray } from "src/utils/utils";
+import { AuthGuard } from "@nestjs/passport";
 import { User } from "src/decorators/User";
 import { IUser } from "src/auth/User";
-import { pipeTransformArray } from "src/utils/utils";
-import { OffCampusOfferReturnDto } from "./dtos/getOff.dto";
-import { AuthGuard } from "@nestjs/passport";
-import { OnCampusOfferReturnDto } from "./dtos/getOn.dto";
-import { ApiResponse, ApiTags } from "@nestjs/swagger";
 
-@Controller("/student-view/offers") //Student only.
-@ApiTags("Student View")
+@Controller("student-view/offers")
 @UseGuards(AuthGuard("jwt"))
-export class StudentOfferController {
-  constructor(private studentOfferService: StudentOfferService) {}
+@ApiTags("Student-view/Offer")
+export class OfferController {
+  constructor(private offerService: OfferService) {}
 
-  @Get("/on")
-  @ApiResponse({ type: OnCampusOfferReturnDto, isArray: true })
-  async getOnCampusOffers(@User() user: IUser) {
-    const ans = await this.studentOfferService.getOnCampusOffers(user.studentId);
+  @Get("/off-campus")
+  @ApiResponse({ type: GetOffCampusOffersDto, isArray: true })
+  async getOffCampusOffers(@User() user: IUser) {
+    const ans = await this.offerService.getOffCampusOffers(user.studentId);
 
-    return pipeTransformArray(ans, OnCampusOfferReturnDto);
+    return pipeTransformArray(ans, GetOffCampusOffersDto);
   }
 
-  @Get("/off")
-  @ApiResponse({ type: OffCampusOfferReturnDto, isArray: true })
-  async getOffCampusOffers(@User() user: IUser) {
-    const ans = await this.studentOfferService.getOffCampusOffer(user.studentId);
+  @Get("/on-campus")
+  @ApiResponse({ type: GetOnCampusOffersDto, isArray: true })
+  async getOnCampusOffers(@User() user: IUser) {
+    const ans = await this.offerService.getOnCampusOffers(user.studentId);
 
-    return pipeTransformArray(ans, OffCampusOfferReturnDto);
+    return pipeTransformArray(ans, GetOnCampusOffersDto);
   }
 }

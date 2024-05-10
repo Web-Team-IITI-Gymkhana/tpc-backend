@@ -1,53 +1,72 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsBoolean, IsString, IsUUID, ValidateNested, IsEmail } from "class-validator";
-import { SeasonReturnDto } from "src/season/dtos/get.dto";
+import { NestedBoolean, NestedEmail, NestedEnum, NestedObject, NestedString, NestedUUID } from "src/decorators/dto";
+import { DepartmentEnum, SeasonTypeEnum } from "src/enums";
 
-class UserReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+class SeasonDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
+  year: string;
+
+  @NestedEnum(SeasonTypeEnum, {})
+  type: SeasonTypeEnum;
+}
+
+class UserDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedString({})
   name: string;
 
-  @ApiProperty({ type: String })
-  @IsEmail()
+  @NestedString({})
+  contact: string;
+
+  @NestedEmail({})
   email: string;
 }
 
-class StudentReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+class ProgramDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
-  rollNo: string;
+  @NestedString({})
+  branch: string;
 
-  @ApiProperty({ type: UserReturnDto })
-  @ValidateNested()
-  @Type(() => UserReturnDto)
-  user: UserReturnDto;
+  @NestedString({})
+  course: string;
+
+  @NestedString({})
+  year: string;
+
+  @NestedEnum(DepartmentEnum, {})
+  department: DepartmentEnum;
 }
 
-export class RegistrationReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+class StudentDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: Boolean })
-  @IsBoolean()
+  @NestedString({})
+  rollNo: string;
+
+  @NestedObject({ type: UserDto })
+  user: UserDto;
+
+  @NestedObject({ type: ProgramDto })
+  program: ProgramDto;
+}
+
+export class GetRegistrationsDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedObject({ type: SeasonDto })
+  season: SeasonDto;
+
+  @NestedObject({ type: StudentDto })
+  student: StudentDto;
+
+  @NestedBoolean({})
   registered: boolean;
-
-  @ApiProperty({ type: SeasonReturnDto })
-  @ValidateNested()
-  @Type(() => SeasonReturnDto)
-  season: SeasonReturnDto;
-
-  @ApiProperty({ type: StudentReturnDto })
-  @ValidateNested()
-  @Type(() => StudentReturnDto)
-  student: StudentReturnDto;
 }

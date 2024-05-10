@@ -1,16 +1,12 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsNumber, IsUUID, IsString } from "class-validator";
+import { NestedNumber, NestedString, NestedUUID } from "src/decorators/dto";
 
-export class CreatePenaltyDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+export class CreatePenaltiesDto {
+  @NestedUUID({})
   studentId: string;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
+  @NestedNumber({})
   penalty: number;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
   reason: string;
 }

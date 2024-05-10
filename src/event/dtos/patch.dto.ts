@@ -1,51 +1,33 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsArray, IsBoolean, IsDate, IsEmail, IsEnum, IsNumber, IsOptional, IsString, IsUUID } from "class-validator";
+import { NestedEnum, NestedNumber, NestedUUID, NestedString, NestedBoolean, NestedDate } from "src/decorators/dto";
 import { EventTypeEnum } from "src/enums";
 
 export class UpdateEventsDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+  @NestedUUID({})
   id: string;
 
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @IsNumber()
+  @NestedUUID({ optional: true })
+  jobId?: string;
+
+  @NestedNumber({ optional: true })
   roundNumber?: number;
 
-  @ApiPropertyOptional({ enum: EventTypeEnum })
-  @IsOptional()
-  @IsEnum(EventTypeEnum)
+  @NestedEnum(EventTypeEnum, { optional: true })
   type?: EventTypeEnum;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
+  @NestedString({ optional: true })
   metadata?: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsDate()
+  @NestedDate({ optional: true })
   startDateTime?: Date;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsDate()
+  @NestedDate({ optional: true })
   endDateTime?: Date;
 
-  @ApiPropertyOptional({ type: Boolean })
-  @IsOptional()
-  @IsBoolean()
+  @NestedBoolean({ optional: true })
   visibleToRecruiter?: boolean;
-
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsUUID()
-  jobId?: string;
 }
 
-export class AddApplicantsDto {
-  @ApiProperty({ type: String, isArray: true })
-  @IsEmail({}, { each: true })
-  @IsArray()
-  emails: string[];
+export class AddApplicationsDto {
+  @NestedUUID({ isArray: true })
+  studentIds: string[];
 }

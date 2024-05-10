@@ -22,7 +22,6 @@ export class JobModel extends Model<JobModel> {
   })
   id: string;
 
-  @Unique("SeasonCompanyRole")
   @ForeignKey(() => SeasonModel)
   @Column({
     type: sequelize.UUID,
@@ -51,7 +50,6 @@ export class JobModel extends Model<JobModel> {
   })
   recruiter: RecruiterModel;
 
-  @Unique("SeasonCompanyRole")
   @ForeignKey(() => CompanyModel)
   @Column({
     type: sequelize.UUID,
@@ -66,7 +64,6 @@ export class JobModel extends Model<JobModel> {
   })
   company: CompanyModel;
 
-  @Unique("SeasonCompanyRole")
   @Column({
     type: sequelize.STRING,
     allowNull: false,
@@ -135,19 +132,24 @@ export class JobModel extends Model<JobModel> {
   noOfVacancies?: number;
 
   @Column({
-    type: sequelize.DATEONLY,
+    type: sequelize.DATE,
   })
-  offerLetterReleaseDate?: string;
+  offerLetterReleaseDate?: Date;
 
   @Column({
-    type: sequelize.DATEONLY,
+    type: sequelize.DATE,
   })
-  joiningDate?: string;
+  joiningDate?: Date;
 
   @Column({
     type: sequelize.INTEGER,
   })
   duration?: number;
+
+  @Column({
+    type: sequelize.TEXT({ length: "long" }),
+  })
+  feedback?: string;
 
   //Delete Job Coordinators onDelete of Job.
   @HasMany(() => JobCoordinatorModel, {

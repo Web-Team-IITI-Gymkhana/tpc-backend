@@ -1,37 +1,44 @@
-import { Controller, Get, Post, Delete, Query, Body } from "@nestjs/common";
+import { Body, Controller, Query } from "@nestjs/common";
 import { ProgramService } from "./program.service";
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { DeleteValues, GetValues, PatchValues, PostValues } from "src/decorators/controller";
 import { ProgramsQueryDto } from "./dtos/query.dto";
-import { createArrayPipe, pipeTransformArray } from "src/utils/utils";
 import { GetProgramsDto } from "./dtos/get.dto";
+import { createArrayPipe, pipeTransformArray } from "src/utils/utils";
 import { CreateProgramsDto } from "./dtos/post.dto";
+import { UpdateProgramsDto } from "./dtos/patch.dto";
+import { DeleteValuesDto } from "src/utils/utils.dto";
+import { ApiTags } from "@nestjs/swagger";
 
 @Controller("programs")
-@ApiTags("Programs")
+@ApiTags("Program")
 export class ProgramController {
   constructor(private programService: ProgramService) {}
 
-  @Get()
-  @ApiOperation({ description: "Refer to ProgramsQueryDto for schema." })
-  @ApiResponse({ type: GetProgramsDto, isArray: true })
+  @GetValues(ProgramsQueryDto, GetProgramsDto)
   async getPrograms(@Query("q") where: ProgramsQueryDto) {
     const ans = await this.programService.getPrograms(where);
 
     return pipeTransformArray(ans, GetProgramsDto);
   }
 
-  @Post()
-  @ApiBody({ type: CreateProgramsDto, isArray: true })
+  @PostValues(CreateProgramsDto)
   async createPrograms(@Body(createArrayPipe(CreateProgramsDto)) programs: CreateProgramsDto[]) {
     const ans = await this.programService.createPrograms(programs);
 
     return ans;
   }
 
-  @Delete()
-  async deletePrograms(@Query("id") ids: string | string[]) {
-    const pids = typeof ids === "string" ? [ids] : ids;
-    const ans = await this.programService.deletePrograms(pids);
+  @PatchValues(UpdateProgramsDto)
+  async updatePrograms(@Body(createArrayPipe(UpdateProgramsDto)) programs: UpdateProgramsDto[]) {
+    const pr = programs.map((program) => this.programService.updateProgram(program));
+    const ans = await Promise.all(pr);
+
+    return ans.flat();
+  }
+
+  @DeleteValues()
+  async deletePrograms(@Query() query: DeleteValuesDto) {
+    const ans = await this.programService.deletePrograms(query.id);
 
     return ans;
   }

@@ -1,13 +1,9 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsOptional, IsString, IsUUID } from "class-validator";
+import { NestedString, NestedUUID } from "src/decorators/dto";
 
 export class CreateFacultyApprovalsDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+  @NestedUUID({})
   facultyId: string;
 
-  @ApiProperty({ type: String })
-  @IsOptional()
-  @IsString()
+  @NestedString({ optional: true })
   remarks?: string;
 }

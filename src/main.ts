@@ -1,4 +1,4 @@
-import { INestApplication, LoggerService, RequestMethod, ValidationPipe, Logger } from "@nestjs/common";
+import { INestApplication, LoggerService, ValidationPipe, Logger } from "@nestjs/common";
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import Helmet from "helmet";
@@ -9,6 +9,7 @@ import { SwaggerModule, DocumentBuilder, SwaggerDocumentOptions, SwaggerCustomOp
 import { HttpExceptionFilter } from "./interceptor/ExceptionFilter";
 import { LoggerInterceptor } from "./interceptor/LoggerInterceptor";
 import { env, IEnvironmentVariables } from "./config";
+import { json, urlencoded } from "express";
 
 const environmentVariables: IEnvironmentVariables = env();
 const logger = new Logger("main");
@@ -18,6 +19,9 @@ async function bootstrap(): Promise<void> {
     logger: createWinstonLogger(),
     cors: true,
   });
+  //Increase request size limits
+  app.use(json({ limit: "50mb" }));
+  app.use(urlencoded({ extended: true, limit: "50mb" }));
   app.setGlobalPrefix("api/v1");
   createSwagger(app);
   app.use(Helmet());
@@ -83,6 +87,7 @@ function createWinstonLogger(): LoggerService {
           winston.format.colorize(),
           winston.format.timestamp({ format: "YYYY-MM-DD HH:mm:ss" }),
           winston.format.align(),
+          winston.format.json(),
           winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
         ),
       }),

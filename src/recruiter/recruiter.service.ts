@@ -1,19 +1,23 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { FindOptions, Transaction } from "sequelize";
 import { RECRUITER_DAO, USER_DAO } from "src/constants";
-import { CompanyModel, JobModel, RecruiterModel, UserModel } from "src/db/models";
+import { CompanyModel, JobModel, RecruiterModel, SalaryModel, SeasonModel, UserModel } from "src/db/models";
+import { RecruiterQueryDto } from "./dtos/query.dto";
+import { FindOptions, Transaction } from "sequelize";
 import { parseFilter, parseOrder, parsePagesize } from "src/utils";
+import { RoleEnum } from "src/enums";
+import { UpdateRecuitersDto } from "./dtos/patch.dto";
+import { omit } from "lodash";
+import sequelize from "sequelize";
 
 @Injectable()
-export class RecuiterService {
+export class RecruiterService {
   constructor(
     @Inject(RECRUITER_DAO) private recruiterRepo: typeof RecruiterModel,
     @Inject(USER_DAO) private userRepo: typeof UserModel
   ) {}
 
-  async getRecruiters(where) {
-    // eslint-disable-next-line prefer-const
-    let findOptions: FindOptions<RecruiterModel> = {
+  async getRecuiters(where: RecruiterQueryDto) {
+    const findOptions: FindOptions<RecruiterModel> = {
       include: [
         {
           model: UserModel,
@@ -26,12 +30,9 @@ export class RecuiterService {
       ],
     };
 
-    // Add page size options
     const pageOptions = parsePagesize(where);
     Object.assign(findOptions, pageOptions);
-    // Apply filter
     parseFilter(findOptions, where.filterBy || {});
-    // Apply order
     findOptions.order = parseOrder(where.orderBy || {});
 
     const ans = await this.recruiterRepo.findAll(findOptions);
@@ -50,57 +51,64 @@ export class RecuiterService {
           model: CompanyModel,
           as: "company",
         },
+        {
+          model: JobModel,
+          as: "jobs",
+          include: [
+            {
+              model: SeasonModel,
+              as: "season",
+            },
+            {
+              model: CompanyModel,
+              as: "company",
+            },
+            {
+              model: SalaryModel,
+              as: "salaries",
+            },
+          ],
+        },
       ],
     });
-    if (!ans) throw new NotFoundException(`The Recruiter with id: ${id} Not Found`);
+
+    if (!ans) throw new NotFoundException(`Recruiter with id ${id} not found`);
 
     return ans.get({ plain: true });
   }
 
-  async createRecruiters(recruiters): Promise<string[]> {
+  async createRecruiters(body) {
+    const recruiters = body.map((recruiter) => {
+      recruiter.user.role = RoleEnum.RECRUITER;
+
+      return recruiter;
+    });
     const ans = await this.recruiterRepo.bulkCreate(recruiters, {
-      include: [
-        {
-          model: UserModel,
-          as: "user",
-        },
-      ],
+      include: [{ model: UserModel, as: "user" }],
     });
 
     return ans.map((recruiter) => recruiter.id);
   }
 
-  async updateRecruiter(recruiter, t: Transaction) {
-    const ans = await this.recruiterRepo.findByPk(recruiter.id);
-    if (!ans) throw new NotFoundException(`The recruiter with id: ${recruiter.id} not found`);
-
-    const pr = [];
-    pr.push(
-      this.recruiterRepo.update(recruiter, {
-        where: { id: ans.id },
+  async updateRecruiter(recruiter: UpdateRecuitersDto, t: Transaction) {
+    const [[ans], [res]] = await Promise.all([
+      this.recruiterRepo.update(omit(recruiter, "user"), { where: { id: recruiter.id }, transaction: t }),
+      this.userRepo.update(recruiter.user, {
+        where: sequelize.literal(`"id" IN (SELECT "userId" FROM "Recruiter" WHERE "id" = '${recruiter.id}')`),
         transaction: t,
-      })
-    );
+      }),
+    ]);
 
-    if (recruiter.user) {
-      pr.push(
-        this.userRepo.update(recruiter.user, {
-          where: { id: ans.userId },
-          transaction: t,
-        })
-      );
-    }
-
-    await Promise.all(pr);
-
-    return true;
+    return ans > 0 || res > 0 ? [] : [recruiter.id];
   }
 
   async deleteRecruiters(ids: string[]) {
-    const ans = await this.recruiterRepo.findAll({ where: { id: ids, attribute: ["userId"] } });
-    const userIds = ans.map((recruiter) => recruiter.userId);
-    const res = await this.userRepo.destroy({ where: { id: userIds } });
+    const ans = await this.userRepo.destroy({
+      where: sequelize.literal(
+        `"id" IN (SELECT "userId" FROM "Recruiter" WHERE "id" IN (${ids.map((id) => `'${id}'`).join(",")}))`
+      ),
+    });
 
-    return res;
+    return ans;
   }
 }

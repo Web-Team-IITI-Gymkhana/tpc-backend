@@ -1,8 +1,7 @@
 import { Table, Column, Model, DataType, HasMany } from "sequelize-typescript";
 import sequelize, { Sequelize } from "sequelize";
-import { CompanyCategoryEnum } from "../../enums";
+import { CompanyCategoryEnum, IndustryDomainEnum } from "src/enums";
 import { JobModel } from "./JobModel";
-import { IndustryDomainEnum } from "src/enums/industryDomains.enum";
 
 @Table({
   tableName: "Company",

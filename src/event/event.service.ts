@@ -1,6 +1,5 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import sequelize from "sequelize";
-import { FindOptions } from "sequelize";
+import { FindOptions, Includeable, literal, Op } from "sequelize";
 import { APPLICATION_DAO, EVENT_DAO } from "src/constants";
 import {
   ApplicationModel,
@@ -13,7 +12,10 @@ import {
   StudentModel,
   UserModel,
 } from "src/db/models";
-import { parsePagesize, parseFilter, parseOrder } from "src/utils";
+import { parseFilter, parseOrder, parsePagesize } from "src/utils";
+import { ApplicationsQueryDto, EventsQueryDto } from "./dtos/query.dto";
+import { CreateEventsDto } from "./dtos/post.dto";
+import { UpdateEventsDto } from "./dtos/patch.dto";
 
 @Injectable()
 export class EventService {
@@ -22,7 +24,7 @@ export class EventService {
     @Inject(APPLICATION_DAO) private applicationRepo: typeof ApplicationModel
   ) {}
 
-  async getEvents(where) {
+  async getEvents(where: EventsQueryDto) {
     const findOptions: FindOptions<EventModel> = {
       include: [
         {
@@ -53,8 +55,9 @@ export class EventService {
     return ans.map((event) => event.get({ plain: true }));
   }
 
-  async getEvent(id, where) {
+  async getEvent(id: string, where: ApplicationsQueryDto) {
     const findOptions: FindOptions<ApplicationModel> = {
+      where: { eventId: id },
       include: [
         {
           model: StudentModel,
@@ -83,50 +86,72 @@ export class EventService {
     parseFilter(findOptions, where.filterBy || {});
     findOptions.order = parseOrder(where.orderBy || {});
 
-    const applicationsInclude = {
-      model: ApplicationModel,
-      as: "applications",
+    const [ans, applications] = await Promise.all([
+      this.eventRepo.findByPk(id, {
+        include: [
+          {
+            model: JobModel,
+            as: "job",
+            include: [
+              {
+                model: CompanyModel,
+                as: "company",
+              },
+              {
+                model: SeasonModel,
+                as: "season",
+              },
+            ],
+          },
+        ],
+      }),
+      this.applicationRepo.findAll(findOptions),
+    ]);
+
+    if (!ans) throw new NotFoundException(`Event with id ${id} not found`);
+
+    return {
+      ...ans.get({ plain: true }),
+      applications: applications.map((application) => application.get({ plain: true })),
     };
-    Object.assign(applicationsInclude, findOptions);
-
-    const ans = await this.eventRepo.findByPk(id, {
-      include: applicationsInclude,
-    });
-
-    if (!ans) throw new NotFoundException(`The Event with id: ${id} does not exist`);
-
-    return ans.get({ plain: true });
   }
 
-  async createEvents(events) {
+  async createEvents(events: CreateEventsDto[]) {
     const ans = await this.eventRepo.bulkCreate(events);
 
     return ans.map((event) => event.id);
   }
 
-  async updateEvent(event) {
+  async updateEvent(event: UpdateEventsDto) {
     const [ans] = await this.eventRepo.update(event, { where: { id: event.id } });
 
     return ans > 0 ? [] : [event.id];
   }
 
-  async addApplications(eventId, emails) {
+  async updateApplications(eventId: string, studentIds: string[]) {
     const [ans] = await this.applicationRepo.update(
       { eventId: eventId },
       {
-        where: sequelize.literal(
-          `"studentId" IN (SELECT "id" from "Student" INNER JOIN (SELECT "id" from "User" WHERE "email" IN (${emails
-            .map((email) => `'${email}'`)
-            .join(",")})) as "users" ON "Student"."userId" = "users"."id"`
-        ),
+        where: {
+          [Op.and]: [
+            { studentId: studentIds },
+            literal(`"jobId" IN (SELECT "jobId" FROM "Event" WHERE "id" = '${eventId}')`),
+          ],
+        },
       }
     );
 
     return ans;
   }
 
-  async deleteEvents(ids: string[]) {
+  async deleteEvents(ids: string | string[]) {
     const ans = await this.eventRepo.destroy({ where: { id: ids } });
+
+    return ans;
+  }
+
+  async deleteApplications(ids: string | string[]) {
+    const ans = await this.applicationRepo.destroy({ where: { id: ids } });
 
     return ans;
   }

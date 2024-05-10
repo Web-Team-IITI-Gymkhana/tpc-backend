@@ -1,34 +1,25 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { IsNumber, IsEnum, IsString, IsOptional, IsDate, IsBoolean, IsUUID } from "class-validator";
+import { NestedDate, NestedEnum, NestedNumber, NestedString, NestedUUID, NestedBoolean } from "src/decorators/dto";
 import { EventTypeEnum } from "src/enums";
 
-export class CreateEventDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+export class CreateEventsDto {
+  @NestedUUID({})
   jobId: string;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
+  @NestedNumber({})
   roundNumber: number;
 
-  @ApiProperty({ enum: EventTypeEnum })
-  @IsEnum(EventTypeEnum)
+  @NestedEnum(EventTypeEnum, {})
   type: EventTypeEnum;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
+  @NestedString({ optional: true })
   metadata?: string;
 
-  @ApiProperty({ type: String })
-  @IsDate()
+  @NestedDate({})
   startDateTime: Date;
 
-  @ApiProperty({ type: String })
-  @IsDate()
+  @NestedDate({})
   endDateTime: Date;
 
-  @ApiProperty({ type: Boolean })
-  @IsBoolean()
+  @NestedBoolean({})
   visibleToRecruiter: boolean;
 }

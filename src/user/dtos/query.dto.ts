@@ -1,82 +1,53 @@
-import { ApiPropertyOptional } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsEnum, IsNumber, IsOptional, ValidateNested } from "class-validator";
-import { RoleEnum } from "src/enums";
-import { OrderByEnum } from "src/enums/orderBy.enum";
+import { NestedEnum, NestedNumber, NestedObject } from "src/decorators/dto";
+import { RoleEnum, OrderByEnum } from "src/enums";
 import { createMatchOptionsEnum, MatchOptionsString, MatchOptionsUUID } from "src/utils/utils.dto";
 
 const role = createMatchOptionsEnum(RoleEnum);
 
-class FilterOptionsUserDto {
-  @ApiPropertyOptional({ type: MatchOptionsUUID })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => MatchOptionsUUID)
+class FilterUsersDto {
+  @NestedObject({ type: MatchOptionsUUID, optional: true })
   id?: MatchOptionsUUID;
 
-  @ApiPropertyOptional({ type: MatchOptionsString })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => MatchOptionsString)
-  name?: string;
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  name?: MatchOptionsString;
 
-  @ApiPropertyOptional({ type: MatchOptionsString })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => MatchOptionsString)
-  email?: string;
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  email?: MatchOptionsString;
 
-  @ApiPropertyOptional({ type: createMatchOptionsEnum(RoleEnum) })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => createMatchOptionsEnum(RoleEnum))
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  contact?: MatchOptionsString;
+
+  @NestedObject({ type: role, optional: true })
   role?: typeof role;
 }
 
-class OrderOptionsUserDto {
-  @ApiPropertyOptional({ enum: OrderByEnum })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
+class OrderUsersDto {
+  @NestedEnum(OrderByEnum, { optional: true })
   id?: OrderByEnum;
 
-  @ApiPropertyOptional({ enum: OrderByEnum })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
+  @NestedEnum(OrderByEnum, { optional: true })
   name?: OrderByEnum;
 
-  @ApiPropertyOptional({ enum: OrderByEnum })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
+  @NestedEnum(OrderByEnum, { optional: true })
   email?: OrderByEnum;
 
-  @ApiPropertyOptional({ enum: OrderByEnum })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
+  @NestedEnum(OrderByEnum, { optional: true })
+  contact?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
   role?: OrderByEnum;
 }
 
-export class QueryUserDto {
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
+export class UsersQueryDto {
+  @NestedNumber({ optional: true })
   from?: number;
 
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
+  @NestedNumber({ optional: true })
   to?: number;
 
-  @ApiPropertyOptional({ type: FilterOptionsUserDto })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => FilterOptionsUserDto)
-  filterBy?: FilterOptionsUserDto;
+  @NestedObject({ type: FilterUsersDto, optional: true })
+  filterBy?: FilterUsersDto;
 
-  @ApiPropertyOptional({ type: OrderOptionsUserDto })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => OrderOptionsUserDto)
-  orderBy?: OrderOptionsUserDto;
+  @NestedObject({ type: OrderUsersDto, optional: true })
+  orderBy?: OrderUsersDto;
 }

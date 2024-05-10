@@ -1,6 +1,6 @@
 import sequelize from "sequelize";
 import { Model, Table, Column, Unique } from "sequelize-typescript";
-import { DepartmentEnum } from "src/enums/department.enum";
+import { DepartmentEnum } from "src/enums";
 
 @Table({
   tableName: "Program",

@@ -1,32 +1,35 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { FindOptions, Transaction } from "sequelize";
-import { TPC_MEMBER_DAO, USER_DAO } from "src/constants";
-import { CompanyModel, JobCoordinatorModel, JobModel, SeasonModel, TpcMemberModel, UserModel } from "src/db/models";
-import { parsePagesize, parseFilter, parseOrder } from "src/utils";
+import { TPC_MEMBER_DAO } from "src/constants";
+import {
+  CompanyModel,
+  EventModel,
+  JobCoordinatorModel,
+  JobModel,
+  OnCampusOfferModel,
+  SalaryModel,
+  SeasonModel,
+  TpcMemberModel,
+  UserModel,
+} from "src/db/models";
+import { TpcMembersQueryDto } from "./dtos/query.dto";
+import { FindOptions } from "sequelize";
+import { parseFilter, parseOrder, parsePagesize } from "src/utils";
+import { CreateTpcMembersDto } from "./dtos/post.dto";
+import { UpdateTpcMembersDto } from "./dtos/patch.dto";
+import sequelize from "sequelize";
 
 @Injectable()
 export class TpcMemberService {
-  constructor(
-    @Inject(TPC_MEMBER_DAO) private tpcMemberRepo: typeof TpcMemberModel,
-    @Inject(USER_DAO) private userRepo: typeof UserModel
-  ) {}
+  constructor(@Inject(TPC_MEMBER_DAO) private tpcMemberRepo: typeof TpcMemberModel) {}
 
-  async getTpcMembers(where) {
+  async getTpcMembers(where: TpcMembersQueryDto) {
     const findOptions: FindOptions<TpcMemberModel> = {
-      include: [
-        {
-          model: UserModel,
-          as: "user",
-        },
-      ],
+      include: [{ model: UserModel, as: "user" }],
     };
 
-    // Add page size options
     const pageOptions = parsePagesize(where);
     Object.assign(findOptions, pageOptions);
-    // Apply filter
     parseFilter(findOptions, where.filterBy || {});
-    // Apply order
     findOptions.order = parseOrder(where.orderBy || {});
 
     const ans = await this.tpcMemberRepo.findAll(findOptions);
@@ -57,30 +60,39 @@ export class TpcMemberService {
                   model: SeasonModel,
                   as: "season",
                 },
+                {
+                  model: SalaryModel,
+                  as: "salaries",
+                },
+                {
+                  model: EventModel,
+                  as: "events",
+                },
               ],
             },
           ],
         },
       ],
     });
-    if (!ans) throw new NotFoundException(`The TPC Member with id: ${id} Not Found`);
+
+    if (!ans) throw new NotFoundException(`The Tpc Member with id ${id} does not exist`);
 
     return ans.get({ plain: true });
   }
 
-  async createTpcMembers(tpcMembers) {
+  async createTpcMembers(tpcMembers: CreateTpcMembersDto[]) {
     const ans = await this.tpcMemberRepo.bulkCreate(tpcMembers);
 
     return ans.map((tpcMember) => tpcMember.id);
   }
 
-  async updateTpcMember(tpcMember) {
+  async updateTpcMember(tpcMember: UpdateTpcMembersDto) {
     const [ans] = await this.tpcMemberRepo.update(tpcMember, { where: { id: tpcMember.id } });
 
     return ans > 0 ? [] : [tpcMember.id];
   }
 
-  async deleteTpcMembers(ids: string[]) {
+  async deleteTpcMembers(ids: string | string[]) {
     const ans = await this.tpcMemberRepo.destroy({ where: { id: ids } });
 
     return ans;

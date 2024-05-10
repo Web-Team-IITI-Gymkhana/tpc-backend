@@ -1,56 +1,49 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsNumber, IsOptional, IsString, IsUUID, ValidateNested } from "class-validator";
-import { CriteriaDto } from "./get.dto";
+import { NestedString, NestedUUID, NestedEnum, NestedNumber } from "src/decorators/dto";
+import { CategoryEnum, GenderEnum } from "src/enums";
 
-export class UpdateSalaryDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
-  id: string;
+export class UpdateSalariesDto {
+  @NestedUUID({ optional: true })
+  id?: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsUUID()
+  @NestedUUID({ optional: true })
   jobId?: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
+  @NestedString({ optional: true })
   salaryPeriod?: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
+  @NestedString({ optional: true })
   others?: string;
 
-  @ApiPropertyOptional({ type: CriteriaDto })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => CriteriaDto)
-  criteria?: CriteriaDto;
-
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @IsNumber()
+  @NestedNumber({ optional: true })
   baseSalary?: number;
 
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @IsNumber()
+  @NestedNumber({ optional: true })
   totalCTC?: number;
 
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @IsNumber()
+  @NestedNumber({ optional: true })
   takeHomeSalary?: number;
 
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @IsNumber()
+  @NestedNumber({ optional: true })
   grossSalary?: number;
 
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @IsNumber()
+  @NestedNumber({ optional: true })
   otherCompensations?: number;
+
+  @NestedEnum(GenderEnum, { optional: true, isArray: true })
+  genders?: GenderEnum[];
+
+  @NestedUUID({ optional: true, isArray: true })
+  programs?: string[];
+
+  @NestedEnum(CategoryEnum, { optional: true, isArray: true })
+  categories?: CategoryEnum[];
+
+  @NestedNumber({ optional: true })
+  minCPI?: number;
+
+  @NestedNumber({ optional: true })
+  tenthMarks?: number;
+
+  @NestedNumber({ optional: true })
+  twelthMarks?: number;
 }

@@ -1,409 +1,287 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { Type } from "class-transformer";
+import { IsDateString } from "class-validator";
 import {
-  IsEnum,
-  IsNumber,
-  IsString,
-  ValidateNested,
-  IsUrl,
-  IsOptional,
-  IsEmail,
-  IsPhoneNumber,
-  IsDateString,
-  IsArray,
-  IsObject,
-  IsUUID,
-  IsBoolean,
-  IsDate,
-} from "class-validator";
-import { SeasonTypeEnum, GenderEnum, CategoryEnum, CompanyCategoryEnum } from "src/enums";
-import { CountriesEnum } from "src/enums/Country.enum";
-import { DepartmentEnum } from "src/enums/department.enum";
-import { IndustryDomainEnum } from "src/enums/industryDomains.enum";
-import { InterviewTypesEnum } from "src/enums/interviewTypes.enum";
-import { SelectionModeEnum } from "src/enums/selectionMode.enum";
-import { TestTypesEnum } from "src/enums/testTypes.enum";
+  NestedBoolean,
+  NestedDate,
+  NestedEmail,
+  NestedEnum,
+  NestedNumber,
+  NestedObject,
+  NestedString,
+  NestedUrl,
+  NestedUUID,
+} from "src/decorators/dto";
+import {
+  CategoryEnum,
+  CompanyCategoryEnum,
+  DepartmentEnum,
+  GenderEnum,
+  SeasonTypeEnum,
+  CountriesEnum,
+  IndustryDomainEnum,
+  InterviewTypesEnum,
+  SelectionModeEnum,
+  TestTypesEnum,
+} from "src/enums";
 
 export class AddressDto {
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
   line1: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsOptional()
+  @NestedString({ optional: true })
   line2?: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
   city: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
   state: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
-  zipCode: string;
-
-  @ApiProperty({ enum: CountriesEnum })
-  @IsEnum(CountriesEnum)
+  @NestedEnum(CountriesEnum, {})
   country: CountriesEnum;
 }
 
-export class CompanyDetailsDto {
-  @ApiProperty({
-    type: String,
-  })
-  @IsString()
+export class CompanyFilledDto {
+  @NestedString({})
   name: string;
 
-  @ApiPropertyOptional({
-    type: String,
-  })
-  @IsOptional()
-  @IsUrl()
-  website?: string;
-
-  @ApiPropertyOptional({
-    enum: IndustryDomainEnum,
-    isArray: true,
-  })
-  @IsOptional()
-  @IsEnum(IndustryDomainEnum, { each: true })
-  domains?: IndustryDomainEnum[];
-
-  @ApiProperty({
-    enum: CompanyCategoryEnum,
-  })
-  @IsEnum(CompanyCategoryEnum)
+  @NestedEnum(CompanyCategoryEnum, {})
   category: CompanyCategoryEnum;
 
-  @ApiProperty({
-    type: AddressDto,
-  })
-  @ValidateNested()
-  @Type(() => AddressDto)
-  address: AddressDto;
-
-  @ApiPropertyOptional({
-    type: Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
-  size?: number;
-
-  @ApiProperty({
-    type: String,
-  })
-  @IsString()
+  @NestedString({})
   yearOfEstablishment: string;
 
-  @ApiPropertyOptional({
-    type: String,
-  })
-  @IsOptional()
-  @IsString()
+  @NestedUrl({ optional: true })
+  website?: string;
+
+  @NestedNumber({ optional: true })
+  size?: number;
+
+  @NestedString({ optional: true })
   annualTurnover?: string;
 
-  @ApiPropertyOptional({
-    type: String,
-  })
-  @IsOptional()
-  @IsUrl()
+  @NestedUrl({ optional: true })
   socialMediaLink?: string;
+
+  @NestedEnum(IndustryDomainEnum, { isArray: true })
+  domains: IndustryDomainEnum[];
+
+  @NestedObject({ type: AddressDto })
+  address: AddressDto;
 }
 
-export class RecruiterDetailsDto {
-  @ApiProperty({ type: String })
-  @IsString()
+export class RecruiterFilledDto {
+  @NestedString({})
   name: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
-  designation: string;
-
-  @ApiProperty({ type: String })
-  @IsEmail()
+  @NestedEmail({})
   email: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
   contact: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsOptional()
+  @NestedString({})
+  designation: string;
+
+  @NestedString({ optional: true })
   landline?: string;
 }
 
-export class EligibilityDetailsDto {
-  @ApiPropertyOptional({ type: [String] })
-  @IsArray()
-  @IsOptional()
-  @IsUUID("all", { each: true })
-  programs?: string[];
-
-  @ApiPropertyOptional({ enum: GenderEnum, isArray: true })
-  @IsArray()
-  @IsOptional()
-  @IsEnum(GenderEnum, { each: true })
-  genders?: GenderEnum[];
-
-  @ApiPropertyOptional({ enum: CategoryEnum, isArray: true })
-  @IsArray()
-  @IsOptional()
-  @IsEnum(CategoryEnum, { each: true })
-  categories?: CategoryEnum[];
-
-  @ApiPropertyOptional({ type: Number })
-  @IsNumber()
-  @IsOptional()
-  @Type(() => Number)
-  minCPI?: number;
-
-  @ApiPropertyOptional({ type: Number })
-  @IsNumber()
-  @IsOptional()
-  @Type(() => Number)
-  tenthMarks?: number;
-
-  @ApiPropertyOptional({ type: Number })
-  @IsNumber()
-  @IsOptional()
-  @Type(() => Number)
-  twelthMarks?: number;
-
-  facultyApprovals?: DepartmentEnum[];
-}
-
-export class RequirementsDetailsDto {
-  @ApiPropertyOptional({ type: Number })
-  @IsNumber()
-  @IsOptional()
-  @Type(() => Number)
+class RequirementsDto {
+  @NestedNumber({ optional: true })
   numberOfMembers?: number;
 
-  @ApiPropertyOptional({ type: Number })
-  @IsNumber()
-  @IsOptional()
-  @Type(() => Number)
+  @NestedNumber({ optional: true })
   numberOfRooms?: number;
 
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsOptional()
+  @NestedString({ optional: true })
   otherRequirements?: string;
 }
 
-export class TestDetailsDto {
-  @ApiProperty({ enum: TestTypesEnum })
-  @IsEnum(TestTypesEnum)
+class TestDto {
+  @NestedEnum(TestTypesEnum, {})
   type: TestTypesEnum;
 
-  @ApiPropertyOptional()
-  @IsNumber()
-  @IsOptional()
-  @Type(() => Number)
-  duration?: number;
+  @NestedNumber({})
+  duration: number;
 }
 
-export class InterviewDetailsDto {
-  @ApiProperty({ enum: InterviewTypesEnum })
-  @IsEnum(InterviewTypesEnum)
+class InterviewDto {
+  @NestedEnum(InterviewTypesEnum, {})
   type: InterviewTypesEnum;
 
-  @ApiPropertyOptional()
-  @IsNumber()
-  @IsOptional()
-  @Type(() => Number)
-  duration?: number;
+  @NestedNumber({})
+  duration: number;
 }
 
-export class SelectionProcedureDetailsDto {
-  @ApiProperty({ enum: SelectionModeEnum })
-  @IsEnum(SelectionModeEnum)
+export class SelectionProcedureDto {
+  @NestedEnum(SelectionModeEnum, {})
   selectionMode: SelectionModeEnum;
 
-  @ApiProperty({ type: Boolean })
-  @IsBoolean()
+  @NestedBoolean({})
   shortlistFromResume: boolean;
 
-  @ApiProperty({ type: Boolean })
-  @IsBoolean()
+  @NestedBoolean({})
   groupDiscussion: boolean;
 
-  @ApiProperty({ type: [TestDetailsDto] })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => TestDetailsDto)
-  tests: TestDetailsDto[];
+  @NestedObject({ type: TestDto, isArray: true })
+  tests: TestDto[];
 
-  @ApiProperty({ type: [InterviewDetailsDto] })
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => InterviewDetailsDto)
-  interviews: InterviewDetailsDto[];
+  @NestedObject({ type: InterviewDto, isArray: true })
+  interviews: InterviewDto[];
 
-  @ApiPropertyOptional({ type: RequirementsDetailsDto })
-  @ValidateNested({ each: true })
-  @Type(() => RequirementsDetailsDto)
-  @IsOptional()
-  requirements?: RequirementsDetailsDto;
+  @NestedObject({ type: RequirementsDto, optional: true })
+  requirements?: RequirementsDto;
 
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsOptional()
+  @NestedString({ optional: true })
   others?: string;
 }
 
-export class SalaryDetailsDto {
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsOptional()
-  salaryPeriod?: string;
-
-  @ApiProperty({ type: EligibilityDetailsDto })
-  @ValidateNested({ each: true })
-  @Type(() => EligibilityDetailsDto)
-  criteria: EligibilityDetailsDto;
-
-  @ApiProperty({ type: Number })
-  @IsNumber()
-  @Type(() => Number)
+class SalaryDto {
+  @NestedNumber({})
   baseSalary: number;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
-  @Type(() => Number)
+  @NestedNumber({})
   totalCTC: number;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
-  @Type(() => Number)
+  @NestedNumber({})
   takeHomeSalary: number;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
-  @Type(() => Number)
+  @NestedNumber({})
   grossSalary: number;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
-  @Type(() => Number)
+  @NestedNumber({})
   otherCompensations: number;
 
-  @ApiPropertyOptional({ type: String })
-  @IsString()
-  @IsOptional()
+  @NestedString({ optional: true })
+  salaryPeriod?: string;
+
+  @NestedString({ optional: true })
   others?: string;
+
+  @NestedEnum(GenderEnum, { isArray: true, optional: true })
+  genders?: GenderEnum[];
+
+  @NestedUUID({ isArray: true, optional: true })
+  programs?: string[];
+
+  @NestedEnum(CategoryEnum, { isArray: true, optional: true })
+  categories?: CategoryEnum[];
+
+  @NestedNumber({ optional: true })
+  minCPI?: number;
+
+  @NestedNumber({ optional: true })
+  tenthMarks?: number;
+
+  @NestedNumber({ optional: true })
+  twelthMarks?: number;
 }
 
-export class JobDetailsDto {
-  @ApiProperty({
-    type: String,
-  })
-  @IsUUID()
+class JobDto {
+  @NestedUUID({})
   seasonId: string;
 
-  recruiterId: string;
-  companyId: string;
+  companyId?: string;
+  recruiterId?: string;
 
-  @ApiProperty({
-    type: String,
-  })
-  @IsString()
+  @NestedString({})
   role: string;
 
-  @ApiPropertyOptional({
-    type: String,
-  })
-  @IsOptional()
-  @IsString()
+  @NestedString({ optional: true })
   others?: string;
 
-  @ApiProperty({ type: CompanyDetailsDto })
-  @ValidateNested({ each: true })
-  @Type(() => CompanyDetailsDto)
-  companyDetailsFilled: CompanyDetailsDto;
+  @NestedObject({ type: CompanyFilledDto })
+  companyDetailsFilled: CompanyFilledDto;
 
-  @ApiProperty({ type: RecruiterDetailsDto })
-  @ValidateNested({ each: true })
-  @Type(() => RecruiterDetailsDto)
-  recruiterDetailsFilled: RecruiterDetailsDto;
+  @NestedObject({ type: RecruiterFilledDto })
+  recruiterDetailsFilled: RecruiterFilledDto;
 
-  @ApiProperty({ type: SelectionProcedureDetailsDto })
-  @ValidateNested({ each: true })
-  @Type(() => SelectionProcedureDetailsDto)
-  selectionProcedure: SelectionProcedureDetailsDto;
+  @NestedObject({ type: SelectionProcedureDto })
+  selectionProcedure: SelectionProcedureDto;
 
-  @ApiPropertyOptional({
-    type: String,
-  })
-  @IsOptional()
-  @IsString()
+  @NestedString({ optional: true })
   description?: string;
 
+  @NestedString({ optional: true })
   attachment?: string;
 
-  @ApiPropertyOptional({
-    type: String,
-  })
-  @IsOptional()
-  @IsString()
+  @NestedString({ optional: true })
   skills?: string;
 
-  @ApiProperty({
-    type: String,
-  })
-  @IsString()
+  @NestedString({})
   location: string;
 
-  @ApiPropertyOptional({
-    type: Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
+  @NestedNumber({ optional: true })
   noOfVacancies?: number;
 
-  @ApiPropertyOptional({
-    type: Date,
-  })
-  @IsOptional()
-  @IsDateString()
-  offerLetterReleaseDate?: string;
+  @NestedDate({ optional: true })
+  offerLetterReleaseDate?: Date;
 
-  @ApiPropertyOptional({
-    type: Date,
-  })
-  @IsOptional()
-  @IsDateString()
-  joiningDate?: string;
+  @NestedDate({ optional: true })
+  joiningDate?: Date;
 
-  @ApiPropertyOptional({
-    type: Number,
-  })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
+  @NestedNumber({ optional: true })
   duration?: number;
 }
 
-export class CreateJafDto {
-  @ApiProperty({
-    type: JobDetailsDto,
-  })
-  @ValidateNested()
-  @Type(() => JobDetailsDto)
-  job: JobDetailsDto;
+export class JafDto {
+  @NestedObject({ type: JobDto })
+  job: JobDto;
 
-  @ApiProperty({
-    type: SalaryDetailsDto,
-    isArray: true,
-  })
-  @ValidateNested({ each: true })
-  @Type(() => SalaryDetailsDto)
-  salaries: SalaryDetailsDto[];
+  @NestedObject({ type: SalaryDto, isArray: true })
+  salaries: SalaryDto[];
+}
+
+class SeasonsDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedEnum(SeasonTypeEnum, {})
+  type: string;
+
+  @NestedString({})
+  year: string;
+}
+
+class ProgramsDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedString({})
+  branch: string;
+
+  @NestedString({})
+  course: string;
+
+  @NestedString({})
+  year: string;
+
+  @NestedEnum(DepartmentEnum, {})
+  department: string;
+}
+
+export class GetJafValuesDto {
+  @NestedObject({ type: SeasonsDto, isArray: true })
+  seasons: SeasonsDto[];
+
+  @NestedObject({ type: ProgramsDto, isArray: true })
+  programs: ProgramsDto[];
+
+  @NestedEnum(GenderEnum, { isArray: true })
+  genders: GenderEnum;
+
+  @NestedEnum(CategoryEnum, { isArray: true })
+  categories: CategoryEnum;
+
+  @NestedEnum(TestTypesEnum, { isArray: true })
+  testTypes: TestTypesEnum;
+
+  @NestedEnum(IndustryDomainEnum, { isArray: true })
+  domains: IndustryDomainEnum;
+
+  @NestedEnum(InterviewTypesEnum, { isArray: true })
+  interviewTypes: InterviewTypesEnum;
+
+  @NestedEnum(CountriesEnum, { isArray: true })
+  countries: CountriesEnum;
 }

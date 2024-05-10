@@ -1,49 +1,51 @@
-import { Controller, Get, Post, Patch, Delete, Param, Body, Query, ParseUUIDPipe } from "@nestjs/common";
+import { Body, Controller, Param, ParseUUIDPipe, Query } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
-import { GetSalaryQueryDto } from "./dtos/query.dto";
 import { SalaryService } from "./salary.service";
+import { DeleteValues, GetValue, GetValues, PatchValues, PostValues } from "src/decorators/controller";
+import { SalariesQueryDto } from "./dtos/query.dto";
+import { GetSalariesDto, GetSalaryDto } from "./dtos/get.dto";
 import { createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
-import { GetSalariesReturnDto, GetSalaryReturnDto } from "./dtos/get.dto";
-import { CreateSalaryDto } from "./dtos/post.dto";
-import { UpdateSalaryDto } from "./dtos/patch.dto";
+import { CreateSalariesDto } from "./dtos/post.dto";
+import { UpdateSalariesDto } from "./dtos/patch.dto";
+import { DeleteValuesDto } from "src/utils/utils.dto";
 
 @Controller("salaries")
-@ApiTags("Admin")
+@ApiTags("Salary")
 export class SalaryController {
   constructor(private salaryService: SalaryService) {}
 
-  @Get()
-  async getSalaries(@Query() where: GetSalaryQueryDto) {
-    const ans = await this.salaryService.getSalaries(where);
+  @GetValues(SalariesQueryDto, GetSalariesDto)
+  async getSalaries(@Query("q") query: SalariesQueryDto) {
+    const ans = await this.salaryService.getSalaries(query);
 
-    return pipeTransformArray(ans, GetSalariesReturnDto);
+    return pipeTransformArray(ans, GetSalariesDto);
   }
 
-  @Get("/:id")
+  @GetValue(GetSalaryDto)
   async getSalary(@Param("id", new ParseUUIDPipe()) id: string) {
     const ans = await this.salaryService.getSalary(id);
 
-    return pipeTransform(ans, GetSalaryReturnDto);
+    return pipeTransform(ans, GetSalaryDto);
   }
 
-  @Post()
-  async createSalaries(@Body(createArrayPipe(CreateSalaryDto)) salaries: CreateSalaryDto[]) {
+  @PostValues(CreateSalariesDto)
+  async createSalaries(@Body(createArrayPipe(CreateSalariesDto)) salaries: CreateSalariesDto[]) {
     const ans = await this.salaryService.createSalaries(salaries);
 
     return ans;
   }
 
-  @Patch()
-  async updateSalaries(@Body(createArrayPipe(UpdateSalaryDto)) salaries: UpdateSalaryDto[]): Promise<string[]> {
+  @PatchValues(UpdateSalariesDto)
+  async updateSalaries(@Body(createArrayPipe(UpdateSalariesDto)) salaries: UpdateSalariesDto[]) {
     const pr = salaries.map((salary) => this.salaryService.updateSalary(salary));
     const ans = await Promise.all(pr);
 
     return ans.flat();
   }
 
-  @Delete()
-  async deleteSalaries(@Query("id") ids: string | string[]) {
-    const ans = await this.salaryService.deleteSalaries(ids);
+  @DeleteValues()
+  async deleteSalaries(@Query() query: DeleteValuesDto) {
+    const ans = await this.salaryService.deleteSalaries(query.id);
 
     return ans;
   }

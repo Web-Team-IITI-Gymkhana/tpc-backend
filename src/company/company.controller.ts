@@ -1,55 +1,62 @@
-import { Controller, Get, Query, Post, Body, Patch, Delete, Param, ParseUUIDPipe } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Query,
+  Post,
+  Body,
+  Patch,
+  Delete,
+  Param,
+  ParseUUIDPipe,
+  ParseArrayPipe,
+} from "@nestjs/common";
 import { CompanyService } from "./company.service";
-import { CompanyQueryDto, GetCompaniesDto, GetCompanyDto } from "./dtos/get.dto";
+import { GetCompaniesDto, GetCompanyDto } from "./dtos/get.dto";
+import { CompanyQueryDto } from "./dtos/query.dto";
 import { ApiFilterQuery, createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
-import { CreateCompanyDto } from "./dtos/post.dto";
-import { UpdateCompanyDto } from "./dtos/patch.dto";
+import { CreateCompaniesDto } from "./dtos/post.dto";
+import { UpdateCompaniesDto } from "./dtos/patch.dto";
 import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { DeleteValues, GetValue, GetValues, PatchValues, PostValues } from "src/decorators/controller";
+import { DeleteValuesDto } from "src/utils/utils.dto";
 
 @Controller("companies")
 @ApiTags("Company")
 export class CompanyController {
   constructor(private companyService: CompanyService) {}
 
-  @Get()
-  @ApiFilterQuery("q", CompanyQueryDto)
-  @ApiOperation({ description: "Refer to CompanyQueryDto for schema." })
-  @ApiResponse({ type: GetCompaniesDto, isArray: true })
+  @GetValues(CompanyQueryDto, GetCompaniesDto)
   async getCompanies(@Query("q") where: CompanyQueryDto) {
     const ans = await this.companyService.getCompanies(where);
 
     return pipeTransformArray(ans, GetCompaniesDto);
   }
 
-  @Get("/:id")
-  @ApiResponse({ type: GetCompanyDto })
+  @GetValue(GetCompanyDto)
   async getCompany(@Param("id", new ParseUUIDPipe()) id: string) {
     const ans = await this.companyService.getCompany(id);
 
     return pipeTransform(ans, GetCompanyDto);
   }
 
-  @Post()
-  @ApiBody({ type: CreateCompanyDto, isArray: true })
-  async createCompanies(@Body(createArrayPipe(CreateCompanyDto)) companies: CreateCompanyDto[]) {
+  @PostValues(CreateCompaniesDto)
+  async createCompanies(@Body(createArrayPipe(CreateCompaniesDto)) companies: CreateCompaniesDto[]) {
     const ans = await this.companyService.createCompanies(companies);
 
     return ans;
   }
 
-  @Patch()
-  @ApiBody({ type: UpdateCompanyDto, isArray: true })
-  async updateCompanies(@Body(createArrayPipe(UpdateCompanyDto)) companies: UpdateCompanyDto[]) {
+  @PatchValues(UpdateCompaniesDto)
+  async updateCompanies(@Body(createArrayPipe(UpdateCompaniesDto)) companies: UpdateCompaniesDto[]) {
     const pr = companies.map((company) => this.companyService.updateCompany(company));
     const ans = await Promise.all(pr);
 
     return ans.flat();
   }
 
-  @Delete()
-  async deleteCompanies(@Query("id") ids: string | string[]) {
-    const pids = typeof ids === "string" ? [ids] : ids;
-    const ans = await this.companyService.deleteCompanies(pids);
+  @DeleteValues()
+  async deleteCompanies(@Query() query: DeleteValuesDto) {
+    const ans = await this.companyService.deleteCompanies(query.id);
 
     return ans;
   }

@@ -1,21 +1,16 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsString, IsUUID } from "class-validator";
-import { DepartmentEnum } from "src/enums/department.enum";
+import { NestedEnum, NestedString } from "src/decorators/dto";
+import { DepartmentEnum } from "src/enums";
 
 export class CreateProgramsDto {
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
   branch: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
   course: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
   year: string;
 
-  @ApiProperty({ enum: DepartmentEnum })
-  @IsEnum(DepartmentEnum)
+  @NestedEnum(DepartmentEnum, {})
   department: DepartmentEnum;
 }

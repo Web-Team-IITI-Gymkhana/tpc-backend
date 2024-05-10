@@ -1,47 +1,64 @@
-import { Body, Controller, Delete, Get, Param, Post, Query, UseInterceptors } from "@nestjs/common";
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Delete, Param, ParseUUIDPipe, Patch, Post, Query, UseInterceptors } from "@nestjs/common";
+import { ApiBody, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { FacultyApprovalService } from "./facultyApproval.service";
-import { FacultyApprovalQueryDto } from "./dtos/query.dto";
-import { ApiFilterQuery, createArrayPipe, pipeTransformArray } from "src/utils/utils";
+import { DeleteValues, GetValues, PatchValues, PostValues } from "src/decorators/controller";
+import { FacultyApprovalsQueryDto } from "./dtos/query.dto";
 import { GetFacultyApprovalsDto } from "./dtos/get.dto";
+import { createArrayPipe, pipeTransformArray } from "src/utils/utils";
 import { CreateFacultyApprovalsDto } from "./dtos/post.dto";
 import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
+import { UpdateFacultyApprovalsDto } from "./dtos/patch.dto";
+import { DeleteValuesDto } from "src/utils/utils.dto";
 
-@Controller("facultyApprovalRequests")
-@ApiTags("FacultyApprovalRequest")
+@Controller("faculty-approvals")
+@ApiTags("FacultyApproval")
 export class FacultyApprovalController {
   constructor(private facultyApprovalService: FacultyApprovalService) {}
 
-  @Get()
-  @ApiFilterQuery("q", FacultyApprovalQueryDto)
-  @ApiOperation({ description: "Refer to FacultyApprovalQueryDto for the schema." })
-  @ApiResponse({ type: GetFacultyApprovalsDto, isArray: true })
-  async getFacultyApprovals(@Query("q") where: FacultyApprovalQueryDto) {
-    const ans = await this.facultyApprovalService.getFacultyApprovalRequests(where);
+  @GetValues(FacultyApprovalsQueryDto, GetFacultyApprovalsDto)
+  async getFacultyApprovals(@Query("q") where: FacultyApprovalsQueryDto) {
+    const ans = await this.facultyApprovalService.getFacultyApprovals(where);
 
     return pipeTransformArray(ans, GetFacultyApprovalsDto);
   }
 
   @Post("/:salaryId")
   @ApiBody({ type: CreateFacultyApprovalsDto, isArray: true })
+  @ApiParam({ name: "salaryId", type: String })
+  @ApiResponse({ type: String, isArray: true })
   @UseInterceptors(TransactionInterceptor)
   async createFacultyApprovals(
-    @Param("salaryId") salaryId: string,
-    @Body(createArrayPipe(CreateFacultyApprovalsDto)) facReqs: CreateFacultyApprovalsDto[],
+    @Param("salaryId", new ParseUUIDPipe()) salaryId: string,
+    @Body(createArrayPipe(CreateFacultyApprovalsDto)) facultyApprovals: CreateFacultyApprovalsDto[],
     @TransactionParam() t: Transaction
   ) {
-    const ans = await this.facultyApprovalService.createFacultyApprovalRequests(salaryId, facReqs, t);
+    const ans = await this.facultyApprovalService.createFacultyApprovals(salaryId, facultyApprovals, t);
 
     return ans;
   }
 
-  @Delete("/:id")
+  @PatchValues(UpdateFacultyApprovalsDto)
   @UseInterceptors(TransactionInterceptor)
-  async deleteFacultyApproval(@Param("id") id: string, @TransactionParam() t: Transaction) {
-    const ans = await this.facultyApprovalService.deleteFacultyApprovalRequest(id, t);
+  async updateFacultyApprovals(
+    @Body(createArrayPipe(UpdateFacultyApprovalsDto)) facultyApprovals: UpdateFacultyApprovalsDto[],
+    @TransactionParam() t: Transaction
+  ) {
+    const pr = facultyApprovals.map((facultyApproval) =>
+      this.facultyApprovalService.updateFacultyApproval(facultyApproval, t)
+    );
+    const ans = await Promise.all(pr);
 
-    return ans;
+    return ans.flat();
+  }
+
+  @DeleteValues()
+  async deleteFacultyApprovals(@Query() query: DeleteValuesDto, @TransactionParam() t: Transaction) {
+    const ids = typeof query.id === "string" ? [query.id] : query.id;
+    const pr = ids.map((id) => this.facultyApprovalService.deleteFacultyApproval(id, t));
+    const ans = await Promise.all(pr);
+
+    return ans.reduce((acc, val) => acc + val, 0);
   }
 }
