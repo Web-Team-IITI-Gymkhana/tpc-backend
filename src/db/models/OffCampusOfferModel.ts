@@ -1,9 +1,12 @@
+/* eslint-disable no-console */
 import sequelize from "sequelize";
-import { BelongsTo, Column, ForeignKey, Model, Table, Unique } from "sequelize-typescript";
+import { Model, Column, Table, ForeignKey, Unique, BelongsTo, AfterBulkCreate } from "sequelize-typescript";
 import { CompanyModel } from "./CompanyModel";
 import { SeasonModel } from "./SeasonModel";
 import { StudentModel } from "./StudentModel";
 import { OfferStatusEnum } from "src/enums";
+import { MailerService } from "src/mailer/mailer.service";
+import { SendEmailDto } from "../../mailer/mail.interface";
 
 @Table({
   tableName: "OffCampusOffer",
@@ -82,4 +85,20 @@ export class OffCampusOfferModel extends Model<OffCampusOfferModel> {
     defaultValue: OfferStatusEnum.ONGOING,
   })
   status: OfferStatusEnum;
+
+  @AfterBulkCreate
+  static async sendEmailHook(instance: OffCampusOfferModel) {
+    console.log("New entry created");
+    const mailerService = new MailerService();
+
+    const dto: SendEmailDto = {
+      from: { name: "TPC Portal", address: "aryangkulkarni@gmail.com" },
+      recepients: [{ address: "me210003016@iiti.ac.in" }],
+      subject: "Test email",
+      html: "<p>Hi Aryan, this is a test email</p>",
+    };
+
+    // Send email
+    await mailerService.sendEmail(dto);
+  }
 }
