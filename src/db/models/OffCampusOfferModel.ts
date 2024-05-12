@@ -7,6 +7,7 @@ import { StudentModel } from "./StudentModel";
 import { OfferStatusEnum } from "src/enums";
 import { MailerService } from "src/mailer/mailer.service";
 import { SendEmailDto } from "../../mailer/mail.interface";
+import { UserModel } from "./UserModel";
 
 @Table({
   tableName: "OffCampusOffer",
@@ -87,18 +88,37 @@ export class OffCampusOfferModel extends Model<OffCampusOfferModel> {
   status: OfferStatusEnum;
 
   @AfterBulkCreate
-  static async sendEmailHook(instance: OffCampusOfferModel) {
-    console.log("New entry created");
+  static async sendEmailHook(instance: OffCampusOfferModel[]) {
+    console.log("New entries created");
     const mailerService = new MailerService();
 
-    const dto: SendEmailDto = {
-      from: { name: "TPC Portal", address: "aryangkulkarni@gmail.com" },
-      recepients: [{ address: "me210003016@iiti.ac.in" }],
-      subject: "Test email",
-      html: "<p>Hi Aryan, this is a test email</p>",
-    };
+    // Iterate over each newly created instance
+    for (const offer of instance) {
+      // Find the student associated with this offer
+      const student = await StudentModel.findByPk(offer.studentId);
+      if (!student) {
+        console.error(`Student not found for offer ${offer.id}`);
+        continue; // Skip to the next offer if student not found
+      }
 
-    // Send email
-    await mailerService.sendEmail(dto);
+      // Find the user associated with this student
+      const user = await UserModel.findByPk(student.userId);
+      if (!user) {
+        console.error(`User not found for student ${student.id}`);
+        continue; // Skip to the next offer if user not found
+      }
+
+      // Prepare the email data
+      const dto: SendEmailDto = {
+        from: { name: "TPC Portal", address: "aryangkulkarni@gmail.com" },
+        // recepients: [{ address: "me210003016@iiti.ac.in" }],
+        recepients: [{ address: user.email }],
+        subject: "Test email",
+        html: `<p>Hi ${user.name}, this is a test email</p>`,
+      };
+
+      // Send email
+      await mailerService.sendEmail(dto);
+    }
   }
 }

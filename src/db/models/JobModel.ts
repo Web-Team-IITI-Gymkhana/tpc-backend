@@ -1,5 +1,17 @@
+/* eslint-disable no-console */
 import sequelize, { Sequelize } from "sequelize";
-import { BelongsTo, Column, ForeignKey, Model, Table, HasMany, Unique, DataType, HasOne } from "sequelize-typescript";
+import {
+  BelongsTo,
+  Column,
+  ForeignKey,
+  Model,
+  Table,
+  HasMany,
+  Unique,
+  DataType,
+  HasOne,
+  AfterCreate,
+} from "sequelize-typescript";
 import { CompanyModel } from "./CompanyModel";
 import { EventModel } from "./EventModel";
 import { SeasonModel } from "./SeasonModel";
@@ -9,6 +21,8 @@ import { JobCoordinatorModel } from "./JobCoordinatorModel";
 import { FacultyApprovalRequestModel } from "./FacultyApprovalRequestModel";
 import { JobStatusTypeEnum } from "src/enums";
 import { ApplicationModel } from "./ApplicationModel";
+import { MailerService } from "src/mailer/mailer.service";
+import { SendEmailDto } from "../../mailer/mail.interface";
 
 @Table({
   tableName: "Job",
@@ -177,4 +191,20 @@ export class JobModel extends Model<JobModel> {
     onDelete: "CASCADE",
   })
   applications: ApplicationModel[];
+
+  @AfterCreate
+  static async sendEmailHook(instance: JobModel) {
+    console.log("New entry created");
+    const mailerService = new MailerService();
+
+    const dto: SendEmailDto = {
+      from: { name: "TPC Portal", address: "aryangkulkarni@gmail.com" },
+      recepients: [{ address: "me210003016@iiti.ac.in" }],
+      subject: "Test email",
+      html: "<p>Hi Aryan, this is a test email</p>",
+    };
+
+    // Send email
+    await mailerService.sendEmail(dto);
+  }
 }
