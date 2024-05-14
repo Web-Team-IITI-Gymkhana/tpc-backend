@@ -1,144 +1,120 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsBoolean, IsEnum, IsNumber, IsString, IsUUID, ValidateNested } from "class-validator";
-import { CategoryEnum, GenderEnum } from "src/enums";
-import { DepartmentEnum } from "src/enums/department.enum";
+import {
+  NestedBoolean,
+  NestedEmail,
+  NestedEnum,
+  NestedNumber,
+  NestedObject,
+  NestedString,
+  NestedUUID,
+} from "src/decorators/dto";
+import { CategoryEnum, DepartmentEnum, GenderEnum, SeasonTypeEnum } from "src/enums";
 
-class ProgramReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+class UserDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
-  course: string;
-
-  @ApiProperty({ type: String })
-  @IsString()
-  branch: string;
-
-  @ApiProperty({ enum: DepartmentEnum })
-  @IsEnum(DepartmentEnum)
-  department: DepartmentEnum;
-
-  @ApiProperty({ type: String })
-  @IsString()
-  year: string;
-}
-
-export class ResumeReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
-  id: string;
-
-  @ApiProperty({ type: String })
-  @IsString()
-  filepath: string;
-
-  @ApiProperty({ type: Boolean })
-  @IsBoolean()
-  verified: boolean;
-}
-
-class SeasonReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
-  id: string;
-
-  @ApiProperty({ type: String })
-  @IsString()
-  year: string;
-
-  @ApiProperty({ type: String })
-  @IsString()
-  type: string;
-}
-
-class RegistrationReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
-  id: string;
-
-  @ApiProperty({ type: SeasonReturnDto })
-  @ValidateNested()
-  @Type(() => SeasonReturnDto)
-  season: SeasonReturnDto;
-
-  @ApiProperty({ type: Boolean })
-  @IsBoolean()
-  registered: boolean;
-}
-
-class UserReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
-  id: string;
-
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
   name: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
-  email: string;
-
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
   contact: string;
+
+  @NestedEmail({})
+  email: string;
 }
 
-class PenaltyReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+class ProgramDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
+  @NestedString({})
+  branch: string;
+
+  @NestedString({})
+  course: string;
+
+  @NestedString({})
+  year: string;
+
+  @NestedEnum(DepartmentEnum, {})
+  department: DepartmentEnum;
+}
+
+class PenaltiesDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedNumber({})
   penalty: number;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
   reason: string;
 }
 
-export class StudentReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+class SeasonDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
+  year: string;
+
+  @NestedEnum(SeasonTypeEnum, {})
+  type: SeasonTypeEnum;
+}
+
+class RegistrationsDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedBoolean({})
+  registered: boolean;
+
+  @NestedObject({ type: SeasonDto })
+  season: SeasonDto;
+}
+
+export class StudentViewDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedString({})
   rollNo: string;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
-  cpi: number;
-
-  @ApiProperty({ enum: CategoryEnum })
-  @IsEnum(CategoryEnum)
+  @NestedEnum(CategoryEnum, {})
   category: CategoryEnum;
 
-  @ApiProperty({ enum: GenderEnum })
-  @IsEnum(GenderEnum)
+  @NestedEnum(GenderEnum, {})
   gender: GenderEnum;
 
-  @ApiProperty({ type: UserReturnDto })
-  @ValidateNested()
-  @Type(() => UserReturnDto)
-  user: UserReturnDto;
+  @NestedNumber({})
+  cpi: number;
 
-  @ApiProperty({ type: ProgramReturnDto })
-  @ValidateNested()
-  @Type(() => ProgramReturnDto)
-  program: ProgramReturnDto;
+  @NestedNumber({})
+  tenthMarks: number;
 
-  @ApiProperty({ type: PenaltyReturnDto, isArray: true })
-  @ValidateNested({ each: true })
-  @Type(() => PenaltyReturnDto)
-  penalties: PenaltyReturnDto[];
+  @NestedNumber({})
+  twelthMarks: number;
 
-  @ApiProperty({ type: RegistrationReturnDto })
-  @ValidateNested()
-  @Type(() => RegistrationReturnDto)
-  registrations: RegistrationReturnDto[];
+  @NestedObject({ type: UserDto })
+  user: UserDto;
+
+  @NestedObject({ type: ProgramDto })
+  program: ProgramDto;
+
+  @NestedObject({ type: PenaltiesDto, isArray: true })
+  penalties: PenaltiesDto[];
+
+  @NestedObject({ type: RegistrationsDto, isArray: true })
+  registrations: RegistrationsDto[];
+}
+
+export class GetStudentResumesDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedString({})
+  filepath: string;
+
+  @NestedBoolean({})
+  verified: boolean;
 }

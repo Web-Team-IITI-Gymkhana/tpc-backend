@@ -15,12 +15,18 @@ import { PenaltyModule } from "./penalties/penalty.module";
 import { FacultyApprovalModule } from "./facultyApproval/facultyApproval.module";
 import { SalaryModule } from "./salary/salary.module";
 import { StudentViewModule } from "./student-view/students/student.module";
-import { StudentViewJobModule } from "./student-view/job/job.module";
 import { InterviewExperienceModule } from "./student-view/interview-experiences/ie.module";
 import { StudentOfferModule } from "./student-view/offers/offer.module";
 import { UserModule } from "./user/user.module";
 import { SeasonModule } from "./season/season.module";
 import { RegistrationsModule } from "./registrations/registrations.module";
+import { FacultyModule } from "./faculty/faculty.module";
+import { ProgramModule } from "./program/program.module";
+import { ResumeModule } from "./resume/resume.module";
+import { EventModule } from "./event/event.module";
+import { CompanyModule } from "./company/company.module";
+import { OfferModule } from "./offers/offer.module";
+import { StudentViewSalaryModule } from "./student-view/salary/salary.module";
 
 @Module({
   imports: [
@@ -36,12 +42,18 @@ import { RegistrationsModule } from "./registrations/registrations.module";
     FacultyApprovalModule,
     SalaryModule,
     StudentViewModule,
-    StudentViewJobModule,
+    StudentViewSalaryModule,
     InterviewExperienceModule,
     StudentOfferModule,
     UserModule,
     SeasonModule,
     RegistrationsModule,
+    FacultyModule,
+    ProgramModule,
+    ResumeModule,
+    EventModule,
+    CompanyModule,
+    OfferModule,
   ],
   controllers: [AppController],
   providers: [Logger, TransactionInterceptor, QueryInterceptor, AppService],

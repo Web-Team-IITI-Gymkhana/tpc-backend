@@ -6,59 +6,36 @@ export class QueryInterceptor implements NestInterceptor {
   async intercept(context: ExecutionContext, next: CallHandler): Promise<Observable<CallHandler>> {
     const httpContext = context.switchToHttp();
     const req = httpContext.getRequest();
-    const query = req.query;
-    const ans = {};
 
-    for (const key in query) {
-      const nestedValues = key.split("_");
-      let target = ans;
-      for (let index = 0; index < nestedValues.length - 1; index++) {
-        const nestedKey = nestedValues[index];
-        if (!target[nestedKey]) target[nestedKey] = {};
-        target = target[nestedKey];
+    const fix = (query: unknown) => {
+      if (typeof query !== "object") return query;
+
+      for (const key in query) {
+        let newKey = key;
+        const obj = query[key];
+        delete query[key];
+
+        if (key === "[]") return [obj];
+        else if (key[key.length - 1] === "]" && key[key.length - 2] === "[") {
+          newKey = key.slice(1, -3);
+          query[newKey] = [obj];
+          continue;
+        }
+        if (key[0] === "[" && key[key.length - 1] === "]") newKey = key.slice(1, -1);
+        query[newKey] = fix(obj);
       }
-      target[nestedValues[nestedValues.length - 1]] = query[key];
-    }
-    req.query = ans;
+
+      return query;
+    };
+
+    req.query = fix(req.query);
 
     return next.handle();
   }
 }
 
 /*
- *  The function assumes that the query params are given like so:
- * {'param1': 'value1', 'param2_nestedParam1': 'nestedValue1','param2_nestedParam2': 'nestedValue2'};
- *  for the required value:
- *  {
- *    param1: 'value1',
- *    param2: { nestedParam1: 'nestedValue1', nestedParam2: 'nestedValue2' }
- *  }
- */
-
-/*
- * The encoding function is given below (To be used by frontend):
- *  const query = {
- *    param1: 'value1',
- *    param2: { nestedParam1: {value: 'nestedValue1'}, nestedParam2: 'nestedValue2' },
- *    param3: [1,2,3]
- *  };
- */
-
-/*
- * function encode(query, prefix, ans) {
- *     for(const q in query) {
- *         if(typeof(query[q]) == "object" && !(Array.isArray(query[q]))) {
- *             encode(query[q], prefix+q+'_', ans);
- *         }
- *         else {
- *             ans[prefix+q] = query[q];
- *         }
- *     }
- * }
- */
-
-/*
- * const encodedQuery = {};
- * encode(query, '', encodedQuery);
- * console.log(encodedQuery);
+ * This function is used to fix incorrectly formed nested objects in the query object.
+ * The function is recursive and will fix all nested objects.
+ * This are the cases it handles: {"[eq]": "name"}, {"[eq][]": "name"}, eq: {"[]": "name"}
  */

@@ -1,37 +1,43 @@
-import { Injectable, Inject } from "@nestjs/common";
-import { FindOptions } from "sequelize";
+import { Inject, Injectable } from "@nestjs/common";
 import { REGISTRATIONS_DAO } from "src/constants";
-import { SeasonModel, StudentModel, UserModel } from "src/db/models";
 import { RegistrationModel } from "src/db/models/RegistrationModel";
+import { RegistrationsQueryDto } from "./dtos/query.dto";
+import { FindOptions } from "sequelize";
+import { ProgramModel, SeasonModel, StudentModel, UserModel } from "src/db/models";
 import { parseFilter, parseOrder, parsePagesize } from "src/utils";
+import { CreateRegistrationsDto } from "./dtos/post.dto";
 
 @Injectable()
 export class RegistrationsService {
   constructor(@Inject(REGISTRATIONS_DAO) private registrationsRepo: typeof RegistrationModel) {}
 
-  async getRegistrations(where) {
+  async getRegistrations(where: RegistrationsQueryDto) {
     const findOptions: FindOptions<RegistrationModel> = {
       include: [
         {
+          model: SeasonModel,
+          as: "season",
+        },
+        {
           model: StudentModel,
           as: "student",
+          required: true,
           include: [
             {
               model: UserModel,
               as: "user",
             },
+            {
+              model: ProgramModel,
+              as: "program",
+            },
           ],
-        },
-        {
-          model: SeasonModel,
-          as: "season",
         },
       ],
     };
 
     const pageOptions = parsePagesize(where);
     Object.assign(findOptions, pageOptions);
-
     parseFilter(findOptions, where.filterBy || {});
     findOptions.order = parseOrder(where.orderBy || {});
 
@@ -40,13 +46,14 @@ export class RegistrationsService {
     return ans.map((registration) => registration.get({ plain: true }));
   }
 
-  async createRegistrations(registrations) {
+  async createRegistrations(registrations: CreateRegistrationsDto[]) {
+    registrations = registrations.map((registration) => ({ ...registration, registered: false }));
     const ans = await this.registrationsRepo.bulkCreate(registrations);
 
     return ans.map((registration) => registration.id);
   }
 
-  async deleteRegistrations(ids: string[]) {
+  async deleteRegistrations(ids: string | string[]) {
     const ans = await this.registrationsRepo.destroy({ where: { id: ids } });
 
     return ans;

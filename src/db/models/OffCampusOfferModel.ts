@@ -3,7 +3,7 @@ import { BelongsTo, Column, ForeignKey, Model, Table, Unique } from "sequelize-t
 import { CompanyModel } from "./CompanyModel";
 import { SeasonModel } from "./SeasonModel";
 import { StudentModel } from "./StudentModel";
-import { OfferStatusEnum } from "src/enums/offerStatus.enum";
+import { OfferStatusEnum } from "src/enums";
 
 @Table({
   tableName: "OffCampusOffer",
@@ -21,6 +21,13 @@ export class OffCampusOfferModel extends Model<OffCampusOfferModel> {
   @ForeignKey(() => StudentModel)
   @Column({ type: sequelize.UUID, allowNull: false })
   studentId: string;
+
+  // Delete Off Campus Offer onDelete of Student
+  @BelongsTo(() => StudentModel, {
+    foreignKey: "studentId",
+    onDelete: "CASCADE",
+  })
+  student: StudentModel;
 
   @Unique("Student-Season-CompanyUnique")
   @ForeignKey(() => SeasonModel)

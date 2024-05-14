@@ -1,78 +1,64 @@
-import {
-  Controller,
-  Get,
-  Query,
-  Post,
-  Patch,
-  Delete,
-  Param,
-  ParseUUIDPipe,
-  ParseArrayPipe,
-  Body,
-  UseInterceptors,
-} from "@nestjs/common";
+import { Body, Controller, Delete, Param, ParseUUIDPipe, Patch, Post, Query, UseInterceptors } from "@nestjs/common";
+import { ApiBody, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { FacultyApprovalService } from "./facultyApproval.service";
-import { FacultyApprovalGetQueryDto } from "./dtos/facultyApprovalGetQuery.dto";
-import { CreateFacultyApprovalDto } from "./dtos/facultyApprovalPost.dto";
-import { UpdateFacultyApprovalDto } from "./dtos/facultyApprovalPatch.dto";
-import { ApiFilterQuery } from "src/utils/utils";
-
-import { ApiResponse, ApiBody, ApiOperation, ApiParam, ApiQuery, ApiTags } from "@nestjs/swagger";
-import { GetFacultyApprovalsReturnDto } from "./dtos/facultyApprovalGetReturn.dto";
-import { pipeTransformArray } from "src/utils/utils";
+import { DeleteValues, GetValues, PatchValues, PostValues } from "src/decorators/controller";
+import { FacultyApprovalsQueryDto } from "./dtos/query.dto";
+import { GetFacultyApprovalsDto } from "./dtos/get.dto";
+import { createArrayPipe, pipeTransformArray } from "src/utils/utils";
+import { CreateFacultyApprovalsDto } from "./dtos/post.dto";
+import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
-import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
+import { UpdateFacultyApprovalsDto } from "./dtos/patch.dto";
+import { DeleteValuesDto } from "src/utils/utils.dto";
 
-@Controller("faculty-approval")
-@ApiTags("Faculty Approval")
+@Controller("faculty-approvals")
+@ApiTags("FacultyApproval")
 export class FacultyApprovalController {
   constructor(private facultyApprovalService: FacultyApprovalService) {}
 
-  @Get()
-  @ApiFilterQuery("q", FacultyApprovalGetQueryDto)
-  @ApiResponse({ type: GetFacultyApprovalsReturnDto, isArray: true })
-  async getFacultyApprovals(@Query("q") query: FacultyApprovalGetQueryDto) {
-    const ans = await this.facultyApprovalService.getFacultyApprovals(query);
+  @GetValues(FacultyApprovalsQueryDto, GetFacultyApprovalsDto)
+  async getFacultyApprovals(@Query("q") where: FacultyApprovalsQueryDto) {
+    const ans = await this.facultyApprovalService.getFacultyApprovals(where);
 
-    console.log(ans);
-
-    return pipeTransformArray(ans, GetFacultyApprovalsReturnDto);
+    return pipeTransformArray(ans, GetFacultyApprovalsDto);
   }
 
-  /*
-   *   @Post()
-   *   @ApiOperation({
-   *     description: "Create faculty approvals in bulk",
-   *   })
-   *   @ApiBody({ type: [CreateFacultyApprovalDto] })
-   *   @ApiResponse({ type: String, isArray: true })
-   *   async createFacultyApprovals(
-   *     @Body(new ParseArrayPipe({ items: CreateFacultyApprovalDto })) body: CreateFacultyApprovalDto[]
-   *   ) {
-   *     return await this.facultyApprovalService.createFacultyApprovals(body);
-   *   }
-   */
-
-  @Patch()
+  @Post("/:salaryId")
+  @ApiBody({ type: CreateFacultyApprovalsDto, isArray: true })
+  @ApiParam({ name: "salaryId", type: String })
+  @ApiResponse({ type: String, isArray: true })
   @UseInterceptors(TransactionInterceptor)
-  @ApiBody({ type: UpdateFacultyApprovalDto, isArray: true })
-  async updateFacultyApproval(
-    @Body(new ParseArrayPipe({ items: UpdateFacultyApprovalDto })) body: UpdateFacultyApprovalDto[],
+  async createFacultyApprovals(
+    @Param("salaryId", new ParseUUIDPipe()) salaryId: string,
+    @Body(createArrayPipe(CreateFacultyApprovalsDto)) facultyApprovals: CreateFacultyApprovalsDto[],
     @TransactionParam() t: Transaction
   ) {
-    const pr = body.map((data) => this.facultyApprovalService.updateFacultyApproval(data, t));
-    const ans = await Promise.all(pr);
+    const ans = await this.facultyApprovalService.createFacultyApprovals(salaryId, facultyApprovals, t);
 
     return ans;
   }
 
-  @Delete()
-  @ApiQuery({ name: "id", type: String, isArray: true })
+  @PatchValues(UpdateFacultyApprovalsDto)
   @UseInterceptors(TransactionInterceptor)
-  async deleteFacultyApprovals(@Query("id") ids: string | string[], @TransactionParam() t: Transaction) {
-    const pids = typeof ids === "string" ? [ids] : ids;
+  async updateFacultyApprovals(
+    @Body(createArrayPipe(UpdateFacultyApprovalsDto)) facultyApprovals: UpdateFacultyApprovalsDto[],
+    @TransactionParam() t: Transaction
+  ) {
+    const pr = facultyApprovals.map((facultyApproval) =>
+      this.facultyApprovalService.updateFacultyApproval(facultyApproval, t)
+    );
+    const ans = await Promise.all(pr);
 
-    return await this.facultyApprovalService.deleteFacultyApprovals(pids, t);
+    return ans.flat();
+  }
+
+  @DeleteValues()
+  async deleteFacultyApprovals(@Query() query: DeleteValuesDto, @TransactionParam() t: Transaction) {
+    const ids = typeof query.id === "string" ? [query.id] : query.id;
+    const pr = ids.map((id) => this.facultyApprovalService.deleteFacultyApproval(id, t));
+    const ans = await Promise.all(pr);
+
+    return ans.reduce((acc, val) => acc + val, 0);
   }
 }

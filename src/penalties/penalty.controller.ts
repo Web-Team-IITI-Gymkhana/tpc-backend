@@ -1,39 +1,44 @@
-import { Body, Controller, Delete, Get, ParseArrayPipe, Patch, Post, Query } from "@nestjs/common";
-import { ApiBody, ApiOperation, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Query } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
 import { PenaltyService } from "./penalty.service";
-import { ApiFilterQuery, pipeTransformArray } from "src/utils/utils";
-import { GetPenaltyQueryDto } from "./dtos/query.dto";
-import { CreatePenaltyDto } from "./dtos/post.dto";
-import { GetPenaltiesReturnDto } from "./dtos/get.dto";
+import { DeleteValues, GetValues, PatchValues, PostValues } from "src/decorators/controller";
+import { PenaltyQueryDto } from "./dtos/query.dto";
+import { GetPenaltiesDto } from "./dtos/get.dto";
+import { createArrayPipe, pipeTransformArray } from "src/utils/utils";
+import { CreatePenaltiesDto } from "./dtos/post.dto";
+import { UpdatePenaltiesDto } from "./dtos/patch.dto";
+import { DeleteValuesDto } from "src/utils/utils.dto";
 
 @Controller("penalties")
 @ApiTags("Penalty")
 export class PenaltyController {
   constructor(private penaltyService: PenaltyService) {}
 
-  @Get()
-  @ApiFilterQuery("q", GetPenaltyQueryDto)
-  @ApiResponse({ type: GetPenaltiesReturnDto, isArray: true })
-  @ApiOperation({ description: "Refer to GetPenaltyQueryDto for schema. Ctrl+F it for more details" })
-  async getPenalties(@Query("q") where: GetPenaltyQueryDto) {
+  @GetValues(PenaltyQueryDto, GetPenaltiesDto)
+  async getPenalties(@Query("q") where: PenaltyQueryDto) {
     const ans = await this.penaltyService.getPenalties(where);
 
-    return pipeTransformArray(ans, GetPenaltiesReturnDto);
+    return pipeTransformArray(ans, GetPenaltiesDto);
   }
 
-  @Post()
-  @ApiBody({ type: CreatePenaltyDto, isArray: true })
-  @ApiResponse({ type: String, isArray: true, description: "Array of UUIDS" })
-  async createPenalties(@Body(new ParseArrayPipe({ items: CreatePenaltyDto })) penalties: CreatePenaltyDto[]) {
+  @PostValues(CreatePenaltiesDto)
+  async createPenalties(@Body(createArrayPipe(CreatePenaltiesDto)) penalties: CreatePenaltiesDto[]) {
     const ans = await this.penaltyService.createPenalties(penalties);
 
     return ans;
   }
 
-  @Delete()
-  async deletePenalties(@Query("id") ids: string | string[]) {
-    const pids = typeof ids === "string" ? [ids] : ids;
-    const ans = await this.penaltyService.deletePenalties(pids);
+  @PatchValues(UpdatePenaltiesDto)
+  async updatePenalties(@Body(createArrayPipe(UpdatePenaltiesDto)) penalties: UpdatePenaltiesDto[]) {
+    const pr = penalties.map((penalty) => this.penaltyService.updatePenalty(penalty));
+    const ans = await Promise.all(pr);
+
+    return ans.flat();
+  }
+
+  @DeleteValues()
+  async deletePenalties(@Query() query: DeleteValuesDto) {
+    const ans = await this.penaltyService.deletePenalties(query.id);
 
     return ans;
   }

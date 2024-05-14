@@ -1,9 +1,8 @@
 import { Table, Column, Model, ForeignKey, Unique, BelongsTo } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { FacultyModel } from "./FacultyModel";
-import { JobModel } from "./JobModel";
 import { SalaryModel } from "./SalaryModel";
-import { FacultyApprovalStatusEnum } from "src/enums/facultyApproval.enum";
+import { FacultyApprovalStatusEnum } from "src/enums";
 
 @Table({
   tableName: "FacultyApprovalRequest",
@@ -25,7 +24,7 @@ export class FacultyApprovalRequestModel extends Model<FacultyApprovalRequestMod
   // Delete Faculty Approval Request onDelete of Faculty
   @BelongsTo(() => FacultyModel, {
     foreignKey: "facultyId",
-    onDelete: "CASCADE",
+    onDelete: "RESTRICT",
   })
   faculty: FacultyModel;
 

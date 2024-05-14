@@ -1,108 +1,137 @@
-import { ApiPropertyOptional } from "@nestjs/swagger";
-import { IsEnum, IsNegative, IsNumber, IsOptional, ValidateNested } from "class-validator";
-import { MatchOptionsNumber, MatchOptionsString, MatchOptionsUUID } from "src/utils/utils.dto";
-import { Type } from "class-transformer";
-import { FilterOptionsUserDto, OrderOptionsUserDto } from "src/student/dtos/studentGetQuery.dto";
-import { OrderByEnum } from "src/enums/orderBy.enum";
+import { NestedEnum, NestedNumber, NestedObject } from "src/decorators/dto";
+import { DepartmentEnum, OrderByEnum } from "src/enums";
+import { createMatchOptionsEnum, MatchOptionsNumber, MatchOptionsString, MatchOptionsUUID } from "src/utils/utils.dto";
 
-class FilterOptionsStudentDto {
-  @ApiPropertyOptional({ type: MatchOptionsUUID })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => MatchOptionsUUID)
+const departmentEnum = createMatchOptionsEnum(DepartmentEnum);
+
+class FilterUserDto {
+  @NestedObject({ type: MatchOptionsUUID, optional: true })
   id?: MatchOptionsUUID;
 
-  @ApiPropertyOptional({ type: FilterOptionsUserDto })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => FilterOptionsUserDto)
-  user?: FilterOptionsUserDto;
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  name?: MatchOptionsString;
+
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  contact?: MatchOptionsString;
+
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  email?: MatchOptionsString;
 }
 
-class OrderOptionsStudentDto {
-  @ApiPropertyOptional({ enum: OrderByEnum })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
-  id?: OrderByEnum;
-
-  @ApiPropertyOptional({ type: OrderOptionsUserDto })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => OrderOptionsUserDto)
-  user?: OrderOptionsUserDto;
-}
-
-export class FilterOptionsPenaltyDto {
-  @ApiPropertyOptional({ type: MatchOptionsUUID })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => MatchOptionsUUID)
+class FilterProgramDto {
+  @NestedObject({ type: MatchOptionsUUID, optional: true })
   id?: MatchOptionsUUID;
 
-  @ApiPropertyOptional({ type: MatchOptionsNumber })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => MatchOptionsNumber)
-  penalty?: MatchOptionsNumber;
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  branch?: MatchOptionsString;
 
-  @ApiPropertyOptional({ type: MatchOptionsString })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => MatchOptionsString)
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  course?: MatchOptionsString;
+
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  year?: MatchOptionsString;
+
+  @NestedObject({ type: departmentEnum, optional: true })
+  department?: typeof departmentEnum;
+}
+
+class FilterStudentDto {
+  @NestedObject({ type: MatchOptionsUUID, optional: true })
+  id?: MatchOptionsUUID;
+
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  rollNo?: MatchOptionsString;
+
+  @NestedObject({ type: FilterUserDto, optional: true })
+  user?: FilterUserDto;
+
+  @NestedObject({ type: FilterProgramDto, optional: true })
+  program?: FilterProgramDto;
+}
+
+class FilterPenaltiesDto {
+  @NestedObject({ type: MatchOptionsUUID, optional: true })
+  id?: MatchOptionsUUID;
+
+  @NestedObject({ type: MatchOptionsString, optional: true })
   reason?: MatchOptionsString;
 
-  @ApiPropertyOptional({ type: FilterOptionsStudentDto })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => FilterOptionsStudentDto)
-  student?: FilterOptionsStudentDto;
+  @NestedObject({ type: MatchOptionsNumber, optional: true })
+  penalty?: MatchOptionsNumber;
+
+  @NestedObject({ type: FilterStudentDto, optional: true })
+  student?: FilterStudentDto;
 }
 
-export class OrderOptionsPenaltyDto {
-  @ApiPropertyOptional({ enum: OrderByEnum })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
+class OrderProgramDto {
+  @NestedEnum(OrderByEnum, { optional: true })
   id?: OrderByEnum;
 
-  @ApiPropertyOptional({ enum: OrderByEnum })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
-  penalty?: OrderByEnum;
+  @NestedEnum(OrderByEnum, { optional: true })
+  branch?: OrderByEnum;
 
-  @ApiPropertyOptional({ enum: OrderByEnum })
-  @IsOptional()
-  @IsEnum(OrderByEnum)
-  reason?: OrderByEnum;
+  @NestedEnum(OrderByEnum, { optional: true })
+  course?: OrderByEnum;
 
-  @ApiPropertyOptional({ type: OrderOptionsStudentDto })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => OrderOptionsStudentDto)
-  student?: OrderOptionsStudentDto;
+  @NestedEnum(OrderByEnum, { optional: true })
+  year?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  department?: OrderByEnum;
 }
 
-export class GetPenaltyQueryDto {
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
+class OrderUserDto {
+  @NestedEnum(OrderByEnum, { optional: true })
+  id?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  name?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  email?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  contact?: OrderByEnum;
+}
+
+class OrderStudentDto {
+  @NestedEnum(OrderByEnum, { optional: true })
+  id?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  rollNo?: OrderByEnum;
+
+  @NestedObject({ type: OrderUserDto, optional: true })
+  user?: OrderUserDto;
+
+  @NestedObject({ type: OrderProgramDto, optional: true })
+  program?: OrderProgramDto;
+}
+
+class OrderPenaltiesDto {
+  @NestedEnum(OrderByEnum, { optional: true })
+  id?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  reason?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  penalty?: OrderByEnum;
+
+  @NestedObject({ type: OrderStudentDto, optional: true })
+  student?: OrderStudentDto;
+}
+
+export class PenaltyQueryDto {
+  @NestedNumber({ optional: true })
   from?: number;
 
-  @ApiPropertyOptional({ type: Number })
-  @IsOptional()
-  @IsNumber()
-  @Type(() => Number)
+  @NestedNumber({ optional: true })
   to?: number;
 
-  @ApiPropertyOptional({ type: FilterOptionsPenaltyDto })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => FilterOptionsPenaltyDto)
-  filterBy?: FilterOptionsPenaltyDto;
+  @NestedObject({ type: OrderPenaltiesDto, optional: true })
+  orderBy?: OrderPenaltiesDto;
 
-  @ApiPropertyOptional({ type: OrderOptionsPenaltyDto })
-  @IsOptional()
-  @ValidateNested()
-  @Type(() => OrderOptionsPenaltyDto)
-  orderBy?: OrderOptionsPenaltyDto;
+  @NestedObject({ type: FilterPenaltiesDto, optional: true })
+  filterBy?: FilterPenaltiesDto;
 }

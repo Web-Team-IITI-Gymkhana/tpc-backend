@@ -20,14 +20,31 @@ import {
   EVENTS,
   APPLICATIONS,
   REGISTRATIONS,
+  INTERVIEW_EXPERIENCES,
 } from "src/test/data";
-import { DUMMY_COMPANY, DUMMY_RECRUITER, DUMMY_USER, LOGIN_USER } from "src/constants";
+import {
+  DUMMY_COMPANY,
+  DUMMY_RECRUITER,
+  DUMMY_USER,
+  IE_FOLDER,
+  JD_FOLDER,
+  LOGIN_ADMIN,
+  RESUME_FOLDER,
+} from "src/constants";
+import { FileService } from "./FileService";
+import path from "path";
 
 @Injectable()
 export class InsertService {
+  resumeFolder = RESUME_FOLDER;
+  ieFolder = IE_FOLDER;
+  jdFolder = JD_FOLDER;
   private logger = new Logger(InsertService.name);
 
-  constructor(@Inject("SEQUELIZE") private readonly sequelizeInstance: Sequelize) {}
+  constructor(
+    @Inject("SEQUELIZE") private readonly sequelizeInstance: Sequelize,
+    private fileService: FileService
+  ) {}
 
   async onModuleInit() {
     // await this.insert();
@@ -54,10 +71,26 @@ export class InsertService {
     const events = await this.sequelizeInstance.models.EventModel.bulkCreate(EVENTS);
     const applications = await this.sequelizeInstance.models.ApplicationModel.bulkCreate(APPLICATIONS);
     const registerations = await this.sequelizeInstance.models.RegistrationModel.bulkCreate(REGISTRATIONS);
+    const ies = await this.sequelizeInstance.models.InterviewExperienceModel.bulkCreate(INTERVIEW_EXPERIENCES);
     await this.sequelizeInstance.models.CompanyModel.create(DUMMY_COMPANY);
     await this.sequelizeInstance.models.UserModel.create(DUMMY_USER);
     await this.sequelizeInstance.models.RecruiterModel.create(DUMMY_RECRUITER);
-    await this.sequelizeInstance.models.UserModel.create(LOGIN_USER);
+    await this.sequelizeInstance.models.UserModel.create(LOGIN_ADMIN);
+
+    const file = await this.fileService.getFileasBuffer("src/test/resume.pdf");
+
+    for (const resume of RESUMES) {
+      await this.fileService.uploadFile(path.join(this.resumeFolder, resume.filepath), { buffer: file });
+    }
+
+    for (const ie of INTERVIEW_EXPERIENCES) {
+      await this.fileService.uploadFile(path.join(this.ieFolder, ie.filename), { buffer: file });
+    }
+
+    for (const job of JOBS) {
+      if (!job.attachment) continue;
+      await this.fileService.uploadFile(path.join(this.jdFolder, job.attachment), { buffer: file });
+    }
 
     this.logger.log("Successfully Inserted");
 

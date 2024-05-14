@@ -1,17 +1,13 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsString, IsUUID } from "class-validator";
+import { NestedEnum, NestedString, NestedUUID } from "src/decorators/dto";
 import { SeasonTypeEnum } from "src/enums";
 
-export class SeasonReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+export class GetSeasonsDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
   year: string;
 
-  @ApiProperty({ enum: SeasonTypeEnum })
-  @IsEnum(SeasonTypeEnum)
+  @NestedEnum(SeasonTypeEnum, {})
   type: SeasonTypeEnum;
 }

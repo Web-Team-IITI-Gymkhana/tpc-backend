@@ -6,7 +6,7 @@ import { SeasonModel } from "./SeasonModel";
 @Table({
   tableName: "Registrations",
 })
-export class RegistrationModel extends Model {
+export class RegistrationModel extends Model<RegistrationModel> {
   @Column({
     primaryKey: true,
     allowNull: false,

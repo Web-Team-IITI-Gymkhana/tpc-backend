@@ -1,34 +1,35 @@
-import { Body, Controller, Delete, Get, Post, Query } from "@nestjs/common";
+import { Body, Controller, Query } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { RegistrationsService } from "./registrations.service";
+import { DeleteValues, GetValues, PostValues } from "src/decorators/controller";
 import { RegistrationsQueryDto } from "./dtos/query.dto";
+import { GetRegistrationsDto } from "./dtos/get.dto";
 import { createArrayPipe, pipeTransformArray } from "src/utils/utils";
-import { RegistrationReturnDto } from "./dtos/get.dto";
-import { CreateRegistrationDto } from "./dtos/post.dto";
+import { CreateRegistrationsDto } from "./dtos/post.dto";
+import { DeleteValuesDto } from "src/utils/utils.dto";
 
 @Controller("registrations")
-@ApiTags("Registrations")
+@ApiTags("Registration")
 export class RegistrationsController {
   constructor(private registrationsService: RegistrationsService) {}
 
-  @Get()
+  @GetValues(RegistrationsQueryDto, GetRegistrationsDto)
   async getRegistrations(@Query("q") where: RegistrationsQueryDto) {
     const ans = await this.registrationsService.getRegistrations(where);
 
-    return pipeTransformArray(ans, RegistrationReturnDto);
+    return pipeTransformArray(ans, GetRegistrationsDto);
   }
 
-  @Post()
-  async createRegistrations(@Body(createArrayPipe(CreateRegistrationDto)) registrations: CreateRegistrationDto[]) {
+  @PostValues(CreateRegistrationsDto)
+  async createRegistrations(@Body(createArrayPipe(CreateRegistrationsDto)) registrations: CreateRegistrationsDto[]) {
     const ans = await this.registrationsService.createRegistrations(registrations);
 
     return ans;
   }
 
-  @Delete()
-  async deleteRegistrations(@Query("id") ids: string | string[]) {
-    const pids = typeof ids === "string" ? [ids] : ids;
-    const ans = await this.registrationsService.deleteRegistrations(pids);
+  @DeleteValues()
+  async deleteRegistrations(@Query() query: DeleteValuesDto) {
+    const ans = await this.registrationsService.deleteRegistrations(query.id);
 
     return ans;
   }

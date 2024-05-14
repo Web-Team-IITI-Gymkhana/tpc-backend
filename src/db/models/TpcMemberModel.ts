@@ -3,8 +3,7 @@ import sequelize from "sequelize";
 import { UserModel } from "./UserModel";
 import { JobModel } from "./JobModel";
 import { JobCoordinatorModel } from "./JobCoordinatorModel";
-import { TpcMemberRoleEnum } from "src/enums";
-import { DepartmentEnum } from "src/enums/department.enum";
+import { TpcMemberRoleEnum, DepartmentEnum } from "src/enums";
 
 @Table({
   tableName: "TpcMember",

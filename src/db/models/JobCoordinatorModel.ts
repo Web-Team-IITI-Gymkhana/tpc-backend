@@ -2,7 +2,7 @@ import { Table, Column, Model, ForeignKey, Unique, BelongsTo } from "sequelize-t
 import sequelize from "sequelize";
 import { JobModel } from "./JobModel";
 import { TpcMemberModel } from "./TpcMemberModel";
-import { JobCoordinatorRoleEnum } from "src/enums/jobCoordinatorRole";
+import { JobCoordinatorRoleEnum } from "src/enums";
 
 @Table({
   tableName: "JobCoordinator",

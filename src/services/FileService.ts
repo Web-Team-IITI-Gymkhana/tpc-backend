@@ -1,13 +1,22 @@
 import { Injectable } from "@nestjs/common";
 import * as fsp from "fs/promises";
 import * as fs from "fs";
-import * as path from "path";
-import { env } from "src/config";
+import { IE_FOLDER, JD_FOLDER, RESUME_FOLDER } from "src/constants";
 
 @Injectable()
 export class FileService {
+  resumeFolder = RESUME_FOLDER;
+  ieFolder = IE_FOLDER;
+  jdFolder = JD_FOLDER;
+
+  async onModuleInit() {
+    this.makeFolder(this.resumeFolder);
+    this.makeFolder(this.ieFolder);
+    this.makeFolder(this.jdFolder);
+  }
+
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  async uploadFile(filePath, file: any): Promise<boolean> {
+  async uploadFile(filePath: string, file: any): Promise<boolean> {
     await fsp.writeFile(filePath, file.buffer);
 
     return true;
@@ -29,5 +38,9 @@ export class FileService {
     const ans = await fsp.readFile(filepath);
 
     return ans;
+  }
+
+  makeFolder(folderPath) {
+    if (!fs.existsSync(folderPath)) fs.mkdirSync(folderPath, { recursive: true });
   }
 }

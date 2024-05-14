@@ -1,94 +1,206 @@
-import { Injectable, Inject, NotFoundException } from "@nestjs/common";
-import { FindOptions, Transaction } from "sequelize";
-import { parsePagesize, parseFilter, parseOrder } from "src/utils";
-import { CreateFacultyApprovalDto } from "./dtos/facultyApprovalPost.dto";
-import { UpdateFacultyApprovalDto } from "./dtos/facultyApprovalPatch.dto";
-import { FACULTY_APPROVAL_REQUEST_DAO } from "src/constants";
-import { FacultyApprovalRequestModel, FacultyModel, UserModel } from "src/db/models";
-import { FacultyApprovalGetQueryDto } from "./dtos/facultyApprovalGetQuery.dto";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { FACULTY_APPROVAL_REQUEST_DAO, FACULTY_DAO, SALARY_DAO, SEQUELIZE_DAO } from "src/constants";
+import {
+  CompanyModel,
+  FacultyApprovalRequestModel,
+  FacultyModel,
+  JobModel,
+  SalaryModel,
+  SeasonModel,
+  UserModel,
+} from "src/db/models";
+import { FacultyApprovalsQueryDto } from "./dtos/query.dto";
+import { FindOptions, Sequelize, Transaction } from "sequelize";
+import { parseFilter, parseOrder, parsePagesize } from "src/utils";
+import { CreateFacultyApprovalsDto } from "./dtos/post.dto";
+import sequelize from "sequelize";
+import { UpdateFacultyApprovalsDto } from "./dtos/patch.dto";
+import { FacultyApprovalStatusEnum } from "src/enums";
 
 @Injectable()
 export class FacultyApprovalService {
-  constructor(@Inject(FACULTY_APPROVAL_REQUEST_DAO) private facultyApprovalRepo: typeof FacultyApprovalRequestModel) {}
+  constructor(
+    @Inject(FACULTY_APPROVAL_REQUEST_DAO) private facultyApprovalsRepo: typeof FacultyApprovalRequestModel,
+    @Inject(SALARY_DAO) private salaryRepo: typeof SalaryModel,
+    @Inject(FACULTY_DAO) private facultyRepo: typeof FacultyModel,
+    @Inject(SEQUELIZE_DAO) private sequelizeInstance: Sequelize
+  ) {}
 
-  async getFacultyApprovals(where: FacultyApprovalGetQueryDto) {
+  async getFacultyApprovals(where: FacultyApprovalsQueryDto) {
     const findOptions: FindOptions<FacultyApprovalRequestModel> = {
       include: [
         {
           model: FacultyModel,
           as: "faculty",
+          required: true,
           include: [
             {
               model: UserModel,
               as: "user",
+            },
+          ],
+        },
+        {
+          model: SalaryModel,
+          as: "salary",
+          required: true,
+          include: [
+            {
+              model: JobModel,
+              as: "job",
+              required: true,
+              include: [
+                {
+                  model: SeasonModel,
+                  as: "season",
+                },
+                {
+                  model: CompanyModel,
+                  as: "company",
+                },
+              ],
             },
           ],
         },
       ],
     };
-    // Add page size options
+
     const pageOptions = parsePagesize(where);
     Object.assign(findOptions, pageOptions);
-    // Apply filter
     parseFilter(findOptions, where.filterBy || {});
-    // Apply order
     findOptions.order = parseOrder(where.orderBy || {});
 
-    const ans = await this.facultyApprovalRepo.findAll(findOptions);
+    const ans = await this.facultyApprovalsRepo.findAll(findOptions);
 
-    return ans.map((obj) => obj.get({ plain: true }));
+    return ans.map((facultyApproval) => facultyApproval.get({ plain: true }));
   }
 
-  async getFacultyApproval(id: string) {
-    const ans = await this.facultyApprovalRepo.findByPk(id, {
-      include: [
+  async createFacultyApprovals(salaryId: string, facultyApprovals: CreateFacultyApprovalsDto[], t: Transaction) {
+    const [ans, _] = await Promise.all([
+      this.facultyApprovalsRepo.bulkCreate(
+        facultyApprovals.map((facultyApproval) => ({ ...facultyApproval, salaryId })),
+        { transaction: t }
+      ),
+      this.salaryRepo.update(
         {
-          model: FacultyModel,
-          as: "faculty",
-          include: [
-            {
-              model: UserModel,
-              as: "user",
-            },
-          ],
+          facultyApprovals: sequelize.literal(
+            `array_cat("facultyApprovals"::text[], 
+            (SELECT ARRAY
+              ( SELECT "department" FROM "Faculty" WHERE "id" IN 
+              (${facultyApprovals.map((approval) => `'${approval.facultyId}'`).join(",")})
+              )
+            )::text[])::"enum_Salary_facultyApprovals"[]`
+          ),
         },
-      ],
-    });
-    if (!ans) {
-      throw new NotFoundException(`Faculty approval with id ${id} not found`);
-    }
+        { where: { id: salaryId }, transaction: t }
+      ),
+    ]);
 
-    return ans.get({ plain: true });
+    return ans.map((approval) => approval.id);
   }
 
-  /*
-   * async createFacultyApprovals(facultyApprovals: CreateFacultyApprovalDto[]): Promise<string[]> {
-   *   const createdIds: string[] = [];
-   *   for (const approval of facultyApprovals) {
-   *     const createdApproval = await this.facultyApprovalRepo.create(approval);
-   *     createdIds.push(createdApproval.id);
-   *   }
-   *
-   *    return createdIds;
-   *  }
-   */
+  async updateFacultyApproval(facultyApproval: UpdateFacultyApprovalsDto, t: Transaction) {
+    const pr = [];
+    pr.push(this.facultyApprovalsRepo.update(facultyApproval, { where: { id: facultyApproval.id }, transaction: t }));
 
-  async updateFacultyApproval(approval: UpdateFacultyApprovalDto, t: Transaction) {
-    const ans = await this.facultyApprovalRepo.findByPk(approval.id);
-    if (!ans) {
-      throw new NotFoundException(`Faculty approval with id ${approval.id} not found`);
+    if (facultyApproval.status) {
+      if (facultyApproval.status === FacultyApprovalStatusEnum.APPROVED)
+        pr.push(this.removeFacultyApproval(facultyApproval.id, t));
+      else pr.push(this.addFacultyApproval(facultyApproval.id, t));
     }
+    const [[ans]] = await Promise.all(pr);
 
-    return await this.facultyApprovalRepo.update(approval, {
-      where: { id: ans.id },
-      transaction: t,
-    });
+    return ans > 0 ? [] : [facultyApproval.id];
   }
 
-  async deleteFacultyApprovals(pids: string[], t: Transaction) {
-    return await this.facultyApprovalRepo.destroy({
-      where: { id: pids },
-      transaction: t,
-    });
+  async deleteFacultyApproval(facultyApprovalId: string, t: Transaction) {
+    const [_, res] = await Promise.all([
+      this.removeFacultyApproval(facultyApprovalId, t),
+      this.facultyApprovalsRepo.destroy({ where: { id: facultyApprovalId }, transaction: t }),
+    ]);
+
+    return res;
+  }
+
+  async removeFacultyApproval(facultyApprovalId: string, t: Transaction) {
+    await this.sequelizeInstance.query(
+      `UPDATE
+        "Salary"
+    SET
+        "facultyApprovals" = array_remove(
+            "facultyApprovals" :: text [],
+            (
+                SELECT
+                    "department" :: text
+                FROM
+                    "Faculty"
+                WHERE
+                    "id" IN (
+                        SELECT
+                            "facultyId"
+                        FROM
+                            "FacultyApprovalRequest"
+                        WHERE
+                            id = '${facultyApprovalId}'
+                    )
+                LIMIT
+                    1 OFFSET 0
+            )
+        ) :: "enum_Salary_facultyApprovals" [], "updatedAt" = '${new Date().toISOString()}'
+    WHERE
+        "id" IN (
+            SELECT
+                "salaryId"
+            FROM
+                "FacultyApprovalRequest"
+            WHERE
+                "id" = '${facultyApprovalId}'
+        )`,
+      { type: sequelize.QueryTypes.UPDATE, transaction: t }
+    );
+  }
+
+  async addFacultyApproval(facultyApprovalId: string, t: Transaction) {
+    await this.sequelizeInstance.query(
+      `UPDATE
+      "Salary"
+  SET
+      "facultyApprovals" = ARRAY(
+          SELECT
+              DISTINCT unnest(
+                  array_cat(
+                      "facultyApprovals" :: text [],
+                      (
+                          SELECT
+                              ARRAY (
+                                  SELECT
+                                      "department"
+                                  FROM
+                                      "Faculty"
+                                  WHERE
+                                      "id" IN (
+                                          SELECT
+                                              "facultyId"
+                                          FROM
+                                              "FacultyApprovalRequest"
+                                          WHERE
+                                              "id" = '${facultyApprovalId}'
+                                      )
+                              )
+                      ) :: text []
+                  ) :: "enum_Salary_facultyApprovals" []
+              ) AS "S"
+      ), "updatedAt" = '${new Date().toISOString()}'
+  WHERE
+  "id" IN (
+    SELECT
+        "salaryId"
+    FROM
+        "FacultyApprovalRequest"
+    WHERE
+        "id" = '${facultyApprovalId}'
+)`,
+      { type: sequelize.QueryTypes.UPDATE, transaction: t }
+    );
   }
 }

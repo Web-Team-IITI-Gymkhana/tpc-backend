@@ -1,71 +1,64 @@
-import { Body, Controller, Delete, Get, Param, ParseUUIDPipe, Patch, Post, Query } from "@nestjs/common";
+import { Body, Controller, Delete, Param, ParseUUIDPipe, Post, Query } from "@nestjs/common";
+import { ApiBody, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { JobService } from "./job.service";
-import { GetJobQueryDto } from "./dtos/jobGetQuery.dto";
-import { ApiFilterQuery, createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
-import { GetJobReturnDto, GetJobsReturnDto } from "./dtos/jobGetReturn.dto";
-import { CreateJobCoordinatorsDto } from "./dtos/jobCreate.dto";
-import { UpdateJobDto } from "./dtos/jobUpdate.dto";
-import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { DeleteValues, GetValue, GetValues, PatchValues } from "src/decorators/controller";
+import { JobsQueryDto } from "./dtos/query.dto";
+import { GetJobDto, GetJobsDto } from "./dtos/get.dto";
+import { createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
+import { CreateJobCoordinatorsDto } from "./dtos/post.dto";
+import { UpdateJobsDto } from "./dtos/patch.dto";
+import { DeleteValuesDto } from "src/utils/utils.dto";
 
 @Controller("jobs")
-@ApiTags("Jobs")
+@ApiTags("Job")
 export class JobController {
   constructor(private jobService: JobService) {}
 
-  @Get()
-  @ApiFilterQuery("q", GetJobQueryDto)
-  @ApiResponse({ type: GetJobsReturnDto, isArray: true })
-  @ApiOperation({ description: "For schema find GetJobsReturnDto. Ctrl+F for it. " })
-  async getJobs(@Query("q") where: GetJobQueryDto) {
+  @GetValues(JobsQueryDto, GetJobsDto)
+  async getJobs(@Query("q") where: JobsQueryDto) {
     const ans = await this.jobService.getJobs(where);
 
-    return pipeTransformArray(ans, GetJobsReturnDto);
+    return pipeTransformArray(ans, GetJobsDto);
   }
 
-  @Get("/:id")
-  @ApiResponse({ type: GetJobReturnDto })
+  @GetValue(GetJobDto)
   async getJob(@Param("id", new ParseUUIDPipe()) id: string) {
     const ans = await this.jobService.getJob(id);
 
-    return pipeTransform(ans, GetJobReturnDto);
+    return pipeTransform(ans, GetJobDto);
   }
 
-  @Post("/:id/assign")
+  @Post("/coordinators")
   @ApiBody({ type: CreateJobCoordinatorsDto, isArray: true })
-  @ApiResponse({ type: String, isArray: true, description: "Array of ids" })
+  @ApiResponse({ type: String, isArray: true })
   async createJobCoordinators(
-    @Body(createArrayPipe(CreateJobCoordinatorsDto)) body: CreateJobCoordinatorsDto[],
-    @Param("id", new ParseUUIDPipe()) jobId: string
+    @Body(createArrayPipe(CreateJobCoordinatorsDto)) jobCoordinators: CreateJobCoordinatorsDto[]
   ) {
-    const jobCoordinators = body.map((jobCoordinator) => ({ ...jobCoordinator, jobId: jobId }));
-    const ans = await this.jobService.addJobCoordinators(jobCoordinators);
+    const ans = await this.jobService.createJobCoordinators(jobCoordinators);
 
     return ans;
   }
 
-  @Patch()
-  @ApiBody({ type: UpdateJobDto, isArray: true })
-  async updateJobCoordinators(@Body(createArrayPipe(UpdateJobDto)) jobs: UpdateJobDto[]) {
+  @PatchValues(UpdateJobsDto)
+  async updateJobs(@Body(createArrayPipe(UpdateJobsDto)) jobs: UpdateJobsDto[]) {
     const pr = jobs.map((job) => this.jobService.updateJob(job));
     const ans = await Promise.all(pr);
 
+    return ans.flat();
+  }
+
+  @DeleteValues()
+  async deleteJobs(@Query() query: DeleteValuesDto) {
+    const ans = await this.jobService.deleteJobs(query.id);
+
     return ans;
   }
 
-  @Delete()
-  @ApiQuery({ type: String, isArray: true })
-  async deleteJobs(@Query("id") ids: string | string[]) {
-    const pids = typeof ids === "string" ? [ids] : ids;
-    const ans = await this.jobService.deleteJobs(pids);
-
-    return ans;
-  }
-
-  @Delete("/:id/assign")
-  @ApiQuery({ type: String, isArray: true })
-  async deleteJobCoordinators(@Query("id") ids: string | string[]) {
-    const pids = typeof ids === "string" ? [ids] : ids;
-    const ans = await this.jobService.deleteJobCoordinators(pids);
+  @Delete("/coordinators")
+  @ApiQuery({ name: "id", type: String, isArray: true })
+  @ApiResponse({ type: Number })
+  async deleteJobCoordinators(@Query() query: DeleteValuesDto) {
+    const ans = await this.jobService.deleteJobCoordinators(query.id);
 
     return ans;
   }

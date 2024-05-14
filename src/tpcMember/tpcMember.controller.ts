@@ -1,82 +1,51 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  ParseArrayPipe,
-  ParseUUIDPipe,
-  Patch,
-  Post,
-  Query,
-  UseInterceptors,
-} from "@nestjs/common";
-import { GetTpcMemberQueryDto } from "./dtos/tpcMemberGetQuery.dto";
-import { ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
-import { GetTpcMemberReturnDto, GetTpcMembersReturnDto } from "./dtos/tpcMemberGetReturn.dto";
-import { ApiFilterQuery, createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
-import { CreateTpcMemberDto } from "./dtos/tpcMemberPost.dto";
-import { UpdateTpcMemberDto } from "./dtos/tpcMemberPatch.dto";
+import { Body, Controller, Param, ParseUUIDPipe, Query } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
 import { TpcMemberService } from "./tpcMember.service";
-import { RoleEnum } from "src/enums";
-import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
-import { TransactionParam } from "src/decorators/TransactionParam";
-import { Transaction } from "sequelize";
+import { DeleteValues, GetValue, GetValues, PatchValues, PostValues } from "src/decorators/controller";
+import { TpcMembersQueryDto } from "./dtos/query.dto";
+import { GetTpcMemberDto, GetTpcMembersDto } from "./dtos/get.dto";
+import { createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
+import { CreateTpcMembersDto } from "./dtos/post.dto";
+import { UpdateTpcMembersDto } from "./dtos/patch.dto";
+import { DeleteValuesDto } from "src/utils/utils.dto";
 
-@Controller("tpcMembers")
-@ApiTags("TPC Member")
+@Controller("tpc-members")
+@ApiTags("TpcMember")
 export class TpcMemberController {
   constructor(private tpcMemberService: TpcMemberService) {}
 
-  @Get()
-  @ApiResponse({ type: GetTpcMembersReturnDto, isArray: true })
-  @ApiFilterQuery("q", GetTpcMemberQueryDto)
-  async getTpcMembers(@Query("q") where: GetTpcMemberQueryDto) {
+  @GetValues(TpcMembersQueryDto, GetTpcMembersDto)
+  async getTpcMembers(@Query("q") where: TpcMembersQueryDto) {
     const ans = await this.tpcMemberService.getTpcMembers(where);
 
-    return pipeTransformArray(ans, GetTpcMembersReturnDto);
+    return pipeTransformArray(ans, GetTpcMembersDto);
   }
 
-  @Get("/:id")
-  @ApiResponse({ type: GetTpcMemberReturnDto })
+  @GetValue(GetTpcMemberDto)
   async getTpcMember(@Param("id", new ParseUUIDPipe()) id: string) {
     const ans = await this.tpcMemberService.getTpcMember(id);
 
-    return pipeTransform(ans, GetTpcMemberReturnDto);
+    return pipeTransform(ans, GetTpcMemberDto);
   }
 
-  @Post()
-  @ApiBody({ type: CreateTpcMemberDto, isArray: true })
-  @ApiResponse({ type: String, isArray: true, description: "Array of Ids" })
-  async createTpcMembers(@Body(createArrayPipe(CreateTpcMemberDto)) body: CreateTpcMemberDto[]): Promise<string[]> {
-    const tpcMembers = body.map((data) => {
-      data.user.role = RoleEnum.TPC_MEMBER;
-
-      return data;
-    });
-
+  @PostValues(CreateTpcMembersDto)
+  async createTpcMembers(@Body(createArrayPipe(CreateTpcMembersDto)) tpcMembers: CreateTpcMembersDto[]) {
     const ans = await this.tpcMemberService.createTpcMembers(tpcMembers);
 
     return ans;
   }
 
-  @Patch()
-  @UseInterceptors(TransactionInterceptor)
-  @ApiBody({ type: UpdateTpcMemberDto, isArray: true })
-  async updateTpcMembers(
-    @Body(createArrayPipe(UpdateTpcMemberDto)) body: UpdateTpcMemberDto[],
-    @TransactionParam() t: Transaction
-  ) {
-    const pr = body.map((data) => this.tpcMemberService.updateTpcMember(data, t));
+  @PatchValues(UpdateTpcMembersDto)
+  async updateTpcMembers(@Body(createArrayPipe(UpdateTpcMembersDto)) tpcMembers: UpdateTpcMembersDto[]) {
+    const pr = tpcMembers.map((tpcMember) => this.tpcMemberService.updateTpcMember(tpcMember));
     const ans = await Promise.all(pr);
 
-    return ans;
+    return ans.flat();
   }
 
-  @Delete()
-  async deleteTpcMembers(@Query("id") ids: string | string[]) {
-    const pids = typeof ids === "string" ? [ids] : ids;
-    const ans = await this.tpcMemberService.deleteTpcMembers(pids);
+  @DeleteValues()
+  async deleteTpcMembers(@Query() query: DeleteValuesDto) {
+    const ans = await this.tpcMemberService.deleteTpcMembers(query.id);
 
     return ans;
   }

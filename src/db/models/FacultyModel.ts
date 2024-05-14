@@ -1,7 +1,8 @@
-import { Table, Column, Model, ForeignKey, BelongsTo, Unique } from "sequelize-typescript";
+import { Table, Column, Model, ForeignKey, BelongsTo, Unique, HasMany } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { UserModel } from "./UserModel";
-import { DepartmentEnum } from "src/enums/department.enum";
+import { DepartmentEnum } from "src/enums";
+import { FacultyApprovalRequestModel } from "./FacultyApprovalRequestModel";
 
 @Table({
   tableName: "Faculty",
@@ -29,4 +30,10 @@ export class FacultyModel extends Model<FacultyModel> {
     onDelete: "CASCADE",
   })
   user: UserModel;
+
+  @HasMany(() => FacultyApprovalRequestModel, {
+    foreignKey: "facultyId",
+    onDelete: "RESTRICT",
+  })
+  facultyApprovalRequests: FacultyApprovalRequestModel[];
 }

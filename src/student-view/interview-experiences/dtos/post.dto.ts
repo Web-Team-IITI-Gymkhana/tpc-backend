@@ -1,17 +1,19 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsOptional, IsString, IsUUID } from "class-validator";
+import { NestedUUID } from "src/decorators/dto";
 
 export class CreateIEDto {
-  @ApiProperty({ type: String })
-  @IsString()
-  year: string;
+  studentId?: string;
 
-  @ApiProperty({ type: String })
-  @IsUUID()
+  @NestedUUID({})
   companyId: string;
 
+  @NestedUUID({})
+  seasonId: string;
+
+  studentName?: string;
+
+  filename?: string;
+
   @ApiProperty({ type: String, format: "binary" })
-  @IsOptional()
-  @IsString()
   ie: string;
 }

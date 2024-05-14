@@ -1,9 +1,14 @@
-import { Injectable, Inject, NotFoundException } from "@nestjs/common";
-import { FindOptions, Transaction } from "sequelize";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { STUDENT_DAO, USER_DAO } from "src/constants";
 import { PenaltyModel, ProgramModel, ResumeModel, StudentModel, UserModel } from "src/db/models";
-import { parsePagesize, parseFilter, parseOrder } from "src/utils";
-import { GetStudentQueryDto } from "./dtos/studentGetQuery.dto";
+import { StudentsQueryDto } from "./dtos/query.dto";
+import { FindOptions, Transaction } from "sequelize";
+import { parseFilter, parseOrder, parsePagesize } from "src/utils";
+import { CreateStudentsDto } from "./dtos/post.dto";
+import { UpdateStudentsDto } from "./dtos/patch.dto";
+import { omit } from "lodash";
+import sequelize from "sequelize";
+import { RoleEnum } from "src/enums";
 
 @Injectable()
 export class StudentService {
@@ -12,9 +17,8 @@ export class StudentService {
     @Inject(USER_DAO) private userRepo: typeof UserModel
   ) {}
 
-  async getStudents(where: GetStudentQueryDto) {
-    // eslint-disable-next-line prefer-const
-    let findOptions: FindOptions<StudentModel> = {
+  async getStudents(where: StudentsQueryDto) {
+    const findOptions: FindOptions<StudentModel> = {
       include: [
         {
           model: UserModel,
@@ -27,12 +31,9 @@ export class StudentService {
       ],
     };
 
-    // Add page size options
     const pageOptions = parsePagesize(where);
     Object.assign(findOptions, pageOptions);
-    // Apply filter
     parseFilter(findOptions, where.filterBy || {});
-    // Apply order
     findOptions.order = parseOrder(where.orderBy || {});
 
     const ans = await this.studentRepo.findAll(findOptions);
@@ -52,71 +53,52 @@ export class StudentService {
           as: "program",
         },
         {
-          model: PenaltyModel,
-          as: "penalties", //Not many penalties per student.
-        },
-        {
           model: ResumeModel,
           as: "resumes",
         },
-      ],
-    });
-    if (!ans) throw new NotFoundException(`The Student with id: ${id} Not Found`);
-
-    const res: StudentModel & { totalPenalty?: number } = ans.get({ plain: true });
-    res.totalPenalty = 0;
-    res.penalties.forEach((penalty) => (res.totalPenalty += penalty.penalty));
-
-    return res;
-  }
-
-  async createStudents(students): Promise<string[]> {
-    const ans = await this.studentRepo.bulkCreate(students, {
-      include: [
         {
-          model: UserModel,
-          as: "user",
+          model: PenaltyModel,
+          as: "penalties",
         },
       ],
+    });
+
+    if (!ans) throw new NotFoundException(`The Student with id: ${id} does not exist`);
+    const totalPenalty = ans.penalties.reduce((acc, penalty) => acc + penalty.penalty, 0);
+
+    return { ...ans.get({ plain: true }), totalPenalty };
+  }
+
+  async createStudents(students) {
+    students.forEach((student) => {
+      student.user.role = RoleEnum.STUDENT;
+    });
+    const ans = await this.studentRepo.bulkCreate(students, {
+      include: [{ model: UserModel, as: "user" }],
     });
 
     return ans.map((student) => student.id);
   }
 
-  async updateStudent(student, t: Transaction) {
-    const ans = await this.studentRepo.findByPk(student.id);
-    if (!ans) return [student.id];
-
-    const pr = [];
-    pr.push(
-      this.studentRepo.update(student, {
-        where: { id: ans.id },
+  async updateStudent(student: UpdateStudentsDto, t: Transaction) {
+    const [[ans], [res]] = await Promise.all([
+      this.studentRepo.update(omit(student, "user"), { where: { id: student.id }, transaction: t }),
+      this.userRepo.update(student.user, {
+        where: sequelize.literal(`"id" IN (SELECT "userId" FROM "Student" WHERE "id" = '${student.id}')`),
         transaction: t,
-      })
-    );
+      }),
+    ]);
 
-    if (student.user) {
-      pr.push(
-        this.userRepo.update(student.user, {
-          where: { id: ans.userId },
-          transaction: t,
-        })
-      );
-    }
-
-    return [];
+    return ans > 0 || res > 0 ? [] : [student.id];
   }
 
-  async deleteStudents(pids: string[]) {
-    const students = await this.studentRepo.findAll({
-      where: { id: pids },
-      attributes: ["userId"],
+  async deleteStudents(ids: string[]) {
+    const ans = await this.userRepo.destroy({
+      where: sequelize.literal(
+        `"id" IN (SELECT "userId" FROM "Student" WHERE "id" IN (${ids.map((id) => `'${id}'`).join(",")}))`
+      ),
     });
 
-    const userIds = students.map((student) => student.userId);
-
-    return await this.userRepo.destroy({
-      where: { id: userIds },
-    });
+    return ans;
   }
 }

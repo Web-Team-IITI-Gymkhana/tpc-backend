@@ -1,8 +1,9 @@
 import sequelize from "sequelize";
 import { BelongsTo, Column, ForeignKey, HasMany, Model, Table } from "sequelize-typescript";
 import { JobModel } from "./JobModel";
-import { GenderEnum, CategoryEnum } from "../../enums";
+import { GenderEnum, CategoryEnum, DepartmentEnum } from "src/enums";
 import { FacultyApprovalRequestModel } from "./FacultyApprovalRequestModel";
+import { OnCampusOfferModel } from "./OnCampusOfferModel";
 
 @Table({
   tableName: "Salary",
@@ -39,11 +40,47 @@ export class SalaryModel extends Model<SalaryModel> {
   others?: string;
 
   @Column({
-    type: sequelize.JSONB,
-    defaultValue: sequelize.Sequelize.literal("'{}'::jsonb"),
-    allowNull: false,
+    type: sequelize.ARRAY(sequelize.UUID),
   })
-  criteria: object;
+  programs?: string[];
+
+  @Column({
+    type: sequelize.ARRAY(sequelize.ENUM(...Object.values(GenderEnum))),
+  })
+  genders?: GenderEnum[];
+
+  @Column({
+    type: sequelize.ARRAY(sequelize.ENUM(...Object.values(CategoryEnum))),
+  })
+  categories?: CategoryEnum[];
+
+  @Column({
+    type: sequelize.FLOAT,
+    allowNull: false,
+    defaultValue: 0.0,
+  })
+  minCPI: number;
+
+  @Column({
+    type: sequelize.FLOAT,
+    allowNull: false,
+    defaultValue: 0.0,
+  })
+  tenthMarks: number;
+
+  @Column({
+    type: sequelize.FLOAT,
+    allowNull: false,
+    defaultValue: 0.0,
+  })
+  twelthMarks: number;
+
+  @Column({
+    type: sequelize.ARRAY(sequelize.ENUM(...Object.values(DepartmentEnum))),
+    allowNull: false,
+    defaultValue: [],
+  })
+  facultyApprovals?: DepartmentEnum[];
 
   @Column({
     type: sequelize.INTEGER,
@@ -80,4 +117,10 @@ export class SalaryModel extends Model<SalaryModel> {
     onDelete: "CASCADE",
   })
   facultyApprovalRequests: FacultyApprovalRequestModel[];
+
+  @HasMany(() => OnCampusOfferModel, {
+    foreignKey: "salaryId",
+    onDelete: "CASCADE",
+  })
+  onCampusOffers: OnCampusOfferModel[];
 }

@@ -1,12 +1,13 @@
 import sequelize from "sequelize";
-import { BelongsTo, Column, ForeignKey, Model, Table } from "sequelize-typescript";
+import { BelongsTo, Column, ForeignKey, Model, Table, Unique } from "sequelize-typescript";
 import { CompanyModel } from "./CompanyModel";
 import { StudentModel } from "./StudentModel";
+import { SeasonModel } from "./SeasonModel";
 
 @Table({
   tableName: "InterviewExperiences",
 })
-export class InterviewExperienceModel extends Model {
+export class InterviewExperienceModel extends Model<InterviewExperienceModel> {
   @Column({
     type: sequelize.UUID,
     primaryKey: true,
@@ -21,12 +22,21 @@ export class InterviewExperienceModel extends Model {
   })
   studentName: string;
 
+  @Unique("Season-Company-Student-Unique")
+  @ForeignKey(() => SeasonModel)
   @Column({
-    type: sequelize.STRING,
+    type: sequelize.UUID,
     allowNull: false,
   })
-  year: string;
+  seasonId: string;
 
+  @BelongsTo(() => SeasonModel, {
+    foreignKey: "seasonId",
+    onDelete: "RESTRICT",
+  })
+  season: SeasonModel;
+
+  @Unique("Season-Company-Student-Unique")
   @ForeignKey(() => CompanyModel)
   @Column({
     type: sequelize.UUID,
@@ -40,6 +50,7 @@ export class InterviewExperienceModel extends Model {
   })
   company: CompanyModel;
 
+  @Unique("Season-Company-Student-Unique")
   @ForeignKey(() => StudentModel)
   @Column({ type: sequelize.UUID })
   studentId: string;

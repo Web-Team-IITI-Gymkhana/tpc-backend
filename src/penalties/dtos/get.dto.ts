@@ -1,34 +1,61 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsNumber, IsString, IsUUID, ValidateNested } from "class-validator";
-import { GetUsersReturnDto } from "src/student/dtos/studentGetReturn.dto";
+import { NestedEmail, NestedEnum, NestedNumber, NestedObject, NestedString, NestedUUID } from "src/decorators/dto";
+import { DepartmentEnum } from "src/enums";
 
-class GetStudentReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+class UserDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: GetUsersReturnDto })
-  @ValidateNested()
-  @Type(() => GetUsersReturnDto)
-  user: GetUsersReturnDto;
+  @NestedString({})
+  name: string;
+
+  @NestedString({})
+  contact: string;
+
+  @NestedEmail({})
+  email: string;
 }
 
-export class GetPenaltiesReturnDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+class ProgramDto {
+  @NestedUUID({})
   id: string;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
+  @NestedString({})
+  branch: string;
+
+  @NestedString({})
+  course: string;
+
+  @NestedString({})
+  year: string;
+
+  @NestedEnum(DepartmentEnum, {})
+  department: DepartmentEnum;
+}
+
+class StudentDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedString({})
+  rollNo: string;
+
+  @NestedObject({ type: UserDto })
+  user: UserDto;
+
+  @NestedObject({ type: ProgramDto })
+  program: ProgramDto;
+}
+
+export class GetPenaltiesDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedNumber({})
   penalty: number;
 
-  @ApiProperty({ type: String })
-  @IsString()
+  @NestedString({})
   reason: string;
 
-  @ApiProperty({ type: GetStudentReturnDto })
-  @ValidateNested()
-  @Type(() => GetStudentReturnDto)
-  student: GetStudentReturnDto;
+  @NestedObject({ type: StudentDto })
+  student: StudentDto;
 }

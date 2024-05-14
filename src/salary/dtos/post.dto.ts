@@ -1,45 +1,46 @@
-import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
-import { Type } from "class-transformer";
-import { IsNumber, IsOptional, IsString, IsUUID, ValidateNested } from "class-validator";
-import { EligibilityDetailsDto } from "src/job/dtos/jaf.dto";
+import { NestedEnum, NestedNumber, NestedString, NestedUUID } from "src/decorators/dto";
+import { CategoryEnum, GenderEnum } from "src/enums";
 
-export class CreateSalaryDto {
-  @ApiProperty({ type: String })
-  @IsUUID()
+export class CreateSalariesDto {
+  @NestedUUID({})
   jobId: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
+  @NestedString({ optional: true })
   salaryPeriod?: string;
 
-  @ApiPropertyOptional({ type: String })
-  @IsOptional()
-  @IsString()
+  @NestedString({ optional: true })
   others?: string;
 
-  @ApiProperty({ type: EligibilityDetailsDto })
-  @ValidateNested()
-  @Type(() => EligibilityDetailsDto)
-  criteria: EligibilityDetailsDto;
-
-  @ApiProperty({ type: Number })
-  @IsNumber()
+  @NestedNumber({})
   baseSalary: number;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
+  @NestedNumber({})
   totalCTC: number;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
+  @NestedNumber({})
   takeHomeSalary: number;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
+  @NestedNumber({})
   grossSalary: number;
 
-  @ApiProperty({ type: Number })
-  @IsNumber()
+  @NestedNumber({})
   otherCompensations: number;
+
+  @NestedEnum(GenderEnum, { optional: true, isArray: true })
+  genders?: GenderEnum[];
+
+  @NestedUUID({ optional: true, isArray: true })
+  programs?: string[];
+
+  @NestedEnum(CategoryEnum, { optional: true, isArray: true })
+  categories?: CategoryEnum[];
+
+  @NestedNumber({ optional: true })
+  minCPI?: number;
+
+  @NestedNumber({ optional: true })
+  tenthMarks?: number;
+
+  @NestedNumber({ optional: true })
+  twelthMarks?: number;
 }

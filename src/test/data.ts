@@ -7,17 +7,11 @@ import {
   RoleEnum,
   SeasonTypeEnum,
   TpcMemberRoleEnum,
+  IndustryDomainEnum,
+  CountriesEnum,
 } from "src/enums";
-import { CountriesEnum } from "src/enums/Country.enum";
 import { faker } from "@faker-js/faker";
-import { IndustryDomainEnum } from "src/enums/industryDomains.enum";
-import {
-  AddressDto,
-  CompanyDetailsDto,
-  EligibilityDetailsDto,
-  RecruiterDetailsDto,
-  SelectionProcedureDetailsDto,
-} from "src/job/dtos/jaf.dto";
+import { AddressDto } from "src/job/dtos/jaf.dto";
 import {
   ApplicationModel,
   CompanyModel,
@@ -42,14 +36,17 @@ import { Optional } from "sequelize";
 import { NullishPropertiesOf } from "sequelize/types/utils";
 import { floor } from "lodash";
 import { allCourses, MAX_INT, YEARS } from "src/constants";
-import { DepartmentEnum } from "src/enums/department.enum";
-import { SelectionModeEnum } from "src/enums/selectionMode.enum";
-import { TestTypesEnum } from "src/enums/testTypes.enum";
-import { InterviewTypesEnum } from "src/enums/interviewTypes.enum";
-import { OfferStatusEnum } from "src/enums/offerStatus.enum";
-import { JobCoordinatorRoleEnum } from "src/enums/jobCoordinatorRole";
-import { FacultyApprovalStatusEnum } from "src/enums/facultyApproval.enum";
+import {
+  DepartmentEnum,
+  FacultyApprovalStatusEnum,
+  InterviewTypesEnum,
+  JobCoordinatorRoleEnum,
+  OfferStatusEnum,
+  SelectionModeEnum,
+  TestTypesEnum,
+} from "src/enums";
 import { RegistrationModel } from "src/db/models/RegistrationModel";
+import { InterviewExperienceModel } from "src/db/models/InterviewExperienceModel";
 
 export const SEASONS: Optional<SeasonModel, NullishPropertiesOf<SeasonModel>>[] = Array.from({ length: 5 }, () => ({
   id: faker.string.uuid(),
@@ -157,12 +154,12 @@ export const RESUMES: Optional<ResumeModel, NullishPropertiesOf<ResumeModel>>[] 
   return Array.from({ length: noOfResumes }, (_, idx) => ({
     id: faker.string.uuid(),
     studentId: student.id,
-    filepath: faker.string.alpha(),
+    filepath: faker.string.uuid() + ".pdf",
     verified: faker.datatype.boolean(),
   }));
 });
 
-export const SELECTION_PROCEDURES: SelectionProcedureDetailsDto[] = Array.from({ length: 5 }, (_, idx) => ({
+export const SELECTION_PROCEDURES = Array.from({ length: 5 }, (_, idx) => ({
   selectionMode: faker.helpers.enumValue(SelectionModeEnum),
   shortlistFromResume: faker.datatype.boolean(),
   groupDiscussion: faker.datatype.boolean(),
@@ -182,7 +179,7 @@ export const SELECTION_PROCEDURES: SelectionProcedureDetailsDto[] = Array.from({
   others: faker.datatype.boolean() ? faker.string.alpha() : undefined,
 }));
 
-export const COMPANIES_DETAILS_FILLED: CompanyDetailsDto[] = Array.from({ length: 5 }, (_, idx) => ({
+export const COMPANIES_DETAILS_FILLED = Array.from({ length: 5 }, (_, idx) => ({
   name: faker.company.name(),
   website: faker.datatype.boolean() ? faker.internet.url() : undefined,
   domains: Array.from({ length: idx }, () => faker.helpers.enumValue(IndustryDomainEnum)),
@@ -194,21 +191,18 @@ export const COMPANIES_DETAILS_FILLED: CompanyDetailsDto[] = Array.from({ length
   socialMediaLink: faker.datatype.boolean() ? faker.internet.url() : undefined,
 }));
 
-export const RECRUITERS_DETAILS_FILLED: RecruiterDetailsDto[] = Array.from(
-  { length: 5 },
-  (_, idx): RecruiterDetailsDto => {
-    const firstName = faker.person.firstName();
-    const lastName = faker.person.lastName();
+export const RECRUITERS_DETAILS_FILLED = Array.from({ length: 5 }, (_, idx) => {
+  const firstName = faker.person.firstName();
+  const lastName = faker.person.lastName();
 
-    return {
-      name: firstName + " " + lastName,
-      email: faker.internet.email({ firstName: firstName, lastName: lastName }),
-      designation: faker.person.jobTitle(),
-      contact: String(faker.phone.number()),
-      landline: faker.datatype.boolean() ? faker.string.numeric({ length: 7 }) : undefined,
-    };
-  }
-);
+  return {
+    name: firstName + " " + lastName,
+    email: faker.internet.email({ firstName: firstName, lastName: lastName }),
+    designation: faker.person.jobTitle(),
+    contact: String(faker.phone.number()),
+    landline: faker.datatype.boolean() ? faker.string.numeric({ length: 7 }) : undefined,
+  };
+});
 
 export const JOBS: Optional<JobModel, NullishPropertiesOf<JobModel>>[] = Array.from({ length: 5 }, (_, idx) => ({
   id: faker.string.uuid(),
@@ -223,19 +217,19 @@ export const JOBS: Optional<JobModel, NullishPropertiesOf<JobModel>>[] = Array.f
   recruiterDetailsFilled: RECRUITERS_DETAILS_FILLED[idx],
   selectionProcedure: SELECTION_PROCEDURES[idx],
   description: faker.datatype.boolean() ? faker.string.alpha() : undefined,
-  attachment: faker.datatype.boolean() ? faker.string.alpha() : undefined,
+  attachment: faker.datatype.boolean() ? faker.string.uuid() + ".pdf" : undefined,
   skills: faker.datatype.boolean() ? faker.string.alpha() : undefined,
   location: faker.string.alpha(),
   noOfVacancies: faker.datatype.boolean() ? faker.number.int({ min: 0, max: MAX_INT }) : undefined,
-  offerLetterReleaseDate: faker.datatype.boolean() ? faker.date.anytime().toISOString().split("T")[0] : undefined,
-  joiningDate: faker.datatype.boolean() ? faker.date.anytime().toISOString().split("T")[0] : undefined,
+  offerLetterReleaseDate: faker.datatype.boolean() ? faker.date.anytime() : undefined,
+  joiningDate: faker.datatype.boolean() ? faker.date.anytime() : undefined,
   duration: faker.datatype.boolean() ? faker.number.int({ min: 0, max: MAX_INT }) : undefined,
 }));
 
 function makeCriteria() {
   const programs = faker.helpers.arrayElements(PROGRAMS, { min: 1, max: 5 });
 
-  const ans: EligibilityDetailsDto = {
+  const ans = {
     programs: programs.map((program) => program.id),
     genders: faker.helpers.arrayElements(Object.values(GenderEnum), { min: 1, max: 3 }),
     categories: faker.helpers.arrayElements(Object.values(CategoryEnum), { min: 1, max: 5 }),
@@ -263,7 +257,7 @@ export const SALARIES: Optional<SalaryModel, NullishPropertiesOf<SalaryModel>>[]
     takeHomeSalary: faker.number.int({ min: 0, max: 200000 }),
     grossSalary: faker.number.int({ min: 0, max: 200000 }),
     otherCompensations: faker.number.int({ min: 0, max: 200000 }),
-    criteria: makeCriteria(),
+    ...makeCriteria(),
   }))
 );
 
@@ -373,3 +367,22 @@ export const REGISTRATIONS: Optional<RegistrationModel, NullishPropertiesOf<Regi
       registered: faker.datatype.boolean(),
     }))
 );
+
+export const INTERVIEW_EXPERIENCES: Optional<
+  InterviewExperienceModel,
+  NullishPropertiesOf<InterviewExperienceModel>
+>[] = APPLICATIONS.map((application) => {
+  const student = STUDENTS.filter((data) => data.id === application.studentId)[0];
+  const user = USERS.filter((data) => data.id === student.userId)[0];
+  const job = JOBS.filter((data) => data.id === application.jobId)[0];
+
+  const ans: Optional<InterviewExperienceModel, NullishPropertiesOf<InterviewExperienceModel>> = {
+    id: faker.string.uuid(),
+    studentName: user.name,
+    seasonId: job.seasonId,
+    companyId: job.companyId,
+    filename: faker.string.uuid() + ".pdf",
+  };
+
+  return ans;
+});

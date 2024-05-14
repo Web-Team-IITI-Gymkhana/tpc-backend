@@ -1,82 +1,58 @@
-import {
-  Body,
-  Controller,
-  Delete,
-  Get,
-  Param,
-  ParseArrayPipe,
-  ParseUUIDPipe,
-  Patch,
-  Post,
-  Query,
-  UseInterceptors,
-} from "@nestjs/common";
-import { RecuiterService } from "./recruiter.service";
-import { QueryInterceptor } from "src/interceptor/QueryInterceptor";
+import { Controller, Body, Query, Param, ParseUUIDPipe, UseInterceptors } from "@nestjs/common";
+import { ApiTags } from "@nestjs/swagger";
+import { RecruiterService } from "./recruiter.service";
+import { DeleteValues, GetValue, GetValues, PatchValues, PostValues } from "src/decorators/controller";
+import { RecruiterQueryDto } from "./dtos/query.dto";
+import { GetRecruiterDto, GetRecruitersDto } from "./dtos/get.dto";
+import { createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
+import { CreateRecruitersDto } from "./dtos/post.dto";
+import { UpdateRecuitersDto } from "./dtos/patch.dto";
 import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
-import { RoleEnum } from "src/enums";
-import { GetRecruiterQueryDto } from "./dtos/recruiterGetQuery.dto";
-import { ApiFilterQuery, createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
-import { GetRecruiterReturnDto, GetRecruitersReturnDto } from "./dtos/recruiterGetReturn.dto";
-import { CreateRecruiterDto } from "./dtos/recruiterPost.dto";
-import { UpdateRecruiterDto } from "./dtos/recruiterPatch.dto";
-import { ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { DeleteValuesDto } from "src/utils/utils.dto";
 
 @Controller("recruiters")
 @ApiTags("Recruiter")
 export class RecruiterController {
-  constructor(private recruiterService: RecuiterService) {}
+  constructor(private recruiterService: RecruiterService) {}
 
-  @Get()
-  @ApiFilterQuery("q", GetRecruiterQueryDto)
-  @ApiOperation({ description: "Please Refer to the GetRecruiterQueryDto for the Schema Ctrl+F it." })
-  @ApiResponse({ type: GetRecruitersReturnDto, isArray: true })
-  async getRecruiters(@Query("q") where: GetRecruiterQueryDto) {
-    const ans = await this.recruiterService.getRecruiters(where);
+  @GetValues(RecruiterQueryDto, GetRecruitersDto)
+  async getRecruiters(@Query("q") query: RecruiterQueryDto) {
+    const ans = await this.recruiterService.getRecuiters(query);
 
-    return pipeTransformArray(ans, GetRecruitersReturnDto);
+    return pipeTransformArray(ans, GetRecruitersDto);
   }
 
-  @Get("/:id")
-  @ApiResponse({ type: GetRecruiterReturnDto })
+  @GetValue(GetRecruiterDto)
   async getRecruiter(@Param("id", new ParseUUIDPipe()) id: string) {
     const ans = await this.recruiterService.getRecruiter(id);
 
-    return pipeTransform(ans, GetRecruiterReturnDto);
+    return pipeTransform(ans, GetRecruiterDto);
   }
 
-  @Post()
-  @ApiResponse({ type: String, isArray: true, description: "Array of ids" })
-  @ApiBody({ type: CreateRecruiterDto, isArray: true })
-  async createRecruiters(@Body(createArrayPipe(CreateRecruiterDto)) body: CreateRecruiterDto[]): Promise<string[]> {
-    const recruiters = body.map((data) => {
-      data.user.role = RoleEnum.RECRUITER;
-
-      return data;
-    });
+  @PostValues(CreateRecruitersDto)
+  async createRecruiters(@Body(createArrayPipe(CreateRecruitersDto)) recruiters: CreateRecruitersDto[]) {
     const ans = await this.recruiterService.createRecruiters(recruiters);
 
     return ans;
   }
 
-  @Patch()
-  @ApiBody({ type: UpdateRecruiterDto, isArray: true })
+  @PatchValues(UpdateRecuitersDto)
   @UseInterceptors(TransactionInterceptor)
   async updateRecruiters(
-    @Body(createArrayPipe(UpdateRecruiterDto)) recruiters: UpdateRecruiterDto[],
+    @Body(createArrayPipe(UpdateRecuitersDto)) recruiters: UpdateRecuitersDto[],
     @TransactionParam() t: Transaction
   ) {
     const pr = recruiters.map((recruiter) => this.recruiterService.updateRecruiter(recruiter, t));
     const ans = await Promise.all(pr);
 
-    return ans;
+    return ans.flat();
   }
 
-  @Delete()
-  @ApiQuery({ name: "id", type: String, isArray: true })
-  async deleteRecruiters(@Query() ids: string | string[]) {
+  @DeleteValues()
+  async deleteRecruiters(@Query() query: DeleteValuesDto) {
+    const ids = query.id;
     const pids = typeof ids === "string" ? [ids] : ids;
     const ans = await this.recruiterService.deleteRecruiters(pids);
 

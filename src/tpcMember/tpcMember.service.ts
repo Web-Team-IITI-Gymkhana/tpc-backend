@@ -1,32 +1,35 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { FindOptions, Transaction } from "sequelize";
-import { TPC_MEMBER_DAO, USER_DAO } from "src/constants";
-import { CompanyModel, JobCoordinatorModel, JobModel, SeasonModel, TpcMemberModel, UserModel } from "src/db/models";
-import { parsePagesize, parseFilter, parseOrder } from "src/utils";
+import { TPC_MEMBER_DAO } from "src/constants";
+import {
+  CompanyModel,
+  EventModel,
+  JobCoordinatorModel,
+  JobModel,
+  OnCampusOfferModel,
+  SalaryModel,
+  SeasonModel,
+  TpcMemberModel,
+  UserModel,
+} from "src/db/models";
+import { TpcMembersQueryDto } from "./dtos/query.dto";
+import { FindOptions } from "sequelize";
+import { parseFilter, parseOrder, parsePagesize } from "src/utils";
+import { CreateTpcMembersDto } from "./dtos/post.dto";
+import { UpdateTpcMembersDto } from "./dtos/patch.dto";
+import sequelize from "sequelize";
 
 @Injectable()
 export class TpcMemberService {
-  constructor(
-    @Inject(TPC_MEMBER_DAO) private tpcMemberRepo: typeof TpcMemberModel,
-    @Inject(USER_DAO) private userRepo: typeof UserModel
-  ) {}
+  constructor(@Inject(TPC_MEMBER_DAO) private tpcMemberRepo: typeof TpcMemberModel) {}
 
-  async getTpcMembers(where) {
+  async getTpcMembers(where: TpcMembersQueryDto) {
     const findOptions: FindOptions<TpcMemberModel> = {
-      include: [
-        {
-          model: UserModel,
-          as: "user",
-        },
-      ],
+      include: [{ model: UserModel, as: "user" }],
     };
 
-    // Add page size options
     const pageOptions = parsePagesize(where);
     Object.assign(findOptions, pageOptions);
-    // Apply filter
     parseFilter(findOptions, where.filterBy || {});
-    // Apply order
     findOptions.order = parseOrder(where.orderBy || {});
 
     const ans = await this.tpcMemberRepo.findAll(findOptions);
@@ -57,61 +60,41 @@ export class TpcMemberService {
                   model: SeasonModel,
                   as: "season",
                 },
+                {
+                  model: SalaryModel,
+                  as: "salaries",
+                },
+                {
+                  model: EventModel,
+                  as: "events",
+                },
               ],
             },
           ],
         },
       ],
     });
-    if (!ans) throw new NotFoundException(`The TPC Member with id: ${id} Not Found`);
+
+    if (!ans) throw new NotFoundException(`The Tpc Member with id ${id} does not exist`);
 
     return ans.get({ plain: true });
   }
 
-  async createTpcMembers(tpcMembers) {
-    const ans = await this.tpcMemberRepo.bulkCreate(tpcMembers, {
-      include: [
-        {
-          model: UserModel,
-          as: "user",
-        },
-      ],
-    });
+  async createTpcMembers(tpcMembers: CreateTpcMembersDto[]) {
+    const ans = await this.tpcMemberRepo.bulkCreate(tpcMembers);
 
     return ans.map((tpcMember) => tpcMember.id);
   }
 
-  async updateTpcMember(tpcMember, t: Transaction) {
-    const ans = await this.tpcMemberRepo.findByPk(tpcMember.id);
-    if (!ans) throw new NotFoundException(`The id: ${tpcMember.id} Not Found`);
+  async updateTpcMember(tpcMember: UpdateTpcMembersDto) {
+    const [ans] = await this.tpcMemberRepo.update(tpcMember, { where: { id: tpcMember.id } });
 
-    const pr = [];
-    pr.push(
-      this.tpcMemberRepo.update(tpcMember, {
-        where: { id: ans.id },
-        transaction: t,
-      })
-    );
-
-    if (tpcMember.user) {
-      pr.push(
-        this.userRepo.update(tpcMember.user, {
-          where: { id: ans.userId },
-          transaction: t,
-        })
-      );
-    }
-
-    await Promise.all(pr);
-
-    return true;
+    return ans > 0 ? [] : [tpcMember.id];
   }
 
-  async deleteTpcMembers(ids: string[]) {
-    const ans = await this.tpcMemberRepo.findAll({ where: { id: ids }, attributes: ["userId"] });
-    const userIds = ans.map((tpcMember) => tpcMember.userId);
-    const res = await this.userRepo.destroy({ where: { id: userIds } });
+  async deleteTpcMembers(ids: string | string[]) {
+    const ans = await this.tpcMemberRepo.destroy({ where: { id: ids } });
 
-    return res;
+    return ans;
   }
 }

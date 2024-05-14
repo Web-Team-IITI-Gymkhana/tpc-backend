@@ -1,5 +1,5 @@
 /* eslint-disable @typescript-eslint/ban-types */
-import { applyDecorators, InternalServerErrorException, ParseArrayPipe, Type } from "@nestjs/common";
+import { applyDecorators, InternalServerErrorException, ParseArrayPipe, Type, ValidationPipe } from "@nestjs/common";
 import { ApiExtraModels, ApiQuery, getSchemaPath } from "@nestjs/swagger";
 import { ValidationError } from "class-validator";
 import { Transaction } from "sequelize";
@@ -46,7 +46,7 @@ export async function pipeTransformArray(objects, toType) {
   const pipe = new RemoveNullArrayPipe({
     whitelist: true,
     items: toType,
-    exceptionFactory: exceptionFactoryPipe,
+    errorHttpStatusCode: 500,
   });
 
   const ans = await pipe.transform(objects, { type: "body" });
@@ -57,8 +57,9 @@ export async function pipeTransformArray(objects, toType) {
 export async function pipeTransform(object, toType) {
   const pipe = new RemoveNullValidationPipe({
     whitelist: true,
+    transform: true,
     expectedType: toType,
-    exceptionFactory: exceptionFactoryPipe,
+    errorHttpStatusCode: 500,
   });
 
   const ans = await pipe.transform(object, { type: "body" });

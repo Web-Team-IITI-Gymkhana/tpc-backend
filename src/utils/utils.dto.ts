@@ -1,6 +1,6 @@
 import { ApiPropertyOptional } from "@nestjs/swagger";
 import { Type } from "class-transformer";
-import { IsArray, IsBoolean, IsEnum, IsNumber, IsOptional, IsString, IsUUID } from "class-validator";
+import { IsArray, IsBoolean, IsEnum, IsNumber, IsOptional, IsString, IsUUID, IsDate } from "class-validator";
 
 export class MatchOptionsString {
   @ApiPropertyOptional({
@@ -45,6 +45,34 @@ export class MatchOptionsNumber {
   gt?: number;
 }
 
+export class MatchOptionsDate {
+  @ApiPropertyOptional({
+    type: Date,
+    isArray: true,
+  })
+  @IsArray()
+  @IsDate({ each: true })
+  @IsOptional()
+  @Type(() => Date)
+  eq?: Array<Date>;
+
+  @ApiPropertyOptional({
+    type: Date,
+  })
+  @IsDate()
+  @IsOptional()
+  @Type(() => Date)
+  lt?: Date;
+
+  @ApiPropertyOptional({
+    type: Date,
+  })
+  @IsDate()
+  @IsOptional()
+  @Type(() => Date)
+  gt?: Date;
+}
+
 export class MatchOptionsUUID {
   @ApiPropertyOptional({
     type: Array<string>,
@@ -77,4 +105,14 @@ export class MatchOptionsBool {
   @IsBoolean({ each: true })
   @Type(() => Boolean)
   eq?: boolean[];
+}
+
+export class DeleteValuesDto {
+  @IsUUID("all", { each: true })
+  id: string | string[];
+}
+
+export class DeleteFilesDto {
+  @IsString({ each: true })
+  filename: string | string[];
 }
