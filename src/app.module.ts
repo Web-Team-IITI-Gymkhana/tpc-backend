@@ -27,7 +27,6 @@ import { EventModule } from "./event/event.module";
 import { CompanyModule } from "./company/company.module";
 import { OfferModule } from "./offers/offer.module";
 import { StudentViewSalaryModule } from "./student-view/salary/salary.module";
-import { MailerModule } from "./mailer/mailer.module";
 
 @Module({
   imports: [
@@ -55,7 +54,6 @@ import { MailerModule } from "./mailer/mailer.module";
     EventModule,
     CompanyModule,
     OfferModule,
-    MailerModule,
   ],
   controllers: [AppController],
   providers: [Logger, TransactionInterceptor, QueryInterceptor, AppService],
