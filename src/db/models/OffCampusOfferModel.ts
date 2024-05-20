@@ -5,8 +5,8 @@ import { CompanyModel } from "./CompanyModel";
 import { SeasonModel } from "./SeasonModel";
 import { StudentModel } from "./StudentModel";
 import { OfferStatusEnum } from "src/enums";
-import { MailerService } from "src/mailer/mailer.service";
-import { SendEmailDto } from "../../mailer/mail.interface";
+import { EmailService } from "src/services/EmailService";
+import { SendEmailDto } from "src/services/EmailService";
 import { UserModel } from "./UserModel";
 
 @Table({
@@ -90,7 +90,7 @@ export class OffCampusOfferModel extends Model<OffCampusOfferModel> {
   @AfterBulkCreate
   static async sendEmailHook(instance: OffCampusOfferModel[]) {
     console.log("New entries created");
-    const mailerService = new MailerService();
+    const mailerService = new EmailService();
 
     // Iterate over each newly created instance
     for (const offer of instance) {
@@ -111,10 +111,10 @@ export class OffCampusOfferModel extends Model<OffCampusOfferModel> {
       // Prepare the email data
       const dto: SendEmailDto = {
         from: { name: "TPC Portal", address: "aryangkulkarni@gmail.com" },
-        // recepients: [{ address: "me210003016@iiti.ac.in" }],
+        // recepients: [{ address: "me210003016@iiti.ac.in" }],  // Put your email address for testing
         recepients: [{ address: user.email }],
         subject: "Test email",
-        html: `<p>Hi ${user.name}, this is a test email</p>`,
+        html: `<p>Hi ${user.name}, there is an offCampus Offer for you</p>`,
       };
 
       // Send email

@@ -4,8 +4,8 @@ import sequelize from "sequelize";
 import { StudentModel } from "./StudentModel";
 import { SalaryModel } from "./SalaryModel";
 import { OfferStatusEnum } from "src/enums";
-import { MailerService } from "src/mailer/mailer.service";
-import { SendEmailDto } from "../../mailer/mail.interface";
+import { EmailService } from "src/services/EmailService";
+import { SendEmailDto } from "src/services/EmailService";
 import { UserModel } from "./UserModel";
 
 @Table({
@@ -63,7 +63,7 @@ export class OnCampusOfferModel extends Model<OnCampusOfferModel> {
   @AfterBulkCreate
   static async sendEmailHook(instance: OnCampusOfferModel[]) {
     console.log("New entries created");
-    const mailerService = new MailerService();
+    const mailerService = new EmailService();
 
     // Iterate over each newly created instance
     for (const offer of instance) {
@@ -82,16 +82,16 @@ export class OnCampusOfferModel extends Model<OnCampusOfferModel> {
       }
 
       // Prepare the email data
-      const dto: SendEmailDto = {
+      const data: SendEmailDto = {
         from: { name: "TPC Portal", address: "aryangkulkarni@gmail.com" },
-        // recepients: [{ address: "me210003016@iiti.ac.in" }],
+        // recepients: [{ address: "me210003016@iiti.ac.in" }],  // Put your email address for testing
         recepients: [{ address: user.email }],
-        subject: "Test email",
-        html: `<p>Hi ${user.name}, this is a test email</p>`,
+        subject: "OnCampus Offer",
+        html: `<p>Hi ${user.name}, there is an onCampus Offer for you</p>`,
       };
 
       // Send email
-      await mailerService.sendEmail(dto);
+      await mailerService.sendEmail(data);
     }
   }
 }

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-loop-func */
+/* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable no-console */
 import sequelize, { Sequelize } from "sequelize";
 import {
@@ -11,6 +13,9 @@ import {
   DataType,
   HasOne,
   AfterCreate,
+  AfterUpdate,
+  AfterBulkUpdate,
+  BeforeBulkUpdate,
 } from "sequelize-typescript";
 import { CompanyModel } from "./CompanyModel";
 import { EventModel } from "./EventModel";
@@ -21,8 +26,10 @@ import { JobCoordinatorModel } from "./JobCoordinatorModel";
 import { FacultyApprovalRequestModel } from "./FacultyApprovalRequestModel";
 import { JobStatusTypeEnum } from "src/enums";
 import { ApplicationModel } from "./ApplicationModel";
-import { MailerService } from "src/mailer/mailer.service";
-import { SendEmailDto } from "../../mailer/mail.interface";
+import { EmailService } from "src/services/EmailService";
+import { SendEmailDto } from "src/services/EmailService";
+import { StudentModel } from "./StudentModel";
+import { UserModel } from "./UserModel";
 
 @Table({
   tableName: "Job",
@@ -195,16 +202,74 @@ export class JobModel extends Model<JobModel> {
   @AfterCreate
   static async sendEmailHook(instance: JobModel) {
     console.log("New entry created");
-    const mailerService = new MailerService();
+    const mailerService = new EmailService();
 
     const dto: SendEmailDto = {
       from: { name: "TPC Portal", address: "aryangkulkarni@gmail.com" },
-      recepients: [{ address: "me210003016@iiti.ac.in" }],
+      recepients: [{ address: "me210003016@iiti.ac.in" }], // Put your email address for testing
       subject: "Test email",
-      html: "<p>Hi Aryan, this is a test email</p>",
+      html: "<p>New job entry was created</p>",
     };
 
     // Send email
     await mailerService.sendEmail(dto);
+  }
+
+  @BeforeBulkUpdate
+  static async sendEmailOnEventChange(options: any) {
+    const jobs = await JobModel.findAll({ where: options.where });
+    // console.log("Before Update Called");
+    for (const job of jobs) {
+      const previousActive = job.active;
+      const newActive = options.attributes.active;
+
+      if (previousActive === false && newActive === true) {
+        // console.log("Before Update - Sending Email for Job ID: ", job.id);
+
+        const mailerService = new EmailService();
+
+        const students: StudentModel[] = await StudentModel.findAll();
+        const salaries = await SalaryModel.findAll({
+          where: {
+            jobId: job.id,
+          },
+        });
+        const eligibleStudents = new Set<StudentModel>();
+        console.log("salaries", salaries);
+
+        // Iterate over each salary and filter students
+        for (const salary of salaries) {
+          students.forEach((student) => {
+            if (
+              student.cpi >= salary.minCPI &&
+              salary.programs.includes(student.programId) &&
+              salary.categories.includes(student.category) &&
+              salary.genders.includes(student.gender) &&
+              student.tenthMarks >= salary.tenthMarks &&
+              student.twelthMarks >= salary.twelthMarks
+            ) {
+              console.log("student added", student.id);
+              eligibleStudents.add(student);
+            }
+          });
+        }
+
+        // console.log("eligible Students ", eligibleStudents);
+
+        // Prepare and send the email data
+        for (const student of eligibleStudents) {
+          const user = await UserModel.findByPk(student.userId);
+          const data: SendEmailDto = {
+            from: { name: "TPC Portal", address: "aryangkulkarni@gmail.com" },
+            // recepients: [{ address: "me210003016@iiti.ac.in" }], // Put your email address for testing
+            recepients: [{ address: user.email }],
+            subject: "Event Change Notification",
+            html: `Dear ${user.name},\nThe event associated with your application ID ${job.id} has been changed.`,
+          };
+
+          await mailerService.sendEmail(data);
+        }
+      }
+    }
   }
 }
