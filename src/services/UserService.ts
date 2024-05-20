@@ -15,7 +15,7 @@ export class UserService {
   async getUserByEmail(email: string): Promise<IUser> {
     const userModel = await this.userRepo.findOne({
       where: { email: email },
-      attributes: ["id"],
+      attributes: ["id","role"],
       include: [
         {
           model: StudentModel,

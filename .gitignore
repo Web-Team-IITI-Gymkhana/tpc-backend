@@ -37,3 +37,4 @@ dist
 ti-*
 
 /uploads/
+yarn.lock
