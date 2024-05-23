@@ -62,6 +62,8 @@ export class FacultyViewService {
       ],
     });
 
+    if (!ans) throw new UnauthorizedException(`Unauthorized`);
+
     return ans.map((approval) => approval.get({ plain: true }));
   }
 
