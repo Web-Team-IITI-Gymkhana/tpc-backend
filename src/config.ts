@@ -16,11 +16,9 @@ export interface IEnvironmentVariables {
   GOOGLE_CLIENT_SECRET: string;
   BACKEND_URL: string;
   FRONTEND_URL: string;
-  MAIL_HOST: string;
-  MAIL_PORT: string;
   MAIL_USER: string;
   MAIL_PASSWORD: string;
-  DEFAULT_MAIL_FROM: string;
+  DEFAULT_MAIL_TO: string;
   APP_NAME: string;
 }
 
@@ -42,11 +40,9 @@ export function env(): IEnvironmentVariables {
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     BACKEND_URL: process.env.BACKEND_URL,
     FRONTEND_URL: process.env.FRONTEND_URL,
-    MAIL_HOST: process.env.MAIL_HOST,
-    MAIL_PORT: process.env.MAIL_PORT,
     MAIL_USER: process.env.MAIL_USER,
     MAIL_PASSWORD: process.env.MAIL_PASSWORD,
-    DEFAULT_MAIL_FROM: process.env.DEFAULT_MAIL_FROM,
+    DEFAULT_MAIL_TO: process.env.DEFAULT_MAIL_TO,
     APP_NAME: process.env.APP_NAME,
   };
 

@@ -20,6 +20,10 @@ import { ResumeModel } from "./ResumeModel";
 import { EmailService } from "src/services/EmailService";
 import { SendEmailDto } from "src/services/EmailService";
 import { UserModel } from "./UserModel";
+import { IEnvironmentVariables, env } from "src/config";
+
+const environmentVariables: IEnvironmentVariables = env();
+const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO } = environmentVariables;
 
 @Table({
   tableName: "Application",
@@ -99,8 +103,8 @@ export class ApplicationModel extends Model<ApplicationModel> {
     const user = await UserModel.findByPk(student.userId);
 
     const dto: SendEmailDto = {
-      from: { name: "TPC Portal", address: "aryangkulkarni@gmail.com" },
-      // recepients: [{ address: "me210003016@iiti.ac.in" }], // Put your email address for testing
+      from: { name: APP_NAME, address: MAIL_USER },
+      // recepients: [{ address: DEFAULT_MAIL_TO }], // Put your email address for testing
       recepients: [{ address: `${user.email}` }], // Put your email address for testing
       subject: "Test email",
       html: `<p>Dear ${user.name}, Your Application was submitted successfully</p>`,
@@ -115,9 +119,13 @@ export class ApplicationModel extends Model<ApplicationModel> {
     const applications = await ApplicationModel.findAll({ where: options.where });
 
     console.log("Before Update called");
+    console.log(applications);
     for (const application of applications) {
       const previousEventId = application.eventId;
       const newEventId = options.attributes.eventId;
+
+      console.log(previousEventId);
+      console.log(newEventId);
 
       if (previousEventId !== newEventId) {
         const mailerService = new EmailService();
@@ -136,8 +144,8 @@ export class ApplicationModel extends Model<ApplicationModel> {
 
         // Prepare the email data
         const data: SendEmailDto = {
-          from: { name: "TPC Portal", address: "aryangkulkarni@gmail.com" },
-          // recepients: [{ address: "me210003016@iiti.ac.in" }], // Put your email address for testing
+          from: { name: APP_NAME, address: MAIL_USER },
+          // recepients: [{ address: DEFAULT_MAIL_TO }], // Put your email address for testing
           recepients: [{ address: user.email }],
           subject: "Event Change Notification",
           html: `Dear ${user.name},\nThe event associated with your application ID ${application.id} has been changed.`,

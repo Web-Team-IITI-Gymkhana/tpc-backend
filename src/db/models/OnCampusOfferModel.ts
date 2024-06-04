@@ -7,6 +7,10 @@ import { OfferStatusEnum } from "src/enums";
 import { EmailService } from "src/services/EmailService";
 import { SendEmailDto } from "src/services/EmailService";
 import { UserModel } from "./UserModel";
+import { IEnvironmentVariables, env } from "src/config";
+
+const environmentVariables: IEnvironmentVariables = env();
+const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO } = environmentVariables;
 
 @Table({
   tableName: "OnCampusOffer",
@@ -83,9 +87,9 @@ export class OnCampusOfferModel extends Model<OnCampusOfferModel> {
 
       // Prepare the email data
       const data: SendEmailDto = {
-        from: { name: "TPC Portal", address: "aryangkulkarni@gmail.com" },
-        // recepients: [{ address: "me210003016@iiti.ac.in" }],  // Put your email address for testing
-        recepients: [{ address: user.email }],
+        from: { name: APP_NAME, address: MAIL_USER },
+        recepients: [{ address: DEFAULT_MAIL_TO }], // Put your email address for testing
+        // recepients: [{ address: user.email }],
         subject: "OnCampus Offer",
         html: `<p>Hi ${user.name}, there is an onCampus Offer for you</p>`,
       };

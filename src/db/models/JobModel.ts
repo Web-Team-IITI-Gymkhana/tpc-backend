@@ -30,6 +30,10 @@ import { EmailService } from "src/services/EmailService";
 import { SendEmailDto } from "src/services/EmailService";
 import { StudentModel } from "./StudentModel";
 import { UserModel } from "./UserModel";
+import { IEnvironmentVariables, env } from "src/config";
+
+const environmentVariables: IEnvironmentVariables = env();
+const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO } = environmentVariables;
 
 @Table({
   tableName: "Job",
@@ -205,8 +209,8 @@ export class JobModel extends Model<JobModel> {
     const mailerService = new EmailService();
 
     const dto: SendEmailDto = {
-      from: { name: "TPC Portal", address: "aryangkulkarni@gmail.com" },
-      recepients: [{ address: "me210003016@iiti.ac.in" }], // Put your email address for testing
+      from: { name: APP_NAME, address: MAIL_USER },
+      recepients: [{ address: DEFAULT_MAIL_TO }], // Put your email address for testing
       subject: "Test email",
       html: "<p>New job entry was created</p>",
     };
@@ -254,14 +258,12 @@ export class JobModel extends Model<JobModel> {
           });
         }
 
-        // console.log("eligible Students ", eligibleStudents);
-
         // Prepare and send the email data
         for (const student of eligibleStudents) {
           const user = await UserModel.findByPk(student.userId);
           const data: SendEmailDto = {
-            from: { name: "TPC Portal", address: "aryangkulkarni@gmail.com" },
-            // recepients: [{ address: "me210003016@iiti.ac.in" }], // Put your email address for testing
+            from: { name: APP_NAME, address: MAIL_USER },
+            // recepients: [{ address: DEFAULT_MAIL_TO }],
             recepients: [{ address: user.email }],
             subject: "Event Change Notification",
             html: `Dear ${user.name},\nThe event associated with your application ID ${job.id} has been changed.`,
