@@ -1,8 +1,10 @@
 import { NestedEnum, NestedNumber, NestedObject } from "src/decorators/dto";
-import { DepartmentEnum, OrderByEnum } from "src/enums";
-import { createMatchOptionsEnum, MatchOptionsString, MatchOptionsUUID } from "src/utils/utils.dto";
+import { DepartmentEnum, FacultyApprovalStatusEnum, SeasonTypeEnum, OrderByEnum } from "src/enums";
+import { createMatchOptionsEnum, MatchOptionsNumber, MatchOptionsString, MatchOptionsUUID } from "src/utils/utils.dto";
 
+const facultyApprovalStatusEnum = createMatchOptionsEnum(FacultyApprovalStatusEnum);
 const departmentEnum = createMatchOptionsEnum(DepartmentEnum);
+const seasonTypeEnum = createMatchOptionsEnum(SeasonTypeEnum);
 
 class FilterUserDto {
   @NestedObject({ type: MatchOptionsUUID, optional: true })
@@ -16,17 +18,6 @@ class FilterUserDto {
 
   @NestedObject({ type: MatchOptionsString, optional: true })
   contact?: MatchOptionsString;
-}
-
-class FilterFacultiesDto {
-  @NestedObject({ type: MatchOptionsUUID, optional: true })
-  id?: MatchOptionsUUID;
-
-  @NestedObject({ type: departmentEnum, optional: true })
-  department?: typeof departmentEnum;
-
-  @NestedObject({ type: FilterUserDto, optional: true })
-  user?: FilterUserDto;
 }
 
 class OrderUserDto {
@@ -43,7 +34,88 @@ class OrderUserDto {
   contact?: OrderByEnum;
 }
 
-class OrderFacultiesDto {
+class FilterFacultyDto {
+  @NestedObject({ type: MatchOptionsUUID, optional: true })
+  id?: MatchOptionsUUID;
+
+  @NestedObject({ type: departmentEnum, optional: true })
+  department?: typeof departmentEnum;
+
+  @NestedObject({ type: FilterUserDto, optional: true })
+  user?: FilterUserDto;
+}
+
+class FilterCompanyDto {
+  @NestedObject({ type: MatchOptionsUUID, optional: true })
+  id?: MatchOptionsUUID;
+
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  name?: MatchOptionsString;
+}
+
+class FilterSeasonDto {
+  @NestedObject({ type: MatchOptionsUUID, optional: true })
+  id?: MatchOptionsUUID;
+
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  year?: MatchOptionsString;
+
+  @NestedObject({ type: seasonTypeEnum, optional: true })
+  type?: typeof seasonTypeEnum;
+}
+
+class FilterJobDto {
+  @NestedObject({ type: MatchOptionsUUID, optional: true })
+  id?: MatchOptionsUUID;
+
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  role?: MatchOptionsString;
+
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  joiningDate?: MatchOptionsString;
+
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  offerLetterReleaseDate?: MatchOptionsString;
+
+  @NestedObject({ type: FilterCompanyDto, optional: true })
+  company?: FilterCompanyDto;
+
+  @NestedObject({ type: FilterSeasonDto, optional: true })
+  season?: FilterSeasonDto;
+}
+
+class FilterSalaryDto {
+  @NestedObject({ type: MatchOptionsUUID, optional: true })
+  id?: MatchOptionsUUID;
+
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  salaryPeriod?: MatchOptionsString;
+
+  @NestedObject({ type: MatchOptionsNumber, optional: true })
+  totalCTC?: MatchOptionsNumber;
+
+  @NestedObject({ type: FilterJobDto, optional: true })
+  job?: FilterJobDto;
+}
+
+class FilterFacultyApprovalsDto {
+  @NestedObject({ type: MatchOptionsUUID, optional: true })
+  id?: MatchOptionsUUID;
+
+  @NestedObject({ type: facultyApprovalStatusEnum, optional: true })
+  status?: typeof facultyApprovalStatusEnum;
+
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  remarks?: MatchOptionsString;
+
+  @NestedObject({ type: FilterFacultyDto, optional: true })
+  faculty?: FilterFacultyDto;
+
+  @NestedObject({ type: FilterSalaryDto, optional: true })
+  salary?: FilterSalaryDto;
+}
+
+class OrderFacultyDto {
   @NestedEnum(OrderByEnum, { optional: true })
   id?: OrderByEnum;
 
@@ -54,16 +126,86 @@ class OrderFacultiesDto {
   user?: OrderUserDto;
 }
 
-export class FacultyQueryDto {
+class OrderCompanyDto {
+  @NestedEnum(OrderByEnum, { optional: true })
+  id?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  name?: OrderByEnum;
+}
+
+class OrderSeasonDto {
+  @NestedEnum(OrderByEnum, { optional: true })
+  id?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  year?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  type?: OrderByEnum;
+}
+
+class OrderJobDto {
+  @NestedEnum(OrderByEnum, { optional: true })
+  id?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  role?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  joiningDate?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  offerLetterReleaseDate?: OrderByEnum;
+
+  @NestedObject({ type: OrderCompanyDto, optional: true })
+  company?: OrderCompanyDto;
+
+  @NestedObject({ type: OrderSeasonDto, optional: true })
+  season?: OrderSeasonDto;
+}
+
+class OrderSalaryDto {
+  @NestedEnum(OrderByEnum, { optional: true })
+  id?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  salaryPeriod?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  totalCTC?: OrderByEnum;
+
+  @NestedObject({ type: OrderJobDto, optional: true })
+  job?: OrderJobDto;
+}
+
+class OrderFacultyApprovalsDto {
+  @NestedEnum(OrderByEnum, { optional: true })
+  id?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  status?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  remarks?: OrderByEnum;
+
+  @NestedObject({ type: OrderFacultyDto, optional: true })
+  faculty?: OrderFacultyDto;
+
+  @NestedObject({ type: OrderSalaryDto, optional: true })
+  salary?: OrderSalaryDto;
+}
+
+export class FacultyApprovalsQueryDto {
   @NestedNumber({ optional: true })
   from?: number;
 
   @NestedNumber({ optional: true })
   to?: number;
 
-  @NestedObject({ type: FilterFacultiesDto, optional: true })
-  filterBy?: FilterFacultiesDto;
+  @NestedObject({ type: FilterFacultyApprovalsDto, optional: true })
+  filterBy?: FilterFacultyApprovalsDto;
 
-  @NestedObject({ type: OrderFacultiesDto, optional: true })
-  orderBy?: OrderFacultiesDto;
+  @NestedObject({ type: OrderFacultyApprovalsDto, optional: true })
+  orderBy?: OrderFacultyApprovalsDto;
 }

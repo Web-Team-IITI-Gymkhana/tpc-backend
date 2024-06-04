@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors, Query } from "@nestjs/common";
 import { FacultyViewService } from "./faculty-view.service";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiResponse, ApiTags, ApiBearerAuth } from "@nestjs/swagger";
@@ -11,6 +11,7 @@ import { UpdateFacultyApprovalStatusDto, UpdateFacultyDto } from "./dto/patch.dt
 import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { Transaction } from "sequelize";
 import { TransactionParam } from "src/decorators/TransactionParam";
+import { FacultyApprovalsQueryDto } from "./dto/query.dto";
 
 @Controller("faculty-view")
 @UseGuards(AuthGuard("jwt"))
@@ -29,7 +30,7 @@ export class FacultyViewController {
 
   @Get("approvals")
   @ApiResponse({ type: FacultyApprovalRequestsDto, isArray: true })
-  async getFacultyApprovals(@User() user: IUser) {
+  async getFacultyApprovals(@Query("q") where: FacultyApprovalsQueryDto, @User() user: IUser) {
     const ans = await this.facultyViewService.getApprovals({ facultyId: user.facultyId });
 
     return pipeTransformArray(ans, FacultyApprovalRequestsDto);

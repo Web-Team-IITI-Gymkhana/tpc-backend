@@ -65,10 +65,7 @@ class SalaryDto {
 
   @NestedNumber({})
   totalCTC: number;
-  
-  @NestedNumber({})
-  totalCTC: number;
-  
+
   @NestedString({ optional: true })
   salaryPeriod?: string;
 
