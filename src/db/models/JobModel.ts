@@ -1,7 +1,4 @@
-/* eslint-disable @typescript-eslint/no-loop-func */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-/* eslint-disable no-console */
-import sequelize, { Sequelize } from "sequelize";
+import sequelize, { Sequelize, WhereOptions } from "sequelize";
 import {
   BelongsTo,
   Column,
@@ -31,9 +28,17 @@ import { SendEmailDto } from "src/services/EmailService";
 import { StudentModel } from "./StudentModel";
 import { UserModel } from "./UserModel";
 import { IEnvironmentVariables, env } from "src/config";
+import { NotFoundException } from "@nestjs/common";
 
 const environmentVariables: IEnvironmentVariables = env();
 const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO } = environmentVariables;
+
+interface IUpdateOptions {
+  where: WhereOptions<JobModel>;
+  attributes: {
+    active: boolean;
+  };
+}
 
 @Table({
   tableName: "Job",
@@ -205,7 +210,6 @@ export class JobModel extends Model<JobModel> {
 
   @AfterCreate
   static async sendEmailHook(instance: JobModel) {
-    console.log("New entry created");
     const mailerService = new EmailService();
 
     const dto: SendEmailDto = {
@@ -220,16 +224,13 @@ export class JobModel extends Model<JobModel> {
   }
 
   @BeforeBulkUpdate
-  static async sendEmailOnEventChange(options: any) {
+  static async sendEmailOnEventChange(options: IUpdateOptions) {
     const jobs = await JobModel.findAll({ where: options.where });
-    // console.log("Before Update Called");
     for (const job of jobs) {
       const previousActive = job.active;
       const newActive = options.attributes.active;
 
       if (previousActive === false && newActive === true) {
-        // console.log("Before Update - Sending Email for Job ID: ", job.id);
-
         const mailerService = new EmailService();
 
         const students: StudentModel[] = await StudentModel.findAll();
@@ -239,7 +240,6 @@ export class JobModel extends Model<JobModel> {
           },
         });
         const eligibleStudents = new Set<StudentModel>();
-        console.log("salaries", salaries);
 
         // Iterate over each salary and filter students
         for (const salary of salaries) {
@@ -252,7 +252,6 @@ export class JobModel extends Model<JobModel> {
               student.tenthMarks >= salary.tenthMarks &&
               student.twelthMarks >= salary.twelthMarks
             ) {
-              console.log("student added", student.id);
               eligibleStudents.add(student);
             }
           });
@@ -265,8 +264,8 @@ export class JobModel extends Model<JobModel> {
             from: { name: APP_NAME, address: MAIL_USER },
             // recepients: [{ address: DEFAULT_MAIL_TO }],
             recepients: [{ address: user.email }],
-            subject: "Event Change Notification",
-            html: `Dear ${user.name},\nThe event associated with your application ID ${job.id} has been changed.`,
+            subject: "Status Change Notification",
+            html: `Dear ${user.name},\nThe Status of job with id ${job.id} has been changed.`,
           };
 
           await mailerService.sendEmail(data);

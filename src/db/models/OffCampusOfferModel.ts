@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 import sequelize from "sequelize";
 import { Model, Column, Table, ForeignKey, Unique, BelongsTo, AfterBulkCreate } from "sequelize-typescript";
 import { CompanyModel } from "./CompanyModel";
@@ -9,6 +8,7 @@ import { EmailService } from "src/services/EmailService";
 import { SendEmailDto } from "src/services/EmailService";
 import { UserModel } from "./UserModel";
 import { IEnvironmentVariables, env } from "src/config";
+import { NotFoundException } from "@nestjs/common";
 
 const environmentVariables: IEnvironmentVariables = env();
 const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO } = environmentVariables;
@@ -93,26 +93,21 @@ export class OffCampusOfferModel extends Model<OffCampusOfferModel> {
 
   @AfterBulkCreate
   static async sendEmailHook(instance: OffCampusOfferModel[]) {
-    console.log("New entries created");
     const mailerService = new EmailService();
 
-    // Iterate over each newly created instance
     for (const offer of instance) {
-      // Find the student associated with this offer
       const student = await StudentModel.findByPk(offer.studentId);
       if (!student) {
-        console.error(`Student not found for offer ${offer.id}`);
-        continue; // Skip to the next offer if student not found
+        throw new NotFoundException(`Student not found for offer ${offer.id}`);
+        continue;
       }
 
-      // Find the user associated with this student
       const user = await UserModel.findByPk(student.userId);
       if (!user) {
-        console.error(`User not found for student ${student.id}`);
-        continue; // Skip to the next offer if user not found
+        throw new NotFoundException(`User not found for student ${student.id}`);
+        continue;
       }
 
-      // Prepare the email data
       const dto: SendEmailDto = {
         from: { name: APP_NAME, address: MAIL_USER },
         // recepients: [{ address: DEFAULT_MAIL_TO }], // Put your email address for testing
@@ -121,7 +116,6 @@ export class OffCampusOfferModel extends Model<OffCampusOfferModel> {
         html: `<p>Hi ${user.name}, there is an offCampus Offer for you</p>`,
       };
 
-      // Send email
       await mailerService.sendEmail(dto);
     }
   }
