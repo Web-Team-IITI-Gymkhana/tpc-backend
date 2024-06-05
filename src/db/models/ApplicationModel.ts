@@ -128,22 +128,27 @@ export class ApplicationModel extends Model<ApplicationModel> {
       if (previousEventId !== newEventId) {
         const mailerService = new EmailService();
 
-        const student = await StudentModel.findByPk(application.studentId);
+        const student = await StudentModel.findByPk(application.studentId, {
+          include: [
+            {
+              model: UserModel,
+              as: "user",
+            },
+          ],
+        });
         if (!student) {
           throw new NotFoundException(`Student not found for application ${application.id}`);
         }
-
-        const user = await UserModel.findByPk(student.userId);
-        if (!user) {
+        if (!student.user) {
           throw new NotFoundException(`User not found for student ${student.id}`);
         }
 
         const data: SendEmailDto = {
           from: { name: APP_NAME, address: MAIL_USER },
-          // recepients: [{ address: DEFAULT_MAIL_TO }], // Put your email address for testing
-          recepients: [{ address: user.email }],
+          // recepients: [{ address: DEFAULT_MAIL_TO }],
+          recepients: [{ address: student.user.email }],
           subject: "Event Change Notification",
-          html: `Dear ${user.name},\nThe event associated with your application ID ${application.id} has been changed.`,
+          html: `Dear ${student.user.name},\nThe event associated with your application ID ${application.id} has been changed.`,
         };
 
         await mailerService.sendEmail(data);

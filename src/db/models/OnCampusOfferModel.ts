@@ -69,27 +69,32 @@ export class OnCampusOfferModel extends Model<OnCampusOfferModel> {
     const mailerService = new EmailService();
 
     for (const offer of instance) {
-      const student = await StudentModel.findByPk(offer.studentId);
+      const student = await StudentModel.findByPk(offer.studentId, {
+        include: [
+          {
+            model: UserModel,
+            as: "user",
+          },
+        ],
+      });
       if (!student) {
         throw new NotFoundException(`Student not found for offer ${offer.id}`);
         continue;
       }
-
-      const user = await UserModel.findByPk(student.userId);
-      if (!user) {
+      if (!student.user) {
         throw new NotFoundException(`User not found for student ${student.id}`);
         continue;
       }
 
-      const data: SendEmailDto = {
+      const dto: SendEmailDto = {
         from: { name: APP_NAME, address: MAIL_USER },
         // recepients: [{ address: DEFAULT_MAIL_TO }],
-        recepients: [{ address: user.email }],
-        subject: "OnCampus Offer",
-        html: `<p>Hi ${user.name}, there is an onCampus Offer for you</p>`,
+        recepients: [{ address: student.user.email }],
+        subject: "Test email",
+        html: `<p>Hi ${student.user.name}, there is an onCampus Offer for you</p>`,
       };
 
-      await mailerService.sendEmail(data);
+      await mailerService.sendEmail(dto);
     }
   }
 }

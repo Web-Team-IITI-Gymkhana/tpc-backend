@@ -1,4 +1,3 @@
-/* eslint-disable no-console */
 // email.service.ts
 
 import { Global, HttpException, Injectable, Logger } from "@nestjs/common";
@@ -9,14 +8,14 @@ import { env, IEnvironmentVariables } from "src/config";
 import { Mail } from "nodemailer/lib/mailer";
 import { Address } from "nodemailer/lib/mailer";
 
-export type SendEmailDto = {
+export class SendEmailDto {
   from?: Address;
   recepients: Address[];
   subject: string;
   html: string;
   text?: string;
   placeholderReplacements?: Record<string, string>;
-};
+}
 
 @Global()
 @Injectable()
@@ -75,7 +74,6 @@ export class EmailService {
         address: MAIL_USER,
       },
       to: to,
-      // to: "me210003016@iiti.ac.in", // Put your email address for testing
       subject: "token for your login",
       text: `your token is ${token} and will be sent on ${to}`,
     };
