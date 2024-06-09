@@ -36,25 +36,14 @@ export class FacultyViewController {
     return pipeTransformArray(ans, FacultyApprovalRequestsDto);
   }
 
-  @Get("enums")
-  async getEnums() {
-    return await this.facultyViewService.getEnums();
-
-    return ans;
-  }
-
   @Patch("approval-status")
-  async updateApprovalStatus(@Body() approval: UpdateFacultyApprovalStatusDto) {
-    return await this.facultyViewService.updateApprovalStatus(approval);
-
-    return result;
+  async updateApprovalStatus(@Body() approval: UpdateFacultyApprovalStatusDto, @User() user: IUser) {
+    return await this.facultyViewService.updateApprovalStatus(approval, user.facultyId);
   }
 
   @Patch("faculty")
   @UseInterceptors(TransactionInterceptor)
   async updateFaculty(@Body() faculty: UpdateFacultyDto, @TransactionParam() t: Transaction) {
     return await this.facultyViewService.updateFaculty(faculty, t);
-
-    return result;
   }
 }

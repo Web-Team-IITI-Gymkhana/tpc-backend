@@ -71,8 +71,11 @@ export class FacultyViewService {
     return { FacultyApprovalStatus: Object.values(FacultyApprovalStatusEnum) };
   }
 
-  async updateApprovalStatus(approval: UpdateFacultyApprovalStatusDto) {
-    const [ans] = await this.facultyapprovalrequestRepo.update(approval, { where: { id: approval.id } });
+  async updateApprovalStatus(approval: UpdateFacultyApprovalStatusDto, facultyId: string) {
+    const [ans] = await this.facultyapprovalrequestRepo.update(approval, {
+      where: { id: approval.id, facultyId: facultyId },
+    });
+    if (ans == 0) throw new UnauthorizedException(`Unauthorized`);
 
     return ans > 0 ? [] : [approval.id];
   }
