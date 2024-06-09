@@ -10,7 +10,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
-import { ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { InterviewExperienceService } from "./ie.service";
 import { FileService } from "src/services/FileService";
 import { CreateFile, GetFile, GetValues } from "src/decorators/controller";
@@ -31,6 +31,7 @@ import { AuthGuard } from "@nestjs/passport";
 @Controller("student-view/interview-experiences")
 @UseGuards(AuthGuard("jwt"))
 @ApiTags("Student-View/Interview Experience") // Allow all admin, student to access and edits for students.
+@ApiBearerAuth("jwt")
 export class InterviewExperienceController {
   folder = IE_FOLDER;
 

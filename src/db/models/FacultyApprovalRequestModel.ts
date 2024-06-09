@@ -1,8 +1,16 @@
-import { Table, Column, Model, ForeignKey, Unique, BelongsTo } from "sequelize-typescript";
+import { Table, Column, Model, ForeignKey, Unique, BelongsTo, AfterBulkCreate } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { FacultyModel } from "./FacultyModel";
 import { SalaryModel } from "./SalaryModel";
 import { FacultyApprovalStatusEnum } from "src/enums";
+import { EmailService } from "src/services/EmailService";
+import { SendEmailDto } from "src/services/EmailService";
+import { UserModel } from "./UserModel";
+import { IEnvironmentVariables, env } from "src/config";
+import { NotFoundException } from "@nestjs/common";
+
+const environmentVariables: IEnvironmentVariables = env();
+const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO } = environmentVariables;
 
 @Table({
   tableName: "FacultyApprovalRequest",
@@ -51,4 +59,38 @@ export class FacultyApprovalRequestModel extends Model<FacultyApprovalRequestMod
     type: sequelize.STRING,
   })
   remarks?: string;
+
+  @AfterBulkCreate
+  static async sendEmailHook(instance: FacultyApprovalRequestModel[]) {
+    const mailerService = new EmailService();
+
+    for (const approvalRequest of instance) {
+      const faculty = await FacultyModel.findByPk(approvalRequest.facultyId, {
+        include: [
+          {
+            model: UserModel,
+            as: "user",
+          },
+        ],
+      });
+      if (!faculty) {
+        throw new NotFoundException(`Faculty not found for offer ${approvalRequest.id}`);
+        continue;
+      }
+      if (!faculty.user) {
+        throw new NotFoundException(`User not found for faculty ${faculty.id}`);
+        continue;
+      }
+
+      const dto: SendEmailDto = {
+        from: { name: APP_NAME, address: MAIL_USER },
+        // recepients: [{ address: DEFAULT_MAIL_TO }],
+        recepients: [{ address: faculty.user.email }],
+        subject: "Test email",
+        html: `<p>Hi ${faculty.user.name}, there is an Approval Request for you</p>`,
+      };
+
+      await mailerService.sendEmail(dto);
+    }
+  }
 }

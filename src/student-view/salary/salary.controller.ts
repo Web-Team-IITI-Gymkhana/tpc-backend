@@ -1,5 +1,5 @@
 import { Body, Controller, Param, ParseUUIDPipe, Query, UseGuards } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { SalaryService } from "./salary.service";
 import { GetValue, GetValues, PostValues } from "src/decorators/controller";
 import { GetStudentSalariesDto, GetStudentSalaryDto } from "./dtos/get.dto";
@@ -16,6 +16,7 @@ import { ApplySalariesDto } from "./dtos/post.dto";
 @Controller("student-view/salaries")
 @UseGuards(AuthGuard("jwt"))
 @ApiTags("Student-View/Salary")
+@ApiBearerAuth("jwt")
 export class SalaryController {
   folderPath = JD_FOLDER;
 
