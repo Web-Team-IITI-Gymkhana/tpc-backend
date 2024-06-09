@@ -38,7 +38,7 @@ export class FacultyViewController {
 
   @Get("enums")
   async getEnums() {
-    const ans = await this.facultyViewService.getEnums();
+    return await this.facultyViewService.getEnums();
 
     return ans;
   }
