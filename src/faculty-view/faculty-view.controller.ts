@@ -45,7 +45,7 @@ export class FacultyViewController {
 
   @Patch("approval-status")
   async updateApprovalStatus(@Body() approval: UpdateFacultyApprovalStatusDto) {
-    const result = await this.facultyViewService.updateApprovalStatus(approval);
+    return await this.facultyViewService.updateApprovalStatus(approval);
 
     return result;
   }
@@ -53,7 +53,7 @@ export class FacultyViewController {
   @Patch("faculty")
   @UseInterceptors(TransactionInterceptor)
   async updateFaculty(@Body() faculty: UpdateFacultyDto, @TransactionParam() t: Transaction) {
-    const result = await this.facultyViewService.updateFaculty(faculty, t);
+    return await this.facultyViewService.updateFaculty(faculty, t);
 
     return result;
   }
