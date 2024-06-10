@@ -79,8 +79,8 @@ export class FacultyApprovalRequestModel extends Model<FacultyApprovalRequestMod
     for (const faculty of faculties) {
       const data: SendEmailDto = {
         from: { name: APP_NAME, address: MAIL_USER },
-        recepients: [{ address: DEFAULT_MAIL_TO }],
-        // recepients: [{ address: faculty.user.email }],
+        // recepients: [{ address: DEFAULT_MAIL_TO }],
+        recepients: [{ address: faculty.user.email }],
         subject: "Test email",
         html: `<p>Hi ${faculty.user.name}, there is an Approval Request for you</p>`,
       };
