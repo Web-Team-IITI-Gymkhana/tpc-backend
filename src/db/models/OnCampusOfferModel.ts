@@ -68,25 +68,20 @@ export class OnCampusOfferModel extends Model<OnCampusOfferModel> {
   static async sendEmailHook(instance: OnCampusOfferModel[]) {
     const mailerService = new EmailService();
 
-    for (const offer of instance) {
-      const student = await StudentModel.findByPk(offer.studentId, {
-        include: [
-          {
-            model: UserModel,
-            as: "user",
-          },
-        ],
-      });
-      if (!student) {
-        throw new NotFoundException(`Student not found for offer ${offer.id}`);
-        continue;
-      }
-      if (!student.user) {
-        throw new NotFoundException(`User not found for student ${student.id}`);
-        continue;
-      }
+    const students = await StudentModel.findAll({
+      where: {
+        id: instance.map((offer) => offer.studentId),
+      },
+      include: [
+        {
+          model: UserModel,
+          as: "user",
+        },
+      ],
+    });
 
-      const dto: SendEmailDto = {
+    for (const student of students) {
+      const data: SendEmailDto = {
         from: { name: APP_NAME, address: MAIL_USER },
         // recepients: [{ address: DEFAULT_MAIL_TO }],
         recepients: [{ address: student.user.email }],
@@ -94,7 +89,7 @@ export class OnCampusOfferModel extends Model<OnCampusOfferModel> {
         html: `<p>Hi ${student.user.name}, there is an onCampus Offer for you</p>`,
       };
 
-      await mailerService.sendEmail(dto);
+      await mailerService.sendEmail(data);
     }
   }
 }

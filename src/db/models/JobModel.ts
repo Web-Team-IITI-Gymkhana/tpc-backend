@@ -213,9 +213,18 @@ export class JobModel extends Model<JobModel> {
   static async sendEmailHook(instance: JobModel) {
     const mailerService = new EmailService();
 
+    const admins = await UserModel.findAll({
+      where: {
+        role: "ADMIN",
+      },
+    });
+
+    const emails = admins.filter((admin) => admin.email);
+
     const dto: SendEmailDto = {
       from: { name: APP_NAME, address: MAIL_USER },
-      recepients: [{ address: DEFAULT_MAIL_TO }],
+      recepients: [emails],
+      // recepients: [{ address: DEFAULT_MAIL_TO }],
       subject: "Test email",
       html: "<p>New job entry was created</p>",
     };
@@ -226,67 +235,75 @@ export class JobModel extends Model<JobModel> {
   @BeforeBulkUpdate
   static async sendEmailOnEventChange(options: IUpdateOptions) {
     const jobs = await JobModel.findAll({ where: options.where });
-    for (const job of jobs) {
-      const previousActive = job.active;
-      const newActive = options.attributes.active;
 
-      if (previousActive === false && newActive === true) {
-        const mailerService = new EmailService();
-        const salaries = await SalaryModel.findAll({
-          where: {
-            jobId: job.id,
-          },
+    const newActive = options.attributes.active;
+
+    const filteredJobs = jobs.filter((job) => job.active === false && newActive === true);
+
+    const salaries = await SalaryModel.findAll({
+      where: {
+        jobId: filteredJobs.map((job) => job.id),
+      },
+      include: [
+        {
+          model: JobModel,
+          as: "job",
           include: [
             {
-              model: JobModel,
-              as: "job",
+              model: SeasonModel,
+              as: "season",
+              required: true,
               include: [
                 {
-                  model: SeasonModel,
-                  as: "season",
-                  required: true,
-                  include: [
-                    {
-                      model: RegistrationModel,
-                      as: "registrations",
-                    },
-                  ],
+                  model: RegistrationModel,
+                  as: "registrations",
                 },
               ],
             },
           ],
-        });
+        },
+      ],
+    });
 
-        for (const salary of salaries) {
-          const where: WhereOptions<StudentModel> = {
-            cpi: { [Op.gte]: salary.minCPI },
-            programId: { [Op.in]: salary.programs },
-            category: { [Op.in]: salary.categories },
-            gender: { [Op.in]: salary.genders },
-            tenthMarks: { [Op.gte]: salary.tenthMarks },
-            twelthMarks: { [Op.gte]: salary.twelthMarks },
-            id: {
-              [Op.in]: sequelize.literal(
-                `(SELECT "studentId" FROM "Registrations" WHERE "seasonId" = '${salary.job.season.id}' AND "registered" = true)`
-              ),
-            },
-          };
-          const students = await StudentModel.findAll({ where });
+    const conditions = salaries.map((salary) => ({
+      cpi: { [Op.gte]: salary.minCPI },
+      programId: { [Op.in]: salary.programs },
+      category: { [Op.in]: salary.categories },
+      gender: { [Op.in]: salary.genders },
+      tenthMarks: { [Op.gte]: salary.tenthMarks },
+      twelthMarks: { [Op.gte]: salary.twelthMarks },
+      id: {
+        [Op.in]: sequelize.literal(
+          `(SELECT "studentId" FROM "Registrations" WHERE "seasonId" = '${salary.job.season.id}' AND "registered" = true)`
+        ),
+      },
+    }));
 
-          for (const student of students) {
-            const user = await UserModel.findByPk(student.userId);
-            const data: SendEmailDto = {
-              from: { name: APP_NAME, address: MAIL_USER },
-              // recepients: [{ address: DEFAULT_MAIL_TO }],
-              recepients: [{ address: user.email }],
-              subject: "Status Change Notification",
-              html: `Dear ${user.name},\nThe Status of job with id ${job.id} has been changed.`,
-            };
+    const students = await StudentModel.findAll({
+      where: {
+        [Op.or]: conditions,
+      },
+      include: [
+        {
+          model: UserModel,
+          as: "user",
+          required: true,
+        },
+      ],
+    });
 
-            await mailerService.sendEmail(data);
-          }
-        }
-      }
+    const mailerService = new EmailService();
+
+    for (const student of students) {
+      const data: SendEmailDto = {
+        from: { name: APP_NAME, address: MAIL_USER },
+        // recepients: [{ address: DEFAULT_MAIL_TO }],
+        recepients: [{ address: student.user.email }],
+        subject: "Status Change Notification",
+        html: `Dear ${student.user.name},\nThe Status of job has been changed.`,
+      };
+
+      await mailerService.sendEmail(data);
     }
   }
 }
