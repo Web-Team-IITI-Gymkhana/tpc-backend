@@ -64,33 +64,28 @@ export class FacultyApprovalRequestModel extends Model<FacultyApprovalRequestMod
   static async sendEmailHook(instance: FacultyApprovalRequestModel[]) {
     const mailerService = new EmailService();
 
-    for (const approvalRequest of instance) {
-      const faculty = await FacultyModel.findByPk(approvalRequest.facultyId, {
-        include: [
-          {
-            model: UserModel,
-            as: "user",
-          },
-        ],
-      });
-      if (!faculty) {
-        throw new NotFoundException(`Faculty not found for offer ${approvalRequest.id}`);
-        continue;
-      }
-      if (!faculty.user) {
-        throw new NotFoundException(`User not found for faculty ${faculty.id}`);
-        continue;
-      }
+    const faculties = await FacultyModel.findAll({
+      where: {
+        id: instance.map((approval) => approval.facultyId),
+      },
+      include: [
+        {
+          model: UserModel,
+          as: "user",
+        },
+      ],
+    });
 
-      const dto: SendEmailDto = {
+    for (const faculty of faculties) {
+      const data: SendEmailDto = {
         from: { name: APP_NAME, address: MAIL_USER },
-        // recepients: [{ address: DEFAULT_MAIL_TO }],
-        recepients: [{ address: faculty.user.email }],
+        recepients: [{ address: DEFAULT_MAIL_TO }],
+        // recepients: [{ address: faculty.user.email }],
         subject: "Test email",
         html: `<p>Hi ${faculty.user.name}, there is an Approval Request for you</p>`,
       };
 
-      await mailerService.sendEmail(dto);
+      await mailerService.sendEmail(data);
     }
   }
 }
