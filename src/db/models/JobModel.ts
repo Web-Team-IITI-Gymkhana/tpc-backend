@@ -1,5 +1,19 @@
-import sequelize, { Sequelize } from "sequelize";
-import { BelongsTo, Column, ForeignKey, Model, Table, HasMany, Unique, DataType, HasOne } from "sequelize-typescript";
+import sequelize, { Op, Sequelize, WhereOptions } from "sequelize";
+import {
+  BelongsTo,
+  Column,
+  ForeignKey,
+  Model,
+  Table,
+  HasMany,
+  Unique,
+  DataType,
+  HasOne,
+  AfterCreate,
+  AfterUpdate,
+  AfterBulkUpdate,
+  BeforeBulkUpdate,
+} from "sequelize-typescript";
 import { CompanyModel } from "./CompanyModel";
 import { EventModel } from "./EventModel";
 import { SeasonModel } from "./SeasonModel";
@@ -7,8 +21,25 @@ import { RecruiterModel } from "./RecruiterModel";
 import { SalaryModel } from "./SalaryModel";
 import { JobCoordinatorModel } from "./JobCoordinatorModel";
 import { FacultyApprovalRequestModel } from "./FacultyApprovalRequestModel";
-import { JobStatusTypeEnum } from "src/enums";
+import { CategoryEnum, DepartmentEnum, GenderEnum, JobStatusTypeEnum } from "src/enums";
 import { ApplicationModel } from "./ApplicationModel";
+import { EmailService } from "src/services/EmailService";
+import { SendEmailDto } from "src/services/EmailService";
+import { StudentModel } from "./StudentModel";
+import { UserModel } from "./UserModel";
+import { IEnvironmentVariables, env } from "src/config";
+import { ForbiddenException, NotFoundException } from "@nestjs/common";
+import { RegistrationModel } from "./RegistrationModel";
+
+const environmentVariables: IEnvironmentVariables = env();
+const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO } = environmentVariables;
+
+interface IUpdateOptions {
+  where: WhereOptions<JobModel>;
+  attributes: {
+    active: boolean;
+  };
+}
 
 @Table({
   tableName: "Job",
@@ -177,4 +208,102 @@ export class JobModel extends Model<JobModel> {
     onDelete: "CASCADE",
   })
   applications: ApplicationModel[];
+
+  @AfterCreate
+  static async sendEmailHook(instance: JobModel) {
+    const mailerService = new EmailService();
+
+    const admins = await UserModel.findAll({
+      where: {
+        role: "ADMIN",
+      },
+    });
+
+    const emails = admins.filter((admin) => admin.email);
+
+    const dto: SendEmailDto = {
+      from: { name: APP_NAME, address: MAIL_USER },
+      recepients: [emails],
+      // recepients: [{ address: DEFAULT_MAIL_TO }],
+      subject: "Test email",
+      html: "<p>New job entry was created</p>",
+    };
+
+    await mailerService.sendEmail(dto);
+  }
+
+  @BeforeBulkUpdate
+  static async sendEmailOnEventChange(options: IUpdateOptions) {
+    const jobs = await JobModel.findAll({ where: options.where });
+
+    const newActive = options.attributes.active;
+
+    const filteredJobs = jobs.filter((job) => job.active === false && newActive === true);
+
+    const salaries = await SalaryModel.findAll({
+      where: {
+        jobId: filteredJobs.map((job) => job.id),
+      },
+      include: [
+        {
+          model: JobModel,
+          as: "job",
+          include: [
+            {
+              model: SeasonModel,
+              as: "season",
+              required: true,
+              include: [
+                {
+                  model: RegistrationModel,
+                  as: "registrations",
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
+
+    const conditions = salaries.map((salary) => ({
+      cpi: { [Op.gte]: salary.minCPI },
+      programId: { [Op.in]: salary.programs },
+      category: { [Op.in]: salary.categories },
+      gender: { [Op.in]: salary.genders },
+      tenthMarks: { [Op.gte]: salary.tenthMarks },
+      twelthMarks: { [Op.gte]: salary.twelthMarks },
+      id: {
+        [Op.in]: sequelize.literal(
+          `(SELECT "studentId" FROM "Registrations" WHERE "seasonId" = '${salary.job.season.id}' AND "registered" = true)`
+        ),
+      },
+    }));
+
+    const students = await StudentModel.findAll({
+      where: {
+        [Op.or]: conditions,
+      },
+      include: [
+        {
+          model: UserModel,
+          as: "user",
+          required: true,
+        },
+      ],
+    });
+
+    const mailerService = new EmailService();
+
+    for (const student of students) {
+      const data: SendEmailDto = {
+        from: { name: APP_NAME, address: MAIL_USER },
+        // recepients: [{ address: DEFAULT_MAIL_TO }],
+        recepients: [{ address: student.user.email }],
+        subject: "Status Change Notification",
+        html: `Dear ${student.user.name},\nThe Status of job has been changed.`,
+      };
+
+      await mailerService.sendEmail(data);
+    }
+  }
 }

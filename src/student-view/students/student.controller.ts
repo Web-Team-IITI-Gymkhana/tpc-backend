@@ -12,7 +12,7 @@ import {
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
-import { ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { StudentService } from "./student.service";
 import { CreateFile, DeleteFiles, GetFile, GetValue } from "src/decorators/controller";
 import { GetStudentResumesDto, StudentViewDto } from "./dtos/get.dto";
@@ -34,6 +34,7 @@ import { AuthGuard } from "@nestjs/passport";
 @Controller("student-view")
 @UseGuards(AuthGuard("jwt"))
 @ApiTags("Student-View/Student")
+@ApiBearerAuth("jwt")
 export class StudentController {
   folderName = RESUME_FOLDER;
 

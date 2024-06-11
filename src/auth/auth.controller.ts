@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import {
   Body,
   Controller,
@@ -58,7 +59,7 @@ export class AuthController {
     if (!user)
       throw new NotFoundException(`The user with email ${body.email} and Role ${RoleEnum.RECRUITER} Not Found`);
     const jwt = await this.authService.vendJWT(user, this.recruiterSecret);
-    const res = await this.emailService.sendEmail(user.email, jwt);
+    const res = await this.emailService.sendTokenEmail(user.email, jwt);
 
     return "Email Sent Successfully";
   }

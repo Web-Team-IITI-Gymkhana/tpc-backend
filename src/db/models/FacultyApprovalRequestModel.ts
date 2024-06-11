@@ -1,8 +1,16 @@
-import { Table, Column, Model, ForeignKey, Unique, BelongsTo } from "sequelize-typescript";
+import { Table, Column, Model, ForeignKey, Unique, BelongsTo, AfterBulkCreate } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { FacultyModel } from "./FacultyModel";
 import { SalaryModel } from "./SalaryModel";
 import { FacultyApprovalStatusEnum } from "src/enums";
+import { EmailService } from "src/services/EmailService";
+import { SendEmailDto } from "src/services/EmailService";
+import { UserModel } from "./UserModel";
+import { IEnvironmentVariables, env } from "src/config";
+import { NotFoundException } from "@nestjs/common";
+
+const environmentVariables: IEnvironmentVariables = env();
+const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO } = environmentVariables;
 
 @Table({
   tableName: "FacultyApprovalRequest",
@@ -51,4 +59,33 @@ export class FacultyApprovalRequestModel extends Model<FacultyApprovalRequestMod
     type: sequelize.STRING,
   })
   remarks?: string;
+
+  @AfterBulkCreate
+  static async sendEmailHook(instance: FacultyApprovalRequestModel[]) {
+    const mailerService = new EmailService();
+
+    const faculties = await FacultyModel.findAll({
+      where: {
+        id: instance.map((approval) => approval.facultyId),
+      },
+      include: [
+        {
+          model: UserModel,
+          as: "user",
+        },
+      ],
+    });
+
+    for (const faculty of faculties) {
+      const data: SendEmailDto = {
+        from: { name: APP_NAME, address: MAIL_USER },
+        // recepients: [{ address: DEFAULT_MAIL_TO }],
+        recepients: [{ address: faculty.user.email }],
+        subject: "Test email",
+        html: `<p>Hi ${faculty.user.name}, there is an Approval Request for you</p>`,
+      };
+
+      await mailerService.sendEmail(data);
+    }
+  }
 }
