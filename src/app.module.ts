@@ -28,6 +28,7 @@ import { CompanyModule } from "./company/company.module";
 import { OfferModule } from "./offers/offer.module";
 import { StudentViewSalaryModule } from "./student-view/salary/salary.module";
 import { FacultyViewModule } from "./faculty-view/faculty-view.module";
+import { AnalyticsDashboardModule } from './analytics-dashboard/analytics-dashboard.module';
 
 @Module({
   imports: [
@@ -56,6 +57,7 @@ import { FacultyViewModule } from "./faculty-view/faculty-view.module";
     CompanyModule,
     OfferModule,
     FacultyViewModule,
+    AnalyticsDashboardModule,
   ],
   controllers: [AppController],
   providers: [Logger, TransactionInterceptor, QueryInterceptor, AppService],
