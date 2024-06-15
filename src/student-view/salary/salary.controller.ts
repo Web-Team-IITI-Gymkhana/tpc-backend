@@ -12,9 +12,11 @@ import { FileService } from "src/services/FileService";
 import { JD_FOLDER } from "src/constants";
 import path from "path";
 import { ApplySalariesDto } from "./dtos/post.dto";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("student-view/salaries")
-@UseGuards(AuthGuard("jwt"))
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.STUDENT))
 @ApiTags("Student-View/Salary")
 @ApiBearerAuth("jwt")
 export class SalaryController {

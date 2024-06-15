@@ -15,7 +15,6 @@ import { AuthGuard } from "@nestjs/passport";
 @Controller("jaf")
 @ApiTags("JAF")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"))
 export class JafController {
   foldername = JD_FOLDER;
 

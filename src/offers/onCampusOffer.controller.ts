@@ -1,4 +1,4 @@
-import { Body, Controller, Query, UseInterceptors } from "@nestjs/common";
+import { Body, Controller, Query, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { OfferService } from "./offer.service";
 import { DeleteValues, GetValues, PatchValues, PostValues } from "src/decorators/controller";
@@ -8,10 +8,13 @@ import { createArrayPipe, pipeTransformArray } from "src/utils/utils";
 import { CreateOnCampusOffersDto } from "./dtos/post.dto";
 import { UpdateOnCampusOffersDto } from "./dtos/patch.dto";
 import { DeleteValuesDto } from "src/utils/utils.dto";
-import { QueryInterceptor } from "src/interceptor/QueryInterceptor";
+import { AuthGuard } from "@nestjs/passport";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("on-campus-offers")
 @ApiTags("Offer")
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
 export class OnCampusOfferController {
   constructor(private offerService: OfferService) {}
 

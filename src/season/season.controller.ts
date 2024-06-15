@@ -8,12 +8,13 @@ import { createArrayPipe, pipeTransformArray } from "src/utils/utils";
 import { CreateSeasonsDto } from "./dtos/post.dto";
 import { DeleteValuesDto } from "src/utils/utils.dto";
 import { AuthGuard } from "@nestjs/passport";
-import { AdminGuard } from "src/auth/adminGaurd";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("seasons")
 @ApiTags("Season")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"), AdminGuard)
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
 export class SeasonController {
   constructor(private seasonService: SeasonService) {}
 

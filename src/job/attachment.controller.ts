@@ -1,8 +1,17 @@
-import { Body, Controller, Param, Query, Res, StreamableFile, UploadedFile, UseInterceptors } from "@nestjs/common";
+import {
+  Body,
+  Controller,
+  Param,
+  Query,
+  Res,
+  StreamableFile,
+  UploadedFile,
+  UseGuards,
+  UseInterceptors,
+} from "@nestjs/common";
 import { JobService } from "./job.service";
 import { FileService } from "src/services/FileService";
 import { CreateFile, DeleteFiles, GetFile } from "src/decorators/controller";
-import { ApiParam } from "@nestjs/swagger";
 import { JD_FOLDER } from "src/constants";
 import path from "path";
 import { Response } from "express";
@@ -12,8 +21,10 @@ import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
 import { v4 as uuidv4 } from "uuid";
 import { DeleteFilesDto } from "src/utils/utils.dto";
+import { AuthGuard } from "@nestjs/passport";
 
 @Controller("/jobs/attachment")
+@UseGuards(AuthGuard("jwt"))
 export class AttachmentController {
   folderName = JD_FOLDER;
 

@@ -6,11 +6,13 @@ import { pipeTransformArray } from "src/utils/utils";
 import { AuthGuard } from "@nestjs/passport";
 import { User } from "src/decorators/User";
 import { IUser } from "src/auth/User";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("student-view/offers")
 @ApiTags("Student-view/Offer")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"))
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.STUDENT))
 export class OfferController {
   constructor(private offerService: OfferService) {}
 

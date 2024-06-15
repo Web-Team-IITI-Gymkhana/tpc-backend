@@ -27,9 +27,11 @@ import { v4 as uuidv4 } from "uuid";
 import { User } from "src/decorators/User";
 import { IUser } from "src/auth/User";
 import { AuthGuard } from "@nestjs/passport";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("student-view/interview-experiences")
-@UseGuards(AuthGuard("jwt"))
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.STUDENT))
 @ApiTags("Student-View/Interview Experience") // Allow all admin, student to access and edits for students.
 @ApiBearerAuth("jwt")
 export class InterviewExperienceController {
