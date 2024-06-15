@@ -32,6 +32,8 @@ import { CreateStudentResumeDto } from "./dtos/post.dto";
 import { AuthGuard } from "@nestjs/passport";
 import { RoleGuard } from "src/auth/roleGaurd";
 import { RoleEnum } from "src/enums";
+import { GetJobDto, GetJobsDto } from "src/job/dtos/get.dto";
+import { JobsQueryDto } from "src/job/dtos/query.dto";
 
 @Controller("student-view")
 @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.STUDENT))
@@ -51,6 +53,22 @@ export class StudentController {
     const ans = await this.studentService.getStudent(user.studentId);
 
     return pipeTransform(ans, StudentViewDto);
+  }
+
+  @Get("jobs")
+  @ApiResponse({ type: GetJobsDto, isArray: true })
+  async getJobs(@Query("q") where: JobsQueryDto, @User() user: IUser) {
+    const ans = await this.studentService.getJobs(user.studentId, where);
+
+    return pipeTransformArray(ans, GetJobsDto);
+  }
+
+  @Get("job/:id")
+  @ApiResponse({ type: GetJobDto })
+  async getJob(@Param("id", new ParseUUIDPipe()) id: string, @User() user: IUser) {
+    const ans = await this.studentService.getJob(user.studentId, id);
+
+    return pipeTransform(ans, GetJobDto);
   }
 
   @Get("resume")
