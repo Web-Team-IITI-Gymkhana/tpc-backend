@@ -8,17 +8,15 @@ import { createArrayPipe, pipeTransformArray } from "src/utils/utils";
 import { CreateRegistrationsDto } from "./dtos/post.dto";
 import { DeleteValuesDto } from "src/utils/utils.dto";
 import { AuthGuard } from "@nestjs/passport";
-import { IUser } from "src/auth/User";
-import { User } from "src/decorators/User";
-import { RoleEnum } from "src/enums";
+import { AdminGuard } from "src/auth/adminGaurd";
 
 @Controller("registrations")
 @ApiTags("Registration")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"))
 export class RegistrationsController {
   constructor(private registrationsService: RegistrationsService) {}
 
+  @UseGuards(AuthGuard("jwt"), AdminGuard)
   @GetValues(RegistrationsQueryDto, GetRegistrationsDto)
   async getRegistrations(@Query("q") where: RegistrationsQueryDto) {
     const ans = await this.registrationsService.getRegistrations(where);
@@ -26,11 +24,13 @@ export class RegistrationsController {
     return pipeTransformArray(ans, GetRegistrationsDto);
   }
 
+  @UseGuards(AuthGuard("jwt"), AdminGuard)
   @PostValues(CreateRegistrationsDto)
   async createRegistrations(@Body(createArrayPipe(CreateRegistrationsDto)) registrations: CreateRegistrationsDto[]) {
     return await this.registrationsService.createRegistrations(registrations);
   }
 
+  @UseGuards(AuthGuard("jwt"), AdminGuard)
   @DeleteValues()
   async deleteRegistrations(@Query() query: DeleteValuesDto) {
     return await this.registrationsService.deleteRegistrations(query.id);

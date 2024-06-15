@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Param, ParseUUIDPipe, Patch, Post, Query, UseInterceptors } from "@nestjs/common";
-import { ApiBody, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards, UseInterceptors } from "@nestjs/common";
+import { ApiBearerAuth, ApiBody, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { FacultyApprovalService } from "./facultyApproval.service";
 import { DeleteValues, GetValues, PatchValues, PostValues } from "src/decorators/controller";
 import { FacultyApprovalsQueryDto } from "./dtos/query.dto";
@@ -11,9 +11,13 @@ import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
 import { UpdateFacultyApprovalsDto } from "./dtos/patch.dto";
 import { DeleteValuesDto } from "src/utils/utils.dto";
+import { AuthGuard } from "@nestjs/passport";
+import { AdminGuard } from "src/auth/adminGaurd";
 
 @Controller("faculty-approvals")
 @ApiTags("FacultyApproval")
+@ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"), AdminGuard)
 export class FacultyApprovalController {
   constructor(private facultyApprovalService: FacultyApprovalService) {}
 
