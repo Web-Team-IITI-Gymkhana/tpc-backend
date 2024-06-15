@@ -87,6 +87,7 @@ export class AuthController {
     if (!user) throw new UnauthorizedException(`User not found`);
     const token = await this.authService.vendJWT(user);
     res.cookie("accessToken", token, { httpOnly: true });
+    res.cookie("user", user, { httpOnly: true });
     res.redirect(this.frontendUrl);
   }
 }
