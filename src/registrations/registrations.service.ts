@@ -47,8 +47,9 @@ export class RegistrationsService {
   }
 
   async createRegistrations(registrations: CreateRegistrationsDto[]) {
-    registrations = registrations.map((registration) => ({ ...registration, registered: false }));
-    const ans = await this.registrationsRepo.bulkCreate(registrations);
+    const ans = await this.registrationsRepo.bulkCreate(registrations, {
+      updateOnDuplicate: ["registered"],
+    });
 
     return ans.map((registration) => registration.id);
   }
