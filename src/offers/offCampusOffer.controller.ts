@@ -1,4 +1,4 @@
-import { Body, Controller, Query } from "@nestjs/common";
+import { Body, Controller, Query, UseGuards } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { OfferService } from "./offer.service";
 import { GetValues, PostValues, PatchValues, DeleteValues } from "src/decorators/controller";
@@ -8,9 +8,12 @@ import { GetOffCampusOffersDto } from "./dtos/get.dto";
 import { UpdateOffCampusOffersDto } from "./dtos/patch.dto";
 import { CreateOffCampusOffersDto } from "./dtos/post.dto";
 import { OffCampusOffersQueryDto } from "./dtos/query.dto";
+import { AuthGuard } from "@nestjs/passport";
+import { AdminGuard } from "src/auth/adminGaurd";
 
 @Controller("off-campus-offers")
 @ApiTags("Offer")
+@UseGuards(AuthGuard("jwt"), AdminGuard)
 export class OffCampusOfferController {
   constructor(private offerService: OfferService) {}
 
