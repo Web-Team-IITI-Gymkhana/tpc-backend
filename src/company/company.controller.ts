@@ -25,7 +25,7 @@ import { AuthGuard } from "@nestjs/passport";
 @Controller("companies")
 @ApiTags("Company")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"))
+@UseGuards(AuthGuard("jwt"), AdminGuard)
 export class CompanyController {
   constructor(private companyService: CompanyService) {}
 
