@@ -21,9 +21,6 @@ class UpdateUserDto {
 }
 
 export class UpdateFacultyDto {
-  @NestedUUID({})
-  id: string;
-
   @NestedObject({ type: UpdateUserDto, optional: true })
   user?: UpdateUserDto;
 }
