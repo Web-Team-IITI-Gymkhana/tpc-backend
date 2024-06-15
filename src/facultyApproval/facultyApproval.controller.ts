@@ -12,11 +12,12 @@ import { Transaction } from "sequelize";
 import { UpdateFacultyApprovalsDto } from "./dtos/patch.dto";
 import { DeleteValuesDto } from "src/utils/utils.dto";
 import { AuthGuard } from "@nestjs/passport";
+import { AdminGuard } from "src/auth/adminGaurd";
 
 @Controller("faculty-approvals")
 @ApiTags("FacultyApproval")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"))
+@UseGuards(AuthGuard("jwt"), AdminGuard)
 export class FacultyApprovalController {
   constructor(private facultyApprovalService: FacultyApprovalService) {}
 
