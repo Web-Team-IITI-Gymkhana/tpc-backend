@@ -9,6 +9,9 @@ import { CreateRegistrationsDto } from "./dtos/post.dto";
 import { DeleteValuesDto } from "src/utils/utils.dto";
 import { AuthGuard } from "@nestjs/passport";
 import { AdminGuard } from "src/auth/adminGaurd";
+import { IUser } from "src/auth/User";
+import { User } from "src/decorators/User";
+import { RoleEnum } from "src/enums";
 
 @Controller("registrations")
 @ApiTags("Registration")
