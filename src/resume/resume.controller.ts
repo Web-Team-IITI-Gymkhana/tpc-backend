@@ -8,9 +8,10 @@ import {
   Res,
   StreamableFile,
   UploadedFile,
+  UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { ResumeService } from "./resume.service";
 import { ResumeQueryDto } from "./dtos/query.dto";
 import { createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
@@ -28,9 +29,13 @@ import { omit } from "lodash";
 import { Response } from "express";
 import { UpdateResumesDto } from "./dtos/patch.dto";
 import { DeleteFilesDto } from "src/utils/utils.dto";
+import { AuthGuard } from "@nestjs/passport";
+import { AdminGuard } from "src/auth/adminGaurd";
 
 @Controller("resumes")
 @ApiTags("Resume")
+@ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"), AdminGuard)
 export class ResumeController {
   foldername = RESUME_FOLDER;
   constructor(

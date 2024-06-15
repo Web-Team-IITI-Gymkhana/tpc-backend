@@ -31,7 +31,7 @@ export class FacultyViewController {
   @Get("approvals")
   @ApiResponse({ type: FacultyApprovalRequestsDto, isArray: true })
   async getFacultyApprovals(@Query("q") where: FacultyApprovalsQueryDto, @User() user: IUser) {
-    const ans = await this.facultyViewService.getApprovals({ facultyId: user.facultyId });
+    const ans = await this.facultyViewService.getApprovals(user.facultyId);
 
     return pipeTransformArray(ans, FacultyApprovalRequestsDto);
   }
@@ -43,7 +43,7 @@ export class FacultyViewController {
 
   @Patch("faculty")
   @UseInterceptors(TransactionInterceptor)
-  async updateFaculty(@Body() faculty: UpdateFacultyDto, @TransactionParam() t: Transaction) {
-    return await this.facultyViewService.updateFaculty(faculty, t);
+  async updateFaculty(@Body() faculty: UpdateFacultyDto, @TransactionParam() t: Transaction, @User() user: IUser) {
+    return await this.facultyViewService.updateFaculty(faculty, t, user.facultyId);
   }
 }

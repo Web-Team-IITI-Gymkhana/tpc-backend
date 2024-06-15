@@ -1,5 +1,5 @@
-import { Controller, Query, Body, Param, ParseUUIDPipe, UseInterceptors } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { Controller, Query, Body, Param, ParseUUIDPipe, UseInterceptors, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { StudentService } from "./student.service";
 import { DeleteValues, GetValue, GetValues, PatchValues, PostValues } from "src/decorators/controller";
 import { StudentsQueryDto } from "./dtos/query.dto";
@@ -11,9 +11,13 @@ import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
 import { DeleteValuesDto } from "src/utils/utils.dto";
+import { AuthGuard } from "@nestjs/passport";
+import { AdminGuard } from "src/auth/adminGaurd";
 
 @Controller("students")
 @ApiTags("Student")
+@ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"), AdminGuard)
 export class StudentController {
   constructor(private studentService: StudentService) {}
 

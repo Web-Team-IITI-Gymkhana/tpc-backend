@@ -35,9 +35,11 @@ export class FacultyViewService {
     return ans.get({ plain: true });
   }
 
-  async getApprovals(where: WhereOptions<FacultyApprovalRequestModel>) {
+  async getApprovals(facultyId: string) {
     const ans = await this.facultyapprovalrequestRepo.findAll({
-      where,
+      where: {
+        facultyId: facultyId,
+      },
       include: [
         {
           model: SalaryModel,
@@ -80,14 +82,14 @@ export class FacultyViewService {
     return ans > 0 ? [] : [approval.id];
   }
 
-  async updateFaculty(faculty: UpdateFacultyDto, t: Transaction) {
+  async updateFaculty(faculty: UpdateFacultyDto, t: Transaction, facultyId: string) {
     const [facultyUpdateResult, userUpdateResult] = await Promise.all([
       this.facultyRepo.update(omit(faculty, "user"), {
-        where: { id: faculty.id },
+        where: { id: facultyId },
         transaction: t,
       }),
       this.userRepo.update(faculty.user || {}, {
-        where: sequelize.literal(`"id" IN (SELECT "userId" FROM "Faculty" WHERE "id" = '${faculty.id}')`),
+        where: sequelize.literal(`"id" IN (SELECT "userId" FROM "Faculty" WHERE "id" = '${facultyId}')`),
         transaction: t,
       }),
     ]);
@@ -95,6 +97,6 @@ export class FacultyViewService {
     const [facultyUpdateCount] = facultyUpdateResult;
     const [userUpdateCount] = userUpdateResult;
 
-    return facultyUpdateCount > 0 || userUpdateCount > 0 ? [] : [faculty.id];
+    return facultyUpdateCount > 0 || userUpdateCount > 0 ? [] : [facultyId];
   }
 }

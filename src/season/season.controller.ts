@@ -1,5 +1,5 @@
-import { Body, Controller, Query } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Query, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { SeasonService } from "./season.service";
 import { DeleteValues, GetValues, PostValues } from "src/decorators/controller";
 import { SeasonsQueryDto } from "./dtos/query.dto";
@@ -7,9 +7,13 @@ import { GetSeasonsDto } from "./dtos/get.dto";
 import { createArrayPipe, pipeTransformArray } from "src/utils/utils";
 import { CreateSeasonsDto } from "./dtos/post.dto";
 import { DeleteValuesDto } from "src/utils/utils.dto";
+import { AuthGuard } from "@nestjs/passport";
+import { AdminGuard } from "src/auth/adminGaurd";
 
 @Controller("seasons")
 @ApiTags("Season")
+@ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"), AdminGuard)
 export class SeasonController {
   constructor(private seasonService: SeasonService) {}
 

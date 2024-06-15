@@ -39,7 +39,7 @@ export class AuthController {
   ) {}
 
   @Post("login")
-  async login(@Body() body: UserLogInDto) {
+  async login(@Body() body: UserLogInDto): Promise<{ accessToken: string }> {
     const user = await this.userService.getUserByEmail(body.email);
     if (!user) {
       throw new HttpException(
@@ -54,23 +54,23 @@ export class AuthController {
 
   @Post("passwordless")
   @UseInterceptors(ClassSerializerInterceptor)
-  async loginRecruiter(@Body() body: PasswordlessLoginDto) {
+  async loginRecruiter(@Body() body: PasswordlessLoginDto): Promise<string> {
     const user = await this.userService.getUserByEmail(body.email);
     if (!user)
       throw new NotFoundException(`The user with email ${body.email} and Role ${RoleEnum.RECRUITER} Not Found`);
     const jwt = await this.authService.vendJWT(user, this.recruiterSecret);
     const res = await this.emailService.sendTokenEmail(user.email, jwt);
+    if (!res) throw new HttpException("Error sending email", HttpStatus.INTERNAL_SERVER_ERROR);
 
     return "Email Sent Successfully";
   }
 
   @Post("passwordless/verify")
   @UseInterceptors(ClassSerializerInterceptor)
-  async checkRecruiterToken(@Body() body: PasswordlessLoginVerifyDto) {
+  async checkRecruiterToken(@Body() body: PasswordlessLoginVerifyDto): Promise<string> {
     const user = await this.authService.parseJWT(body.token, this.recruiterSecret);
-    const authToken = await this.authService.vendJWT(user);
 
-    return authToken;
+    return await this.authService.vendJWT(user);
   }
 
   @Get("google/login")
@@ -81,14 +81,13 @@ export class AuthController {
   @Get("google/callback")
   @UseGuards(AuthGuard("google"))
   async googleAuthRedirect(@Req() req, @Res({ passthrough: true }) res: Response) {
-    console.log("req.user", req.user);
-
     assert(req.user !== undefined, "Google did not provide an email");
 
     const user = await this.userService.getUserByEmail(req.user.email);
     if (!user) throw new UnauthorizedException(`User not found`);
-    const token = await this.authService.vendJWT(req.user);
-    res.cookie("jwt", token, { httpOnly: true });
+    const token = await this.authService.vendJWT(user);
+    res.cookie("accessToken", token, { httpOnly: true });
+    res.cookie("user", user, { httpOnly: true });
     res.redirect(this.frontendUrl);
   }
 }

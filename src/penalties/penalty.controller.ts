@@ -1,5 +1,5 @@
-import { Body, Controller, Query } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Query, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { PenaltyService } from "./penalty.service";
 import { DeleteValues, GetValues, PatchValues, PostValues } from "src/decorators/controller";
 import { PenaltyQueryDto } from "./dtos/query.dto";
@@ -8,9 +8,13 @@ import { createArrayPipe, pipeTransformArray } from "src/utils/utils";
 import { CreatePenaltiesDto } from "./dtos/post.dto";
 import { UpdatePenaltiesDto } from "./dtos/patch.dto";
 import { DeleteValuesDto } from "src/utils/utils.dto";
+import { AuthGuard } from "@nestjs/passport";
+import { AdminGuard } from "src/auth/adminGaurd";
 
 @Controller("penalties")
 @ApiTags("Penalty")
+@ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"), AdminGuard)
 export class PenaltyController {
   constructor(private penaltyService: PenaltyService) {}
 
