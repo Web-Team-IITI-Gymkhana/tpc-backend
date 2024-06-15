@@ -30,12 +30,13 @@ import { Response } from "express";
 import { UpdateResumesDto } from "./dtos/patch.dto";
 import { DeleteFilesDto } from "src/utils/utils.dto";
 import { AuthGuard } from "@nestjs/passport";
-import { AdminGuard } from "src/auth/adminGaurd";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("resumes")
 @ApiTags("Resume")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"), AdminGuard)
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
 export class ResumeController {
   foldername = RESUME_FOLDER;
   constructor(

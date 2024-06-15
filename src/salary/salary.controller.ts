@@ -9,12 +9,13 @@ import { CreateSalariesDto } from "./dtos/post.dto";
 import { UpdateSalariesDto } from "./dtos/patch.dto";
 import { DeleteValuesDto } from "src/utils/utils.dto";
 import { AuthGuard } from "@nestjs/passport";
-import { AdminGuard } from "src/auth/adminGaurd";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("salaries")
 @ApiTags("Salary")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"), AdminGuard)
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
 export class SalaryController {
   constructor(private salaryService: SalaryService) {}
 

@@ -21,12 +21,13 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } 
 import { DeleteValues, GetValue, GetValues, PatchValues, PostValues } from "src/decorators/controller";
 import { DeleteValuesDto } from "src/utils/utils.dto";
 import { AuthGuard } from "@nestjs/passport";
-import { AdminGuard } from "src/auth/adminGaurd";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("companies")
 @ApiTags("Company")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"), AdminGuard)
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
 export class CompanyController {
   constructor(private companyService: CompanyService) {}
 

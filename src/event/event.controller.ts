@@ -20,12 +20,13 @@ import { DeleteValues, GetValue, GetValues, PatchValues, PostValues } from "src/
 import { DeleteValuesDto } from "src/utils/utils.dto";
 import { QueryInterceptor } from "src/interceptor/QueryInterceptor";
 import { AuthGuard } from "@nestjs/passport";
-import { AdminGuard } from "src/auth/adminGaurd";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("events")
 @ApiTags("Event")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"), AdminGuard)
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
 export class EventController {
   constructor(private eventService: EventService) {}
 

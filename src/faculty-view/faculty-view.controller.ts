@@ -12,11 +12,13 @@ import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { Transaction } from "sequelize";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { FacultyApprovalsQueryDto } from "./dto/query.dto";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("faculty-view")
 @UseGuards(AuthGuard("jwt"))
 @ApiTags("faculty-view")
-@ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.FACULTY))
 export class FacultyViewController {
   constructor(private readonly facultyViewService: FacultyViewService) {}
 

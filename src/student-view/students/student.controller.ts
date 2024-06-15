@@ -30,9 +30,11 @@ import { DeleteFilesDto } from "src/utils/utils.dto";
 import { Response } from "express";
 import { CreateStudentResumeDto } from "./dtos/post.dto";
 import { AuthGuard } from "@nestjs/passport";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("student-view")
-@UseGuards(AuthGuard("jwt"))
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.STUDENT))
 @ApiTags("Student-View/Student")
 @ApiBearerAuth("jwt")
 export class StudentController {

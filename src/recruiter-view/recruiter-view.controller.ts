@@ -12,11 +12,13 @@ import { TransactionParam } from "src/decorators/TransactionParam";
 import { UpdateFacultyDto } from "src/faculty-view/dto/patch.dto";
 import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { UpdateRecruiterDto } from "./dto/patch.dto";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("recruiter-view")
-@UseGuards(AuthGuard("jwt"))
 @ApiTags("recruiter-view")
 @ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.RECRUITER))
 export class RecruiterViewController {
   constructor(private readonly recruiterViewService: RecruiterViewService) {}
 

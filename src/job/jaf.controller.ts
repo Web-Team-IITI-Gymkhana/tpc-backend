@@ -11,11 +11,13 @@ import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
 import path from "path";
 import { AuthGuard } from "@nestjs/passport";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("jaf")
 @ApiTags("JAF")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"))
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.RECRUITER))
 export class JafController {
   foldername = JD_FOLDER;
 

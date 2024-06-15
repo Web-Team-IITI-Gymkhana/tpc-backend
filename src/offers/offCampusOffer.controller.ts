@@ -9,11 +9,12 @@ import { UpdateOffCampusOffersDto } from "./dtos/patch.dto";
 import { CreateOffCampusOffersDto } from "./dtos/post.dto";
 import { OffCampusOffersQueryDto } from "./dtos/query.dto";
 import { AuthGuard } from "@nestjs/passport";
-import { AdminGuard } from "src/auth/adminGaurd";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("off-campus-offers")
 @ApiTags("Offer")
-@UseGuards(AuthGuard("jwt"), AdminGuard)
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
 export class OffCampusOfferController {
   constructor(private offerService: OfferService) {}
 

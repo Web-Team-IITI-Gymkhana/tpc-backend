@@ -3,10 +3,14 @@ import { Observable } from "rxjs";
 import { RoleEnum } from "src/enums";
 
 @Injectable()
-export class AdminGuard implements CanActivate {
+export class RoleGuard implements CanActivate {
+  private readonly role: RoleEnum = RoleEnum.ADMIN;
+  constructor(role: RoleEnum) {
+    this.role = role;
+  }
   canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
     const request = context.switchToHttp().getRequest();
-    if (request.user.role && request.user.role === RoleEnum.ADMIN) {
+    if (request.user.role && request.user.role === this.role) {
       return true;
     }
 
