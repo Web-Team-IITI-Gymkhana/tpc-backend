@@ -112,8 +112,6 @@ export class StudentController {
   @ApiParam({ name: "seasonId", type: "string" })
   @ApiResponse({ type: String, isArray: true })
   async registerSeason(@Param("seasonId", new ParseUUIDPipe()) seasonId: string, @User() user: IUser) {
-    const ans = await this.studentService.registerSeason(user.studentId, seasonId);
-
-    return ans;
+    return await this.studentService.registerSeason(user.studentId, seasonId);
   }
 }

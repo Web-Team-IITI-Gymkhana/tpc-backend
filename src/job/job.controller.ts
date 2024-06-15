@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Param, ParseUUIDPipe, Post, Query } from "@nestjs/common";
-import { ApiBody, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Delete, Param, ParseUUIDPipe, Post, Query, Req, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiBody, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { JobService } from "./job.service";
 import { DeleteValues, GetValue, GetValues, PatchValues } from "src/decorators/controller";
 import { JobsQueryDto } from "./dtos/query.dto";
@@ -8,9 +8,13 @@ import { createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/ut
 import { CreateJobCoordinatorsDto } from "./dtos/post.dto";
 import { UpdateJobsDto } from "./dtos/patch.dto";
 import { DeleteValuesDto } from "src/utils/utils.dto";
+import { AuthGuard } from "@nestjs/passport";
+import { AdminGuard } from "src/auth/adminGaurd";
 
 @Controller("jobs")
 @ApiTags("Job")
+@ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"), AdminGuard)
 export class JobController {
   constructor(private jobService: JobService) {}
 
