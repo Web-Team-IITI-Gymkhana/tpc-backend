@@ -87,7 +87,7 @@ export class AuthController {
 
     const user = await this.userService.getUserByEmail(req.user.email);
     if (!user) throw new UnauthorizedException(`User not found`);
-    const token = await this.authService.vendJWT(req.user);
+    const token = await this.authService.vendJWT(user);
     res.cookie("jwt", token, { httpOnly: true });
     res.redirect(this.frontendUrl);
   }
