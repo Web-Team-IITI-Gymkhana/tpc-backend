@@ -1,5 +1,5 @@
-import { Body, Controller, Param, ParseUUIDPipe, Query } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Param, ParseUUIDPipe, Query, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { TpcMemberService } from "./tpcMember.service";
 import { DeleteValues, GetValue, GetValues, PatchValues, PostValues } from "src/decorators/controller";
 import { TpcMembersQueryDto } from "./dtos/query.dto";
@@ -8,9 +8,13 @@ import { createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/ut
 import { CreateTpcMembersDto } from "./dtos/post.dto";
 import { UpdateTpcMembersDto } from "./dtos/patch.dto";
 import { DeleteValuesDto } from "src/utils/utils.dto";
+import { AuthGuard } from "@nestjs/passport";
+import { AdminGuard } from "src/auth/adminGaurd";
 
 @Controller("tpc-members")
 @ApiTags("TpcMember")
+@ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"), AdminGuard)
 export class TpcMemberController {
   constructor(private tpcMemberService: TpcMemberService) {}
 

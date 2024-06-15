@@ -1,8 +1,16 @@
-import { Model, Column, Table, ForeignKey, Unique, BelongsTo } from "sequelize-typescript";
+import { Model, Column, Table, ForeignKey, Unique, BelongsTo, AfterBulkCreate } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { StudentModel } from "./StudentModel";
 import { SalaryModel } from "./SalaryModel";
 import { OfferStatusEnum } from "src/enums";
+import { EmailService } from "src/services/EmailService";
+import { SendEmailDto } from "src/services/EmailService";
+import { UserModel } from "./UserModel";
+import { IEnvironmentVariables, env } from "src/config";
+import { NotFoundException } from "@nestjs/common";
+
+const environmentVariables: IEnvironmentVariables = env();
+const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO } = environmentVariables;
 
 @Table({
   tableName: "OnCampusOffer",
@@ -55,4 +63,33 @@ export class OnCampusOfferModel extends Model<OnCampusOfferModel> {
     type: sequelize.STRING,
   })
   metadata?: string;
+
+  @AfterBulkCreate
+  static async sendEmailHook(instance: OnCampusOfferModel[]) {
+    const mailerService = new EmailService();
+
+    const students = await StudentModel.findAll({
+      where: {
+        id: instance.map((offer) => offer.studentId),
+      },
+      include: [
+        {
+          model: UserModel,
+          as: "user",
+        },
+      ],
+    });
+
+    for (const student of students) {
+      const data: SendEmailDto = {
+        from: { name: APP_NAME, address: MAIL_USER },
+        // recepients: [{ address: DEFAULT_MAIL_TO }],
+        recepients: [{ address: student.user.email }],
+        subject: "Test email",
+        html: `<p>Hi ${student.user.name}, there is an onCampus Offer for you</p>`,
+      };
+
+      await mailerService.sendEmail(data);
+    }
+  }
 }

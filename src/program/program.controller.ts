@@ -1,4 +1,4 @@
-import { Body, Controller, Query } from "@nestjs/common";
+import { Body, Controller, Query, UseGuards } from "@nestjs/common";
 import { ProgramService } from "./program.service";
 import { DeleteValues, GetValues, PatchValues, PostValues } from "src/decorators/controller";
 import { ProgramsQueryDto } from "./dtos/query.dto";
@@ -7,10 +7,14 @@ import { createArrayPipe, pipeTransformArray } from "src/utils/utils";
 import { CreateProgramsDto } from "./dtos/post.dto";
 import { UpdateProgramsDto } from "./dtos/patch.dto";
 import { DeleteValuesDto } from "src/utils/utils.dto";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
+import { AuthGuard } from "@nestjs/passport";
+import { AdminGuard } from "src/auth/adminGaurd";
 
 @Controller("programs")
 @ApiTags("Program")
+@ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"), AdminGuard)
 export class ProgramController {
   constructor(private programService: ProgramService) {}
 
