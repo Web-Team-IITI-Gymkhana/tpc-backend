@@ -21,6 +21,7 @@ import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } 
 import { DeleteValues, GetValue, GetValues, PatchValues, PostValues } from "src/decorators/controller";
 import { DeleteValuesDto } from "src/utils/utils.dto";
 import { AuthGuard } from "@nestjs/passport";
+import { AdminGuard } from "src/auth/adminGaurd";
 
 @Controller("companies")
 @ApiTags("Company")
