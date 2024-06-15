@@ -14,7 +14,6 @@ export class AuthService {
   private algorithm: jwt.Algorithm = "HS256";
 
   async vendJWT(user: IUser, secretKey?: string) {
-    console.log(user);
     const options: jwt.SignOptions = {
       expiresIn: this.expiry,
       subject: user.email,
