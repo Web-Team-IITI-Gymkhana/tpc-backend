@@ -6,12 +6,11 @@ import { pipeTransformArray } from "src/utils/utils";
 import { AuthGuard } from "@nestjs/passport";
 import { User } from "src/decorators/User";
 import { IUser } from "src/auth/User";
-import { AdminGuard } from "src/auth/adminGaurd";
 
 @Controller("student-view/offers")
 @ApiTags("Student-view/Offer")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"), AdminGuard)
+@UseGuards(AuthGuard("jwt"))
 export class OfferController {
   constructor(private offerService: OfferService) {}
 
