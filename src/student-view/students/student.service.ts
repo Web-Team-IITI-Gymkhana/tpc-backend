@@ -86,10 +86,21 @@ export class StudentService {
   async getJobs(studentId: string, where: JobsQueryDto) {
     const whereSalary = await this.filterSalaries(studentId);
     const findOptions: FindOptions<JobModel> = {
+      where: {
+        active: true,
+      },
       include: [
         {
           model: SeasonModel,
           as: "season",
+          required: true,
+          include: [
+            {
+              model: RegistrationModel,
+              as: "registrations",
+              where: { registered: true, studentId: studentId },
+            },
+          ],
         },
         {
           model: CompanyModel,
@@ -127,11 +138,20 @@ export class StudentService {
 
   async getJob(studentId: string, jobId: string) {
     const whereSalary = await this.filterSalaries(studentId);
-    const ans = await this.jobRepo.findByPk(jobId, {
+    const ans = await this.jobRepo.findOne({
+      where: { id: jobId, active: true },
       include: [
         {
           model: SeasonModel,
           as: "season",
+          required: true,
+          include: [
+            {
+              model: RegistrationModel,
+              as: "registrations",
+              where: { registered: true, studentId: studentId },
+            },
+          ],
         },
         {
           model: CompanyModel,
