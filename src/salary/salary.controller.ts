@@ -15,10 +15,10 @@ import { RoleEnum } from "src/enums";
 @Controller("salaries")
 @ApiTags("Salary")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
 export class SalaryController {
   constructor(private salaryService: SalaryService) {}
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
   @GetValues(SalariesQueryDto, GetSalariesDto)
   async getSalaries(@Query("q") query: SalariesQueryDto) {
     const ans = await this.salaryService.getSalaries(query);
@@ -26,6 +26,7 @@ export class SalaryController {
     return pipeTransformArray(ans, GetSalariesDto);
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
   @GetValue(GetSalaryDto)
   async getSalary(@Param("id", new ParseUUIDPipe()) id: string) {
     const ans = await this.salaryService.getSalary(id);
@@ -33,6 +34,7 @@ export class SalaryController {
     return pipeTransform(ans, GetSalaryDto);
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @PostValues(CreateSalariesDto)
   async createSalaries(@Body(createArrayPipe(CreateSalariesDto)) salaries: CreateSalariesDto[]) {
     const ans = await this.salaryService.createSalaries(salaries);
@@ -40,6 +42,7 @@ export class SalaryController {
     return ans;
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @PatchValues(UpdateSalariesDto)
   async updateSalaries(@Body(createArrayPipe(UpdateSalariesDto)) salaries: UpdateSalariesDto[]) {
     const pr = salaries.map((salary) => this.salaryService.updateSalary(salary));
@@ -48,6 +51,7 @@ export class SalaryController {
     return ans.flat();
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @DeleteValues()
   async deleteSalaries(@Query() query: DeleteValuesDto) {
     const ans = await this.salaryService.deleteSalaries(query.id);

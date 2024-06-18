@@ -14,7 +14,7 @@ import { RoleEnum } from "src/enums";
 @Controller("seasons")
 @ApiTags("Season")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
 export class SeasonController {
   constructor(private seasonService: SeasonService) {}
 

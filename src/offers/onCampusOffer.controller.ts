@@ -14,7 +14,7 @@ import { RoleEnum } from "src/enums";
 
 @Controller("on-campus-offers")
 @ApiTags("Offer")
-@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
 @ApiBearerAuth("jwt")
 export class OnCampusOfferController {
   constructor(private offerService: OfferService) {}

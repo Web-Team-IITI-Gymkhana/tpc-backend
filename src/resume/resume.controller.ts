@@ -36,7 +36,7 @@ import { RoleEnum } from "src/enums";
 @Controller("resumes")
 @ApiTags("Resume")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
 export class ResumeController {
   foldername = RESUME_FOLDER;
   constructor(
