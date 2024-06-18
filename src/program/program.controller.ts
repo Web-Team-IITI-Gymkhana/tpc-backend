@@ -15,10 +15,10 @@ import { RoleEnum } from "src/enums";
 @Controller("programs")
 @ApiTags("Program")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
 export class ProgramController {
   constructor(private programService: ProgramService) {}
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
   @GetValues(ProgramsQueryDto, GetProgramsDto)
   async getPrograms(@Query("q") where: ProgramsQueryDto) {
     const ans = await this.programService.getPrograms(where);
@@ -26,6 +26,7 @@ export class ProgramController {
     return pipeTransformArray(ans, GetProgramsDto);
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @PostValues(CreateProgramsDto)
   async createPrograms(@Body(createArrayPipe(CreateProgramsDto)) programs: CreateProgramsDto[]) {
     const ans = await this.programService.createPrograms(programs);
@@ -33,6 +34,7 @@ export class ProgramController {
     return ans;
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @PatchValues(UpdateProgramsDto)
   async updatePrograms(@Body(createArrayPipe(UpdateProgramsDto)) programs: UpdateProgramsDto[]) {
     const pr = programs.map((program) => this.programService.updateProgram(program));
@@ -41,6 +43,7 @@ export class ProgramController {
     return ans.flat();
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @DeleteValues()
   async deletePrograms(@Query() query: DeleteValuesDto) {
     const ans = await this.programService.deletePrograms(query.id);

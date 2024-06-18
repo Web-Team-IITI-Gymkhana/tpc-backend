@@ -18,10 +18,10 @@ import { RoleEnum } from "src/enums";
 @Controller("students")
 @ApiTags("Student")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
 export class StudentController {
   constructor(private studentService: StudentService) {}
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
   @GetValues(StudentsQueryDto, GetStudentsDto)
   async getStudents(@Query("q") where: StudentsQueryDto) {
     const ans = await this.studentService.getStudents(where);
@@ -29,6 +29,7 @@ export class StudentController {
     return pipeTransformArray(ans, GetStudentsDto);
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
   @GetValue(GetStudentDto)
   async getStudent(@Param("id", new ParseUUIDPipe()) id: string) {
     const ans = await this.studentService.getStudent(id);
@@ -36,6 +37,7 @@ export class StudentController {
     return pipeTransform(ans, GetStudentDto);
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @PostValues(CreateStudentsDto)
   async createStudents(@Body(createArrayPipe(CreateStudentsDto)) students: CreateStudentsDto[]) {
     const ans = await this.studentService.createStudents(students);
@@ -43,6 +45,7 @@ export class StudentController {
     return ans;
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @PatchValues(UpdateStudentsDto)
   @UseInterceptors(TransactionInterceptor)
   async updateStudents(
@@ -55,6 +58,7 @@ export class StudentController {
     return ans.flat();
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @DeleteValues()
   async deleteStudents(@Query() query: DeleteValuesDto) {
     const ids = query.id;

@@ -24,6 +24,7 @@ import { EmailService } from "src/services/EmailService";
 import { env } from "src/config";
 import { Response } from "express";
 import { assert } from "console";
+import { jwtDecode } from "jwt-decode";
 
 @Controller("auth")
 @ApiTags("Auth")
@@ -86,8 +87,11 @@ export class AuthController {
     const user = await this.userService.getUserByEmail(req.user.email);
     if (!user) throw new UnauthorizedException(`User not found`);
     const token = await this.authService.vendJWT(user);
-    res.cookie("accessToken", token, { httpOnly: true });
-    res.cookie("user", user, { httpOnly: true });
+    res.cookie("accessToken", token, { httpOnly: false });
+    res.cookie("user", JSON.stringify(jwtDecode(token)), {
+      httpOnly: false,
+      maxAge: 365 * 24 * 60 * 60 * 1000,
+    });
     res.redirect(this.frontendUrl);
   }
 }

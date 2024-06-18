@@ -27,10 +27,10 @@ import { RoleEnum } from "src/enums";
 @Controller("companies")
 @ApiTags("Company")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
 export class CompanyController {
   constructor(private companyService: CompanyService) {}
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
   @GetValues(CompanyQueryDto, GetCompaniesDto)
   async getCompanies(@Query("q") where: CompanyQueryDto) {
     const ans = await this.companyService.getCompanies(where);
@@ -38,6 +38,7 @@ export class CompanyController {
     return pipeTransformArray(ans, GetCompaniesDto);
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
   @GetValue(GetCompanyDto)
   async getCompany(@Param("id", new ParseUUIDPipe()) id: string) {
     const ans = await this.companyService.getCompany(id);
@@ -45,6 +46,7 @@ export class CompanyController {
     return pipeTransform(ans, GetCompanyDto);
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @PostValues(CreateCompaniesDto)
   async createCompanies(@Body(createArrayPipe(CreateCompaniesDto)) companies: CreateCompaniesDto[]) {
     const ans = await this.companyService.createCompanies(companies);
@@ -52,6 +54,7 @@ export class CompanyController {
     return ans;
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @PatchValues(UpdateCompaniesDto)
   async updateCompanies(@Body(createArrayPipe(UpdateCompaniesDto)) companies: UpdateCompaniesDto[]) {
     const pr = companies.map((company) => this.companyService.updateCompany(company));
@@ -60,6 +63,7 @@ export class CompanyController {
     return ans.flat();
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @DeleteValues()
   async deleteCompanies(@Query() query: DeleteValuesDto) {
     const ans = await this.companyService.deleteCompanies(query.id);
