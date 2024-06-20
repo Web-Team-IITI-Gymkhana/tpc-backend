@@ -1,6 +1,6 @@
 import { Strategy } from "passport-jwt";
 import { PassportStrategy } from "@nestjs/passport";
-import { Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { AuthService } from "src/auth/auth.service";
 import { IUser } from "src/auth/User";
 

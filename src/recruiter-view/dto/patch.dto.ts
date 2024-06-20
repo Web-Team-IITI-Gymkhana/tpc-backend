@@ -1,4 +1,4 @@
-import { NestedString, NestedEmail, NestedUUID, NestedObject, NestedEnum, NestedNumber } from "src/decorators/dto";
+import { NestedString, NestedEmail, NestedObject, NestedEnum, NestedNumber } from "src/decorators/dto";
 import { CompanyCategoryEnum, IndustryDomainEnum } from "src/enums";
 
 class AddressDto {
@@ -39,7 +39,7 @@ class UpdateCompanyDto {
   @NestedString({ optional: true })
   website?: string;
 
-  @NestedEnum(IndustryDomainEnum, { optional: true })
+  @NestedEnum(IndustryDomainEnum, { isArray: true, optional: true })
   domains?: IndustryDomainEnum[];
 
   @NestedEnum(CompanyCategoryEnum, { optional: true })
