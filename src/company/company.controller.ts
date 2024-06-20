@@ -1,23 +1,11 @@
-import {
-  Controller,
-  Get,
-  Query,
-  Post,
-  Body,
-  Patch,
-  Delete,
-  Param,
-  ParseUUIDPipe,
-  ParseArrayPipe,
-  UseGuards,
-} from "@nestjs/common";
+import { Controller, Query, Body, Param, ParseUUIDPipe, UseGuards } from "@nestjs/common";
 import { CompanyService } from "./company.service";
 import { GetCompaniesDto, GetCompanyDto } from "./dtos/get.dto";
 import { CompanyQueryDto } from "./dtos/query.dto";
-import { ApiFilterQuery, createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
+import { createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
 import { CreateCompaniesDto } from "./dtos/post.dto";
 import { UpdateCompaniesDto } from "./dtos/patch.dto";
-import { ApiBearerAuth, ApiBody, ApiOperation, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { DeleteValues, GetValue, GetValues, PatchValues, PostValues } from "src/decorators/controller";
 import { DeleteValuesDto } from "src/utils/utils.dto";
 import { AuthGuard } from "@nestjs/passport";
