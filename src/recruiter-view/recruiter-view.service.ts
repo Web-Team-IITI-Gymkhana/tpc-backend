@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { COMPANY_DAO, EVENT_DAO, JOB_DAO, RECRUITER_DAO, USER_DAO } from "src/constants";
 import {
   ApplicationModel,

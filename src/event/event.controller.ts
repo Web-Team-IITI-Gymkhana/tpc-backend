@@ -26,7 +26,7 @@ import { RoleEnum } from "src/enums";
 @Controller("events")
 @ApiTags("Event")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
 export class EventController {
   constructor(private eventService: EventService) {}
 

@@ -19,6 +19,7 @@ import { RoleEnum } from "src/enums";
 @UseGuards(AuthGuard("jwt"))
 @ApiTags("faculty-view")
 @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.FACULTY))
+@ApiBearerAuth("jwt")
 export class FacultyViewController {
   constructor(private readonly facultyViewService: FacultyViewService) {}
 

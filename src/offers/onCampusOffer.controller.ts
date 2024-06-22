@@ -1,5 +1,5 @@
 import { Body, Controller, Query, UseGuards } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { OfferService } from "./offer.service";
 import { DeleteValues, GetValues, PatchValues, PostValues } from "src/decorators/controller";
 import { OnCampusOffersQueryDto } from "./dtos/query.dto";
@@ -14,7 +14,8 @@ import { RoleEnum } from "src/enums";
 
 @Controller("on-campus-offers")
 @ApiTags("Offer")
-@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
+@ApiBearerAuth("jwt")
 export class OnCampusOfferController {
   constructor(private offerService: OfferService) {}
 

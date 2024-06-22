@@ -18,10 +18,10 @@ import { RoleEnum } from "src/enums";
 @Controller("recruiters")
 @ApiTags("Recruiter")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
 export class RecruiterController {
   constructor(private recruiterService: RecruiterService) {}
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
   @GetValues(RecruiterQueryDto, GetRecruitersDto)
   async getRecruiters(@Query("q") query: RecruiterQueryDto) {
     const ans = await this.recruiterService.getRecuiters(query);
@@ -29,6 +29,7 @@ export class RecruiterController {
     return pipeTransformArray(ans, GetRecruitersDto);
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @GetValue(GetRecruiterDto)
   async getRecruiter(@Param("id", new ParseUUIDPipe()) id: string) {
     const ans = await this.recruiterService.getRecruiter(id);
@@ -36,6 +37,7 @@ export class RecruiterController {
     return pipeTransform(ans, GetRecruiterDto);
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @PostValues(CreateRecruitersDto)
   async createRecruiters(@Body(createArrayPipe(CreateRecruitersDto)) recruiters: CreateRecruitersDto[]) {
     const ans = await this.recruiterService.createRecruiters(recruiters);
@@ -43,6 +45,7 @@ export class RecruiterController {
     return ans;
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @PatchValues(UpdateRecuitersDto)
   @UseInterceptors(TransactionInterceptor)
   async updateRecruiters(
@@ -55,6 +58,7 @@ export class RecruiterController {
     return ans.flat();
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @DeleteValues()
   async deleteRecruiters(@Query() query: DeleteValuesDto) {
     const ids = query.id;
