@@ -5,12 +5,14 @@ import {
   Delete,
   Param,
   Query,
+  Res,
   StreamableFile,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Response } from "express";
 import { InterviewExperienceService } from "./ie.service";
 import { FileService } from "src/services/FileService";
 import { CreateFile, GetFile, GetValues } from "src/decorators/controller";
@@ -50,9 +52,10 @@ export class InterviewExperienceController {
   }
 
   @GetFile(["application/pdf"], "")
-  async getInterviewExperienceFile(@Param("filename") filename: string) {
+  async getInterviewExperienceFile(@Param("filename") filename: string, @Res({ passthrough: true }) res: Response) {
     const filepath = path.join(this.folder, filename);
     const file = this.fileService.getFile(filepath);
+    res.setHeader("Content-Type", "application/pdf");
 
     return new StreamableFile(file);
   }
