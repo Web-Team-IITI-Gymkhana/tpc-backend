@@ -11,7 +11,7 @@ import { Transaction } from "sequelize";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { UpdateFacultyDto } from "src/faculty-view/dto/patch.dto";
 import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
-import { UpdateRecruiterDto } from "./dto/patch.dto";
+import { UpdateJobDto, UpdateRecruiterDto, UpdateSalariesDto } from "./dto/patch.dto";
 import { RoleGuard } from "src/auth/roleGaurd";
 import { RoleEnum } from "src/enums";
 
@@ -44,6 +44,16 @@ export class RecruiterViewController {
     const ans = await this.recruiterViewService.getJob(id, user.recruiterId);
 
     return pipeTransform(ans, GetJobDto);
+  }
+
+  @Patch("jobs/:id")
+  async updateJob(@Param("id") id: string, @User() user: IUser, @Body() job: UpdateJobDto) {
+    return await this.recruiterViewService.updateJob(job, id, user.recruiterId);
+  }
+
+  @Patch("salary/:id")
+  async updateSalary(@Param("id") id: string, @User() user: IUser, @Body() salary: UpdateSalariesDto) {
+    return await this.recruiterViewService.updateSalary(salary, id, user.recruiterId);
   }
 
   @Get("events/:id")

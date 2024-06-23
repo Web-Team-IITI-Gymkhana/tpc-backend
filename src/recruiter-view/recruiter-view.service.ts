@@ -1,5 +1,5 @@
 import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
-import { COMPANY_DAO, EVENT_DAO, JOB_DAO, RECRUITER_DAO, USER_DAO } from "src/constants";
+import { COMPANY_DAO, EVENT_DAO, JOB_DAO, RECRUITER_DAO, SALARY_DAO, USER_DAO } from "src/constants";
 import {
   ApplicationModel,
   CompanyModel,
@@ -15,10 +15,10 @@ import {
   UserModel,
 } from "src/db/models";
 import { parseFilter, parseOrder, parsePagesize } from "src/utils";
-import { FindOptions, Transaction } from "sequelize";
+import { FindOptions, Op, Transaction } from "sequelize";
 import { JobsQueryDto } from "./dto/query.dto";
 import { CategoryEnum, IndustryDomainEnum } from "src/enums";
-import { UpdateRecruiterDto } from "./dto/patch.dto";
+import { UpdateJobDto, UpdateRecruiterDto, UpdateSalariesDto } from "./dto/patch.dto";
 import { omit } from "lodash";
 import sequelize from "sequelize";
 
@@ -27,6 +27,7 @@ export class RecruiterViewService {
   constructor(
     @Inject(RECRUITER_DAO) private recruiterRepo: typeof RecruiterModel,
     @Inject(JOB_DAO) private jobRepo: typeof JobModel,
+    @Inject(SALARY_DAO) private salaryRepo: typeof SalaryModel,
     @Inject(EVENT_DAO) private eventRepo: typeof EventModel,
     @Inject(COMPANY_DAO) private companyRepo: typeof CompanyModel,
     @Inject(USER_DAO) private userRepo: typeof UserModel
@@ -199,5 +200,33 @@ export class RecruiterViewService {
     const [companyUpdateCount] = companyUpdateResult;
 
     return recruiterUpdateCount > 0 || userUpdateCount > 0 || companyUpdateCount > 0 ? [] : [recruiterId];
+  }
+
+  async updateJob(job: UpdateJobDto, jobId: string, recruiterId: string) {
+    const [ans] = await this.jobRepo.update(job, {
+      where: { id: jobId, recruiterId: recruiterId, active: false },
+    });
+    if (ans == 0) throw new UnauthorizedException(`Unauthorized`);
+
+    return ans > 0 ? [] : [jobId];
+  }
+
+  async updateSalary(salary: UpdateSalariesDto, salaryId: string, recruiterId: string) {
+    const subQuery = {
+      [Op.in]: sequelize.literal(
+        `(SELECT "id" FROM "Job" WHERE "recruiterId" = '${recruiterId}' AND "active" = false)`
+      ),
+    };
+
+    const [ans] = await this.salaryRepo.update(salary, {
+      where: {
+        id: salaryId,
+        jobId: subQuery,
+      },
+    });
+
+    if (ans == 0) throw new UnauthorizedException(`Unauthorized`);
+
+    return ans > 0 ? [] : [salaryId];
   }
 }

@@ -1,5 +1,15 @@
-import { NestedString, NestedEmail, NestedObject, NestedEnum, NestedNumber } from "src/decorators/dto";
-import { CompanyCategoryEnum, IndustryDomainEnum } from "src/enums";
+import {
+  NestedString,
+  NestedEmail,
+  NestedObject,
+  NestedEnum,
+  NestedNumber,
+  NestedUUID,
+  NestedBoolean,
+  NestedDate,
+} from "src/decorators/dto";
+import { CategoryEnum, CompanyCategoryEnum, GenderEnum, IndustryDomainEnum } from "src/enums";
+import { SelectionProcedureDto } from "src/job/dtos/jaf.dto";
 
 class AddressDto {
   @NestedString({ optional: true })
@@ -73,4 +83,77 @@ export class UpdateRecruiterDto {
 
   @NestedObject({ type: UpdateUserDto, optional: true })
   user?: UpdateUserDto;
+}
+
+export class UpdateSalariesDto {
+  @NestedNumber({ optional: true })
+  baseSalary?: number;
+
+  @NestedNumber({ optional: true })
+  totalCTC?: number;
+
+  @NestedNumber({ optional: true })
+  takeHomeSalary?: number;
+
+  @NestedNumber({ optional: true })
+  grossSalary?: number;
+
+  @NestedNumber({ optional: true })
+  otherCompensations?: number;
+
+  @NestedEnum(GenderEnum, { optional: true, isArray: true })
+  genders?: GenderEnum[];
+
+  @NestedUUID({ optional: true, isArray: true })
+  programs?: string[];
+
+  @NestedEnum(CategoryEnum, { optional: true, isArray: true })
+  categories?: CategoryEnum[];
+
+  @NestedString({ optional: true })
+  salaryPeriod?: string;
+
+  @NestedNumber({ optional: true })
+  minCPI?: number;
+
+  @NestedNumber({ optional: true })
+  tenthMarks?: number;
+
+  @NestedNumber({ optional: true })
+  twelthMarks?: number;
+}
+
+export class UpdateJobDto {
+  @NestedString({ optional: true })
+  role?: string;
+
+  @NestedNumber({ optional: true })
+  noOfVacancies?: number;
+
+  @NestedNumber({ optional: true })
+  duration?: number;
+
+  @NestedString({ optional: true })
+  location?: string;
+
+  @NestedObject({ type: SelectionProcedureDto, optional: true })
+  selectionProcedure?: SelectionProcedureDto;
+
+  @NestedString({ optional: true })
+  description?: string;
+
+  @NestedString({ optional: true })
+  attachment?: string;
+
+  @NestedString({ optional: true })
+  skills?: string;
+
+  @NestedDate({ optional: true })
+  offerLetterReleaseDate?: Date;
+
+  @NestedDate({ optional: true })
+  joiningDate?: Date;
+
+  @NestedString({ optional: true })
+  feedback?: string;
 }
