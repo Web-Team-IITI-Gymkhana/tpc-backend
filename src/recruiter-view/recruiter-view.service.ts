@@ -1,11 +1,12 @@
 import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
-import { COMPANY_DAO, EVENT_DAO, JOB_DAO, RECRUITER_DAO, USER_DAO } from "src/constants";
+import { COMPANY_DAO, EVENT_DAO, JOB_DAO, RECRUITER_DAO, SALARY_DAO, USER_DAO } from "src/constants";
 import {
   ApplicationModel,
   CompanyModel,
   EventModel,
   JobCoordinatorModel,
   JobModel,
+  ProgramModel,
   RecruiterModel,
   ResumeModel,
   SalaryModel,
@@ -15,10 +16,10 @@ import {
   UserModel,
 } from "src/db/models";
 import { parseFilter, parseOrder, parsePagesize } from "src/utils";
-import { FindOptions, Transaction } from "sequelize";
+import { FindOptions, Op, Transaction } from "sequelize";
 import { JobsQueryDto } from "./dto/query.dto";
 import { CategoryEnum, IndustryDomainEnum } from "src/enums";
-import { UpdateRecruiterDto } from "./dto/patch.dto";
+import { UpdateJobDto, UpdateRecruiterDto, UpdateSalariesDto } from "./dto/patch.dto";
 import { omit } from "lodash";
 import sequelize from "sequelize";
 
@@ -27,6 +28,7 @@ export class RecruiterViewService {
   constructor(
     @Inject(RECRUITER_DAO) private recruiterRepo: typeof RecruiterModel,
     @Inject(JOB_DAO) private jobRepo: typeof JobModel,
+    @Inject(SALARY_DAO) private salaryRepo: typeof SalaryModel,
     @Inject(EVENT_DAO) private eventRepo: typeof EventModel,
     @Inject(COMPANY_DAO) private companyRepo: typeof CompanyModel,
     @Inject(USER_DAO) private userRepo: typeof UserModel
@@ -80,7 +82,11 @@ export class RecruiterViewService {
   }
 
   async getJob(id: string, recruiterId: string) {
-    const ans = await this.jobRepo.findByPk(id, {
+    const ans = await this.jobRepo.findOne({
+      where: {
+        id: id,
+        recruiterId: recruiterId,
+      },
       include: [
         {
           model: SeasonModel,
@@ -123,15 +129,15 @@ export class RecruiterViewService {
 
     if (!ans) throw new UnauthorizedException(`Unauthorized`);
 
-    if (ans.recruiterId !== recruiterId) {
-      throw new UnauthorizedException(`Unauthorized`);
-    }
-
     return ans.get({ plain: true });
   }
 
   async getEvent(eventId: string, recruiterId: string) {
-    const ans = await this.eventRepo.findByPk(eventId, {
+    const ans = await this.eventRepo.findOne({
+      where: {
+        id: eventId,
+        visibleToRecruiter: true,
+      },
       include: [
         {
           model: ApplicationModel,
@@ -143,22 +149,68 @@ export class RecruiterViewService {
               as: "resume",
               required: true,
             },
+            {
+              model: StudentModel,
+              as: "student",
+              include: [
+                {
+                  model: UserModel,
+                  as: "user",
+                },
+                {
+                  model: ProgramModel,
+                  as: "program",
+                },
+              ],
+            },
           ],
         },
         {
           model: JobModel,
           as: "job",
+          required: true,
+          where: {
+            recruiterId: recruiterId,
+          },
         },
       ],
     });
 
     if (!ans) throw new UnauthorizedException(`Unauthorized`);
 
-    if (ans.job.recruiterId !== recruiterId || ans.visibleToRecruiter === false) {
-      throw new UnauthorizedException(`Unauthorized`);
-    }
-
     return ans.get({ plain: true });
+  }
+
+  async getResume(filename: string, recruiterId: string) {
+    const ans = await this.eventRepo.findAll({
+      include: [
+        {
+          model: ApplicationModel,
+          as: "applications",
+          required: true,
+          include: [
+            {
+              model: ResumeModel,
+              as: "resume",
+              required: true,
+              where: { filepath: filename },
+            },
+          ],
+        },
+        {
+          model: JobModel,
+          as: "job",
+          required: true,
+          where: {
+            recruiterId: recruiterId,
+          },
+        },
+      ],
+    });
+
+    if (!ans) throw new UnauthorizedException(`Unauthorized`);
+
+    return ans.map((event) => event.get({ plain: true }));
   }
 
   async getEnums() {
@@ -199,5 +251,33 @@ export class RecruiterViewService {
     const [companyUpdateCount] = companyUpdateResult;
 
     return recruiterUpdateCount > 0 || userUpdateCount > 0 || companyUpdateCount > 0 ? [] : [recruiterId];
+  }
+
+  async updateJob(job: UpdateJobDto, jobId: string, recruiterId: string) {
+    const [ans] = await this.jobRepo.update(job, {
+      where: { id: jobId, recruiterId: recruiterId, active: false },
+    });
+    if (ans == 0) throw new UnauthorizedException(`Unauthorized`);
+
+    return ans > 0 ? [] : [jobId];
+  }
+
+  async updateSalary(salary: UpdateSalariesDto, salaryId: string, recruiterId: string) {
+    const subQuery = {
+      [Op.in]: sequelize.literal(
+        `(SELECT "id" FROM "Job" WHERE "recruiterId" = '${recruiterId}' AND "active" = false)`
+      ),
+    };
+
+    const [ans] = await this.salaryRepo.update(salary, {
+      where: {
+        id: salaryId,
+        jobId: subQuery,
+      },
+    });
+
+    if (ans == 0) throw new UnauthorizedException(`Unauthorized`);
+
+    return ans > 0 ? [] : [salaryId];
   }
 }
