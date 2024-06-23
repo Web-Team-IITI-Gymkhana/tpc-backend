@@ -282,12 +282,43 @@ class ResumeDto {
   verified: boolean;
 }
 
-class ApplicationDto {
+class ProgramDto {
   @NestedUUID({})
   id: string;
 
   @NestedString({})
-  studentId: string;
+  branch: string;
+
+  @NestedString({})
+  course: string;
+
+  @NestedString({})
+  year: string;
+
+  @NestedEnum(DepartmentEnum, {})
+  department: DepartmentEnum;
+}
+
+class StudentDto {
+  @NestedUUID({ optional: true })
+  id?: string;
+
+  @NestedString({ optional: true })
+  rollNo?: string;
+
+  @NestedObject({ type: ProgramDto, optional: true })
+  program?: ProgramDto;
+
+  @NestedObject({ type: UserDto, optional: true })
+  user?: UserDto;
+}
+
+class ApplicationDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedObject({ type: StudentDto, optional: true })
+  student?: StudentDto;
 
   @NestedObject({ type: ResumeDto })
   resume: ResumeDto;

@@ -6,6 +6,7 @@ import {
   EventModel,
   JobCoordinatorModel,
   JobModel,
+  ProgramModel,
   RecruiterModel,
   ResumeModel,
   SalaryModel,
@@ -147,6 +148,20 @@ export class RecruiterViewService {
               model: ResumeModel,
               as: "resume",
               required: true,
+            },
+            {
+              model: StudentModel,
+              as: "student",
+              include: [
+                {
+                  model: UserModel,
+                  as: "user",
+                },
+                {
+                  model: ProgramModel,
+                  as: "program",
+                },
+              ],
             },
           ],
         },
