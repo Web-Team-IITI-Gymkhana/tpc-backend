@@ -81,7 +81,11 @@ export class RecruiterViewService {
   }
 
   async getJob(id: string, recruiterId: string) {
-    const ans = await this.jobRepo.findByPk(id, {
+    const ans = await this.jobRepo.findOne({
+      where: {
+        id: id,
+        recruiterId: recruiterId,
+      },
       include: [
         {
           model: SeasonModel,
@@ -124,15 +128,15 @@ export class RecruiterViewService {
 
     if (!ans) throw new UnauthorizedException(`Unauthorized`);
 
-    if (ans.recruiterId !== recruiterId) {
-      throw new UnauthorizedException(`Unauthorized`);
-    }
-
     return ans.get({ plain: true });
   }
 
   async getEvent(eventId: string, recruiterId: string) {
-    const ans = await this.eventRepo.findByPk(eventId, {
+    const ans = await this.eventRepo.findOne({
+      where: {
+        id: eventId,
+        visibleToRecruiter: true,
+      },
       include: [
         {
           model: ApplicationModel,
@@ -149,17 +153,49 @@ export class RecruiterViewService {
         {
           model: JobModel,
           as: "job",
+          required: true,
+          where: {
+            recruiterId: recruiterId,
+          },
         },
       ],
     });
 
     if (!ans) throw new UnauthorizedException(`Unauthorized`);
 
-    if (ans.job.recruiterId !== recruiterId || ans.visibleToRecruiter === false) {
-      throw new UnauthorizedException(`Unauthorized`);
-    }
-
     return ans.get({ plain: true });
+  }
+
+  async getResume(filename: string, recruiterId: string) {
+    const ans = await this.eventRepo.findAll({
+      include: [
+        {
+          model: ApplicationModel,
+          as: "applications",
+          required: true,
+          include: [
+            {
+              model: ResumeModel,
+              as: "resume",
+              required: true,
+              where: { filepath: filename },
+            },
+          ],
+        },
+        {
+          model: JobModel,
+          as: "job",
+          required: true,
+          where: {
+            recruiterId: recruiterId,
+          },
+        },
+      ],
+    });
+
+    if (!ans) throw new UnauthorizedException(`Unauthorized`);
+
+    return ans.map((event) => event.get({ plain: true }));
   }
 
   async getEnums() {

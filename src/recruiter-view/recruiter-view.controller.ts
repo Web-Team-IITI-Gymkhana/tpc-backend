@@ -1,4 +1,18 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, UseInterceptors } from "@nestjs/common";
+import {
+  Controller,
+  Get,
+  Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Query,
+  UseInterceptors,
+  Res,
+  NotFoundException,
+  StreamableFile,
+} from "@nestjs/common";
 import { RecruiterViewService } from "./recruiter-view.service";
 import { AuthGuard } from "@nestjs/passport";
 import { ApiTags, ApiBearerAuth, ApiResponse } from "@nestjs/swagger";
@@ -14,13 +28,23 @@ import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { UpdateJobDto, UpdateRecruiterDto, UpdateSalariesDto } from "./dto/patch.dto";
 import { RoleGuard } from "src/auth/roleGaurd";
 import { RoleEnum } from "src/enums";
+import { GetFile } from "src/decorators/controller";
+import { RESUME_FOLDER } from "src/constants";
+import { Response } from "express";
+import { FileService } from "src/services/FileService";
+import path from "path";
 
 @Controller("recruiter-view")
 @ApiTags("recruiter-view")
 @ApiBearerAuth("jwt")
 @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.RECRUITER))
 export class RecruiterViewController {
-  constructor(private readonly recruiterViewService: RecruiterViewService) {}
+  folderName = RESUME_FOLDER;
+
+  constructor(
+    private readonly recruiterViewService: RecruiterViewService,
+    private fileService: FileService
+  ) {}
 
   @Get("recruiter")
   @ApiResponse({ type: GetRecruiterDto })
@@ -62,6 +86,16 @@ export class RecruiterViewController {
     const ans = await this.recruiterViewService.getEvent(id, user.recruiterId);
 
     return pipeTransform(ans, GetEventDto);
+  }
+
+  @GetFile(["application/pdf"], "resume")
+  async getResume(@Param("filename") filename: string, @User() user: IUser, @Res({ passthrough: true }) res: Response) {
+    const ans = await this.recruiterViewService.getResume(filename, user.recruiterId);
+    if (ans.length === 0) throw new NotFoundException(`Resume with filename ${filename} not found`);
+    const file = this.fileService.getFile(path.join(this.folderName, filename));
+    res.setHeader("Content-Type", "application/pdf");
+
+    return new StreamableFile(file);
   }
 
   @Patch("recruiter")
