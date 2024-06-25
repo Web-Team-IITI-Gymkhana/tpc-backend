@@ -57,7 +57,7 @@ export class AuthController {
   @UseInterceptors(ClassSerializerInterceptor)
   async loginRecruiter(@Body() body: PasswordlessLoginDto): Promise<string> {
     const user = await this.userService.getUserByEmail(body.email);
-    if (!user)
+    if (!user || user.role !== RoleEnum.RECRUITER)
       throw new NotFoundException(`The user with email ${body.email} and Role ${RoleEnum.RECRUITER} Not Found`);
     const jwt = await this.authService.vendJWT(user, this.recruiterSecret);
     const res = await this.emailService.sendTokenEmail(user.email, jwt);
