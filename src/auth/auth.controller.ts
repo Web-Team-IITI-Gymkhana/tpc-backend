@@ -68,10 +68,13 @@ export class AuthController {
 
   @Post("passwordless/verify")
   @UseInterceptors(ClassSerializerInterceptor)
-  async checkRecruiterToken(@Body() body: PasswordlessLoginVerifyDto): Promise<string> {
+  async checkRecruiterToken(@Body() body: PasswordlessLoginVerifyDto, @Res({ passthrough: true }) res: Response) {
     const user = await this.authService.parseJWT(body.token, this.recruiterSecret);
 
-    return await this.authService.vendJWT(user);
+    if (!user) throw new UnauthorizedException(`User not found`);
+    const token = await this.authService.vendJWT(user);
+
+    return JSON.stringify({ accessToken: token });
   }
 
   @Get("google/login")

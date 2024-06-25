@@ -67,7 +67,7 @@ export class EmailService {
   async sendTokenEmail(to: string, token: string): Promise<boolean> {
     const transport = this.mailTransport();
     const environmentVariables: IEnvironmentVariables = env();
-    const { MAIL_USER, APP_NAME } = environmentVariables;
+    const { MAIL_USER, APP_NAME, FRONTEND_URL } = environmentVariables;
     const options: Mail.Options = {
       from: {
         name: APP_NAME,
@@ -75,7 +75,7 @@ export class EmailService {
       },
       to: to,
       subject: "token for your login",
-      text: `your token is ${token} and will be sent on ${to}`,
+      text: `open this link is ${FRONTEND_URL}/passwordless/${token} to login`,
     };
 
     await transport.sendMail(options, (error, info) => {
