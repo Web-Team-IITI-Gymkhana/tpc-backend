@@ -1,19 +1,5 @@
 import sequelize, { Op, Sequelize, WhereOptions } from "sequelize";
-import {
-  BelongsTo,
-  Column,
-  ForeignKey,
-  Model,
-  Table,
-  HasMany,
-  Unique,
-  DataType,
-  HasOne,
-  AfterCreate,
-  AfterUpdate,
-  AfterBulkUpdate,
-  BeforeBulkUpdate,
-} from "sequelize-typescript";
+import { Column, Model, Table } from "sequelize-typescript";
 @Table({
   tableName: "ExternalOpportunities",
 })

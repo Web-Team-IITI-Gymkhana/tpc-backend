@@ -26,27 +26,19 @@ export class ExternalOpportunitiesService {
     return ans.map((externalOpportunity) => externalOpportunity.get({ plain: true }));
   }
 
-  async postExternalOpportunities(externalOpportunities: PostExternalOpportunitiesDto[]) {
-    const ans = await this.externalOpportunitiesRepo.bulkCreate(externalOpportunities);
+  async createExternalOpportunities(externalOpportunities: PostExternalOpportunitiesDto[]) {
+    const ans = await this.externalOpportunitiesRepo.bulkCreate(externalOpportunities, {
+      updateOnDuplicate: ["id"],
+    });
 
     return ans.map((externalOpportunity) => externalOpportunity.id);
-  }
-
-  async updateExternalOpportunity(externalOpportunity: UpdateExternalOpportunitiesDto, t: Transaction) {
-    const [[ans]] = await Promise.all([
-      this.externalOpportunitiesRepo.update(omit(externalOpportunity), {
-        where: { id: externalOpportunity.id },
-        transaction: t,
-      }),
-    ]);
-
-    return ans > 0 ? [] : [externalOpportunity.id];
   }
 
   async deleteExternalOpportunities(ids: string[]) {
     const ans = await this.externalOpportunitiesRepo.destroy({
       where: sequalize.literal(
-        `"id" IN (SELECT "userId" FROM "Student" WHERE "id" IN (${ids.map((id) => `'${id}'`).join(",")}))`
+        `
+        "id" IN (${ids.map((id) => `'${id}'`).join(",")}))`
       ),
     });
 

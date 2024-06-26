@@ -1,4 +1,4 @@
-import { Controller, Body, UseGuards, Query, UseInterceptors } from "@nestjs/common";
+import { Controller, Body, UseGuards, Query, UseInterceptors, HttpCode } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { DeleteValues, GetValues, PatchValues, PostValues } from "src/decorators/controller";
 import { ExternalOpportunitiesService } from "./externalOpportunities.service";
@@ -27,33 +27,26 @@ export class ExternalOpportunitiesController {
     return pipeTransformArray(ans, GetExternalOpportunitiesDto);
   }
 
-  @PostValues(PostExternalOpportunitiesDto)
   @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
+  @PostValues(PostExternalOpportunitiesDto)
   async createExternalOpportunity(
     @Body(createArrayPipe(PostExternalOpportunitiesDto)) externalOpportunities: PostExternalOpportunitiesDto[]
   ) {
-    const ans = await this.externalOpportunitiesService.postExternalOpportunities(externalOpportunities);
-
-    return ans;
+    return await this.externalOpportunitiesService.createExternalOpportunities(externalOpportunities);
   }
 
-  @PatchValues(UpdateExternalOpportunitiesDto)
   @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
+  @PatchValues(PostExternalOpportunitiesDto)
   @UseInterceptors(TransactionInterceptor)
   async updateExternalOpportunity(
-    @Body(createArrayPipe(UpdateExternalOpportunitiesDto)) externalOpportunities: UpdateExternalOpportunitiesDto[],
+    @Body(createArrayPipe(PostExternalOpportunitiesDto)) externalOpportunities: PostExternalOpportunitiesDto[],
     @TransactionParam() t: Transaction
-  ) {
-    const inpt = externalOpportunities.map((externalOpportunity) =>
-      this.externalOpportunitiesService.updateExternalOpportunity(externalOpportunity, t)
-    );
-    const ans = await Promise.all(inpt);
-
-    return "Patch External Opportunity";
+  ): Promise<string[]> {
+    return await this.externalOpportunitiesService.createExternalOpportunities(externalOpportunities);
   }
 
-  @DeleteValues()
   @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
+  @DeleteValues()
   async deleteExternalOpportunity(@Query() query: DeleteValuesDto) {
     const ids = query.id;
     const pids = typeof ids === "string" ? [ids] : ids;
