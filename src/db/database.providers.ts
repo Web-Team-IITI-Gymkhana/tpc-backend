@@ -19,6 +19,7 @@ import {
   JobCoordinatorModel,
   FacultyApprovalRequestModel,
   TpcMemberModel,
+  ExternalOpportunitiesModel,
 } from "./models";
 import { isProductionEnv } from "../utils";
 import {
@@ -33,6 +34,7 @@ import {
   JOB_STATUS_DAO,
   OFF_CAMPUS_OFFER_DAO,
   ON_CAMPUS_OFFER_DAO,
+  EXTERNAL_OPPORTUNITIES_DAO,
   PENALTY_DAO,
   PROGRAM_DAO,
   RECRUITER_DAO,
@@ -88,6 +90,7 @@ export const databaseProviders = [
         OnCampusOfferModel,
         RegistrationModel,
         InterviewExperienceModel,
+        ExternalOpportunitiesModel,
       ]);
 
       // await sequelize.sync({ force: true });
@@ -177,5 +180,9 @@ export const spacesProviders = [
   {
     provide: INTERVIEW_EXPERIENCE_DAO,
     useValue: InterviewExperienceModel,
+  },
+  {
+    provide: EXTERNAL_OPPORTUNITIES_DAO,
+    useValue: ExternalOpportunitiesModel,
   },
 ];
