@@ -17,6 +17,8 @@ import {
   EventTypeEnum,
   GenderEnum,
   CategoryEnum,
+  IndustryDomainEnum,
+  CompanyCategoryEnum,
 } from "src/enums";
 import { SelectionProcedureDto } from "src/job/dtos/jaf.dto";
 
@@ -34,6 +36,55 @@ class UserDto {
   contact: string;
 }
 
+class AddressDto {
+  @NestedString({ optional: true })
+  city?: string;
+
+  @NestedString({ optional: true })
+  line1?: string;
+
+  @NestedString({ optional: true })
+  line2?: string;
+
+  @NestedString({ optional: true })
+  state?: string;
+
+  @NestedString({ optional: true })
+  country?: string;
+
+  @NestedString({ optional: true })
+  zipCode?: string;
+}
+
+class GetCompanyDto {
+  @NestedString({ optional: true })
+  name?: string;
+
+  @NestedString({ optional: true })
+  website?: string;
+
+  @NestedEnum(IndustryDomainEnum, { isArray: true, optional: true })
+  domains?: IndustryDomainEnum[];
+
+  @NestedEnum(CompanyCategoryEnum, { optional: true })
+  category?: CompanyCategoryEnum;
+
+  @NestedObject({ type: AddressDto, optional: true })
+  address?: AddressDto;
+
+  @NestedNumber({ optional: true })
+  size?: number;
+
+  @NestedString({ optional: true })
+  yearOfEstablishment?: string;
+
+  @NestedString({ optional: true })
+  annualTurnover?: string;
+
+  @NestedString({ optional: true })
+  socialMediaLink?: string;
+}
+
 export class GetRecruiterDto {
   @NestedUUID({})
   id: string;
@@ -46,6 +97,9 @@ export class GetRecruiterDto {
 
   @NestedObject({ type: UserDto })
   user: UserDto;
+
+  @NestedObject({ type: GetCompanyDto, optional: true })
+  company: GetCompanyDto;
 }
 
 class SeasonDto {
@@ -152,6 +206,15 @@ class SalariesDto {
   categories: CategoryEnum[];
 
   @NestedNumber({})
+  minCPI: number;
+
+  @NestedNumber({})
+  tenthMarks: number;
+
+  @NestedNumber({})
+  twelthMarks: number;
+
+  @NestedNumber({})
   baseSalary: number;
 
   @NestedNumber({})
@@ -219,12 +282,43 @@ class ResumeDto {
   verified: boolean;
 }
 
-class ApplicationDto {
+class ProgramDto {
   @NestedUUID({})
   id: string;
 
   @NestedString({})
-  studentId: string;
+  branch: string;
+
+  @NestedString({})
+  course: string;
+
+  @NestedString({})
+  year: string;
+
+  @NestedEnum(DepartmentEnum, {})
+  department: DepartmentEnum;
+}
+
+class StudentDto {
+  @NestedUUID({ optional: true })
+  id?: string;
+
+  @NestedString({ optional: true })
+  rollNo?: string;
+
+  @NestedObject({ type: ProgramDto, optional: true })
+  program?: ProgramDto;
+
+  @NestedObject({ type: UserDto, optional: true })
+  user?: UserDto;
+}
+
+class ApplicationDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedObject({ type: StudentDto, optional: true })
+  student?: StudentDto;
 
   @NestedObject({ type: ResumeDto })
   resume: ResumeDto;
