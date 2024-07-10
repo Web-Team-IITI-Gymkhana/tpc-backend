@@ -41,6 +41,10 @@ interface IUpdateOptions {
   };
 }
 
+interface IRecruiterDetails {
+  email: string;
+}
+
 @Table({
   tableName: "Job",
 })
@@ -219,17 +223,25 @@ export class JobModel extends Model<JobModel> {
       },
     });
 
-    const emails = admins.filter((admin) => admin.email);
+    const emails = admins.map((admin) => ({ address: admin.email }));
 
-    const dto: SendEmailDto = {
+    const mailToAdmin: SendEmailDto = {
       from: { name: APP_NAME, address: MAIL_USER },
-      recepients: [emails],
+      recepients: [...emails],
       // recepients: [{ address: DEFAULT_MAIL_TO }],
       subject: "Test email",
       html: "<p>New job entry was created</p>",
     };
+    const mailToRecruiter: SendEmailDto = {
+      from: { name: APP_NAME, address: MAIL_USER },
+      recepients: [{ address: (instance.recruiterDetailsFilled as IRecruiterDetails).email }],
+      // recepients: [{ address: DEFAULT_MAIL_TO }],
+      subject: "Test email",
+      html: "<p>Your JAF Form was successfully submitted</p>",
+    };
 
-    await mailerService.sendEmail(dto);
+    await mailerService.sendEmail(mailToAdmin);
+    await mailerService.sendEmail(mailToRecruiter);
   }
 
   @BeforeBulkUpdate
