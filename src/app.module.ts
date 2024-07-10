@@ -28,7 +28,7 @@ import { CompanyModule } from "./company/company.module";
 import { OfferModule } from "./offers/offer.module";
 import { StudentViewSalaryModule } from "./student-view/salary/salary.module";
 import { FacultyViewModule } from "./faculty-view/faculty-view.module";
-import { RecruiterViewModule } from './recruiter-view/recruiter-view.module';
+import { RecruiterViewModule } from "./recruiter-view/recruiter-view.module";
 
 @Module({
   imports: [

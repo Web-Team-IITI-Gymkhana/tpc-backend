@@ -1,12 +1,12 @@
 // email.service.ts
 
 import { Global, HttpException, Injectable, Logger } from "@nestjs/common";
-import { globalAgent } from "http";
 import * as nodemailer from "nodemailer";
-import { http } from "winston";
 import { env, IEnvironmentVariables } from "src/config";
 import { Mail } from "nodemailer/lib/mailer";
 import { Address } from "nodemailer/lib/mailer";
+import * as fs from "fs";
+import * as path from "path";
 
 export class SendEmailDto {
   from?: Address;
@@ -15,6 +15,15 @@ export class SendEmailDto {
   html: string;
   text?: string;
   placeholderReplacements?: Record<string, string>;
+}
+
+export function getHtmlContent(filePath: string, replacements: { [key: string]: string }): string {
+  let html = fs.readFileSync(filePath, "utf8");
+  for (const key in replacements) {
+    html = html.replace(new RegExp(`{{${key}}}`, "g"), replacements[key]);
+  }
+
+  return html;
 }
 
 @Global()
@@ -68,6 +77,12 @@ export class EmailService {
     const transport = this.mailTransport();
     const environmentVariables: IEnvironmentVariables = env();
     const { MAIL_USER, APP_NAME, FRONTEND_URL } = environmentVariables;
+    const url = `${FRONTEND_URL}/passwordless/${token}`;
+    const templatePath = path.resolve(process.cwd(), "src/html", "token.html");
+    const replacements = {
+      url: url,
+    };
+    const emailHtmlContent = getHtmlContent(templatePath, replacements);
     const options: Mail.Options = {
       from: {
         name: APP_NAME,
@@ -75,7 +90,7 @@ export class EmailService {
       },
       to: to,
       subject: "token for your login",
-      text: `open this link is ${FRONTEND_URL}/passwordless/${token} to login`,
+      html: emailHtmlContent,
     };
 
     await transport.sendMail(options, (error, info) => {
