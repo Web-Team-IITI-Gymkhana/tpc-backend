@@ -1,4 +1,4 @@
-import { Controller, Body, UseGuards, Query, UseInterceptors, HttpCode } from "@nestjs/common";
+import { Controller, Body, UseGuards, Query, UseInterceptors, Res, HttpStatus } from "@nestjs/common";
 import { ApiTags } from "@nestjs/swagger";
 import { DeleteValues, GetValues, PatchValues, PostValues } from "src/decorators/controller";
 import { ExternalOpportunitiesService } from "./externalOpportunities.service";
@@ -14,6 +14,7 @@ import { AuthGuard } from "@nestjs/passport";
 import { RoleGuard } from "src/auth/roleGaurd";
 import { RoleEnum } from "src/enums";
 import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
+import { Response } from "express";
 
 @Controller("external-opportunities")
 @ApiTags("ExternalOpportunities")
@@ -30,9 +31,15 @@ export class ExternalOpportunitiesController {
   @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @PostValues(PostExternalOpportunitiesDto)
   async createExternalOpportunity(
-    @Body(createArrayPipe(PostExternalOpportunitiesDto)) externalOpportunities: PostExternalOpportunitiesDto[]
+    @Body(createArrayPipe(PostExternalOpportunitiesDto)) externalOpportunities: PostExternalOpportunitiesDto[],
+    @Res({ passthrough: true }) res: Response
   ) {
-    return await this.externalOpportunitiesService.createExternalOpportunities(externalOpportunities);
+    try {
+      await this.externalOpportunitiesService.createExternalOpportunities(externalOpportunities);
+      res.status(HttpStatus.OK);
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
@@ -40,9 +47,15 @@ export class ExternalOpportunitiesController {
   @UseInterceptors(TransactionInterceptor)
   async updateExternalOpportunity(
     @Body(createArrayPipe(PostExternalOpportunitiesDto)) externalOpportunities: PostExternalOpportunitiesDto[],
-    @TransactionParam() t: Transaction
-  ): Promise<string[]> {
-    return await this.externalOpportunitiesService.createExternalOpportunities(externalOpportunities);
+    @TransactionParam() t: Transaction,
+    @Res({ passthrough: true }) res: Response
+  ) {
+    try {
+      await this.externalOpportunitiesService.createExternalOpportunities(externalOpportunities);
+      res.status(HttpStatus.OK);
+    } catch (error) {
+      res.status(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
@@ -50,8 +63,7 @@ export class ExternalOpportunitiesController {
   async deleteExternalOpportunity(@Query() query: DeleteValuesDto) {
     const ids = query.id;
     const pids = typeof ids === "string" ? [ids] : ids;
-    const ans = await this.externalOpportunitiesService.deleteExternalOpportunities(pids);
 
-    return ans;
+    return await this.externalOpportunitiesService.deleteExternalOpportunities(pids);
   }
 }

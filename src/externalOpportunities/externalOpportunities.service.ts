@@ -1,11 +1,9 @@
-import { Injectable, Inject } from "@nestjs/common";
+import { Injectable, Inject, HttpException, HttpStatus } from "@nestjs/common";
 import { EXTERNAL_OPPORTUNITIES_DAO } from "src/constants";
 import { ExternalOpportunitiesModel } from "src/db/models";
 import { PostExternalOpportunitiesDto } from "./dtos/post.dto";
-import sequalize, { FindOptions, Transaction } from "sequelize";
-import { UpdateExternalOpportunitiesDto } from "./dtos/patch.dto";
+import sequalize, { FindOptions, Transaction, Op } from "sequelize";
 import { ExternalOpportunitiesQueryDto } from "./dtos/query.dto";
-import { omit } from "lodash";
 import { parseFilter, parseOrder, parsePagesize } from "src/utils";
 
 @Injectable()
@@ -28,7 +26,7 @@ export class ExternalOpportunitiesService {
 
   async createExternalOpportunities(externalOpportunities: PostExternalOpportunitiesDto[]) {
     const ans = await this.externalOpportunitiesRepo.bulkCreate(externalOpportunities, {
-      updateOnDuplicate: ["id"],
+      updateOnDuplicate: ["company", "lastdate", "link"],
     });
 
     return ans.map((externalOpportunity) => externalOpportunity.id);
@@ -36,10 +34,11 @@ export class ExternalOpportunitiesService {
 
   async deleteExternalOpportunities(ids: string[]) {
     const ans = await this.externalOpportunitiesRepo.destroy({
-      where: sequalize.literal(
-        `
-        "id" IN (${ids.map((id) => `'${id}'`).join(",")}))`
-      ),
+      where: {
+        id: {
+          [Op.in]: ids,
+        },
+      },
     });
 
     return ans;
