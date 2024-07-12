@@ -57,7 +57,7 @@ export class AuthController {
   @UseInterceptors(ClassSerializerInterceptor)
   async loginRecruiter(@Body() body: PasswordlessLoginDto): Promise<string> {
     const user = await this.userService.getUserByEmail(body.email);
-    if (!user)
+    if (!user || !(user.role === RoleEnum.RECRUITER || user.role === RoleEnum.ADMIN))
       throw new NotFoundException(`The user with email ${body.email} and Role ${RoleEnum.RECRUITER} Not Found`);
     const jwt = await this.authService.vendJWT(user, this.recruiterSecret);
     const res = await this.emailService.sendTokenEmail(user.email, jwt);
@@ -68,10 +68,13 @@ export class AuthController {
 
   @Post("passwordless/verify")
   @UseInterceptors(ClassSerializerInterceptor)
-  async checkRecruiterToken(@Body() body: PasswordlessLoginVerifyDto): Promise<string> {
+  async checkRecruiterToken(@Body() body: PasswordlessLoginVerifyDto, @Res({ passthrough: true }) res: Response) {
     const user = await this.authService.parseJWT(body.token, this.recruiterSecret);
 
-    return await this.authService.vendJWT(user);
+    if (!user) throw new UnauthorizedException(`User not found`);
+    const token = await this.authService.vendJWT(user);
+
+    return JSON.stringify({ accessToken: token });
   }
 
   @Get("google/login")

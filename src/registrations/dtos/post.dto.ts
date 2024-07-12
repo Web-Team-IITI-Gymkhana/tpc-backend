@@ -1,4 +1,4 @@
-import { NestedUUID } from "src/decorators/dto";
+import { NestedBoolean, NestedUUID } from "src/decorators/dto";
 
 export class CreateRegistrationsDto {
   @NestedUUID({})
@@ -7,5 +7,6 @@ export class CreateRegistrationsDto {
   @NestedUUID({})
   seasonId: string;
 
+  @NestedBoolean({})
   registered: boolean;
 }
