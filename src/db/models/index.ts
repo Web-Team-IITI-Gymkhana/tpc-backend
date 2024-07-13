@@ -17,3 +17,4 @@ export * from "./ResumeModel";
 export * from "./SalaryModel";
 export * from "./TpcMemberModel";
 export * from "./RegistrationModel";
+export * from "./ExternalOpportunitiesModel";
