@@ -129,8 +129,8 @@ export class FacultyApprovalRequestModel extends Model<FacultyApprovalRequestMod
       const emailHtmlContent = getHtmlContent(templatePath, replacements);
       const data: SendEmailDto = {
         from: { name: APP_NAME, address: MAIL_USER },
-        recepients: [{ address: DEFAULT_MAIL_TO }],
-        // recepients: [{ address: approval.faculty.user.email }],
+        // recepients: [{ address: DEFAULT_MAIL_TO }],
+        recepients: [{ address: approval.faculty.user.email }],
         subject: "Approval Request for Job Announcement Form",
         html: emailHtmlContent,
       };
