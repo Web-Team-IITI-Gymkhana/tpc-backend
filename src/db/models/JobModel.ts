@@ -266,7 +266,19 @@ export class JobModel extends Model<JobModel> {
 
   @BeforeBulkUpdate
   static async sendEmailOnEventChange(options: IUpdateOptions) {
-    const jobs = await JobModel.findAll({ where: options.where });
+    const jobs = await JobModel.findAll({
+      where: options.where,
+      include: [
+        {
+          model: EventModel,
+          as: "events",
+        },
+        {
+          model: CompanyModel,
+          as: "company",
+        },
+      ],
+    });
 
     const newActive = options.attributes.active;
 
@@ -326,13 +338,34 @@ export class JobModel extends Model<JobModel> {
 
     const mailerService = new EmailService();
 
+    const url = `${FRONTEND_URL}/student/job/salary/${filteredJobs[0].id}`;
+    const templatePath = path.resolve(process.cwd(), "src/html", "PollForStudent.html");
+
+    const formattedEndDateTime = filteredJobs[0].events[0].endDateTime.toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      hour12: true,
+    });
+
     for (const student of students) {
+      const replacements = {
+        companyName: filteredJobs[0].company.name,
+        role: filteredJobs[0].role,
+        studentName: student.user.name,
+        deadline: formattedEndDateTime,
+        url: url,
+      };
+      const emailHtmlContent = getHtmlContent(templatePath, replacements);
       const data: SendEmailDto = {
         from: { name: APP_NAME, address: MAIL_USER },
-        // recepients: [{ address: DEFAULT_MAIL_TO }],
-        recepients: [{ address: student.user.email }],
-        subject: "Status Change Notification",
-        html: `Dear ${student.user.name},\nThe Status of job has been changed.`,
+        recepients: [{ address: DEFAULT_MAIL_TO }],
+        // recepients: [{ address: student.user.email }],
+        subject: `IMP: POLL for ${filteredJobs[0].company.name} - ${filteredJobs[0].role}`,
+        html: emailHtmlContent,
       };
 
       await mailerService.sendEmail(data);
