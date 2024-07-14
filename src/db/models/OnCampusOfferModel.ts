@@ -3,14 +3,17 @@ import sequelize from "sequelize";
 import { StudentModel } from "./StudentModel";
 import { SalaryModel } from "./SalaryModel";
 import { OfferStatusEnum } from "src/enums";
-import { EmailService } from "src/services/EmailService";
+import { EmailService, getHtmlContent } from "src/services/EmailService";
 import { SendEmailDto } from "src/services/EmailService";
 import { UserModel } from "./UserModel";
 import { IEnvironmentVariables, env } from "src/config";
 import { NotFoundException } from "@nestjs/common";
+import { JobModel } from "./JobModel";
+import { CompanyModel } from "./CompanyModel";
+import path from "path";
 
 const environmentVariables: IEnvironmentVariables = env();
-const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO } = environmentVariables;
+const { MAIL_USER, APP_NAME, FRONTEND_URL, DEFAULT_MAIL_TO } = environmentVariables;
 
 @Table({
   tableName: "OnCampusOffer",
@@ -80,13 +83,61 @@ export class OnCampusOfferModel extends Model<OnCampusOfferModel> {
       ],
     });
 
-    for (const student of students) {
+    const salaries = await SalaryModel.findAll({
+      where: {
+        id: instance.map((offer) => offer.salaryId),
+      },
+      include: [
+        {
+          model: JobModel,
+          as: "job",
+          include: [
+            {
+              model: CompanyModel,
+              as: "company",
+            },
+          ],
+        },
+      ],
+    });
+
+    const studentDict = students.reduce((acc, student) => {
+      acc[student.id] = student;
+
+      return acc;
+    }, {});
+
+    const salaryDict = salaries.reduce((acc, salary) => {
+      acc[salary.id] = salary;
+
+      return acc;
+    }, {});
+
+    const offers = instance.map((offer) => {
+      return {
+        ...offer,
+        student: studentDict[offer.studentId],
+        salary: salaryDict[offer.salaryId],
+      };
+    });
+
+    const url = `${FRONTEND_URL}/student/onCampus`;
+    const templatePath = path.resolve(process.cwd(), "src/html", "OfferToStudent.html");
+
+    for (const offer of offers) {
+      const replacements = {
+        companyName: offer.salary.job.company.name,
+        studentName: offer.student.user.name,
+        role: offer.salary.job.role,
+        url: url,
+      };
+      const emailHtmlContent = getHtmlContent(templatePath, replacements);
       const data: SendEmailDto = {
         from: { name: APP_NAME, address: MAIL_USER },
         // recepients: [{ address: DEFAULT_MAIL_TO }],
-        recepients: [{ address: student.user.email }],
-        subject: "Test email",
-        html: `<p>Hi ${student.user.name}, there is an onCampus Offer for you</p>`,
+        recepients: [{ address: offer.student.user.email }],
+        subject: `Job Offer from ${offer.salary.job.company.name}`,
+        html: emailHtmlContent,
       };
 
       await mailerService.sendEmail(data);

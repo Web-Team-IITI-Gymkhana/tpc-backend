@@ -23,16 +23,17 @@ import { JobCoordinatorModel } from "./JobCoordinatorModel";
 import { FacultyApprovalRequestModel } from "./FacultyApprovalRequestModel";
 import { CategoryEnum, DepartmentEnum, GenderEnum, JobStatusTypeEnum } from "src/enums";
 import { ApplicationModel } from "./ApplicationModel";
-import { EmailService } from "src/services/EmailService";
+import { EmailService, getHtmlContent } from "src/services/EmailService";
 import { SendEmailDto } from "src/services/EmailService";
 import { StudentModel } from "./StudentModel";
 import { UserModel } from "./UserModel";
 import { IEnvironmentVariables, env } from "src/config";
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { RegistrationModel } from "./RegistrationModel";
+import path from "path";
 
 const environmentVariables: IEnvironmentVariables = env();
-const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO } = environmentVariables;
+const { MAIL_USER, APP_NAME, FRONTEND_URL, DEFAULT_MAIL_TO } = environmentVariables;
 
 interface IUpdateOptions {
   where: WhereOptions<JobModel>;
@@ -42,7 +43,11 @@ interface IUpdateOptions {
 }
 
 interface IRecruiterDetails {
+  name: string;
   email: string;
+}
+interface ICompanyDetails {
+  name: string;
 }
 
 @Table({
@@ -225,19 +230,34 @@ export class JobModel extends Model<JobModel> {
 
     const emails = admins.map((admin) => ({ address: admin.email }));
 
+    const url = `${FRONTEND_URL}/admin/jobs`;
+
+    const adminPath = path.resolve(process.cwd(), "src/html", "JafToAdmin.html");
+    const adminReplacements = {
+      companyName: (instance.companyDetailsFilled as ICompanyDetails).name,
+      url: url,
+    };
+    const adminContent = getHtmlContent(adminPath, adminReplacements);
+
+    const recruiterPath = path.resolve(process.cwd(), "src/html", "JafToRecruiter.html");
+    const recruiterReplacements = {
+      recruiterName: (instance.recruiterDetailsFilled as IRecruiterDetails).name,
+    };
+    const recruiterContent = getHtmlContent(recruiterPath, recruiterReplacements);
+
     const mailToAdmin: SendEmailDto = {
       from: { name: APP_NAME, address: MAIL_USER },
       recepients: [...emails],
       // recepients: [{ address: DEFAULT_MAIL_TO }],
-      subject: "Test email",
-      html: "<p>New job entry was created</p>",
+      subject: `Job Announcement Form Filled by ${(instance.companyDetailsFilled as ICompanyDetails).name}`,
+      html: adminContent,
     };
     const mailToRecruiter: SendEmailDto = {
       from: { name: APP_NAME, address: MAIL_USER },
       recepients: [{ address: (instance.recruiterDetailsFilled as IRecruiterDetails).email }],
       // recepients: [{ address: DEFAULT_MAIL_TO }],
-      subject: "Test email",
-      html: "<p>Your JAF Form was successfully submitted</p>",
+      subject: "Job Announcement Form Successfully Submitted",
+      html: recruiterContent,
     };
 
     await mailerService.sendEmail(mailToAdmin);
