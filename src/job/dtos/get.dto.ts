@@ -71,6 +71,12 @@ export class GetJobsDto {
   @NestedString({})
   role: string;
 
+  @NestedObject({ type: CompanyFilledDto })
+  companyDetailsFilled: CompanyFilledDto;
+
+  @NestedObject({ type: RecruiterFilledDto })
+  recruiterDetailsFilled: RecruiterFilledDto;
+
   @NestedBoolean({})
   active: boolean;
 
