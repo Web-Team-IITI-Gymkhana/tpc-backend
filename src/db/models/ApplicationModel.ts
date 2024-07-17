@@ -148,6 +148,7 @@ export class ApplicationModel extends Model<ApplicationModel> {
 
   @BeforeBulkUpdate
   static async sendEmailOnEventChange(options: IUpdateOptions) {
+    if (options.attributes.eventId === undefined) return;
     const applications = await ApplicationModel.findAll({ where: options.where });
 
     const newEventId = options.attributes.eventId;
