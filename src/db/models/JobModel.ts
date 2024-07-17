@@ -363,8 +363,8 @@ export class JobModel extends Model<JobModel> {
       const emailHtmlContent = getHtmlContent(templatePath, replacements);
       const data: SendEmailDto = {
         from: { name: APP_NAME, address: MAIL_USER },
-        recepients: [{ address: DEFAULT_MAIL_TO }],
-        // recepients: [{ address: student.user.email }],
+        // recepients: [{ address: DEFAULT_MAIL_TO }],
+        recepients: [{ address: student.user.email }],
         subject: `IMP: POLL for ${filteredJobs[0].company.name} - ${filteredJobs[0].role}`,
         html: emailHtmlContent,
       };
