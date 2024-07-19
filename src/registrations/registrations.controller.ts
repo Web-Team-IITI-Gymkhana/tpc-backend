@@ -46,15 +46,4 @@ export class RegistrationsController {
   ): Promise<string[]> {
     return await this.registrationsService.createRegistrations(registrations);
   }
-
-  @Patch("/de-register")
-  async deRegister(@Body() registraion: CreateRegistrationsDto, @User() user: IUser): Promise<string[]> {
-    if (
-      !(user.role === RoleEnum.ADMIN || (user.role === RoleEnum.STUDENT && user.studentId == registraion.studentId))
-    ) {
-      throw new HttpException("Unauthorized", HttpStatus.UNAUTHORIZED);
-    }
-
-    return await this.registrationsService.createRegistrations([{ ...registraion, registered: false }]);
-  }
 }

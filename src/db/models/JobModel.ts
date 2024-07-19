@@ -230,7 +230,7 @@ export class JobModel extends Model<JobModel> {
 
     const emails = admins.map((admin) => ({ address: admin.email }));
 
-    const url = `${FRONTEND_URL}/admin/jobs`;
+    const url = `${FRONTEND_URL}/admin/jobs/${instance.id}`;
 
     const adminPath = path.resolve(process.cwd(), "src/html", "JafToAdmin.html");
     const adminReplacements = {

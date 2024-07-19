@@ -116,4 +116,11 @@ export class StudentController {
   async registerSeason(@Param("seasonId", new ParseUUIDPipe()) seasonId: string, @User() user: IUser) {
     return await this.studentService.registerSeason(user.studentId, seasonId);
   }
+
+  @Patch("/de-register/:seasonId")
+  @ApiParam({ name: "seasonId", type: "string" })
+  @ApiResponse({ type: String, isArray: true })
+  async deregisterSeason(@Param("seasonId", new ParseUUIDPipe()) seasonId: string, @User() user: IUser) {
+    return await this.studentService.deregisterSeason(user.studentId, seasonId);
+  }
 }
