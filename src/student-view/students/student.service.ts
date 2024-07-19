@@ -220,7 +220,16 @@ export class StudentService {
   }
 
   async registerSeason(studentId: string, seasonId: string) {
-    const [ans] = await this.registrationsRepo.update({ registered: true }, { where: { studentId, seasonId } });
+    const [ans] = await this.registrationsRepo.update(
+      { registered: true },
+      { where: { studentId: studentId, seasonId: seasonId } }
+    );
+
+    return ans > 0 ? [] : [seasonId];
+  }
+
+  async deregisterSeason(studentId: string, seasonId: string) {
+    const [ans] = await this.registrationsRepo.update({ registered: false }, { where: { studentId, seasonId } });
 
     return ans > 0 ? [] : [seasonId];
   }
