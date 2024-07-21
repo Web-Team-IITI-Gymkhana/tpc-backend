@@ -207,8 +207,8 @@ export class StudentService {
     return ans.map((resume) => resume.get({ plain: true }));
   }
 
-  async addResume(studentId: string, filepath: string, t: Transaction) {
-    const ans = await this.resumeRepo.create({ studentId, filepath }, { transaction: t });
+  async addResume(studentId: string, filepath: string, name: string, t: Transaction) {
+    const ans = await this.resumeRepo.create({ studentId, filepath, name }, { transaction: t });
 
     return ans.id;
   }
