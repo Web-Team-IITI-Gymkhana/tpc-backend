@@ -1,6 +1,6 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { FindOptions, Op, Transaction, WhereOptions } from "sequelize";
-import { JOB_DAO, REGISTRATIONS_DAO, RESUME_DAO, SALARY_DAO, STUDENT_DAO } from "src/constants";
+import { JOB_DAO, REGISTRATIONS_DAO, RESUME_DAO, SALARY_DAO, SEASON_DAO, STUDENT_DAO } from "src/constants";
 import {
   ApplicationModel,
   CompanyModel,
@@ -19,6 +19,7 @@ import {
   UserModel,
 } from "src/db/models";
 import { CategoryEnum, DepartmentEnum, GenderEnum } from "src/enums";
+import { SeasonStatusEnum } from "src/enums/SeasonStatus.enum";
 import { JobsQueryDto } from "src/job/dtos/query.dto";
 import { parseFilter, parseOrder, parsePagesize } from "src/utils";
 
@@ -29,6 +30,7 @@ export class StudentService {
     @Inject(SALARY_DAO) private salaryRepo: typeof SalaryModel,
     @Inject(RESUME_DAO) private resumeRepo: typeof ResumeModel,
     @Inject(JOB_DAO) private jobRepo: typeof JobModel,
+    @Inject(SEASON_DAO) private seasonRepo: typeof SeasonModel,
     @Inject(REGISTRATIONS_DAO) private registrationsRepo: typeof RegistrationModel
   ) {}
 
@@ -72,6 +74,10 @@ export class StudentService {
             {
               model: SeasonModel,
               as: "season",
+              required: true,
+              where: {
+                status: SeasonStatusEnum.ACTIVE,
+              },
             },
           ],
         },
@@ -220,17 +226,32 @@ export class StudentService {
   }
 
   async registerSeason(studentId: string, seasonId: string) {
-    const [ans] = await this.registrationsRepo.update(
-      { registered: true },
-      { where: { studentId: studentId, seasonId: seasonId } }
-    );
+    const season = await this.seasonRepo.findOne({ where: { id: seasonId } });
 
-    return ans > 0 ? [] : [seasonId];
+    if (season && season.status === SeasonStatusEnum.ACTIVE) {
+      const [ans] = await this.registrationsRepo.update(
+        { registered: true },
+        { where: { studentId: studentId, seasonId: seasonId } }
+      );
+
+      return ans > 0 ? [] : [seasonId];
+    } else {
+      return [seasonId];
+    }
   }
 
   async deregisterSeason(studentId: string, seasonId: string) {
-    const [ans] = await this.registrationsRepo.update({ registered: false }, { where: { studentId, seasonId } });
+    const season = await this.seasonRepo.findOne({ where: { id: seasonId } });
 
-    return ans > 0 ? [] : [seasonId];
+    if (season && season.status === SeasonStatusEnum.ACTIVE) {
+      const [ans] = await this.registrationsRepo.update(
+        { registered: false },
+        { where: { studentId: studentId, seasonId: seasonId } }
+      );
+
+      return ans > 0 ? [] : [seasonId];
+    } else {
+      return [seasonId];
+    }
   }
 }
