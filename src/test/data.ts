@@ -47,10 +47,12 @@ import {
 } from "src/enums";
 import { RegistrationModel } from "src/db/models/RegistrationModel";
 import { InterviewExperienceModel } from "src/db/models/InterviewExperienceModel";
+import { SeasonStatusEnum } from "src/enums/SeasonStatus.enum";
 
 export const SEASONS: Optional<SeasonModel, NullishPropertiesOf<SeasonModel>>[] = Array.from({ length: 5 }, () => ({
   id: faker.string.uuid(),
   year: faker.string.numeric({ length: 4, allowLeadingZeros: false }),
+  status: faker.helpers.enumValue(SeasonStatusEnum),
   type: faker.helpers.enumValue(SeasonTypeEnum),
 }));
 
@@ -155,6 +157,7 @@ export const RESUMES: Optional<ResumeModel, NullishPropertiesOf<ResumeModel>>[] 
     id: faker.string.uuid(),
     studentId: student.id,
     filepath: faker.string.uuid() + ".pdf",
+    name: faker.string.alpha(),
     verified: faker.datatype.boolean(),
   }));
 });

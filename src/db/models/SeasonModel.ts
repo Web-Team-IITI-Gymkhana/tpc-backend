@@ -3,6 +3,7 @@ import sequelize from "sequelize";
 import { SeasonTypeEnum } from "src/enums";
 import { JobModel } from "./JobModel";
 import { RegistrationModel } from "./RegistrationModel";
+import { SeasonStatusEnum } from "src/enums/SeasonStatus.enum";
 
 @Table({
   tableName: "Season",
@@ -26,6 +27,13 @@ export class SeasonModel extends Model<SeasonModel> {
     allowNull: false,
   })
   type: SeasonTypeEnum;
+
+  @Column({
+    type: sequelize.ENUM(...Object.values(SeasonStatusEnum)),
+    defaultValue: SeasonStatusEnum.ACTIVE,
+    allowNull: false,
+  })
+  status: SeasonStatusEnum;
 
   @HasMany(() => JobModel, {
     foreignKey: "seasonId",
