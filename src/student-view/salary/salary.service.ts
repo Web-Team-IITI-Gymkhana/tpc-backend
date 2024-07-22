@@ -55,7 +55,7 @@ export class SalaryService {
         {
           model: JobModel,
           as: "job",
-          where: { active: true },
+          where: { active: true, registration: JobRegistrationEnum.OPEN },
           include: [
             {
               model: SeasonModel,
@@ -109,7 +109,7 @@ export class SalaryService {
         {
           model: JobModel,
           as: "job",
-          where: { active: true },
+          where: { active: true, registration: JobRegistrationEnum.OPEN },
           include: [
             {
               model: SeasonModel,

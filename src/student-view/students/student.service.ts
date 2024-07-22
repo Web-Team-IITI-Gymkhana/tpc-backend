@@ -19,6 +19,7 @@ import {
   UserModel,
 } from "src/db/models";
 import { CategoryEnum, DepartmentEnum, GenderEnum } from "src/enums";
+import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
 import { SeasonStatusEnum } from "src/enums/SeasonStatus.enum";
 import { JobsQueryDto } from "src/job/dtos/query.dto";
 import { parseFilter, parseOrder, parsePagesize } from "src/utils";
@@ -94,6 +95,7 @@ export class StudentService {
     const findOptions: FindOptions<JobModel> = {
       where: {
         active: true,
+        registration: JobRegistrationEnum.OPEN,
       },
       include: [
         {
@@ -145,7 +147,7 @@ export class StudentService {
   async getJob(studentId: string, jobId: string) {
     const whereSalary = await this.filterSalaries(studentId);
     const ans = await this.jobRepo.findOne({
-      where: { id: jobId, active: true },
+      where: { id: jobId, active: true, registration: JobRegistrationEnum.OPEN },
       include: [
         {
           model: SeasonModel,
