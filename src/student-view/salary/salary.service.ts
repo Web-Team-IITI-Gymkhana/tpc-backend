@@ -19,6 +19,7 @@ import {
 import { parseFilter, parseOrder, parsePagesize } from "src/utils";
 import { StudentSalariesQueryDto } from "./dtos/query.dto";
 import { CategoryEnum, DepartmentEnum, GenderEnum } from "src/enums";
+import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
 
 @Injectable()
 export class SalaryService {
@@ -180,7 +181,8 @@ export class SalaryService {
           {
             model: JobModel,
             as: "job",
-            where: { active: true },
+            where: { active: true, registration: JobRegistrationEnum.OPEN },
+            required: true,
             include: [
               {
                 model: EventModel,
