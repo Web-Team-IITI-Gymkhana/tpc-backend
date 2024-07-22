@@ -48,6 +48,7 @@ import {
 import { RegistrationModel } from "src/db/models/RegistrationModel";
 import { InterviewExperienceModel } from "src/db/models/InterviewExperienceModel";
 import { SeasonStatusEnum } from "src/enums/SeasonStatus.enum";
+import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
 
 export const SEASONS: Optional<SeasonModel, NullishPropertiesOf<SeasonModel>>[] = Array.from({ length: 5 }, () => ({
   id: faker.string.uuid(),
@@ -216,6 +217,7 @@ export const JOBS: Optional<JobModel, NullishPropertiesOf<JobModel>>[] = Array.f
   others: faker.datatype.boolean() ? faker.string.alpha() : undefined,
   active: faker.datatype.boolean(),
   currentStatus: faker.helpers.enumValue(JobStatusTypeEnum),
+  registration: faker.helpers.enumValue(JobRegistrationEnum),
   companyDetailsFilled: COMPANIES_DETAILS_FILLED[idx],
   recruiterDetailsFilled: RECRUITERS_DETAILS_FILLED[idx],
   selectionProcedure: SELECTION_PROCEDURES[idx],
