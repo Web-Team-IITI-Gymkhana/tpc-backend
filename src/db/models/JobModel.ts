@@ -31,6 +31,7 @@ import { IEnvironmentVariables, env } from "src/config";
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { RegistrationModel } from "./RegistrationModel";
 import path from "path";
+import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
 
 const environmentVariables: IEnvironmentVariables = env();
 const { MAIL_USER, APP_NAME, FRONTEND_URL, DEFAULT_MAIL_TO } = environmentVariables;
@@ -126,6 +127,13 @@ export class JobModel extends Model<JobModel> {
     defaultValue: JobStatusTypeEnum.INITIALIZED,
   })
   currentStatus: JobStatusTypeEnum;
+
+  @Column({
+    type: sequelize.ENUM(...Object.values(JobRegistrationEnum)),
+    allowNull: false,
+    defaultValue: JobRegistrationEnum.OPEN,
+  })
+  registration: JobRegistrationEnum;
 
   @Column({
     type: sequelize.JSONB,

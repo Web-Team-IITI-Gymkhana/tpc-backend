@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   NotFoundException,
@@ -81,9 +82,14 @@ export class StudentController {
 
   @CreateFile(CreateStudentResumeDto, "resume")
   @UseInterceptors(TransactionInterceptor)
-  async createResume(@UploadedFile() file, @User() user: IUser, @TransactionParam() t: Transaction) {
+  async createResume(
+    @UploadedFile() file,
+    @User() user: IUser,
+    @Body("name") name: string,
+    @TransactionParam() t: Transaction
+  ) {
     const filepath = uuidv4() + ".pdf";
-    const ans = await this.studentService.addResume(user.studentId, filepath, t);
+    const ans = await this.studentService.addResume(user.studentId, filepath, name, t);
     await this.fileService.uploadFile(path.join(this.folderName, filepath), file);
 
     return ans;

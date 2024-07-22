@@ -115,6 +115,9 @@ export class GetStudentResumesDto {
   @NestedString({})
   filepath: string;
 
+  @NestedString({})
+  name: string;
+
   @NestedBoolean({})
   verified: boolean;
 }
