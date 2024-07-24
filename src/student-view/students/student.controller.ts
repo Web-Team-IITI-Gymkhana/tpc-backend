@@ -56,10 +56,18 @@ export class StudentController {
     return pipeTransform(ans, StudentViewDto);
   }
 
+  @Get("opportunities")
+  @ApiResponse({ type: GetJobsDto, isArray: true })
+  async getOpportunities(@Query("q") where: JobsQueryDto, @User() user: IUser) {
+    const ans = await this.studentService.getOpportunities(user.studentId, where);
+
+    return pipeTransformArray(ans, GetJobsDto);
+  }
+
   @Get("jobs")
   @ApiResponse({ type: GetJobsDto, isArray: true })
   async getJobs(@Query("q") where: JobsQueryDto, @User() user: IUser) {
-    const ans = await this.studentService.getOpportunities(user.studentId, where);
+    const ans = await this.studentService.getJobs(user.studentId, where);
 
     return pipeTransformArray(ans, GetJobsDto);
   }
