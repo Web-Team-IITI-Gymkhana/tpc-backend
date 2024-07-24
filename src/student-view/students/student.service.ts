@@ -1,13 +1,23 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import sequelize from "sequelize";
 import { FindOptions, Op, Transaction, WhereOptions } from "sequelize";
-import { JOB_DAO, REGISTRATIONS_DAO, RESUME_DAO, SALARY_DAO, SEASON_DAO, STUDENT_DAO } from "src/constants";
+import {
+  EVENT_DAO,
+  JOB_DAO,
+  ON_CAMPUS_OFFER_DAO,
+  REGISTRATIONS_DAO,
+  RESUME_DAO,
+  SALARY_DAO,
+  SEASON_DAO,
+  STUDENT_DAO,
+} from "src/constants";
 import {
   ApplicationModel,
   CompanyModel,
   EventModel,
   JobCoordinatorModel,
   JobModel,
+  OnCampusOfferModel,
   PenaltyModel,
   ProgramModel,
   RecruiterModel,
@@ -29,9 +39,10 @@ import { parseFilter, parseOrder, parsePagesize } from "src/utils";
 export class StudentService {
   constructor(
     @Inject(STUDENT_DAO) private studentRepo: typeof StudentModel,
-    @Inject(SALARY_DAO) private salaryRepo: typeof SalaryModel,
+    @Inject(EVENT_DAO) private eventRepo: typeof EventModel,
     @Inject(RESUME_DAO) private resumeRepo: typeof ResumeModel,
     @Inject(JOB_DAO) private jobRepo: typeof JobModel,
+    @Inject(ON_CAMPUS_OFFER_DAO) private offerRepo: typeof OnCampusOfferModel,
     @Inject(SEASON_DAO) private seasonRepo: typeof SeasonModel,
     @Inject(REGISTRATIONS_DAO) private registrationsRepo: typeof RegistrationModel
   ) {}
@@ -268,6 +279,66 @@ export class StudentService {
     if (!ans) throw new UnauthorizedException("You are not authorized to access this job");
 
     return ans.get({ plain: true });
+  }
+
+  async getEvents(jobId: string, studentId: string) {
+    const events = await this.eventRepo.findAll({
+      where: {
+        jobId: jobId,
+      },
+      include: [
+        {
+          model: ApplicationModel,
+          as: "applications",
+        },
+      ],
+      order: [["roundNumber", "ASC"]],
+    });
+
+    const offers = await this.offerRepo.findAll({
+      include: [
+        {
+          model: SalaryModel,
+          as: "salaries",
+          where: {
+            jobId: jobId,
+          },
+        },
+      ],
+    });
+
+    let lastEventIndex = -1;
+    for (let i = events.length - 1; i >= 0; i--) {
+      const event = events[i];
+      const hasApplication = event.applications.some((app) => app.studentId === studentId);
+      if (hasApplication) {
+        lastEventIndex = i;
+        break;
+      }
+    }
+
+    const modifiedEvents = [];
+    for (let i = 0; i < events.length; i++) {
+      let studentStatus = "CLEARED";
+
+      if (lastEventIndex === -1) {
+        studentStatus = "NOT_APPLIED";
+      } else if (i >= lastEventIndex) {
+        if (lastEventIndex < events.length - 1) {
+          const nextEvent = events[lastEventIndex + 1];
+          studentStatus = nextEvent.applications.length > 0 ? "REJECTED" : "PENDING";
+        } else {
+          studentStatus = offers.length > 0 ? "REJECTED" : "PENDING";
+        }
+      }
+
+      modifiedEvents.push({
+        ...events[i].get({ plain: true }),
+        studentStatus,
+      });
+    }
+
+    return modifiedEvents;
   }
 
   async getResumes(where: WhereOptions<ResumeModel>) {
