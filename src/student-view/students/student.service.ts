@@ -322,13 +322,18 @@ export class StudentService {
       let studentStatus = "CLEARED";
 
       if (lastEventIndex === -1) {
-        studentStatus = "NOT_APPLIED";
+        studentStatus = "NOT APPLIED";
       } else if (i >= lastEventIndex) {
         if (lastEventIndex < events.length - 1) {
           const nextEvent = events[lastEventIndex + 1];
           studentStatus = nextEvent.applications.length > 0 ? "REJECTED" : "PENDING";
         } else {
-          studentStatus = offers.length > 0 ? "REJECTED" : "PENDING";
+          if (offers.length > 0) {
+            const hasOffer = offers.some((offer) => offer.studentId === studentId);
+            if (hasOffer) {
+              studentStatus = "CLEARED";
+            } else studentStatus = "REJECTED";
+          } else studentStatus = "PENDING";
         }
       }
 
