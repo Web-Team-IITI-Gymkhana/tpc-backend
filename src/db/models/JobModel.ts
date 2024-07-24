@@ -32,6 +32,7 @@ import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { RegistrationModel } from "./RegistrationModel";
 import path from "path";
 import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
+import { ProgramModel } from "./ProgramModel";
 
 const environmentVariables: IEnvironmentVariables = env();
 const { MAIL_USER, APP_NAME, FRONTEND_URL, DEFAULT_MAIL_TO } = environmentVariables;
@@ -318,9 +319,25 @@ export class JobModel extends Model<JobModel> {
       ],
     });
 
+    const programIds = {};
+
+    await Promise.all(
+      salaries.map(async (salary) => {
+        const programs = await ProgramModel.findAll({
+          where: {
+            department: {
+              [Op.in]: salary.facultyApprovals,
+            },
+          },
+          attributes: ["id"],
+        });
+
+        programIds[salary.id] = programs.map((program) => program.id);
+      })
+    );
+
     const conditions = salaries.map((salary) => ({
       cpi: { [Op.gte]: salary.minCPI },
-      programId: { [Op.in]: salary.programs },
       category: { [Op.in]: salary.categories },
       gender: { [Op.in]: salary.genders },
       tenthMarks: { [Op.gte]: salary.tenthMarks },
@@ -329,6 +346,10 @@ export class JobModel extends Model<JobModel> {
         [Op.in]: sequelize.literal(
           `(SELECT "studentId" FROM "Registrations" WHERE "seasonId" = '${salary.job.season.id}' AND "registered" = true)`
         ),
+      },
+      programId: {
+        [Op.in]: salary.programs,
+        [Op.not]: programIds[salary.id],
       },
     }));
 
