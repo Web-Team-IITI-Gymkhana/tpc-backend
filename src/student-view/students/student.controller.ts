@@ -59,7 +59,7 @@ export class StudentController {
   @Get("jobs")
   @ApiResponse({ type: GetJobsDto, isArray: true })
   async getJobs(@Query("q") where: JobsQueryDto, @User() user: IUser) {
-    const ans = await this.studentService.getJobs(user.studentId, where);
+    const ans = await this.studentService.getOpportunities(user.studentId, where);
 
     return pipeTransformArray(ans, GetJobsDto);
   }

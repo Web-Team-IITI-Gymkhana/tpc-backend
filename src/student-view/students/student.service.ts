@@ -1,4 +1,5 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import sequelize from "sequelize";
 import { FindOptions, Op, Transaction, WhereOptions } from "sequelize";
 import { JOB_DAO, REGISTRATIONS_DAO, RESUME_DAO, SALARY_DAO, SEASON_DAO, STUDENT_DAO } from "src/constants";
 import {
@@ -90,12 +91,72 @@ export class StudentService {
     return ans.get({ plain: true });
   }
 
+  async getOpportunities(studentId: string, where: JobsQueryDto) {
+    const whereSalary = await this.filterSalaries(studentId);
+    const findOptions: FindOptions<JobModel> = {
+      where: {
+        active: true,
+        registration: JobRegistrationEnum.OPEN,
+        id: {
+          [Op.notIn]: sequelize.literal(`(SELECT "jobId" FROM "Application" WHERE "studentId" = '${studentId}')`),
+        },
+      },
+      include: [
+        {
+          model: SeasonModel,
+          as: "season",
+          required: true,
+          include: [
+            {
+              model: RegistrationModel,
+              as: "registrations",
+              where: { registered: true, studentId: studentId },
+            },
+          ],
+        },
+        {
+          model: CompanyModel,
+          as: "company",
+        },
+        {
+          model: SalaryModel,
+          as: "salaries",
+          where: whereSalary,
+          required: true,
+        },
+        {
+          model: RecruiterModel,
+          as: "recruiter",
+          required: true,
+          include: [
+            {
+              model: UserModel,
+              as: "user",
+            },
+          ],
+        },
+      ],
+    };
+
+    const pageOptions = parsePagesize(where);
+    Object.assign(findOptions, pageOptions);
+    parseFilter(findOptions, where.filterBy || {});
+    findOptions.order = parseOrder(where.orderBy || {});
+
+    const ans = await this.jobRepo.findAll(findOptions);
+
+    return ans.map((job) => job.get({ plain: true }));
+  }
+
   async getJobs(studentId: string, where: JobsQueryDto) {
     const whereSalary = await this.filterSalaries(studentId);
     const findOptions: FindOptions<JobModel> = {
       where: {
         active: true,
         registration: JobRegistrationEnum.OPEN,
+        id: {
+          [Op.in]: sequelize.literal(`(SELECT "jobId" FROM "Application" WHERE "studentId" = '${studentId}')`),
+        },
       },
       include: [
         {
