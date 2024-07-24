@@ -299,7 +299,7 @@ export class StudentService {
       include: [
         {
           model: SalaryModel,
-          as: "salaries",
+          as: "salary",
           where: {
             jobId: jobId,
           },

@@ -16,7 +16,7 @@ import {
 import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { StudentService } from "./student.service";
 import { CreateFile, DeleteFiles, GetFile, GetValue } from "src/decorators/controller";
-import { GetStudentResumesDto, StudentViewDto } from "./dtos/get.dto";
+import { GetStudentEventsDto, GetStudentResumesDto, StudentViewDto } from "./dtos/get.dto";
 import { User } from "src/decorators/User";
 import { IUser } from "src/auth/User";
 import { pipeTransform, pipeTransformArray } from "src/utils/utils";
@@ -70,6 +70,14 @@ export class StudentController {
     const ans = await this.studentService.getJob(user.studentId, id);
 
     return pipeTransform(ans, GetJobDto);
+  }
+
+  @Get("events/:jobId")
+  @ApiResponse({ type: GetStudentEventsDto, isArray: true })
+  async getEvents(@Param("jobId", new ParseUUIDPipe()) id: string, @User() user: IUser) {
+    const ans = await this.studentService.getEvents(id, user.studentId);
+
+    return pipeTransformArray(ans, GetStudentEventsDto);
   }
 
   @Get("resume")
