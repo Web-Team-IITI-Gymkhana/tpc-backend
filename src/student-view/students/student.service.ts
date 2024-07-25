@@ -32,6 +32,7 @@ import {
 import { CategoryEnum, DepartmentEnum, GenderEnum } from "src/enums";
 import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
 import { SeasonStatusEnum } from "src/enums/SeasonStatus.enum";
+import { EventsQueryDto } from "src/event/dtos/query.dto";
 import { JobsQueryDto } from "src/job/dtos/query.dto";
 import { parseFilter, parseOrder, parsePagesize } from "src/utils";
 
@@ -281,7 +282,7 @@ export class StudentService {
     return ans.get({ plain: true });
   }
 
-  async getEvents(jobId: string, studentId: string) {
+  async getStudentEvents(jobId: string, studentId: string) {
     const events = await this.eventRepo.findAll({
       where: {
         jobId: jobId,
@@ -344,6 +345,55 @@ export class StudentService {
     }
 
     return modifiedEvents;
+  }
+
+  async getEvents(where: EventsQueryDto, studentId: string) {
+    const whereSalary = await this.filterSalaries(studentId);
+    const findOptions: FindOptions<EventModel> = {
+      include: [
+        {
+          model: JobModel,
+          as: "job",
+          required: true,
+          where: {
+            active: true,
+          },
+          include: [
+            {
+              model: CompanyModel,
+              as: "company",
+            },
+            {
+              model: SalaryModel,
+              as: "salaries",
+              where: whereSalary,
+              required: true,
+            },
+            {
+              model: SeasonModel,
+              as: "season",
+              required: true,
+              include: [
+                {
+                  model: RegistrationModel,
+                  as: "registrations",
+                  where: { registered: true, studentId: studentId },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    };
+
+    const pageOptions = parsePagesize(where);
+    Object.assign(findOptions, pageOptions);
+    parseFilter(findOptions, where.filterBy || {});
+    findOptions.order = parseOrder(where.orderBy || {});
+
+    const ans = await this.eventRepo.findAll(findOptions);
+
+    return ans.map((event) => event.get({ plain: true }));
   }
 
   async getResumes(where: WhereOptions<ResumeModel>) {
