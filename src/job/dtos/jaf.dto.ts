@@ -84,6 +84,21 @@ export class RecruiterFilledDto {
 
   @NestedString({ optional: true })
   landline?: string;
+
+  @NestedString({})
+  poc_name: string;
+
+  @NestedEmail({})
+  poc_email: string;
+
+  @NestedString({})
+  poc_contact: string;
+
+  @NestedString({})
+  poc_designation: string;
+
+  @NestedString({ optional: true })
+  poc_landline?: string;
 }
 
 class RequirementsDto {
