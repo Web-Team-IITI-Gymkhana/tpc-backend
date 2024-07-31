@@ -30,6 +30,7 @@ import { StudentViewSalaryModule } from "./student-view/salary/salary.module";
 import { FacultyViewModule } from "./faculty-view/faculty-view.module";
 import { RecruiterViewModule } from "./recruiter-view/recruiter-view.module";
 import { ExternalOpportunitiesModule } from "./externalOpportunities/externalOpportunities.module";
+import { TpcMemberViewModule } from "./tpc-member-view/tpc-member-view.module";
 
 @Module({
   imports: [
@@ -60,6 +61,7 @@ import { ExternalOpportunitiesModule } from "./externalOpportunities/externalOpp
     FacultyViewModule,
     RecruiterViewModule,
     ExternalOpportunitiesModule,
+    TpcMemberViewModule,
   ],
   controllers: [AppController],
   providers: [Logger, TransactionInterceptor, QueryInterceptor, AppService],
