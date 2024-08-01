@@ -15,6 +15,7 @@ import { FindOptions } from "sequelize";
 import { JobsQueryDto } from "src/job/dtos/query.dto";
 import { parsePagesize, parseFilter, parseOrder } from "src/utils";
 import { Op } from "sequelize";
+import { UpdateJobsDto } from "./dto/patch.dto";
 
 @Injectable()
 export class TpcMemberViewService {
@@ -137,5 +138,26 @@ export class TpcMemberViewService {
     if (!ans) throw new UnauthorizedException(`The Job with id: ${id} does not exist`);
 
     return ans.get({ plain: true });
+  }
+
+  async updateJob(job: UpdateJobsDto, jobId: string, tpcMemberId: string) {
+    const jobExists = await this.jobRepo.findOne({
+      where: { id: jobId },
+      include: [
+        {
+          model: JobCoordinatorModel,
+          as: "jobCoordinators",
+          where: { tpcMemberId: tpcMemberId },
+        },
+      ],
+    });
+
+    if (!jobExists) {
+      throw new UnauthorizedException(`Unauthorized`);
+    }
+
+    const [affectedRows] = await this.jobRepo.update(job, { where: { id: jobId } });
+
+    return affectedRows > 0 ? [] : [jobId];
   }
 }

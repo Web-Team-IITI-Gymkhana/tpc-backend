@@ -9,6 +9,7 @@ import { User } from "src/decorators/User";
 import { IUser } from "src/auth/User";
 import { GetJobDto, GetJobsDto, GetTpcMemberDto } from "./dto/get.dto";
 import { JobsQueryDto } from "src/job/dtos/query.dto";
+import { UpdateJobsDto } from "./dto/patch.dto";
 
 @Controller("tpc-member-view")
 @ApiTags("TpcMemberView")
@@ -39,5 +40,10 @@ export class TpcMemberViewController {
     const ans = await this.tpcMemberViewService.getJob(id, user.tpcMemberId);
 
     return pipeTransform(ans, GetJobDto);
+  }
+
+  @Patch("jobs/:id")
+  async updateJob(@Param("id") id: string, @User() user: IUser, @Body() job: UpdateJobsDto) {
+    return await this.tpcMemberViewService.updateJob(job, id, user.tpcMemberId);
   }
 }
