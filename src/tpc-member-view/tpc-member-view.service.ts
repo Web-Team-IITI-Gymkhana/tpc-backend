@@ -1,11 +1,25 @@
-import { Injectable } from "@nestjs/common";
-import { CreateTpcMemberViewDto } from "./dto/create-tpc-member-view.dto";
+import { Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { UpdateTpcMemberViewDto } from "./dto/update-tpc-member-view.dto";
+import { TPC_MEMBER_DAO } from "src/constants";
+import { TpcMemberModel, UserModel } from "src/db/models";
 
 @Injectable()
 export class TpcMemberViewService {
-  create(createTpcMemberViewDto: CreateTpcMemberViewDto) {
-    return "This action adds a new tpcMemberView";
+  constructor(@Inject(TPC_MEMBER_DAO) private tpcMemberRepo: typeof TpcMemberModel) {}
+
+  async getTpcMember(id: string) {
+    const ans = await this.tpcMemberRepo.findByPk(id, {
+      include: [
+        {
+          model: UserModel,
+          as: "user",
+        },
+      ],
+    });
+
+    if (!ans) throw new NotFoundException(`The Tpc Member with id ${id} does not exist`);
+
+    return ans.get({ plain: true });
   }
 
   findAll() {

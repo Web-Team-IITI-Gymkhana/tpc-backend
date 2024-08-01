@@ -4,6 +4,7 @@ import { RoleEnum } from "src/enums";
 import { StudentModel } from "./StudentModel";
 import { RecruiterModel } from "./RecruiterModel";
 import { FacultyModel } from "./FacultyModel";
+import { TpcMemberModel } from "./TpcMemberModel";
 
 @Table({
   tableName: "User",
@@ -46,6 +47,11 @@ export class UserModel extends Model<UserModel> {
     foreignKey: "userId",
   })
   student: StudentModel;
+
+  @HasOne(() => TpcMemberModel, {
+    foreignKey: "userId",
+  })
+  tpcMember: TpcMemberModel;
 
   @HasOne(() => RecruiterModel, {
     foreignKey: "userId",

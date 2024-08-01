@@ -1,34 +1,27 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from "@nestjs/common";
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards } from "@nestjs/common";
 import { TpcMemberViewService } from "./tpc-member-view.service";
-import { CreateTpcMemberViewDto } from "./dto/create-tpc-member-view.dto";
 import { UpdateTpcMemberViewDto } from "./dto/update-tpc-member-view.dto";
+import { ApiBearerAuth, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { AuthGuard } from "@nestjs/passport";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
+import { pipeTransform } from "src/utils/utils";
+import { User } from "src/decorators/User";
+import { IUser } from "src/auth/User";
+import { GetTpcMemberDto } from "./dto/get.dto";
 
 @Controller("tpc-member-view")
+@ApiTags("TpcMemberView")
+@ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"))
 export class TpcMemberViewController {
   constructor(private readonly tpcMemberViewService: TpcMemberViewService) {}
 
-  @Post()
-  create(@Body() createTpcMemberViewDto: CreateTpcMemberViewDto) {
-    return this.tpcMemberViewService.create(createTpcMemberViewDto);
-  }
-
   @Get()
-  findAll() {
-    return this.tpcMemberViewService.findAll();
-  }
+  @ApiResponse({ type: GetTpcMemberDto })
+  async GetMember(@User() user: IUser) {
+    const ans = await this.tpcMemberViewService.getTpcMember(user.tpcMemberId);
 
-  @Get(":id")
-  findOne(@Param("id") id: string) {
-    return this.tpcMemberViewService.findOne(+id);
-  }
-
-  @Patch(":id")
-  update(@Param("id") id: string, @Body() updateTpcMemberViewDto: UpdateTpcMemberViewDto) {
-    return this.tpcMemberViewService.update(+id, updateTpcMemberViewDto);
-  }
-
-  @Delete(":id")
-  remove(@Param("id") id: string) {
-    return this.tpcMemberViewService.remove(+id);
+    return pipeTransform(ans, GetTpcMemberDto);
   }
 }
