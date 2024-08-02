@@ -35,6 +35,8 @@ import { RoleGuard } from "src/auth/roleGaurd";
 import { RoleEnum } from "src/enums";
 import { GetJobDto, GetJobsDto } from "src/job/dtos/get.dto";
 import { JobsQueryDto } from "src/job/dtos/query.dto";
+import { EventsQueryDto } from "src/event/dtos/query.dto";
+import { GetEventsDto } from "src/event/dtos/get.dto";
 
 @Controller("student-view")
 @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.STUDENT))
@@ -80,10 +82,17 @@ export class StudentController {
     return pipeTransform(ans, GetJobDto);
   }
 
+  @Get("events")
+  async getEvents(@Query("q") where: EventsQueryDto, @User() user: IUser) {
+    const ans = await this.studentService.getEvents(where, user.studentId);
+
+    return pipeTransformArray(ans, GetEventsDto);
+  }
+
   @Get("events/:jobId")
   @ApiResponse({ type: GetStudentEventsDto, isArray: true })
-  async getEvents(@Param("jobId", new ParseUUIDPipe()) id: string, @User() user: IUser) {
-    const ans = await this.studentService.getEvents(id, user.studentId);
+  async getStudentEvents(@Param("jobId", new ParseUUIDPipe()) id: string, @User() user: IUser) {
+    const ans = await this.studentService.getStudentEvents(id, user.studentId);
 
     return pipeTransformArray(ans, GetStudentEventsDto);
   }
