@@ -10,11 +10,13 @@ import { IUser } from "src/auth/User";
 import { GetJobDto, GetJobsDto, GetTpcMemberDto } from "./dto/get.dto";
 import { JobsQueryDto } from "src/job/dtos/query.dto";
 import { UpdateJobsDto } from "./dto/patch.dto";
+import { ApplicationsQueryDto, EventsQueryDto } from "src/event/dtos/query.dto";
+import { GetEventDto, GetEventsDto } from "src/event/dtos/get.dto";
 
 @Controller("tpc-member-view")
 @ApiTags("TpcMemberView")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"))
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
 export class TpcMemberViewController {
   constructor(private readonly tpcMemberViewService: TpcMemberViewService) {}
 
@@ -40,6 +42,26 @@ export class TpcMemberViewController {
     const ans = await this.tpcMemberViewService.getJob(id, user.tpcMemberId);
 
     return pipeTransform(ans, GetJobDto);
+  }
+
+  @Get("events")
+  @ApiResponse({ type: GetEventsDto, isArray: true })
+  async GetEvents(@Query("q") where: EventsQueryDto, @User() user: IUser) {
+    const ans = await this.tpcMemberViewService.getEvents(where, user.tpcMemberId);
+
+    return pipeTransformArray(ans, GetEventsDto);
+  }
+
+  @Get("events/:id")
+  @ApiResponse({ type: GetEventDto })
+  async GetEvent(
+    @Param("id", new ParseUUIDPipe()) id: string,
+    @Query("q") where: ApplicationsQueryDto,
+    @User() user: IUser
+  ) {
+    const ans = await this.tpcMemberViewService.getEvent(id, where, user.tpcMemberId);
+
+    return pipeTransform(ans, GetEventDto);
   }
 
   @Patch("jobs/:id")
