@@ -48,11 +48,6 @@ export class UserModel extends Model<UserModel> {
   })
   student: StudentModel;
 
-  @HasOne(() => TpcMemberModel, {
-    foreignKey: "userId",
-  })
-  tpcMember: TpcMemberModel;
-
   @HasOne(() => RecruiterModel, {
     foreignKey: "userId",
   })

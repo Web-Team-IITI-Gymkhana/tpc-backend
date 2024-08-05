@@ -20,12 +20,13 @@ export class UserService {
         {
           model: StudentModel,
           as: "student",
-          attributes: ["id"],
-        },
-        {
-          model: TpcMemberModel,
-          as: "tpcMember",
-          attributes: ["id"],
+          include: [
+            {
+              model: TpcMemberModel,
+              as: "tpcMember",
+              attributes: ["id"],
+            },
+          ],
         },
         {
           model: RecruiterModel,
@@ -48,7 +49,7 @@ export class UserService {
       studentId: userModel.student?.id,
       recruiterId: userModel.recruiter?.id,
       facultyId: userModel.faculty?.id,
-      tpcMemberId: userModel.tpcMember?.id,
+      tpcMemberId: userModel.student.tpcMember?.id,
     };
 
     return ans;
