@@ -5,9 +5,11 @@ import {
   EventModel,
   JobCoordinatorModel,
   JobModel,
+  ProgramModel,
   RecruiterModel,
   SalaryModel,
   SeasonModel,
+  StudentModel,
   TpcMemberModel,
   UserModel,
 } from "src/db/models";
@@ -89,8 +91,18 @@ export class JobService {
               as: "tpcMember",
               include: [
                 {
-                  model: UserModel,
-                  as: "user",
+                  model: StudentModel,
+                  as: "student",
+                  include: [
+                    {
+                      model: UserModel,
+                      as: "user",
+                    },
+                    {
+                      model: ProgramModel,
+                      as: "program",
+                    },
+                  ],
                 },
               ],
             },
