@@ -52,6 +52,9 @@ class ProgramDto {
 }
 
 class StudentDto {
+  @NestedUUID({})
+  id: string;
+
   @NestedObject({ type: ProgramDto })
   program: ProgramDto;
 

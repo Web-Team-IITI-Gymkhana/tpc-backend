@@ -49,7 +49,7 @@ export class UserService {
       studentId: userModel.student?.id,
       recruiterId: userModel.recruiter?.id,
       facultyId: userModel.faculty?.id,
-      tpcMemberId: userModel.student.tpcMember?.id,
+      tpcMemberId: userModel.student?.tpcMember?.id,
     };
 
     return ans;
