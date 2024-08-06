@@ -14,6 +14,7 @@ import { ApplicationsQueryDto, EventsQueryDto } from "src/event/dtos/query.dto";
 import { GetEventDto, GetEventsDto } from "src/event/dtos/get.dto";
 import { CreateEventsDto } from "src/event/dtos/post.dto";
 import { isArray } from "lodash";
+import { UpdateEventsDto } from "src/event/dtos/patch.dto";
 
 @Controller("tpc-member-view")
 @ApiTags("TpcMemberView")
@@ -77,5 +78,14 @@ export class TpcMemberViewController {
   @Patch("jobs/:id")
   async updateJob(@Param("id") id: string, @User() user: IUser, @Body() job: UpdateJobsDto) {
     return await this.tpcMemberViewService.updateJob(job, id, user.tpcMemberId);
+  }
+
+  @Patch("events")
+  @ApiBody({ type: UpdateEventsDto, isArray: true })
+  async updateEvents(@Body(createArrayPipe(UpdateEventsDto)) events: UpdateEventsDto[], @User() user: IUser) {
+    const pr = events.map((event) => this.tpcMemberViewService.updateEvent(event, user.tpcMemberId));
+    const ans = await Promise.all(pr);
+
+    return ans.flat();
   }
 }

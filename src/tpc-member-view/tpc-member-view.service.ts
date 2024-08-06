@@ -22,6 +22,7 @@ import { Op } from "sequelize";
 import { UpdateJobsDto } from "./dto/patch.dto";
 import { ApplicationsQueryDto, EventsQueryDto } from "src/event/dtos/query.dto";
 import { CreateEventsDto } from "src/event/dtos/post.dto";
+import { UpdateEventsDto } from "src/event/dtos/patch.dto";
 
 @Injectable()
 export class TpcMemberViewService {
@@ -314,7 +315,6 @@ export class TpcMemberViewService {
       }
     });
 
-    // Step 4: Create authorized events
     if (authorizedEvents.length === 0) {
       throw new UnauthorizedException("Unauthorized");
     }
@@ -343,5 +343,36 @@ export class TpcMemberViewService {
     const [affectedRows] = await this.jobRepo.update(job, { where: { id: jobId } });
 
     return affectedRows > 0 ? [] : [jobId];
+  }
+
+  async updateEvent(event: UpdateEventsDto, tpcMemberId: string) {
+    const eventExists = await this.eventRepo.findOne({
+      where: { id: event.id },
+      include: [
+        {
+          model: JobModel,
+          as: "job",
+          required: true,
+          include: [
+            {
+              model: JobCoordinatorModel,
+              as: "jobCoordinators",
+              required: true,
+              where: {
+                tpcMemberId: tpcMemberId,
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    if (!eventExists) {
+      throw new UnauthorizedException(`Unauthorized`);
+    }
+
+    const [ans] = await this.eventRepo.update(event, { where: { id: event.id } });
+
+    return ans > 0 ? [] : [event.id];
   }
 }
