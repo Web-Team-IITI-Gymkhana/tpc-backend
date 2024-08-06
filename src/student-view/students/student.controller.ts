@@ -83,6 +83,7 @@ export class StudentController {
   }
 
   @Get("events")
+  @ApiResponse({ type: GetEventsDto, isArray: true })
   async getEvents(@Query("q") where: EventsQueryDto, @User() user: IUser) {
     const ans = await this.studentService.getEvents(where, user.studentId);
 
