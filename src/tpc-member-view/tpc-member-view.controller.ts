@@ -1,10 +1,10 @@
 import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, Query, ParseUUIDPipe } from "@nestjs/common";
 import { TpcMemberViewService } from "./tpc-member-view.service";
-import { ApiBearerAuth, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiBody, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { AuthGuard } from "@nestjs/passport";
 import { RoleGuard } from "src/auth/roleGaurd";
 import { RoleEnum } from "src/enums";
-import { pipeTransform, pipeTransformArray } from "src/utils/utils";
+import { createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
 import { User } from "src/decorators/User";
 import { IUser } from "src/auth/User";
 import { GetJobDto, GetJobsDto, GetTpcMemberDto } from "./dto/get.dto";
@@ -12,6 +12,8 @@ import { JobsQueryDto } from "src/job/dtos/query.dto";
 import { UpdateJobsDto } from "./dto/patch.dto";
 import { ApplicationsQueryDto, EventsQueryDto } from "src/event/dtos/query.dto";
 import { GetEventDto, GetEventsDto } from "src/event/dtos/get.dto";
+import { CreateEventsDto } from "src/event/dtos/post.dto";
+import { isArray } from "lodash";
 
 @Controller("tpc-member-view")
 @ApiTags("TpcMemberView")
@@ -62,6 +64,14 @@ export class TpcMemberViewController {
     const ans = await this.tpcMemberViewService.getEvent(id, where, user.tpcMemberId);
 
     return pipeTransform(ans, GetEventDto);
+  }
+
+  @Post("events")
+  @ApiBody({ type: CreateEventsDto, isArray: true })
+  async createEvents(@Body(createArrayPipe(CreateEventsDto)) events: CreateEventsDto[], @User() user: IUser) {
+    const ans = await this.tpcMemberViewService.createEvents(events, user.tpcMemberId);
+
+    return ans;
   }
 
   @Patch("jobs/:id")

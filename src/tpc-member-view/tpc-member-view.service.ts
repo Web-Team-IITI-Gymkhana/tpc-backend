@@ -21,6 +21,7 @@ import { parsePagesize, parseFilter, parseOrder } from "src/utils";
 import { Op } from "sequelize";
 import { UpdateJobsDto } from "./dto/patch.dto";
 import { ApplicationsQueryDto, EventsQueryDto } from "src/event/dtos/query.dto";
+import { CreateEventsDto } from "src/event/dtos/post.dto";
 
 @Injectable()
 export class TpcMemberViewService {
@@ -35,8 +36,18 @@ export class TpcMemberViewService {
     const ans = await this.tpcMemberRepo.findByPk(id, {
       include: [
         {
-          model: UserModel,
-          as: "user",
+          model: StudentModel,
+          as: "student",
+          include: [
+            {
+              model: UserModel,
+              as: "user",
+            },
+            {
+              model: ProgramModel,
+              as: "program",
+            },
+          ],
         },
       ],
     });
@@ -268,6 +279,49 @@ export class TpcMemberViewService {
       ...ans.get({ plain: true }),
       applications: applications.map((application) => application.get({ plain: true })),
     };
+  }
+
+  async createEvents(events: CreateEventsDto[], tpcMemberId: string) {
+    const eventsByJobId: { [jobId: string]: CreateEventsDto[] } = {};
+    const jobIds: string[] = [];
+
+    events.forEach((event) => {
+      if (!eventsByJobId[event.jobId]) {
+        eventsByJobId[event.jobId] = [];
+        jobIds.push(event.jobId);
+      }
+      eventsByJobId[event.jobId].push(event);
+    });
+
+    const jobs = await this.jobRepo.findAll({
+      where: {
+        id: jobIds,
+      },
+      include: [
+        {
+          model: JobCoordinatorModel,
+          as: "jobCoordinators",
+          where: { tpcMemberId: tpcMemberId },
+        },
+      ],
+    });
+
+    const authorizedEvents: CreateEventsDto[] = [];
+
+    jobs.forEach((job) => {
+      if (eventsByJobId[job.id]) {
+        authorizedEvents.push(...eventsByJobId[job.id]);
+      }
+    });
+
+    // Step 4: Create authorized events
+    if (authorizedEvents.length === 0) {
+      throw new UnauthorizedException("Unauthorized");
+    }
+
+    const ans = await this.eventRepo.bulkCreate(authorizedEvents);
+
+    return ans.map((event) => event.id);
   }
 
   async updateJob(job: UpdateJobsDto, jobId: string, tpcMemberId: string) {
