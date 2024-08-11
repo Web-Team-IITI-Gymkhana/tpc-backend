@@ -152,7 +152,6 @@ export class RecruiterViewService {
         {
           model: ApplicationModel,
           as: "applications",
-          required: true,
           include: [
             {
               model: ResumeModel,

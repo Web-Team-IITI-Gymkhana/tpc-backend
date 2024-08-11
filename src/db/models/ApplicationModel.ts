@@ -202,11 +202,10 @@ export class ApplicationModel extends Model<ApplicationModel> {
 
     const mailerService = new EmailService();
 
-    const url = `${FRONTEND_URL}/events`;
-
     const templatePath = path.resolve(process.cwd(), "src/html", "PromotionToStudent.html");
 
     for (const application of applicationarray) {
+      const url = `${FRONTEND_URL}/student/job/${application.job.id}`;
       const replacements = {
         companyName: application.job.company.name,
         studentName: application.student.user.name,
