@@ -56,9 +56,9 @@ export class InsertService {
     const programs = await this.sequelizeInstance.models.ProgramModel.bulkCreate(PROGRAMS);
     const companies = await this.sequelizeInstance.models.CompanyModel.bulkCreate(COMPANIES);
     const faculties = await this.sequelizeInstance.models.FacultyModel.bulkCreate(FACULTIES);
-    const tpcMembers = await this.sequelizeInstance.models.TpcMemberModel.bulkCreate(TPC_MEMBERS);
     const students = await this.sequelizeInstance.models.StudentModel.bulkCreate(STUDENTS);
     const penalties = await this.sequelizeInstance.models.PenaltyModel.bulkCreate(PENALTIES);
+    const tpcMembers = await this.sequelizeInstance.models.TpcMemberModel.bulkCreate(TPC_MEMBERS);
     const recruiters = await this.sequelizeInstance.models.RecruiterModel.bulkCreate(RECRUITERS);
     const resumes = await this.sequelizeInstance.models.ResumeModel.bulkCreate(RESUMES);
     const jobs = await this.sequelizeInstance.models.JobModel.bulkCreate(JOBS);

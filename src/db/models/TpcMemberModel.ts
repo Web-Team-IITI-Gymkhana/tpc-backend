@@ -1,9 +1,9 @@
 import { ForeignKey, Column, BelongsTo, Table, Model, HasMany } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { UserModel } from "./UserModel";
-import { JobModel } from "./JobModel";
 import { JobCoordinatorModel } from "./JobCoordinatorModel";
 import { TpcMemberRoleEnum, DepartmentEnum } from "src/enums";
+import { StudentModel } from "./StudentModel";
 
 @Table({
   tableName: "TpcMember",
@@ -17,19 +17,15 @@ export class TpcMemberModel extends Model<TpcMemberModel> {
   })
   id: string;
 
-  @Column({ allowNull: false, type: sequelize.ENUM(...Object.values(DepartmentEnum)) })
-  department: DepartmentEnum;
-
-  @ForeignKey(() => UserModel)
+  @ForeignKey(() => StudentModel)
   @Column({ type: sequelize.UUID, unique: true, allowNull: false })
-  userId: string;
+  studentId: string;
 
-  // Delete TpcMember onDelete of User
-  @BelongsTo(() => UserModel, {
-    foreignKey: "userId",
+  @BelongsTo(() => StudentModel, {
+    foreignKey: "studentId",
     onDelete: "CASCADE",
   })
-  user: UserModel;
+  student: StudentModel;
 
   @Column({ allowNull: false, type: sequelize.ENUM(...Object.values(TpcMemberRoleEnum)) })
   role: TpcMemberRoleEnum;

@@ -1,4 +1,4 @@
-import { ForeignKey, Column, BelongsTo, Table, Model, HasMany, Unique } from "sequelize-typescript";
+import { ForeignKey, Column, BelongsTo, Table, Model, HasMany, Unique, HasOne } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { UserModel } from "./UserModel";
 import { PenaltyModel } from "./PenaltyModel";
@@ -8,6 +8,7 @@ import { ResumeModel } from "./ResumeModel";
 import { OnCampusOfferModel } from "./OnCampusOfferModel";
 import { CategoryEnum, GenderEnum } from "src/enums";
 import { RegistrationModel } from "./RegistrationModel";
+import { TpcMemberModel } from "./TpcMemberModel";
 
 @Table({
   tableName: "Student",
@@ -121,4 +122,9 @@ export class StudentModel extends Model<StudentModel> {
     onDelete: "CASCADE",
   })
   registrations: RegistrationModel[];
+
+  @HasOne(() => TpcMemberModel, {
+    foreignKey: "studentId",
+  })
+  tpcMember: TpcMemberModel;
 }

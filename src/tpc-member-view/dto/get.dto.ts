@@ -9,18 +9,16 @@ import {
   NestedUUID,
 } from "src/decorators/dto";
 import {
-  SeasonTypeEnum,
-  JobStatusTypeEnum,
-  JobCoordinatorRoleEnum,
-  TpcMemberRoleEnum,
+  CategoryEnum,
   DepartmentEnum,
   EventTypeEnum,
   GenderEnum,
-  CategoryEnum,
-  IndustryDomainEnum,
-  CompanyCategoryEnum,
+  JobCoordinatorRoleEnum,
+  JobStatusTypeEnum,
+  SeasonTypeEnum,
+  TpcMemberRoleEnum,
 } from "src/enums";
-import { SelectionProcedureDto } from "src/job/dtos/jaf.dto";
+import { CompanyFilledDto, RecruiterFilledDto, SelectionProcedureDto } from "src/job/dtos/jaf.dto";
 
 class UserDto {
   @NestedUUID({})
@@ -29,77 +27,50 @@ class UserDto {
   @NestedString({})
   name: string;
 
-  @NestedEmail({})
-  email: string;
-
   @NestedString({})
   contact: string;
+
+  @NestedEmail({})
+  email: string;
 }
 
-class AddressDto {
-  @NestedString({ optional: true })
-  city?: string;
-
-  @NestedString({ optional: true })
-  line1?: string;
-
-  @NestedString({ optional: true })
-  line2?: string;
-
-  @NestedString({ optional: true })
-  state?: string;
-
-  @NestedString({ optional: true })
-  country?: string;
-
-  @NestedString({ optional: true })
-  zipCode?: string;
-}
-
-class GetCompanyDto {
-  @NestedString({ optional: true })
-  name?: string;
-
-  @NestedString({ optional: true })
-  website?: string;
-
-  @NestedEnum(IndustryDomainEnum, { isArray: true, optional: true })
-  domains?: IndustryDomainEnum[];
-
-  @NestedEnum(CompanyCategoryEnum, { optional: true })
-  category?: CompanyCategoryEnum;
-
-  @NestedObject({ type: AddressDto, optional: true })
-  address?: AddressDto;
-
-  @NestedNumber({ optional: true })
-  size?: number;
-
-  @NestedString({ optional: true })
-  yearOfEstablishment?: string;
-
-  @NestedString({ optional: true })
-  annualTurnover?: string;
-
-  @NestedString({ optional: true })
-  socialMediaLink?: string;
-}
-
-export class GetRecruiterDto {
+class ProgramDto {
   @NestedUUID({})
   id: string;
 
   @NestedString({})
-  designation: string;
+  branch: string;
 
-  @NestedString({ optional: true })
-  landline: string;
+  @NestedString({})
+  course: string;
+
+  @NestedString({})
+  year: string;
+
+  @NestedEnum(DepartmentEnum, {})
+  department: DepartmentEnum;
+}
+
+class StudentDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedObject({ type: ProgramDto })
+  program: ProgramDto;
 
   @NestedObject({ type: UserDto })
   user: UserDto;
+}
 
-  @NestedObject({ type: GetCompanyDto, optional: true })
-  company: GetCompanyDto;
+export class GetTpcMemberDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedEnum(TpcMemberRoleEnum, {})
+  role: TpcMemberRoleEnum;
+
+  @NestedObject({ type: StudentDto })
+  student: StudentDto;
 }
 
 class SeasonDto {
@@ -120,6 +91,16 @@ class CompanyDto {
   @NestedString({})
   name: string;
 }
+class RecruiterDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedString({})
+  designation: string;
+
+  @NestedObject({ type: UserDto })
+  user: UserDto;
+}
 
 export class GetJobsDto {
   @NestedUUID({})
@@ -128,45 +109,35 @@ export class GetJobsDto {
   @NestedString({})
   role: string;
 
+  @NestedObject({ type: CompanyFilledDto })
+  companyDetailsFilled: CompanyFilledDto;
+
+  @NestedObject({ type: RecruiterFilledDto })
+  recruiterDetailsFilled: RecruiterFilledDto;
+
   @NestedBoolean({})
   active: boolean;
 
   @NestedEnum(JobStatusTypeEnum, {})
   currentStatus: JobStatusTypeEnum;
 
+  @NestedNumber({ optional: true })
+  noOfVacancies?: number;
+
+  @NestedNumber({ optional: true })
+  duration?: number;
+
+  @NestedString({})
+  location: string;
+
   @NestedObject({ type: SeasonDto })
   season: SeasonDto;
 
   @NestedObject({ type: CompanyDto })
   company: CompanyDto;
-}
 
-class ProgramDto {
-  @NestedUUID({})
-  id: string;
-
-  @NestedString({})
-  branch: string;
-
-  @NestedString({})
-  course: string;
-
-  @NestedString({})
-  year: string;
-
-  @NestedEnum(DepartmentEnum, {})
-  department: DepartmentEnum;
-}
-
-class TpcStudentDto {
-  @NestedUUID({})
-  id: string;
-
-  @NestedObject({ type: ProgramDto })
-  program: ProgramDto;
-
-  @NestedObject({ type: UserDto })
-  user: UserDto;
+  @NestedObject({ type: RecruiterDto })
+  recruiter: RecruiterDto;
 }
 
 class TpcMemberDto {
@@ -176,8 +147,11 @@ class TpcMemberDto {
   @NestedString({})
   role: TpcMemberRoleEnum;
 
-  @NestedObject({ type: TpcStudentDto })
-  student: TpcStudentDto;
+  @NestedEnum(DepartmentEnum, {})
+  department: DepartmentEnum;
+
+  @NestedObject({ type: UserDto })
+  user: UserDto;
 }
 
 class JobCoordinatorsDto {
@@ -209,6 +183,9 @@ class EventsDto {
 
   @NestedDate({})
   endDateTime: Date;
+
+  @NestedBoolean({})
+  visibleToRecruiter: boolean;
 }
 
 class SalariesDto {
@@ -223,6 +200,9 @@ class SalariesDto {
 
   @NestedUUID({ optional: true, isArray: true })
   programs?: string[];
+
+  @NestedEnum(DepartmentEnum, { isArray: true })
+  facultyApprovals: DepartmentEnum[];
 
   @NestedEnum(GenderEnum, { optional: true, isArray: true })
   genders: GenderEnum[];
@@ -274,83 +254,12 @@ export class GetJobDto extends GetJobsDto {
   @NestedDate({ optional: true })
   joiningDate?: Date;
 
-  @NestedString({})
-  location: string;
-
-  @NestedNumber({ optional: true })
-  noOfVacancies?: number;
-
-  @NestedNumber({ optional: true })
-  duration?: number;
-
   @NestedString({ optional: true })
   feedback?: string;
-
-  @NestedObject({ type: JobCoordinatorsDto, isArray: true })
-  jobCoordinators: JobCoordinatorsDto[];
 
   @NestedObject({ type: EventsDto, isArray: true })
   events: EventsDto[];
 
   @NestedObject({ type: SalariesDto, isArray: true })
   salaries: SalariesDto[];
-}
-
-class ResumeDto {
-  @NestedUUID({})
-  id: string;
-
-  @NestedString({})
-  filepath: string;
-
-  @NestedBoolean({})
-  verified: boolean;
-}
-
-class StudentDto {
-  @NestedUUID({ optional: true })
-  id?: string;
-
-  @NestedString({ optional: true })
-  rollNo?: string;
-
-  @NestedObject({ type: ProgramDto, optional: true })
-  program?: ProgramDto;
-
-  @NestedObject({ type: UserDto, optional: true })
-  user?: UserDto;
-}
-
-class ApplicationDto {
-  @NestedUUID({})
-  id: string;
-
-  @NestedObject({ type: StudentDto, optional: true })
-  student?: StudentDto;
-
-  @NestedObject({ type: ResumeDto })
-  resume: ResumeDto;
-}
-
-export class GetEventDto {
-  @NestedUUID({})
-  id: string;
-
-  @NestedNumber({})
-  roundNumber: number;
-
-  @NestedEnum(EventTypeEnum, {})
-  type: EventTypeEnum;
-
-  @NestedString({ optional: true })
-  metadata?: string;
-
-  @NestedDate({})
-  startDateTime: Date;
-
-  @NestedDate({})
-  endDateTime: Date;
-
-  @NestedObject({ type: ApplicationDto, isArray: true })
-  applications: ApplicationDto[];
 }

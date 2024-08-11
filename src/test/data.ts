@@ -113,16 +113,6 @@ export const FACULTIES: Optional<FacultyModel, NullishPropertiesOf<FacultyModel>
   })
 );
 
-export const TPC_MEMBERS: Optional<TpcMemberModel, NullishPropertiesOf<TpcMemberModel>>[] = Array.from(
-  { length: 5 },
-  (_, idx) => ({
-    id: faker.string.uuid(),
-    department: faker.helpers.enumValue(DepartmentEnum),
-    role: faker.helpers.enumValue(TpcMemberRoleEnum),
-    userId: USERS[15 + idx].id,
-  })
-);
-
 export const STUDENTS: Optional<StudentModel, NullishPropertiesOf<StudentModel>>[] = Array.from(
   { length: 5 },
   (_, idx) => ({
@@ -135,6 +125,14 @@ export const STUDENTS: Optional<StudentModel, NullishPropertiesOf<StudentModel>>
     gender: faker.helpers.enumValue(GenderEnum),
     cpi: faker.number.float({ min: 6, max: 10 }),
     programId: faker.helpers.arrayElement(PROGRAMS).id,
+  })
+);
+
+export const TPC_MEMBERS: Optional<TpcMemberModel, NullishPropertiesOf<TpcMemberModel>>[] = STUDENTS.slice(0, 3).map(
+  (student) => ({
+    id: faker.string.uuid(),
+    role: faker.helpers.enumValue(TpcMemberRoleEnum),
+    studentId: student.id,
   })
 );
 

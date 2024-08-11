@@ -6,8 +6,10 @@ import {
   JobCoordinatorModel,
   JobModel,
   OnCampusOfferModel,
+  ProgramModel,
   SalaryModel,
   SeasonModel,
+  StudentModel,
   TpcMemberModel,
   UserModel,
 } from "src/db/models";
@@ -24,7 +26,22 @@ export class TpcMemberService {
 
   async getTpcMembers(where: TpcMembersQueryDto) {
     const findOptions: FindOptions<TpcMemberModel> = {
-      include: [{ model: UserModel, as: "user" }],
+      include: [
+        {
+          model: StudentModel,
+          as: "student",
+          include: [
+            {
+              model: UserModel,
+              as: "user",
+            },
+            {
+              model: ProgramModel,
+              as: "program",
+            },
+          ],
+        },
+      ],
     };
 
     const pageOptions = parsePagesize(where);
@@ -41,8 +58,18 @@ export class TpcMemberService {
     const ans = await this.tpcMemberRepo.findByPk(id, {
       include: [
         {
-          model: UserModel,
-          as: "user",
+          model: StudentModel,
+          as: "student",
+          include: [
+            {
+              model: UserModel,
+              as: "user",
+            },
+            {
+              model: ProgramModel,
+              as: "program",
+            },
+          ],
         },
         {
           model: JobCoordinatorModel,

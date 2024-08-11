@@ -12,6 +12,12 @@ export class RoleGuard implements CanActivate {
     const request = context.switchToHttp().getRequest();
     if (request.user.role && (request.user.role === this.role || request.user.role === RoleEnum.ADMIN)) {
       return true;
+    } else if (
+      this.role === RoleEnum.STUDENT &&
+      request.user.role &&
+      (request.user.role === this.role || request.user.role === RoleEnum.TPC_MEMBER)
+    ) {
+      return true;
     }
 
     return false;
