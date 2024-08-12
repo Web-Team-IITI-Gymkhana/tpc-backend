@@ -18,7 +18,6 @@ import { RoleEnum } from "src/enums";
 export class CompanyController {
   constructor(private companyService: CompanyService) {}
 
-  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
   @GetValues(CompanyQueryDto, GetCompaniesDto)
   async getCompanies(@Query("q") where: CompanyQueryDto) {
     const ans = await this.companyService.getCompanies(where);
@@ -34,7 +33,6 @@ export class CompanyController {
     return pipeTransform(ans, GetCompanyDto);
   }
 
-  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @PostValues(CreateCompaniesDto)
   async createCompanies(@Body(createArrayPipe(CreateCompaniesDto)) companies: CreateCompaniesDto[]) {
     const ans = await this.companyService.createCompanies(companies);

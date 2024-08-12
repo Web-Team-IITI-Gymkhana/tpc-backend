@@ -15,7 +15,13 @@ import {
   Req,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
-import { PasswordlessLoginDto, PasswordlessLoginVerifyDto, UserLogInDto, UserSignUpDto } from "./auth.dto";
+import {
+  CreateRecruitersDto,
+  PasswordlessLoginDto,
+  PasswordlessLoginVerifyDto,
+  UserLogInDto,
+  UserSignUpDto,
+} from "./auth.dto";
 import { UserService } from "src/services/UserService";
 import { AuthService } from "./auth.service";
 import { RoleEnum } from "src/enums";
@@ -59,6 +65,17 @@ export class AuthController {
     const user = await this.userService.getUserByEmail(body.email);
     if (!user || !(user.role === RoleEnum.RECRUITER || user.role === RoleEnum.ADMIN))
       throw new NotFoundException(`The user with email ${body.email} and Role ${RoleEnum.RECRUITER} Not Found`);
+    const jwt = await this.authService.vendJWT(user, this.recruiterSecret);
+    const res = await this.emailService.sendTokenEmail(user.email, jwt);
+    if (!res) throw new HttpException("Error sending email", HttpStatus.INTERNAL_SERVER_ERROR);
+
+    return "Email Sent Successfully";
+  }
+
+  @Post("recruiter")
+  @UseInterceptors(ClassSerializerInterceptor)
+  async signupRecruiter(@Body() body: CreateRecruitersDto): Promise<string> {
+    const user = await this.authService.createRecruiter(body);
     const jwt = await this.authService.vendJWT(user, this.recruiterSecret);
     const res = await this.emailService.sendTokenEmail(user.email, jwt);
     if (!res) throw new HttpException("Error sending email", HttpStatus.INTERNAL_SERVER_ERROR);
