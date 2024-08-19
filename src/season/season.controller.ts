@@ -1,7 +1,7 @@
 import { Body, Controller, Query, UseGuards } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { SeasonService } from "./season.service";
-import { DeleteValues, GetValues, PostValues } from "src/decorators/controller";
+import { DeleteValues, GetValues, PatchValues, PostValues } from "src/decorators/controller";
 import { SeasonsQueryDto } from "./dtos/query.dto";
 import { GetSeasonsDto } from "./dtos/get.dto";
 import { createArrayPipe, pipeTransformArray } from "src/utils/utils";
@@ -10,6 +10,7 @@ import { DeleteValuesDto } from "src/utils/utils.dto";
 import { AuthGuard } from "@nestjs/passport";
 import { RoleGuard } from "src/auth/roleGaurd";
 import { RoleEnum } from "src/enums";
+import { UpdateSeasonsDto } from "./dtos/patch.dto";
 
 @Controller("seasons")
 @ApiTags("Season")
@@ -30,6 +31,14 @@ export class SeasonController {
     const ans = await this.seasonService.createSeasons(seasons);
 
     return ans;
+  }
+
+  @PatchValues(UpdateSeasonsDto)
+  async updateSeasons(@Body(createArrayPipe(UpdateSeasonsDto)) seasons: UpdateSeasonsDto[]) {
+    const pr = seasons.map((season) => this.seasonService.updateSeasons(season));
+    const ans = await Promise.all(pr);
+
+    return ans.flat();
   }
 
   @DeleteValues()
