@@ -6,6 +6,7 @@ import { FindOptions } from "sequelize";
 import { parseFilter, parseOrder, parsePagesize } from "src/utils";
 import { CreateSeasonsDto } from "./dtos/post.dto";
 import { SeasonTypeEnum } from "src/enums";
+import { UpdateSeasonsDto } from "./dtos/patch.dto";
 
 @Injectable()
 export class SeasonService {
@@ -70,6 +71,14 @@ export class SeasonService {
     await this.registrationRepo.bulkCreate(registrations);
 
     return seasonIds;
+  }
+
+  async updateSeasons(season: UpdateSeasonsDto) {
+    const [ans] = await this.seasonRepo.update(season, {
+      where: { id: season.id },
+    });
+
+    return ans > 0 ? [] : [season.id];
   }
 
   async deleteSeasons(ids: string | string[]) {
