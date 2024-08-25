@@ -155,7 +155,7 @@ export class JobModel extends Model<JobModel> {
   selectionProcedure: object;
 
   @Column({
-    type: sequelize.STRING,
+    type: sequelize.TEXT({ length: "long" }),
   })
   description?: string;
 
