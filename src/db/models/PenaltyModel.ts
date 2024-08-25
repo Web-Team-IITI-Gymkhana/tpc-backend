@@ -74,7 +74,7 @@ export class PenaltyModel extends Model<PenaltyModel> {
       };
     });
 
-    const templatePath = path.resolve(process.cwd(), "src/html", "PenaltyToStudent.html");
+    const templatePath = path.resolve(process.cwd(), "./src/html", "PenaltyToStudent.html");
 
     for (const penaltyItem of penalties) {
       const amount = penaltyItem.penalty.toString();
