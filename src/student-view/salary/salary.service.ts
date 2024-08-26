@@ -152,8 +152,18 @@ export class SalaryService {
                   as: "tpcMember",
                   include: [
                     {
-                      model: UserModel,
-                      as: "user",
+                      model: StudentModel,
+                      as: "student",
+                      include: [
+                        {
+                          model: UserModel,
+                          as: "user",
+                        },
+                        {
+                          model: ProgramModel,
+                          as: "program",
+                        },
+                      ],
                     },
                   ],
                 },
