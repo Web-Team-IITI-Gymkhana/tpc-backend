@@ -17,3 +17,4 @@ export * from "./interviewTypes.enum";
 export * from "./offerType.enum";
 export * from "./selectionMode.enum";
 export * from "./testTypes.enum";
+export * from "./backlog.enum";

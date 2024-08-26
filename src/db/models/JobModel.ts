@@ -155,7 +155,7 @@ export class JobModel extends Model<JobModel> {
   selectionProcedure: object;
 
   @Column({
-    type: sequelize.STRING,
+    type: sequelize.TEXT({ length: "long" }),
   })
   description?: string;
 
@@ -178,7 +178,12 @@ export class JobModel extends Model<JobModel> {
   @Column({
     type: sequelize.INTEGER,
   })
-  noOfVacancies?: number;
+  minNoOfHires?: number;
+
+  @Column({
+    type: sequelize.INTEGER,
+  })
+  expectedNoOfHires?: number;
 
   @Column({
     type: sequelize.DATE,
@@ -194,6 +199,16 @@ export class JobModel extends Model<JobModel> {
     type: sequelize.INTEGER,
   })
   duration?: number;
+
+  @Column({
+    type: sequelize.STRING,
+  })
+  medicalRequirements?: string;
+
+  @Column({
+    type: sequelize.STRING,
+  })
+  additionalInfo?: string;
 
   @Column({
     type: sequelize.TEXT({ length: "long" }),
