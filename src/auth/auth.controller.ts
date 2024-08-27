@@ -74,13 +74,17 @@ export class AuthController {
 
   @Post("recruiter")
   @UseInterceptors(ClassSerializerInterceptor)
-  async signupRecruiter(@Body() body: CreateRecruitersDto): Promise<string> {
+  async signupRecruiter(@Body() body: CreateRecruitersDto): Promise<{ message: string }> {
     const user = await this.authService.createRecruiter(body);
     const jwt = await this.authService.vendJWT(user, this.recruiterSecret);
     const res = await this.emailService.sendTokenEmail(user.email, jwt);
     if (!res) throw new HttpException("Error sending email", HttpStatus.INTERNAL_SERVER_ERROR);
 
-    return "Email Sent Successfully";
+    if (!res) {
+      throw new HttpException("Error sending email", HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    return { message: "Email Sent Successfully" };
   }
 
   @Post("passwordless/verify")
