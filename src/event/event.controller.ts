@@ -1,6 +1,16 @@
-import { Controller, Patch, Query, Body, Param, ParseUUIDPipe, UseInterceptors, Delete } from "@nestjs/common";
+import {
+  Controller,
+  Patch,
+  Query,
+  Body,
+  Param,
+  ParseUUIDPipe,
+  UseInterceptors,
+  Delete,
+  UseGuards,
+} from "@nestjs/common";
 import { EventService } from "./event.service";
-import { ApiTags, ApiResponse, ApiBody, ApiParam, ApiQuery, ApiOperation } from "@nestjs/swagger";
+import { ApiTags, ApiResponse, ApiBody, ApiParam, ApiQuery, ApiOperation, ApiBearerAuth } from "@nestjs/swagger";
 import { ApplicationsQueryDto, EventsQueryDto } from "./dtos/query.dto";
 import { ApiFilterQuery, createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
 import { GetEventDto, GetEventsDto } from "./dtos/get.dto";
@@ -9,9 +19,14 @@ import { AddApplicationsDto, UpdateEventsDto } from "./dtos/patch.dto";
 import { DeleteValues, GetValue, GetValues, PatchValues, PostValues } from "src/decorators/controller";
 import { DeleteValuesDto } from "src/utils/utils.dto";
 import { QueryInterceptor } from "src/interceptor/QueryInterceptor";
+import { AuthGuard } from "@nestjs/passport";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("events")
 @ApiTags("Event")
+@ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
 export class EventController {
   constructor(private eventService: EventService) {}
 

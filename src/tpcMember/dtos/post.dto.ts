@@ -3,11 +3,8 @@ import { DepartmentEnum, TpcMemberRoleEnum } from "src/enums";
 
 export class CreateTpcMembersDto {
   @NestedUUID({})
-  userId: string;
+  studentId: string;
 
   @NestedEnum(TpcMemberRoleEnum, {})
   role: TpcMemberRoleEnum;
-
-  @NestedEnum(DepartmentEnum, {})
-  department: DepartmentEnum;
 }

@@ -1,5 +1,6 @@
 import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsEmail, IsEnum, IsString } from "class-validator";
+import { NestedEmail, NestedObject, NestedString, NestedUUID } from "src/decorators/dto";
 import { RoleEnum } from "src/enums";
 
 export class UserSignUpDto {
@@ -48,4 +49,31 @@ export class PasswordlessLoginVerifyDto {
   })
   @IsString()
   token: string;
+}
+
+class CreateUserDto {
+  @NestedString({})
+  name: string;
+
+  @NestedEmail({})
+  email: string;
+
+  @NestedString({})
+  contact: string;
+
+  role: string;
+}
+
+export class CreateRecruitersDto {
+  @NestedString({})
+  designation: string;
+
+  @NestedString({ optional: true })
+  landline?: string;
+
+  @NestedUUID({})
+  companyId: string;
+
+  @NestedObject({ type: CreateUserDto })
+  user: CreateUserDto;
 }

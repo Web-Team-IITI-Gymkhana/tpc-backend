@@ -3,14 +3,17 @@ import sequelize from "sequelize";
 import { FacultyModel } from "./FacultyModel";
 import { SalaryModel } from "./SalaryModel";
 import { FacultyApprovalStatusEnum } from "src/enums";
-import { EmailService } from "src/services/EmailService";
+import { EmailService, getHtmlContent } from "src/services/EmailService";
 import { SendEmailDto } from "src/services/EmailService";
 import { UserModel } from "./UserModel";
 import { IEnvironmentVariables, env } from "src/config";
 import { NotFoundException } from "@nestjs/common";
+import { JobModel } from "./JobModel";
+import { CompanyModel } from "./CompanyModel";
+import path from "path";
 
 const environmentVariables: IEnvironmentVariables = env();
-const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO } = environmentVariables;
+const { MAIL_USER, APP_NAME, FRONTEND_URL, DEFAULT_MAIL_TO } = environmentVariables;
 
 @Table({
   tableName: "FacultyApprovalRequest",
@@ -76,13 +79,60 @@ export class FacultyApprovalRequestModel extends Model<FacultyApprovalRequestMod
       ],
     });
 
-    for (const faculty of faculties) {
+    const salaries = await SalaryModel.findAll({
+      where: {
+        id: instance.map((approval) => approval.salaryId),
+      },
+      include: [
+        {
+          model: JobModel,
+          as: "job",
+          include: [
+            {
+              model: CompanyModel,
+              as: "company",
+            },
+          ],
+        },
+      ],
+    });
+
+    const facultyDict = faculties.reduce((acc, faculty) => {
+      acc[faculty.id] = faculty;
+
+      return acc;
+    }, {});
+
+    const salaryDict = salaries.reduce((acc, salary) => {
+      acc[salary.id] = salary;
+
+      return acc;
+    }, {});
+
+    const approvals = instance.map((approval) => {
+      return {
+        ...approval,
+        faculty: facultyDict[approval.facultyId],
+        salary: salaryDict[approval.salaryId],
+      };
+    });
+
+    const url = `${FRONTEND_URL}/faculty`;
+    const templatePath = path.resolve(process.cwd(), "src/html", "ApprovalRequestToFaculty.html");
+
+    for (const approval of approvals) {
+      const replacements = {
+        facultyName: approval.faculty.user.name,
+        companyName: approval.salary.job.company.name,
+        url: url,
+      };
+      const emailHtmlContent = getHtmlContent(templatePath, replacements);
       const data: SendEmailDto = {
         from: { name: APP_NAME, address: MAIL_USER },
         // recepients: [{ address: DEFAULT_MAIL_TO }],
-        recepients: [{ address: faculty.user.email }],
-        subject: "Test email",
-        html: `<p>Hi ${faculty.user.name}, there is an Approval Request for you</p>`,
+        recepients: [{ address: approval.faculty.user.email }],
+        subject: "Approval Request for Job Announcement Form",
+        html: emailHtmlContent,
       };
 
       await mailerService.sendEmail(data);

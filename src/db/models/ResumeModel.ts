@@ -33,6 +33,11 @@ export class ResumeModel extends Model<ResumeModel> {
   })
   filepath?: string;
 
+  @Column({
+    type: sequelize.STRING,
+  })
+  name?: string;
+
   @Column({ type: sequelize.BOOLEAN, defaultValue: false, allowNull: false })
   verified: boolean;
 

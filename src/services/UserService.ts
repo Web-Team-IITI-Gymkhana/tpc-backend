@@ -2,7 +2,7 @@ import { Global, Inject, Injectable, Logger } from "@nestjs/common";
 import { Transaction } from "sequelize";
 import { USER_DAO } from "src/constants";
 import { RoleEnum } from "src/enums";
-import { FacultyModel, RecruiterModel, StudentModel, UserModel } from "src/db/models";
+import { FacultyModel, RecruiterModel, StudentModel, TpcMemberModel, UserModel } from "src/db/models";
 import { IUser } from "src/auth/User";
 
 @Global()
@@ -15,12 +15,18 @@ export class UserService {
   async getUserByEmail(email: string): Promise<IUser> {
     const userModel = await this.userRepo.findOne({
       where: { email: email },
-      attributes: ["id"],
+      attributes: ["id", "role"],
       include: [
         {
           model: StudentModel,
           as: "student",
-          attributes: ["id"],
+          include: [
+            {
+              model: TpcMemberModel,
+              as: "tpcMember",
+              attributes: ["id"],
+            },
+          ],
         },
         {
           model: RecruiterModel,
@@ -43,6 +49,7 @@ export class UserService {
       studentId: userModel.student?.id,
       recruiterId: userModel.recruiter?.id,
       facultyId: userModel.faculty?.id,
+      tpcMemberId: userModel.student?.tpcMember?.id,
     };
 
     return ans;

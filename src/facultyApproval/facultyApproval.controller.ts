@@ -1,5 +1,5 @@
-import { Body, Controller, Delete, Param, ParseUUIDPipe, Patch, Post, Query, UseInterceptors } from "@nestjs/common";
-import { ApiBody, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Param, ParseUUIDPipe, Patch, Post, Query, UseGuards, UseInterceptors } from "@nestjs/common";
+import { ApiBearerAuth, ApiBody, ApiParam, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { FacultyApprovalService } from "./facultyApproval.service";
 import { DeleteValues, GetValues, PatchValues, PostValues } from "src/decorators/controller";
 import { FacultyApprovalsQueryDto } from "./dtos/query.dto";
@@ -11,12 +11,17 @@ import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
 import { UpdateFacultyApprovalsDto } from "./dtos/patch.dto";
 import { DeleteValuesDto } from "src/utils/utils.dto";
+import { AuthGuard } from "@nestjs/passport";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("faculty-approvals")
 @ApiTags("FacultyApproval")
+@ApiBearerAuth("jwt")
 export class FacultyApprovalController {
   constructor(private facultyApprovalService: FacultyApprovalService) {}
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
   @GetValues(FacultyApprovalsQueryDto, GetFacultyApprovalsDto)
   async getFacultyApprovals(@Query("q") where: FacultyApprovalsQueryDto) {
     const ans = await this.facultyApprovalService.getFacultyApprovals(where);
@@ -24,6 +29,7 @@ export class FacultyApprovalController {
     return pipeTransformArray(ans, GetFacultyApprovalsDto);
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @Post("/:salaryId")
   @ApiBody({ type: CreateFacultyApprovalsDto, isArray: true })
   @ApiParam({ name: "salaryId", type: String })
@@ -39,6 +45,7 @@ export class FacultyApprovalController {
     return ans;
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @PatchValues(UpdateFacultyApprovalsDto)
   @UseInterceptors(TransactionInterceptor)
   async updateFacultyApprovals(
@@ -53,6 +60,7 @@ export class FacultyApprovalController {
     return ans.flat();
   }
 
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @DeleteValues()
   async deleteFacultyApprovals(@Query() query: DeleteValuesDto, @TransactionParam() t: Transaction) {
     const ids = typeof query.id === "string" ? [query.id] : query.id;

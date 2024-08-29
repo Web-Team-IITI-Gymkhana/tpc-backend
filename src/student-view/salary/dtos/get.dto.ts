@@ -102,18 +102,43 @@ class UserDto {
   email: string;
 }
 
+class ProgramDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedString({})
+  branch: string;
+
+  @NestedString({})
+  course: string;
+
+  @NestedString({})
+  year: string;
+
+  @NestedEnum(DepartmentEnum, {})
+  department: DepartmentEnum;
+}
+
+class StudentDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedObject({ type: ProgramDto })
+  program: ProgramDto;
+
+  @NestedObject({ type: UserDto })
+  user: UserDto;
+}
+
 class TpcMemberDto {
   @NestedUUID({})
   id: string;
 
-  @NestedEnum(TpcMemberRoleEnum, {})
+  @NestedString({})
   role: TpcMemberRoleEnum;
 
-  @NestedEnum(DepartmentEnum, {})
-  department: DepartmentEnum;
-
-  @NestedObject({ type: UserDto })
-  user: UserDto;
+  @NestedObject({ type: StudentDto })
+  student: StudentDto;
 }
 
 class JobCoordinatorsDto {

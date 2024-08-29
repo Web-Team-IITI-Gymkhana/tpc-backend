@@ -12,10 +12,13 @@ import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { Transaction } from "sequelize";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { FacultyApprovalsQueryDto } from "./dto/query.dto";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("faculty-view")
 @UseGuards(AuthGuard("jwt"))
 @ApiTags("faculty-view")
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.FACULTY))
 @ApiBearerAuth("jwt")
 export class FacultyViewController {
   constructor(private readonly facultyViewService: FacultyViewService) {}
@@ -31,7 +34,7 @@ export class FacultyViewController {
   @Get("approvals")
   @ApiResponse({ type: FacultyApprovalRequestsDto, isArray: true })
   async getFacultyApprovals(@Query("q") where: FacultyApprovalsQueryDto, @User() user: IUser) {
-    const ans = await this.facultyViewService.getApprovals({ facultyId: user.facultyId });
+    const ans = await this.facultyViewService.getApprovals(user.facultyId);
 
     return pipeTransformArray(ans, FacultyApprovalRequestsDto);
   }
@@ -43,7 +46,7 @@ export class FacultyViewController {
 
   @Patch("faculty")
   @UseInterceptors(TransactionInterceptor)
-  async updateFaculty(@Body() faculty: UpdateFacultyDto, @TransactionParam() t: Transaction) {
-    return await this.facultyViewService.updateFaculty(faculty, t);
+  async updateFaculty(@Body() faculty: UpdateFacultyDto, @TransactionParam() t: Transaction, @User() user: IUser) {
+    return await this.facultyViewService.updateFaculty(faculty, t, user.facultyId);
   }
 }

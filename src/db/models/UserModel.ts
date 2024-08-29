@@ -4,6 +4,7 @@ import { RoleEnum } from "src/enums";
 import { StudentModel } from "./StudentModel";
 import { RecruiterModel } from "./RecruiterModel";
 import { FacultyModel } from "./FacultyModel";
+import { TpcMemberModel } from "./TpcMemberModel";
 
 @Table({
   tableName: "User",

@@ -1,4 +1,5 @@
 import {
+  Body,
   Controller,
   Get,
   NotFoundException,
@@ -15,7 +16,7 @@ import {
 import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { StudentService } from "./student.service";
 import { CreateFile, DeleteFiles, GetFile, GetValue } from "src/decorators/controller";
-import { GetStudentResumesDto, StudentViewDto } from "./dtos/get.dto";
+import { GetStudentEventsDto, GetStudentResumesDto, StudentViewDto } from "./dtos/get.dto";
 import { User } from "src/decorators/User";
 import { IUser } from "src/auth/User";
 import { pipeTransform, pipeTransformArray } from "src/utils/utils";
@@ -30,9 +31,15 @@ import { DeleteFilesDto } from "src/utils/utils.dto";
 import { Response } from "express";
 import { CreateStudentResumeDto } from "./dtos/post.dto";
 import { AuthGuard } from "@nestjs/passport";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
+import { GetJobDto, GetJobsDto } from "src/job/dtos/get.dto";
+import { JobsQueryDto } from "src/job/dtos/query.dto";
+import { EventsQueryDto } from "src/event/dtos/query.dto";
+import { GetEventsDto } from "src/event/dtos/get.dto";
 
 @Controller("student-view")
-@UseGuards(AuthGuard("jwt"))
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.STUDENT))
 @ApiTags("Student-View/Student")
 @ApiBearerAuth("jwt")
 export class StudentController {
@@ -51,6 +58,46 @@ export class StudentController {
     return pipeTransform(ans, StudentViewDto);
   }
 
+  @Get("opportunities")
+  @ApiResponse({ type: GetJobsDto, isArray: true })
+  async getOpportunities(@Query("q") where: JobsQueryDto, @User() user: IUser) {
+    const ans = await this.studentService.getOpportunities(user.studentId, where);
+
+    return pipeTransformArray(ans, GetJobsDto);
+  }
+
+  @Get("jobs")
+  @ApiResponse({ type: GetJobsDto, isArray: true })
+  async getJobs(@Query("q") where: JobsQueryDto, @User() user: IUser) {
+    const ans = await this.studentService.getJobs(user.studentId, where);
+
+    return pipeTransformArray(ans, GetJobsDto);
+  }
+
+  @Get("job/:id")
+  @ApiResponse({ type: GetJobDto })
+  async getJob(@Param("id", new ParseUUIDPipe()) id: string, @User() user: IUser) {
+    const ans = await this.studentService.getJob(user.studentId, id);
+
+    return pipeTransform(ans, GetJobDto);
+  }
+
+  @Get("events")
+  @ApiResponse({ type: GetEventsDto, isArray: true })
+  async getEvents(@Query("q") where: EventsQueryDto, @User() user: IUser) {
+    const ans = await this.studentService.getEvents(where, user.studentId);
+
+    return pipeTransformArray(ans, GetEventsDto);
+  }
+
+  @Get("events/:jobId")
+  @ApiResponse({ type: GetStudentEventsDto, isArray: true })
+  async getStudentEvents(@Param("jobId", new ParseUUIDPipe()) id: string, @User() user: IUser) {
+    const ans = await this.studentService.getStudentEvents(id, user.studentId);
+
+    return pipeTransformArray(ans, GetStudentEventsDto);
+  }
+
   @Get("resume")
   @ApiResponse({ type: GetStudentResumesDto, isArray: true })
   async getStudentResumes(@User() user: IUser) {
@@ -61,9 +108,14 @@ export class StudentController {
 
   @CreateFile(CreateStudentResumeDto, "resume")
   @UseInterceptors(TransactionInterceptor)
-  async createResume(@UploadedFile() file, @User() user: IUser, @TransactionParam() t: Transaction) {
+  async createResume(
+    @UploadedFile() file,
+    @User() user: IUser,
+    @Body("name") name: string,
+    @TransactionParam() t: Transaction
+  ) {
     const filepath = uuidv4() + ".pdf";
-    const ans = await this.studentService.addResume(user.studentId, filepath, t);
+    const ans = await this.studentService.addResume(user.studentId, filepath, name, t);
     await this.fileService.uploadFile(path.join(this.folderName, filepath), file);
 
     return ans;
@@ -94,8 +146,13 @@ export class StudentController {
   @ApiParam({ name: "seasonId", type: "string" })
   @ApiResponse({ type: String, isArray: true })
   async registerSeason(@Param("seasonId", new ParseUUIDPipe()) seasonId: string, @User() user: IUser) {
-    const ans = await this.studentService.registerSeason(user.studentId, seasonId);
+    return await this.studentService.registerSeason(user.studentId, seasonId);
+  }
 
-    return ans;
+  @Patch("/de-register/:seasonId")
+  @ApiParam({ name: "seasonId", type: "string" })
+  @ApiResponse({ type: String, isArray: true })
+  async deregisterSeason(@Param("seasonId", new ParseUUIDPipe()) seasonId: string, @User() user: IUser) {
+    return await this.studentService.deregisterSeason(user.studentId, seasonId);
   }
 }

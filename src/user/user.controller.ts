@@ -1,5 +1,5 @@
-import { Body, Controller, Query } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Query, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { UserService } from "./user.service";
 import { DeleteValues, GetValues, PatchValues, PostValues } from "src/decorators/controller";
 import { UsersQueryDto } from "./dtos/query.dto";
@@ -8,9 +8,14 @@ import { createArrayPipe, pipeTransformArray } from "src/utils/utils";
 import { CreateUsersDto } from "./dtos/post.dto";
 import { UpdateUsersDto } from "./dtos/patch.dto";
 import { DeleteValuesDto } from "src/utils/utils.dto";
+import { AuthGuard } from "@nestjs/passport";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("users")
 @ApiTags("User")
+@ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
 export class UserController {
   constructor(private userService: UserService) {}
 

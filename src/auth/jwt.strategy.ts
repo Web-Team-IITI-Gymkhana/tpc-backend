@@ -1,9 +1,8 @@
 import { Strategy } from "passport-jwt";
 import { PassportStrategy } from "@nestjs/passport";
-import { Inject, Injectable } from "@nestjs/common";
+import { Injectable } from "@nestjs/common";
 import { AuthService } from "src/auth/auth.service";
 import { IUser } from "src/auth/User";
-import { RoleEnum } from "src/enums";
 
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
@@ -19,6 +18,7 @@ export class JwtStrategy extends PassportStrategy(Strategy, "jwt") {
       facultyId: payload.facultyId,
       recruiterId: payload.recruiterId,
       studentId: payload.studentId,
+      tpcMemberId: payload.tpcMemberId,
     };
 
     return ans;

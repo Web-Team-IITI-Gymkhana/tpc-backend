@@ -7,4 +7,5 @@ export interface IUser {
   studentId?: string;
   recruiterId?: string;
   facultyId?: string;
+  tpcMemberId?: string;
 }

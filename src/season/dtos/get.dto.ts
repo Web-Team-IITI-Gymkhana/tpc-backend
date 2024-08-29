@@ -1,5 +1,6 @@
 import { NestedEnum, NestedString, NestedUUID } from "src/decorators/dto";
 import { SeasonTypeEnum } from "src/enums";
+import { SeasonStatusEnum } from "src/enums/SeasonStatus.enum";
 
 export class GetSeasonsDto {
   @NestedUUID({})
@@ -10,4 +11,7 @@ export class GetSeasonsDto {
 
   @NestedEnum(SeasonTypeEnum, {})
   type: SeasonTypeEnum;
+
+  @NestedEnum(SeasonStatusEnum, {})
+  status: SeasonStatusEnum;
 }

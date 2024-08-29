@@ -15,15 +15,18 @@ import { EventModel } from "./EventModel";
 import { StudentModel } from "./StudentModel";
 import { JobModel } from "./JobModel";
 import { ResumeModel } from "./ResumeModel";
-import { EmailService } from "src/services/EmailService";
+import { EmailService, getHtmlContent } from "src/services/EmailService";
 import { SendEmailDto } from "src/services/EmailService";
 import { UserModel } from "./UserModel";
 import { IEnvironmentVariables, env } from "src/config";
 import { NotFoundException } from "@nestjs/common";
 import { Op } from "sequelize";
+import { SalaryModel } from "./SalaryModel";
+import { CompanyModel } from "./CompanyModel";
+import path from "path";
 
 const environmentVariables: IEnvironmentVariables = env();
-const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO } = environmentVariables;
+const { MAIL_USER, APP_NAME, FRONTEND_URL, DEFAULT_MAIL_TO } = environmentVariables;
 
 interface IUpdateOptions {
   where: WhereOptions<ApplicationModel>;
@@ -115,12 +118,29 @@ export class ApplicationModel extends Model<ApplicationModel> {
       ],
     });
 
+    const job = await JobModel.findByPk(instance.jobId, {
+      include: [
+        {
+          model: CompanyModel,
+          as: "company",
+        },
+      ],
+    });
+
+    const templatePath = path.resolve(process.cwd(), "src/html", "ApplicationToStudent.html");
+    const replacements = {
+      studentName: student.user.name,
+      companyName: job.company.name,
+      role: job.role,
+    };
+    const emailHtmlContent = getHtmlContent(templatePath, replacements);
+
     const dto: SendEmailDto = {
       from: { name: APP_NAME, address: MAIL_USER },
       // recepients: [{ address: DEFAULT_MAIL_TO }],
       recepients: [{ address: `${student.user.email}` }],
-      subject: "Test email",
-      html: `<p>Dear ${student.user.name}, Your Application was submitted successfully</p>`,
+      subject: "Job Application Successfully Submitted",
+      html: emailHtmlContent,
     };
 
     await mailerService.sendEmail(dto);
@@ -128,6 +148,7 @@ export class ApplicationModel extends Model<ApplicationModel> {
 
   @BeforeBulkUpdate
   static async sendEmailOnEventChange(options: IUpdateOptions) {
+    if (options.attributes.eventId === undefined) return;
     const applications = await ApplicationModel.findAll({ where: options.where });
 
     const newEventId = options.attributes.eventId;
@@ -147,15 +168,57 @@ export class ApplicationModel extends Model<ApplicationModel> {
       ],
     });
 
+    const jobs = await JobModel.findAll({
+      where: {
+        id: filteredApplications.map((application) => application.jobId),
+      },
+      include: [
+        {
+          model: CompanyModel,
+          as: "company",
+        },
+      ],
+    });
+
+    const studentDict = students.reduce((acc, student) => {
+      acc[student.id] = student;
+
+      return acc;
+    }, {});
+
+    const jobDict = jobs.reduce((acc, job) => {
+      acc[job.id] = job;
+
+      return acc;
+    }, {});
+
+    const applicationarray = filteredApplications.map((application) => {
+      return {
+        ...application,
+        student: studentDict[application.studentId],
+        job: jobDict[application.jobId],
+      };
+    });
+
     const mailerService = new EmailService();
 
-    for (const student of students) {
+    const templatePath = path.resolve(process.cwd(), "src/html", "PromotionToStudent.html");
+
+    for (const application of applicationarray) {
+      const url = `${FRONTEND_URL}/student/job/${application.job.id}`;
+      const replacements = {
+        companyName: application.job.company.name,
+        studentName: application.student.user.name,
+        url: url,
+        role: application.job.role,
+      };
+      const emailHtmlContent = getHtmlContent(templatePath, replacements);
       const data: SendEmailDto = {
         from: { name: APP_NAME, address: MAIL_USER },
         // recepients: [{ address: DEFAULT_MAIL_TO }],
-        recepients: [{ address: student.user.email }],
-        subject: "Event Change Notification",
-        html: `Dear ${student.user.name},\nThe event associated with your application ID has been changed.`,
+        recepients: [{ address: application.student.user.email }],
+        subject: `Advancement to Next Round with ${application.job.company.name}`,
+        html: emailHtmlContent,
       };
 
       await mailerService.sendEmail(data);

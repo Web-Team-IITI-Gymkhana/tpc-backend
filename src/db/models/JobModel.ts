@@ -23,22 +23,33 @@ import { JobCoordinatorModel } from "./JobCoordinatorModel";
 import { FacultyApprovalRequestModel } from "./FacultyApprovalRequestModel";
 import { CategoryEnum, DepartmentEnum, GenderEnum, JobStatusTypeEnum } from "src/enums";
 import { ApplicationModel } from "./ApplicationModel";
-import { EmailService } from "src/services/EmailService";
+import { EmailService, getHtmlContent } from "src/services/EmailService";
 import { SendEmailDto } from "src/services/EmailService";
 import { StudentModel } from "./StudentModel";
 import { UserModel } from "./UserModel";
 import { IEnvironmentVariables, env } from "src/config";
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { RegistrationModel } from "./RegistrationModel";
+import path from "path";
+import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
+import { ProgramModel } from "./ProgramModel";
 
 const environmentVariables: IEnvironmentVariables = env();
-const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO } = environmentVariables;
+const { MAIL_USER, APP_NAME, FRONTEND_URL, DEFAULT_MAIL_TO } = environmentVariables;
 
 interface IUpdateOptions {
   where: WhereOptions<JobModel>;
   attributes: {
     active: boolean;
   };
+}
+
+interface IRecruiterDetails {
+  name: string;
+  email: string;
+}
+interface ICompanyDetails {
+  name: string;
 }
 
 @Table({
@@ -117,6 +128,13 @@ export class JobModel extends Model<JobModel> {
     defaultValue: JobStatusTypeEnum.INITIALIZED,
   })
   currentStatus: JobStatusTypeEnum;
+
+  @Column({
+    type: sequelize.ENUM(...Object.values(JobRegistrationEnum)),
+    allowNull: false,
+    defaultValue: JobRegistrationEnum.OPEN,
+  })
+  registration: JobRegistrationEnum;
 
   @Column({
     type: sequelize.JSONB,
@@ -219,22 +237,58 @@ export class JobModel extends Model<JobModel> {
       },
     });
 
-    const emails = admins.filter((admin) => admin.email);
+    const emails = admins.map((admin) => ({ address: admin.email }));
 
-    const dto: SendEmailDto = {
+    const url = `${FRONTEND_URL}/admin/jobs/${instance.id}`;
+
+    const adminPath = path.resolve(process.cwd(), "src/html", "JafToAdmin.html");
+    const adminReplacements = {
+      companyName: (instance.companyDetailsFilled as ICompanyDetails).name,
+      url: url,
+    };
+    const adminContent = getHtmlContent(adminPath, adminReplacements);
+
+    const recruiterPath = path.resolve(process.cwd(), "src/html", "JafToRecruiter.html");
+    const recruiterReplacements = {
+      recruiterName: (instance.recruiterDetailsFilled as IRecruiterDetails).name,
+    };
+    const recruiterContent = getHtmlContent(recruiterPath, recruiterReplacements);
+
+    const mailToAdmin: SendEmailDto = {
       from: { name: APP_NAME, address: MAIL_USER },
-      recepients: [emails],
+      recepients: [...emails],
       // recepients: [{ address: DEFAULT_MAIL_TO }],
-      subject: "Test email",
-      html: "<p>New job entry was created</p>",
+      subject: `Job Announcement Form Filled by ${(instance.companyDetailsFilled as ICompanyDetails).name}`,
+      html: adminContent,
+    };
+    const mailToRecruiter: SendEmailDto = {
+      from: { name: APP_NAME, address: MAIL_USER },
+      recepients: [{ address: (instance.recruiterDetailsFilled as IRecruiterDetails).email }],
+      // recepients: [{ address: DEFAULT_MAIL_TO }],
+      subject: "Job Announcement Form Successfully Submitted",
+      html: recruiterContent,
     };
 
-    await mailerService.sendEmail(dto);
+    await mailerService.sendEmail(mailToAdmin);
+    await mailerService.sendEmail(mailToRecruiter);
   }
 
   @BeforeBulkUpdate
   static async sendEmailOnEventChange(options: IUpdateOptions) {
-    const jobs = await JobModel.findAll({ where: options.where });
+    if (options.attributes.active === undefined) return;
+    const jobs = await JobModel.findAll({
+      where: options.where,
+      include: [
+        {
+          model: EventModel,
+          as: "events",
+        },
+        {
+          model: CompanyModel,
+          as: "company",
+        },
+      ],
+    });
 
     const newActive = options.attributes.active;
 
@@ -265,9 +319,25 @@ export class JobModel extends Model<JobModel> {
       ],
     });
 
+    const programIds = {};
+
+    await Promise.all(
+      salaries.map(async (salary) => {
+        const programs = await ProgramModel.findAll({
+          where: {
+            department: {
+              [Op.in]: salary.facultyApprovals,
+            },
+          },
+          attributes: ["id"],
+        });
+
+        programIds[salary.id] = programs.map((program) => program.id);
+      })
+    );
+
     const conditions = salaries.map((salary) => ({
       cpi: { [Op.gte]: salary.minCPI },
-      programId: { [Op.in]: salary.programs },
       category: { [Op.in]: salary.categories },
       gender: { [Op.in]: salary.genders },
       tenthMarks: { [Op.gte]: salary.tenthMarks },
@@ -276,6 +346,10 @@ export class JobModel extends Model<JobModel> {
         [Op.in]: sequelize.literal(
           `(SELECT "studentId" FROM "Registrations" WHERE "seasonId" = '${salary.job.season.id}' AND "registered" = true)`
         ),
+      },
+      programId: {
+        [Op.in]: salary.programs,
+        [Op.not]: programIds[salary.id],
       },
     }));
 
@@ -294,13 +368,34 @@ export class JobModel extends Model<JobModel> {
 
     const mailerService = new EmailService();
 
+    const url = `${FRONTEND_URL}/student/job/salary/${filteredJobs[0].id}`;
+    const templatePath = path.resolve(process.cwd(), "src/html", "PollForStudent.html");
+
+    const formattedEndDateTime = filteredJobs[0].events[0].endDateTime.toLocaleString("en-US", {
+      year: "numeric",
+      month: "long",
+      day: "numeric",
+      hour: "numeric",
+      minute: "numeric",
+      second: "numeric",
+      hour12: true,
+    });
+
     for (const student of students) {
+      const replacements = {
+        companyName: filteredJobs[0].company.name,
+        role: filteredJobs[0].role,
+        studentName: student.user.name,
+        deadline: formattedEndDateTime,
+        url: url,
+      };
+      const emailHtmlContent = getHtmlContent(templatePath, replacements);
       const data: SendEmailDto = {
         from: { name: APP_NAME, address: MAIL_USER },
         // recepients: [{ address: DEFAULT_MAIL_TO }],
         recepients: [{ address: student.user.email }],
-        subject: "Status Change Notification",
-        html: `Dear ${student.user.name},\nThe Status of job has been changed.`,
+        subject: `IMP: POLL for ${filteredJobs[0].company.name} - ${filteredJobs[0].role}`,
+        html: emailHtmlContent,
       };
 
       await mailerService.sendEmail(data);

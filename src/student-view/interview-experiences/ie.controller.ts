@@ -5,12 +5,14 @@ import {
   Delete,
   Param,
   Query,
+  Res,
   StreamableFile,
   UploadedFile,
   UseGuards,
   UseInterceptors,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
+import { Response } from "express";
 import { InterviewExperienceService } from "./ie.service";
 import { FileService } from "src/services/FileService";
 import { CreateFile, GetFile, GetValues } from "src/decorators/controller";
@@ -27,9 +29,11 @@ import { v4 as uuidv4 } from "uuid";
 import { User } from "src/decorators/User";
 import { IUser } from "src/auth/User";
 import { AuthGuard } from "@nestjs/passport";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("student-view/interview-experiences")
-@UseGuards(AuthGuard("jwt"))
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.STUDENT))
 @ApiTags("Student-View/Interview Experience") // Allow all admin, student to access and edits for students.
 @ApiBearerAuth("jwt")
 export class InterviewExperienceController {
@@ -48,9 +52,10 @@ export class InterviewExperienceController {
   }
 
   @GetFile(["application/pdf"], "")
-  async getInterviewExperienceFile(@Param("filename") filename: string) {
+  async getInterviewExperienceFile(@Param("filename") filename: string, @Res({ passthrough: true }) res: Response) {
     const filepath = path.join(this.folder, filename);
     const file = this.fileService.getFile(filepath);
+    res.setHeader("Content-Type", "application/pdf");
 
     return new StreamableFile(file);
   }

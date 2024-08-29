@@ -19,18 +19,43 @@ class FilterUserDto {
   contact?: MatchOptionsString;
 }
 
+class FilterProgramDto {
+  @NestedObject({ type: MatchOptionsUUID, optional: true })
+  id: MatchOptionsUUID;
+
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  branch: MatchOptionsString;
+
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  course: MatchOptionsString;
+
+  @NestedObject({ type: MatchOptionsString, optional: true })
+  year: MatchOptionsString;
+
+  @NestedObject({ type: departmentEnum, optional: true })
+  department: typeof departmentEnum;
+}
+
+class FilterStudentsDto {
+  @NestedObject({ type: MatchOptionsUUID, optional: true })
+  id?: MatchOptionsUUID;
+
+  @NestedObject({ type: FilterProgramDto, optional: true })
+  program?: FilterProgramDto;
+
+  @NestedObject({ type: FilterUserDto, optional: true })
+  user?: FilterUserDto;
+}
+
 class FilterTpcMembersDto {
   @NestedObject({ type: MatchOptionsUUID, optional: true })
   id?: MatchOptionsUUID;
 
-  @NestedObject({ type: departmentEnum, optional: true })
-  department?: typeof departmentEnum;
-
   @NestedObject({ type: tpcMemberRoleEnum, optional: true })
   role?: typeof tpcMemberRoleEnum;
 
-  @NestedObject({ type: FilterUserDto, optional: true })
-  user?: FilterUserDto;
+  @NestedObject({ type: FilterStudentsDto, optional: true })
+  student?: FilterStudentsDto;
 }
 
 class OrderUserDto {
@@ -47,6 +72,34 @@ class OrderUserDto {
   contact?: OrderByEnum;
 }
 
+class OrderProgramDto {
+  @NestedEnum(OrderByEnum, { optional: true })
+  id?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  branch?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  course?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  year?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  department?: OrderByEnum;
+}
+
+class OrderStudentsDto {
+  @NestedEnum(OrderByEnum, { optional: true })
+  id?: OrderByEnum;
+
+  @NestedObject({ type: OrderProgramDto, optional: true })
+  program?: OrderProgramDto;
+
+  @NestedObject({ type: OrderUserDto, optional: true })
+  user?: OrderUserDto;
+}
+
 class OrderTpcMembersDto {
   @NestedEnum(OrderByEnum, { optional: true })
   id?: OrderByEnum;
@@ -57,8 +110,8 @@ class OrderTpcMembersDto {
   @NestedEnum(OrderByEnum, { optional: true })
   role?: OrderByEnum;
 
-  @NestedObject({ type: OrderUserDto, optional: true })
-  user?: OrderUserDto;
+  @NestedObject({ type: OrderStudentsDto, optional: true })
+  student?: OrderStudentsDto;
 }
 
 export class TpcMembersQueryDto {

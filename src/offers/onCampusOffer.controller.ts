@@ -1,5 +1,5 @@
-import { Body, Controller, Query, UseInterceptors } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { Body, Controller, Get, Param, Query, UseGuards } from "@nestjs/common";
+import { ApiBearerAuth, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { OfferService } from "./offer.service";
 import { DeleteValues, GetValues, PatchValues, PostValues } from "src/decorators/controller";
 import { OnCampusOffersQueryDto } from "./dtos/query.dto";
@@ -8,10 +8,15 @@ import { createArrayPipe, pipeTransformArray } from "src/utils/utils";
 import { CreateOnCampusOffersDto } from "./dtos/post.dto";
 import { UpdateOnCampusOffersDto } from "./dtos/patch.dto";
 import { DeleteValuesDto } from "src/utils/utils.dto";
-import { QueryInterceptor } from "src/interceptor/QueryInterceptor";
+import { AuthGuard } from "@nestjs/passport";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
+import { GetStudentSalariesDto } from "src/student-view/salary/dtos/get.dto";
 
 @Controller("on-campus-offers")
 @ApiTags("Offer")
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
+@ApiBearerAuth("jwt")
 export class OnCampusOfferController {
   constructor(private offerService: OfferService) {}
 
@@ -27,6 +32,14 @@ export class OnCampusOfferController {
     const ans = await this.offerService.createOnCampusOffers(offers);
 
     return ans;
+  }
+
+  @Get("salaries/:jobId/student/:studentId")
+  @ApiResponse({ type: GetStudentSalariesDto })
+  async getSalaries(@Param("jobId") jobId: string, @Param("studentId") studentId: string) {
+    const ans = await this.offerService.getSalaries(jobId, studentId);
+
+    return pipeTransformArray(ans, GetStudentSalariesDto);
   }
 
   @PatchValues(UpdateOnCampusOffersDto)

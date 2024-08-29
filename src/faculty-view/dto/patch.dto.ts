@@ -5,6 +5,9 @@ export class UpdateFacultyApprovalStatusDto {
   @NestedUUID({})
   id: string;
 
+  @NestedString({ optional: true })
+  remarks?: string;
+
   @NestedEnum(FacultyApprovalStatusEnum, {})
   status: FacultyApprovalStatusEnum;
 }
@@ -21,9 +24,6 @@ class UpdateUserDto {
 }
 
 export class UpdateFacultyDto {
-  @NestedUUID({})
-  id: string;
-
   @NestedObject({ type: UpdateUserDto, optional: true })
   user?: UpdateUserDto;
 }

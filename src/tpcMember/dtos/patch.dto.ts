@@ -6,11 +6,8 @@ export class UpdateTpcMembersDto {
   id: string;
 
   @NestedUUID({ optional: true })
-  userId?: string;
+  studentId?: string;
 
   @NestedEnum(TpcMemberRoleEnum, { optional: true })
   role?: TpcMemberRoleEnum;
-
-  @NestedEnum(DepartmentEnum, { optional: true })
-  department?: DepartmentEnum;
 }

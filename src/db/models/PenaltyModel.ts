@@ -1,7 +1,14 @@
-import { Table, Column, Model, ForeignKey, BelongsTo } from "sequelize-typescript";
+import { Table, Column, Model, ForeignKey, BelongsTo, AfterBulkCreate } from "sequelize-typescript";
 import sequelize from "sequelize";
 
 import { StudentModel } from "./StudentModel";
+import { EmailService, getHtmlContent, SendEmailDto } from "src/services/EmailService";
+import { UserModel } from "./UserModel";
+import path from "path";
+import { env, IEnvironmentVariables } from "src/config";
+
+const environmentVariables: IEnvironmentVariables = env();
+const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO } = environmentVariables;
 
 @Table({
   tableName: "Penalty",
@@ -36,4 +43,56 @@ export class PenaltyModel extends Model<PenaltyModel> {
     allowNull: false,
   })
   reason: string;
+
+  @AfterBulkCreate
+  static async sendEmailHook(instance: PenaltyModel[]) {
+    const mailerService = new EmailService();
+    const students = await StudentModel.findAll({
+      where: {
+        id: instance.map((penalty) => penalty.studentId),
+      },
+      include: [
+        {
+          model: UserModel,
+          as: "user",
+        },
+      ],
+    });
+
+    const studentDict = students.reduce((acc, student) => {
+      acc[student.id] = student;
+
+      return acc;
+    }, {});
+
+    const penalties = instance.map((penalty) => {
+      const penaltyData = penalty.dataValues;
+
+      return {
+        ...penaltyData,
+        student: studentDict[penaltyData.studentId],
+      };
+    });
+
+    const templatePath = path.resolve(process.cwd(), "./src/html", "PenaltyToStudent.html");
+
+    for (const penaltyItem of penalties) {
+      const amount = penaltyItem.penalty.toString();
+      const replacements = {
+        studentName: penaltyItem.student.user.name,
+        reason: penaltyItem.reason,
+        amount: amount,
+      };
+      const emailHtmlContent = getHtmlContent(templatePath, replacements);
+      const data: SendEmailDto = {
+        from: { name: APP_NAME, address: MAIL_USER },
+        // recepients: [{ address: DEFAULT_MAIL_TO }],
+        recepients: [{ address: penaltyItem.student.user.email }],
+        subject: `Penalty Imposed Due to ${penaltyItem.reason}`,
+        html: emailHtmlContent,
+      };
+
+      await mailerService.sendEmail(data);
+    }
+  }
 }

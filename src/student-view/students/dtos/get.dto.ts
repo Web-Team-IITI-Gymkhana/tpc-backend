@@ -1,5 +1,6 @@
 import {
   NestedBoolean,
+  NestedDate,
   NestedEmail,
   NestedEnum,
   NestedNumber,
@@ -7,7 +8,7 @@ import {
   NestedString,
   NestedUUID,
 } from "src/decorators/dto";
-import { CategoryEnum, DepartmentEnum, GenderEnum, SeasonTypeEnum } from "src/enums";
+import { CategoryEnum, DepartmentEnum, EventTypeEnum, GenderEnum, SeasonTypeEnum } from "src/enums";
 
 class UserDto {
   @NestedUUID({})
@@ -21,6 +22,29 @@ class UserDto {
 
   @NestedEmail({})
   email: string;
+}
+
+export class GetStudentEventsDto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedNumber({})
+  roundNumber: number;
+
+  @NestedEnum(EventTypeEnum, {})
+  type: EventTypeEnum;
+
+  @NestedString({ optional: true })
+  metadata?: string;
+
+  @NestedDate({})
+  startDateTime: Date;
+
+  @NestedDate({})
+  endDateTime: Date;
+
+  @NestedString({ optional: true })
+  studentStatus?: string;
 }
 
 class ProgramDto {
@@ -114,6 +138,9 @@ export class GetStudentResumesDto {
 
   @NestedString({})
   filepath: string;
+
+  @NestedString({})
+  name: string;
 
   @NestedBoolean({})
   verified: boolean;
