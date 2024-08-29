@@ -276,6 +276,7 @@ export class JobModel extends Model<JobModel> {
   @BeforeBulkUpdate
   static async sendEmailOnEventChange(options: IUpdateOptions) {
     if (options.attributes.active === undefined) return;
+    if (options.attributes.active === false) return;
     const jobs = await JobModel.findAll({
       where: options.where,
       include: [
