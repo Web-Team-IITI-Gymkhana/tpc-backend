@@ -12,6 +12,7 @@ import {
   Res,
   NotFoundException,
   StreamableFile,
+  BadRequestException,
 } from "@nestjs/common";
 import { RecruiterViewService } from "./recruiter-view.service";
 import { AuthGuard } from "@nestjs/passport";
@@ -29,10 +30,12 @@ import { UpdateJobDto, UpdateRecruiterDto, UpdateSalariesDto } from "./dto/patch
 import { RoleGuard } from "src/auth/roleGaurd";
 import { RoleEnum } from "src/enums";
 import { GetFile } from "src/decorators/controller";
-import { RESUME_FOLDER } from "src/constants";
+import { JD_FOLDER, JD_SIZE_LIMIT, RESUME_FOLDER } from "src/constants";
 import { Response } from "express";
 import { FileService } from "src/services/FileService";
 import path from "path";
+import { v4 as uuidv4 } from "uuid";
+import { GetJafValuesDto, JafDto } from "src/job/dtos/jaf.dto";
 
 @Controller("recruiter-view")
 @ApiTags("recruiter-view")
@@ -40,6 +43,7 @@ import path from "path";
 @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.RECRUITER))
 export class RecruiterViewController {
   folderName = RESUME_FOLDER;
+  jdfoldername = JD_FOLDER;
 
   constructor(
     private readonly recruiterViewService: RecruiterViewService,
@@ -102,5 +106,38 @@ export class RecruiterViewController {
   @UseInterceptors(TransactionInterceptor)
   async updateFaculty(@Body() recruiter: UpdateRecruiterDto, @TransactionParam() t: Transaction, @User() user: IUser) {
     return await this.recruiterViewService.updateRecruiter(recruiter, user.recruiterId, t);
+  }
+
+  @Get("jaf")
+  @ApiResponse({ type: GetJafValuesDto })
+  async getJafDetails() {
+    const ans = await this.recruiterViewService.getJafDetails();
+    // console.log(ans);
+
+    return pipeTransform(ans, GetJafValuesDto);
+  }
+
+  @Post("jaf")
+  @ApiResponse({ type: String })
+  @UseInterceptors(TransactionInterceptor)
+  async createJaf(@Body() jaf: JafDto, @TransactionParam() t: Transaction, @User() user: IUser) {
+    const file = jaf.job.attachment ? { buffer: Buffer.from(jaf.job.attachment, "base64"), size: 0 } : undefined;
+    if (file) {
+      file.size = file.buffer.length;
+      const magic = file.buffer.subarray(0, 4).toString("ascii");
+      if (magic !== "%PDF") throw new BadRequestException("Only PDF is supported");
+      if (file.size > JD_SIZE_LIMIT) throw new BadRequestException("File size too large");
+      const filename = uuidv4() + ".pdf";
+      jaf.job.attachment = filename;
+
+      const ans = await this.recruiterViewService.createJaf(jaf.job, jaf.salaries, t, user.recruiterId);
+      await this.fileService.uploadFile(path.join(this.jdfoldername, filename), file);
+
+      return ans;
+    }
+
+    const ans = await this.recruiterViewService.createJaf(jaf.job, jaf.salaries, t, user.recruiterId);
+
+    return ans;
   }
 }

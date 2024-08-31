@@ -18,7 +18,7 @@ import {
   TpcMemberRoleEnum,
   JobCoordinatorRoleEnum,
 } from "src/enums";
-import { CompanyFilledDto, RecruiterFilledDto, SelectionProcedureDto } from "./jaf.dto";
+import { RecruiterFilledDto, SelectionProcedureDto } from "./jaf.dto";
 
 class SeasonDto {
   @NestedUUID({})
@@ -70,9 +70,6 @@ export class GetJobsDto {
 
   @NestedString({})
   role: string;
-
-  @NestedObject({ type: CompanyFilledDto })
-  companyDetailsFilled: CompanyFilledDto;
 
   @NestedObject({ type: RecruiterFilledDto })
   recruiterDetailsFilled: RecruiterFilledDto;
@@ -223,9 +220,6 @@ class SalariesDto {
 }
 
 export class GetJobDto extends GetJobsDto {
-  @NestedObject({ type: CompanyFilledDto })
-  companyDetailsFilled: CompanyFilledDto;
-
   @NestedObject({ type: RecruiterFilledDto })
   recruiterDetailsFilled: RecruiterFilledDto;
 

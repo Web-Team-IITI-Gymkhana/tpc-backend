@@ -40,35 +40,6 @@ export class AddressDto {
   country: CountriesEnum;
 }
 
-export class CompanyFilledDto {
-  @NestedString({})
-  name: string;
-
-  @NestedEnum(CompanyCategoryEnum, {})
-  category: CompanyCategoryEnum;
-
-  @NestedString({})
-  yearOfEstablishment: string;
-
-  @NestedUrl({ optional: true })
-  website?: string;
-
-  @NestedNumber({ optional: true })
-  size?: number;
-
-  @NestedString({ optional: true })
-  annualTurnover?: string;
-
-  @NestedUrl({ optional: true })
-  socialMediaLink?: string;
-
-  @NestedEnum(IndustryDomainEnum, { isArray: true })
-  domains: IndustryDomainEnum[];
-
-  @NestedObject({ type: AddressDto })
-  address: AddressDto;
-}
-
 export class RecruiterFilledDto {
   @NestedString({})
   name: string;
@@ -189,9 +160,6 @@ class JobDto {
 
   @NestedString({ optional: true })
   others?: string;
-
-  @NestedObject({ type: CompanyFilledDto })
-  companyDetailsFilled: CompanyFilledDto;
 
   @NestedObject({ type: RecruiterFilledDto })
   recruiterDetailsFilled: RecruiterFilledDto;
