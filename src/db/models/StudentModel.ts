@@ -65,9 +65,10 @@ export class StudentModel extends Model<StudentModel> {
 
   @Column({
     type: sequelize.ENUM(...Object.values(BacklogEnum)),
-    allowNull: false,
+    allowNull: true,
+    defaultValue: BacklogEnum.NEVER,
   })
-  backlog: BacklogEnum;
+  backlog?: BacklogEnum;
 
   @Column({
     type: sequelize.FLOAT,
