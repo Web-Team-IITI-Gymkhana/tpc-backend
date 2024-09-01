@@ -11,7 +11,7 @@ import { IEnvironmentVariables, env } from "src/config";
 import { NotFoundException } from "@nestjs/common";
 
 const environmentVariables: IEnvironmentVariables = env();
-const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO } = environmentVariables;
+const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO, SEND_MAIL } = environmentVariables;
 
 @Table({
   tableName: "OffCampusOffer",
@@ -93,6 +93,7 @@ export class OffCampusOfferModel extends Model<OffCampusOfferModel> {
 
   @AfterBulkCreate
   static async sendEmailHook(instance: OffCampusOfferModel[]) {
+    if (SEND_MAIL == "FALSE") return;
     const mailerService = new EmailService();
 
     const students = await StudentModel.findAll({

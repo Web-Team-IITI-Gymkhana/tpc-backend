@@ -26,7 +26,7 @@ import { CompanyModel } from "./CompanyModel";
 import path from "path";
 
 const environmentVariables: IEnvironmentVariables = env();
-const { MAIL_USER, APP_NAME, FRONTEND_URL, DEFAULT_MAIL_TO } = environmentVariables;
+const { MAIL_USER, APP_NAME, FRONTEND_URL, DEFAULT_MAIL_TO, SEND_MAIL } = environmentVariables;
 
 interface IUpdateOptions {
   where: WhereOptions<ApplicationModel>;
@@ -107,6 +107,7 @@ export class ApplicationModel extends Model<ApplicationModel> {
 
   @AfterCreate
   static async sendEmailHook(instance: ApplicationModel) {
+    if (SEND_MAIL == "FALSE") return;
     const mailerService = new EmailService();
 
     const student = await StudentModel.findByPk(instance.studentId, {
@@ -148,6 +149,7 @@ export class ApplicationModel extends Model<ApplicationModel> {
 
   @BeforeBulkUpdate
   static async sendEmailOnEventChange(options: IUpdateOptions) {
+    if (SEND_MAIL == "FALSE") return;
     if (options.attributes.eventId === undefined) return;
     const applications = await ApplicationModel.findAll({ where: options.where });
 
