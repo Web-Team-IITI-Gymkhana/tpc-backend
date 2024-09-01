@@ -160,58 +160,58 @@ class SalaryDto {
   twelthMarks?: number;
 
   // PLACEMENT
-  @NestedNumber({})
+  @NestedNumber({ optional: true })
   baseSalary: number;
 
-  @NestedNumber({})
+  @NestedNumber({ optional: true })
   totalCTC: number;
 
-  @NestedNumber({})
+  @NestedNumber({ optional: true })
   takeHomeSalary: number;
 
-  @NestedNumber({})
+  @NestedNumber({ optional: true })
   grossSalary: number;
 
-  @NestedNumber({})
+  @NestedNumber({ optional: true })
   joiningBonus?: number;
 
-  @NestedNumber({})
+  @NestedNumber({ optional: true })
   performanceBonus?: number;
 
-  @NestedNumber({})
+  @NestedNumber({ optional: true })
   relocation?: number;
 
-  @NestedNumber({})
+  @NestedNumber({ optional: true })
   bondAmount?: number;
 
-  @NestedNumber({})
+  @NestedNumber({ optional: true })
   esopAmount?: number;
 
   @NestedString({ optional: true })
   esopVestPeriod?: string;
 
-  @NestedNumber({})
+  @NestedNumber({ optional: true })
   firstYearCTC?: number;
 
-  @NestedNumber({})
+  @NestedNumber({ optional: true })
   retentionBonus?: number;
 
-  @NestedNumber({})
+  @NestedNumber({ optional: true })
   deductions?: number;
 
-  @NestedNumber({})
+  @NestedNumber({ optional: true })
   medicalAllowance?: number;
 
   @NestedString({ optional: true })
   bondDuration?: string;
 
-  @NestedNumber({})
+  @NestedNumber({ optional: true })
   foreignCurrencyCTC?: number;
 
   @NestedString({ optional: true })
   foreignCurrencyCode?: string;
 
-  @NestedNumber({})
+  @NestedNumber({ optional: true })
   otherCompensations: number;
 
   @NestedString({ optional: true })

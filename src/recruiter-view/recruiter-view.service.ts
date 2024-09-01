@@ -324,8 +324,8 @@ export class RecruiterViewService {
       ],
     });
 
-    jaf.companyId = recruiter.id;
-    jaf.recruiterId = recruiter.company.id;
+    jaf.recruiterId = recruiter.id;
+    jaf.companyId = recruiter.company.id;
 
     const ans = await this.jobRepo.create(jaf, {
       transaction: t,
