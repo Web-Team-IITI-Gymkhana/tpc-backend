@@ -111,7 +111,7 @@ export class SalaryModel extends Model<SalaryModel> {
     allowNull: true,
     defaultValue: "USD",
   })
-  foreignCurrencyCode: string;
+  foreignCurrencyCode?: string;
 
   @Column({
     type: sequelize.INTEGER,
@@ -135,13 +135,13 @@ export class SalaryModel extends Model<SalaryModel> {
     type: sequelize.INTEGER,
     allowNull: true,
   })
-  joiningBonus: number;
+  joiningBonus?: number;
 
   @Column({
     type: sequelize.INTEGER,
     allowNull: true,
   })
-  performanceBonus: number;
+  performanceBonus?: number;
 
   @Column({
     type: sequelize.INTEGER,
@@ -233,7 +233,7 @@ export class SalaryModel extends Model<SalaryModel> {
     type: sequelize.DATE,
     allowNull: true,
   })
-  PPOConfirmationDate?: number;
+  PPOConfirmationDate?: Date;
 
   @HasMany(() => FacultyApprovalRequestModel, {
     foreignKey: "salaryId",

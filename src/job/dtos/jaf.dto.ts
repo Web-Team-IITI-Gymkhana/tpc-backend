@@ -21,6 +21,7 @@ import {
   InterviewTypesEnum,
   SelectionModeEnum,
   TestTypesEnum,
+  BacklogEnum,
 } from "src/enums";
 
 export class AddressDto {
@@ -137,6 +138,28 @@ export class SelectionProcedureDto {
 }
 
 class SalaryDto {
+  @NestedEnum(GenderEnum, { isArray: true, optional: true })
+  genders?: GenderEnum[];
+
+  @NestedUUID({ isArray: true, optional: true })
+  programs?: string[];
+
+  @NestedEnum(CategoryEnum, { isArray: true, optional: true })
+  categories?: CategoryEnum[];
+
+  @NestedEnum(BacklogEnum, { isArray: true, optional: true })
+  isBacklogAllowed?: BacklogEnum;
+
+  @NestedNumber({ optional: true })
+  minCPI?: number;
+
+  @NestedNumber({ optional: true })
+  tenthMarks?: number;
+
+  @NestedNumber({ optional: true })
+  twelthMarks?: number;
+
+  // PLACEMENT
   @NestedNumber({})
   baseSalary: number;
 
@@ -150,6 +173,45 @@ class SalaryDto {
   grossSalary: number;
 
   @NestedNumber({})
+  joiningBonus?: number;
+
+  @NestedNumber({})
+  performanceBonus?: number;
+
+  @NestedNumber({})
+  relocation?: number;
+
+  @NestedNumber({})
+  bondAmount?: number;
+
+  @NestedNumber({})
+  esopAmount?: number;
+
+  @NestedString({ optional: true })
+  esopVestPeriod?: string;
+
+  @NestedNumber({})
+  firstYearCTC?: number;
+
+  @NestedNumber({})
+  retentionBonus?: number;
+
+  @NestedNumber({})
+  deductions?: number;
+
+  @NestedNumber({})
+  medicalAllowance?: number;
+
+  @NestedString({ optional: true })
+  bondDuration?: string;
+
+  @NestedNumber({})
+  foreignCurrencyCTC?: number;
+
+  @NestedString({ optional: true })
+  foreignCurrencyCode?: string;
+
+  @NestedNumber({})
   otherCompensations: number;
 
   @NestedString({ optional: true })
@@ -158,23 +220,22 @@ class SalaryDto {
   @NestedString({ optional: true })
   others?: string;
 
-  @NestedEnum(GenderEnum, { isArray: true, optional: true })
-  genders?: GenderEnum[];
-
-  @NestedUUID({ isArray: true, optional: true })
-  programs?: string[];
-
-  @NestedEnum(CategoryEnum, { isArray: true, optional: true })
-  categories?: CategoryEnum[];
+  //INTERNSHIP
 
   @NestedNumber({ optional: true })
-  minCPI?: number;
+  stipend?: number;
 
   @NestedNumber({ optional: true })
-  tenthMarks?: number;
+  foreignCurrencyStipend?: number;
 
   @NestedNumber({ optional: true })
-  twelthMarks?: number;
+  accommodation?: number;
+
+  @NestedNumber({ optional: true })
+  tentativeCTC?: number;
+
+  @NestedDate({ optional: true })
+  PPOConfirmationDate?: Date;
 }
 
 class JobDto {
@@ -209,7 +270,10 @@ class JobDto {
   location: string;
 
   @NestedNumber({ optional: true })
-  noOfVacancies?: number;
+  minNoOfHires?: number;
+
+  @NestedNumber({ optional: true })
+  expectedNoOfHires?: number;
 
   @NestedDate({ optional: true })
   offerLetterReleaseDate?: Date;
