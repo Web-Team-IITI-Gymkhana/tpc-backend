@@ -147,7 +147,7 @@ class SalaryDto {
   @NestedEnum(CategoryEnum, { isArray: true, optional: true })
   categories?: CategoryEnum[];
 
-  @NestedEnum(BacklogEnum, { isArray: true, optional: true })
+  @NestedEnum(BacklogEnum, { optional: true })
   isBacklogAllowed?: BacklogEnum;
 
   @NestedNumber({ optional: true })
