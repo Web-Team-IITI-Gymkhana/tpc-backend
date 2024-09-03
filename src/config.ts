@@ -19,6 +19,7 @@ export interface IEnvironmentVariables {
   MAIL_USER: string;
   MAIL_PASSWORD: string;
   DEFAULT_MAIL_TO: string;
+  SEND_MAIL: string;
   APP_NAME: string;
 }
 
@@ -43,6 +44,7 @@ export function env(): IEnvironmentVariables {
     MAIL_USER: process.env.MAIL_USER,
     MAIL_PASSWORD: process.env.MAIL_PASSWORD,
     DEFAULT_MAIL_TO: process.env.DEFAULT_MAIL_TO,
+    SEND_MAIL: process.env.SEND_MAIL,
     APP_NAME: process.env.APP_NAME,
   };
 

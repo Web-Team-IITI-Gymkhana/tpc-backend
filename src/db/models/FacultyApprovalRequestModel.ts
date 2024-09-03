@@ -13,7 +13,7 @@ import { CompanyModel } from "./CompanyModel";
 import path from "path";
 
 const environmentVariables: IEnvironmentVariables = env();
-const { MAIL_USER, APP_NAME, FRONTEND_URL, DEFAULT_MAIL_TO } = environmentVariables;
+const { MAIL_USER, APP_NAME, FRONTEND_URL, DEFAULT_MAIL_TO, SEND_MAIL } = environmentVariables;
 
 @Table({
   tableName: "FacultyApprovalRequest",
@@ -65,6 +65,7 @@ export class FacultyApprovalRequestModel extends Model<FacultyApprovalRequestMod
 
   @AfterBulkCreate
   static async sendEmailHook(instance: FacultyApprovalRequestModel[]) {
+    if (SEND_MAIL == "FALSE") return;
     const mailerService = new EmailService();
 
     const faculties = await FacultyModel.findAll({
