@@ -35,7 +35,7 @@ import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
 import { ProgramModel } from "./ProgramModel";
 
 const environmentVariables: IEnvironmentVariables = env();
-const { MAIL_USER, APP_NAME, FRONTEND_URL, DEFAULT_MAIL_TO } = environmentVariables;
+const { MAIL_USER, APP_NAME, FRONTEND_URL, DEFAULT_MAIL_TO, SEND_MAIL } = environmentVariables;
 
 interface IUpdateOptions {
   where: WhereOptions<JobModel>;
@@ -229,6 +229,7 @@ export class JobModel extends Model<JobModel> {
 
   @AfterCreate
   static async sendEmailHook(instance: JobModel) {
+    if (SEND_MAIL == "FALSE") return;
     const mailerService = new EmailService();
 
     const admins = await UserModel.findAll({
@@ -275,6 +276,7 @@ export class JobModel extends Model<JobModel> {
 
   @BeforeBulkUpdate
   static async sendEmailOnEventChange(options: IUpdateOptions) {
+    if (SEND_MAIL == "FALSE") return;
     if (options.attributes.active === undefined) return;
     if (options.attributes.active === false) return;
     const jobs = await JobModel.findAll({

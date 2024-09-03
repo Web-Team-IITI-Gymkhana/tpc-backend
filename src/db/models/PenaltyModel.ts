@@ -8,7 +8,7 @@ import path from "path";
 import { env, IEnvironmentVariables } from "src/config";
 
 const environmentVariables: IEnvironmentVariables = env();
-const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO } = environmentVariables;
+const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO, SEND_MAIL } = environmentVariables;
 
 @Table({
   tableName: "Penalty",
@@ -46,6 +46,7 @@ export class PenaltyModel extends Model<PenaltyModel> {
 
   @AfterBulkCreate
   static async sendEmailHook(instance: PenaltyModel[]) {
+    if (SEND_MAIL == "FALSE") return;
     const mailerService = new EmailService();
     const students = await StudentModel.findAll({
       where: {
