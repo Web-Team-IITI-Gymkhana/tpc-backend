@@ -72,9 +72,6 @@ export class GetJobsDto {
   @NestedString({})
   role: string;
 
-  @NestedObject({ type: CompanyFilledDto })
-  companyDetailsFilled: CompanyFilledDto;
-
   @NestedObject({ type: RecruiterFilledDto })
   recruiterDetailsFilled: RecruiterFilledDto;
 
@@ -99,8 +96,8 @@ export class GetJobsDto {
   @NestedObject({ type: SeasonDto })
   season: SeasonDto;
 
-  @NestedObject({ type: CompanyDto })
-  company: CompanyDto;
+  @NestedObject({ type: CompanyFilledDto })
+  company: CompanyFilledDto;
 
   @NestedObject({ type: RecruiterDto })
   recruiter: RecruiterDto;
