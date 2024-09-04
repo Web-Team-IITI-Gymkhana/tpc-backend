@@ -82,7 +82,10 @@ export class GetJobsDto {
   currentStatus: JobStatusTypeEnum;
 
   @NestedNumber({ optional: true })
-  noOfVacancies?: number;
+  minNoOfHires?: number;
+
+  @NestedNumber({ optional: true })
+  expectedNoOfHires?: number;
 
   @NestedNumber({ optional: true })
   duration?: number;
