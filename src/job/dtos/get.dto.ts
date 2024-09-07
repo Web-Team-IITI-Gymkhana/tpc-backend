@@ -176,29 +176,12 @@ class EventsDto {
   visibleToRecruiter: boolean;
 }
 
-class ProgramsDto {
-  @NestedUUID({})
-  id: string;
-
-  @NestedString({})
-  branch: string;
-
-  @NestedString({})
-  course: string;
-
-  @NestedString({})
-  year: string;
-
-  @NestedEnum(DepartmentEnum, {})
-  department: string;
-}
-
 class SalariesDto {
   @NestedUUID({})
   id: string;
 
-  @NestedObject({ type: ProgramsDto, isArray: true })
-  programs?: ProgramsDto[];
+  @NestedObject({ type: ProgramDto, isArray: true })
+  programs?: ProgramDto[];
 
   @NestedEnum(DepartmentEnum, { isArray: true })
   facultyApprovals: DepartmentEnum[];
