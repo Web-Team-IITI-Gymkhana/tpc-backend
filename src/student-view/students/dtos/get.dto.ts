@@ -182,6 +182,9 @@ export class GetJobsDto {
   @NestedString({})
   role: string;
 
+  @NestedString({ optional: true })
+  description?: string;
+
   @NestedObject({ type: RecruiterFilledDto })
   recruiterDetailsFilled: RecruiterFilledDto;
 
@@ -346,9 +349,6 @@ export class GetJobDto extends GetJobsDto {
 
   @NestedObject({ type: SelectionProcedureDto })
   selectionProcedure: SelectionProcedureDto;
-
-  @NestedString({ optional: true })
-  description?: string;
 
   @NestedString({ optional: true })
   attachment?: string;
