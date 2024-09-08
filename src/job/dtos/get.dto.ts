@@ -274,10 +274,10 @@ class SalariesDto {
   foreignCurrencyStipend?: number;
 
   @NestedNumber({ optional: true })
-  accommodation?: number;
+  accomodation?: number;
 
   @NestedNumber({ optional: true })
-  tentativeCTC?: number;
+  tenetativeCTC?: number;
 
   @NestedDate({ optional: true })
   PPOConfirmationDate?: Date;
