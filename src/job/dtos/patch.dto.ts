@@ -9,6 +9,7 @@ import {
 } from "src/decorators/dto";
 import { JobStatusTypeEnum } from "src/enums";
 import { SelectionProcedureDto } from "./jaf.dto";
+import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
 
 export class UpdateJobsDto {
   @NestedUUID({})
@@ -28,6 +29,9 @@ export class UpdateJobsDto {
 
   @NestedBoolean({ optional: true })
   active?: boolean;
+
+  @NestedEnum(JobRegistrationEnum, { optional: true })
+  registration?: JobRegistrationEnum;
 
   @NestedEnum(JobStatusTypeEnum, { optional: true })
   currentStatus?: JobStatusTypeEnum;
