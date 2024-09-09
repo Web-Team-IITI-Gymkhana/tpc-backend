@@ -46,6 +46,14 @@ export class AuthService {
   }
 
   async createRecruiter(body) {
+    const user = await this.userRepo.findOne({
+      where: {
+        email: body.user.email,
+      },
+    });
+
+    if (user) throw new HttpException("Email already exist", HttpStatus.INTERNAL_SERVER_ERROR);
+
     body.user.role = RoleEnum.RECRUITER;
 
     const recruiter = await this.recruiterRepo.create(body, {

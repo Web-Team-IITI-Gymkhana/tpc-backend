@@ -293,6 +293,7 @@ export class JobModel extends Model<JobModel> {
   static async sendEmailOnEventChange(options: IUpdateOptions) {
     if (SEND_MAIL == "FALSE") return;
     if (options.attributes.active === undefined) return;
+    if (options.attributes.active === false) return;
     const jobs = await JobModel.findAll({
       where: options.where,
       include: [

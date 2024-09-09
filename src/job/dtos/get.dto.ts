@@ -78,6 +78,9 @@ export class GetJobsDto {
   @NestedBoolean({})
   active: boolean;
 
+  @NestedEnum(JobRegistrationEnum, {})
+  registration: JobRegistrationEnum;
+
   @NestedEnum(JobStatusTypeEnum, {})
   currentStatus: JobStatusTypeEnum;
 
@@ -96,8 +99,8 @@ export class GetJobsDto {
   @NestedObject({ type: SeasonDto })
   season: SeasonDto;
 
-  @NestedObject({ type: CompanyDto })
-  company: CompanyDto;
+  @NestedObject({ type: CompanyFilledDto })
+  company: CompanyFilledDto;
 
   @NestedObject({ type: RecruiterDto })
   recruiter: RecruiterDto;

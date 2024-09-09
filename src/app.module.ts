@@ -28,6 +28,7 @@ import { CompanyModule } from "./company/company.module";
 import { OfferModule } from "./offers/offer.module";
 import { StudentViewSalaryModule } from "./student-view/salary/salary.module";
 import { FacultyViewModule } from "./faculty-view/faculty-view.module";
+import { AnalyticsDashboardModule } from "./analytics-dashboard/analytics-dashboard.module";
 import { RecruiterViewModule } from "./recruiter-view/recruiter-view.module";
 import { ExternalOpportunitiesModule } from "./externalOpportunities/externalOpportunities.module";
 import { TpcMemberViewModule } from "./tpc-member-view/tpc-member-view.module";
@@ -59,6 +60,7 @@ import { TpcMemberViewModule } from "./tpc-member-view/tpc-member-view.module";
     CompanyModule,
     OfferModule,
     FacultyViewModule,
+    AnalyticsDashboardModule,
     RecruiterViewModule,
     ExternalOpportunitiesModule,
     TpcMemberViewModule,
