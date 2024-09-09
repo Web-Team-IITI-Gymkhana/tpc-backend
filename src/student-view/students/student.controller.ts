@@ -16,7 +16,7 @@ import {
 import { ApiBearerAuth, ApiParam, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { StudentService } from "./student.service";
 import { CreateFile, DeleteFiles, GetFile, GetValue } from "src/decorators/controller";
-import { GetStudentEventsDto, GetStudentResumesDto, StudentViewDto } from "./dtos/get.dto";
+import { GetJobDto, GetJobsDto, GetStudentEventsDto, GetStudentResumesDto, StudentViewDto } from "./dtos/get.dto";
 import { User } from "src/decorators/User";
 import { IUser } from "src/auth/User";
 import { pipeTransform, pipeTransformArray } from "src/utils/utils";
@@ -33,7 +33,6 @@ import { CreateStudentResumeDto } from "./dtos/post.dto";
 import { AuthGuard } from "@nestjs/passport";
 import { RoleGuard } from "src/auth/roleGaurd";
 import { RoleEnum } from "src/enums";
-import { GetJobDto, GetJobsDto } from "src/job/dtos/get.dto";
 import { JobsQueryDto } from "src/job/dtos/query.dto";
 import { EventsQueryDto } from "src/event/dtos/query.dto";
 import { GetEventsDto } from "src/event/dtos/get.dto";

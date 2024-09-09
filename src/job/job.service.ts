@@ -1,5 +1,5 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { JOB_COORDINATOR_DAO, JOB_DAO } from "src/constants";
+import { JOB_COORDINATOR_DAO, JOB_DAO, PROGRAM_DAO } from "src/constants";
 import {
   CompanyModel,
   EventModel,
@@ -23,6 +23,7 @@ import { UpdateJobsDto } from "./dtos/patch.dto";
 export class JobService {
   constructor(
     @Inject(JOB_DAO) private jobRepo: typeof JobModel,
+    @Inject(PROGRAM_DAO) private programRepo: typeof ProgramModel,
     @Inject(JOB_COORDINATOR_DAO) private jobCoordinatorRepo: typeof JobCoordinatorModel
   ) {}
 
@@ -119,9 +120,32 @@ export class JobService {
       ],
     });
 
-    if (!ans) throw new NotFoundException(`The Job with id: ${id} does not exist`);
+    const allPrograms = await this.programRepo.findAll();
+    const programDict = allPrograms.reduce((acc, program) => {
+      acc[program.id] = program.get({ plain: true });
 
-    return ans.get({ plain: true });
+      return acc;
+    }, {});
+
+    const modifiedAns = {
+      ...ans.get({ plain: true }),
+      salaries: ans.salaries.map((salary) => ({
+        ...salary.get({ plain: true }),
+        programs: salary.programs.map((programId) => {
+          const program = programDict[programId];
+
+          return {
+            id: program.id,
+            branch: program.branch,
+            course: program.course,
+            year: program.year,
+            department: program.department,
+          };
+        }),
+      })),
+    };
+
+    return modifiedAns;
   }
 
   async createJobCoordinators(jobCoordinators: CreateJobCoordinatorsDto[]) {

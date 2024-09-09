@@ -1,5 +1,14 @@
 import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
-import { COMPANY_DAO, EVENT_DAO, JOB_DAO, RECRUITER_DAO, SALARY_DAO, USER_DAO } from "src/constants";
+import {
+  COMPANY_DAO,
+  EVENT_DAO,
+  JOB_DAO,
+  PROGRAM_DAO,
+  RECRUITER_DAO,
+  SALARY_DAO,
+  SEASON_DAO,
+  USER_DAO,
+} from "src/constants";
 import {
   ApplicationModel,
   CompanyModel,
@@ -16,12 +25,20 @@ import {
   UserModel,
 } from "src/db/models";
 import { parseFilter, parseOrder, parsePagesize } from "src/utils";
-import { FindOptions, Op, Transaction } from "sequelize";
+import { FindOptions, Op, Optional, Transaction } from "sequelize";
 import { JobsQueryDto } from "./dto/query.dto";
-import { CategoryEnum, IndustryDomainEnum } from "src/enums";
+import {
+  CategoryEnum,
+  CountriesEnum,
+  GenderEnum,
+  IndustryDomainEnum,
+  InterviewTypesEnum,
+  TestTypesEnum,
+} from "src/enums";
 import { UpdateJobDto, UpdateRecruiterDto, UpdateSalariesDto } from "./dto/patch.dto";
 import { omit } from "lodash";
 import sequelize from "sequelize";
+import { NullishPropertiesOf } from "sequelize/types/utils";
 
 @Injectable()
 export class RecruiterViewService {
@@ -31,7 +48,9 @@ export class RecruiterViewService {
     @Inject(SALARY_DAO) private salaryRepo: typeof SalaryModel,
     @Inject(EVENT_DAO) private eventRepo: typeof EventModel,
     @Inject(COMPANY_DAO) private companyRepo: typeof CompanyModel,
-    @Inject(USER_DAO) private userRepo: typeof UserModel
+    @Inject(USER_DAO) private userRepo: typeof UserModel,
+    @Inject(SEASON_DAO) private seasonRepo: typeof SeasonModel,
+    @Inject(PROGRAM_DAO) private programRepo: typeof ProgramModel
   ) {}
 
   async getRecruiter(recruiterId: string) {
@@ -288,5 +307,49 @@ export class RecruiterViewService {
     if (ans == 0) throw new UnauthorizedException(`Unauthorized`);
 
     return ans > 0 ? [] : [salaryId];
+  }
+
+  async createJaf(
+    jaf: Optional<JobModel, NullishPropertiesOf<JobModel>>,
+    salaries: Optional<SalaryModel, NullishPropertiesOf<SalaryModel>>[],
+    t: Transaction,
+    recruiterId: string
+  ) {
+    const recruiter = await this.recruiterRepo.findByPk(recruiterId, {
+      include: [
+        {
+          model: CompanyModel,
+          as: "company",
+        },
+      ],
+    });
+
+    jaf.recruiterId = recruiter.id;
+    jaf.companyId = recruiter.company.id;
+
+    const ans = await this.jobRepo.create(jaf, {
+      transaction: t,
+    });
+    const salariesWithJobId = salaries.map((salary) => ({ ...salary, jobId: ans.id }));
+    await this.salaryRepo.bulkCreate(salariesWithJobId, {
+      transaction: t,
+    });
+
+    return ans.id;
+  }
+
+  async getJafDetails() {
+    const [seasons, programs] = await Promise.all([this.seasonRepo.findAll(), this.programRepo.findAll()]);
+
+    return {
+      seasons: seasons.map((season) => season.get({ plain: true })),
+      programs: programs.map((program) => program.get({ plain: true })),
+      genders: Object.values(GenderEnum),
+      categories: Object.values(CategoryEnum),
+      testTypes: Object.values(TestTypesEnum),
+      domains: Object.values(IndustryDomainEnum),
+      interviewTypes: Object.values(InterviewTypesEnum),
+      countries: Object.values(CountriesEnum),
+    };
   }
 }
