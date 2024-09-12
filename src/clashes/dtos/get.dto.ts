@@ -1,5 +1,13 @@
-import { NestedEnum, NestedNumber, NestedObject, NestedString, NestedUUID } from "src/decorators/dto";
-import { DepartmentEnum, EventTypeEnum, GenderEnum, SeasonTypeEnum } from "src/enums";
+import {
+  NestedDate,
+  NestedEmail,
+  NestedEnum,
+  NestedNumber,
+  NestedObject,
+  NestedString,
+  NestedUUID,
+} from "src/decorators/dto";
+import { DepartmentEnum, EventTypeEnum, GenderEnum, OfferStatusEnum, SeasonTypeEnum } from "src/enums";
 
 export class ClashCompanyDto {
   @NestedUUID({})
@@ -76,9 +84,48 @@ export class ClashUserDto {
   contact: string;
 }
 
-export class ClashStudentDto {
+class ClashEventsDto {
   @NestedUUID({})
-  id: string;
+  aid: string;
+
+  @NestedUUID({})
+  caid: string;
+
+  @NestedUUID({})
+  eventId: string;
+
+  @NestedUUID({})
+  ceventId: string;
+
+  @NestedDate({})
+  startDateTime: Date;
+
+  @NestedDate({})
+  cstartDateTime: Date;
+
+  @NestedDate({})
+  endDateTime: Date;
+
+  @NestedDate({})
+  cendDateTime: Date;
+
+  @NestedNumber({})
+  roundNumber: number;
+
+  @NestedNumber({})
+  croundNumber: number;
+
+  @NestedEnum(EventTypeEnum, {})
+  type: EventTypeEnum;
+
+  @NestedEnum(EventTypeEnum, {})
+  ctype: EventTypeEnum;
+
+  @NestedUUID({})
+  studentId: string;
+
+  @NestedUUID({})
+  jobId: string;
 
   @NestedString({})
   rollNo: string;
@@ -89,20 +136,183 @@ export class ClashStudentDto {
   @NestedNumber({})
   cpi: number;
 
-  @NestedObject({ type: ClashProgramDto })
-  program: ClashProgramDto;
+  @NestedString({})
+  name: string;
 
-  @NestedObject({ type: ClashUserDto })
-  user: ClashUserDto;
+  @NestedEmail({})
+  email: string;
+
+  @NestedString({})
+  contact: string;
+
+  @NestedString({})
+  course: string;
+
+  @NestedString({})
+  branch: string;
+
+  @NestedEnum(DepartmentEnum, {})
+  department: DepartmentEnum;
+
+  @NestedString({})
+  year: string;
+
+  @NestedString({})
+  role: string;
+
+  @NestedString({})
+  companyName: string;
 }
 
-export class ClashApplicationDto {
-  @NestedObject({ type: ClashEventDto })
-  event: ClashEventDto;
+export class ClashOffCampusDto {
+  @NestedUUID({})
+  aid: string;
 
-  @NestedObject({ type: ClashStudentDto })
-  student: ClashStudentDto;
+  @NestedUUID({})
+  eventId: string;
 
-  @NestedObject({ type: ClashJobDto })
-  job: ClashJobDto;
+  @NestedDate({})
+  startDateTime: Date;
+
+  @NestedDate({})
+  endDateTime: Date;
+
+  @NestedNumber({})
+  roundNumber: number;
+
+  @NestedEnum(EventTypeEnum, {})
+  type: EventTypeEnum;
+
+  @NestedUUID({})
+  studentId: string;
+
+  @NestedString({})
+  rollNo: string;
+
+  @NestedEnum(GenderEnum, {})
+  gender: GenderEnum;
+
+  @NestedNumber({})
+  cpi: number;
+
+  @NestedString({})
+  name: string;
+
+  @NestedEmail({})
+  email: string;
+
+  @NestedString({})
+  contact: string;
+
+  @NestedString({})
+  course: string;
+
+  @NestedString({})
+  branch: string;
+
+  @NestedEnum(DepartmentEnum, {})
+  department: DepartmentEnum;
+
+  @NestedString({})
+  year: string;
+
+  @NestedString({})
+  role: string;
+
+  @NestedString({})
+  companyName: string;
+
+  @NestedNumber({})
+  salary: number;
+
+  @NestedEnum(OfferStatusEnum, {})
+  status: OfferStatusEnum;
+}
+
+export class ClashOnCampusDto {
+  @NestedUUID({})
+  aid: string;
+
+  @NestedUUID({})
+  eventId: string;
+
+  @NestedDate({})
+  startDateTime: Date;
+
+  @NestedDate({})
+  endDateTime: Date;
+
+  @NestedNumber({})
+  roundNumber: number;
+
+  @NestedEnum(EventTypeEnum, {})
+  type: EventTypeEnum;
+
+  @NestedUUID({})
+  studentId: string;
+
+  @NestedString({})
+  rollNo: string;
+
+  @NestedEnum(GenderEnum, {})
+  gender: GenderEnum;
+
+  @NestedNumber({})
+  cpi: number;
+
+  @NestedString({})
+  name: string;
+
+  @NestedEmail({})
+  email: string;
+
+  @NestedString({})
+  contact: string;
+
+  @NestedString({})
+  course: string;
+
+  @NestedString({})
+  branch: string;
+
+  @NestedEnum(DepartmentEnum, {})
+  department: DepartmentEnum;
+
+  @NestedString({})
+  year: string;
+
+  @NestedString({})
+  role: string;
+
+  @NestedString({})
+  companyName: string;
+
+  @NestedEnum(OfferStatusEnum, {})
+  status: OfferStatusEnum;
+
+  @NestedNumber({})
+  baseSalary: number;
+
+  @NestedNumber({})
+  totalCTC: number;
+
+  @NestedNumber({})
+  takeHomeSalary: number;
+
+  @NestedNumber({})
+  grossSalary: number;
+
+  @NestedNumber({})
+  otherCompensations: number;
+}
+
+export class ClashDto {
+  @NestedObject({ type: ClashOnCampusDto })
+  onCampus: ClashOnCampusDto;
+
+  @NestedObject({ type: ClashEventsDto })
+  event: ClashEventsDto;
+
+  @NestedObject({ type: ClashOffCampusDto })
+  offCampus: ClashOffCampusDto;
 }
