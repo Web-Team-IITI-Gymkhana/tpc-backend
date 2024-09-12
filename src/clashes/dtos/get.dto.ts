@@ -308,11 +308,11 @@ export class ClashOnCampusDto {
 
 export class ClashDto {
   @NestedObject({ type: ClashOnCampusDto, isArray: true })
-  onCampus: ClashOnCampusDto;
+  onCampus: ClashOnCampusDto[];
 
   @NestedObject({ type: ClashEventsDto, isArray: true })
-  event: ClashEventsDto;
+  event: ClashEventsDto[];
 
   @NestedObject({ type: ClashOffCampusDto, isArray: true })
-  offCampus: ClashOffCampusDto;
+  offCampus: ClashOffCampusDto[];
 }
