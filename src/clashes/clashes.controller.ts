@@ -1,6 +1,6 @@
 import { Controller, Get, Param, ParseUUIDPipe } from "@nestjs/common";
 import { ClashesService } from "./clashes.service";
-import { pipeTransformArray } from "src/utils/utils";
+import { pipeTransform, pipeTransformArray } from "src/utils/utils";
 import { ApiBearerAuth, ApiTags, ApiResponse } from "@nestjs/swagger";
 import { ClashDto, ClashJobDto } from "./dtos/get.dto";
 
@@ -23,6 +23,6 @@ export class ClashesController {
   async getclashes(@Param("id", ParseUUIDPipe) id: string) {
     const ans = await this.clashesService.getclashes(id);
 
-    return pipeTransformArray(ans, ClashDto);
+    return pipeTransform(ans, ClashDto);
   }
 }
