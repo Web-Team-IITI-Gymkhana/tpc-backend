@@ -253,16 +253,16 @@ export class ClashesService {
     INNER JOIN "students" ON "students"."sid" = "offers"."studentId"`;
 
     const [prev, pron, proff] = await Promise.all([
-        this.sequelizeInstance.query(eventQuery, { type: QueryTypes.SELECT }),
-        this.sequelizeInstance.query(onCampusQuery, { type: QueryTypes.SELECT }),
-        this.sequelizeInstance.query(offCampusQuery, { type: QueryTypes.SELECT })
+      this.sequelizeInstance.query(eventQuery, { type: QueryTypes.SELECT }),
+      this.sequelizeInstance.query(onCampusQuery, { type: QueryTypes.SELECT }),
+      this.sequelizeInstance.query(offCampusQuery, { type: QueryTypes.SELECT }),
     ]);
 
     // Result object
     const clashes = {
-        event: prev,
-        onCampus: pron,
-        offCampus: proff
+      event: prev,
+      onCampus: pron,
+      offCampus: proff,
     };
 
     return clashes;
