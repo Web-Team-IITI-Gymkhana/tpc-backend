@@ -2,6 +2,7 @@ import { Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import {
   COMPANY_DAO,
   EVENT_DAO,
+  FEEDBACK_DAO,
   JOB_DAO,
   PROGRAM_DAO,
   RECRUITER_DAO,
@@ -39,6 +40,8 @@ import { UpdateJobDto, UpdateRecruiterDto, UpdateSalariesDto } from "./dto/patch
 import { omit } from "lodash";
 import sequelize from "sequelize";
 import { NullishPropertiesOf } from "sequelize/types/utils";
+import { FeedbackModel } from "src/db/models/FeedbackModel";
+import { PostFeedbackdto } from "./dto/post.dto";
 
 @Injectable()
 export class RecruiterViewService {
@@ -50,6 +53,7 @@ export class RecruiterViewService {
     @Inject(COMPANY_DAO) private companyRepo: typeof CompanyModel,
     @Inject(USER_DAO) private userRepo: typeof UserModel,
     @Inject(SEASON_DAO) private seasonRepo: typeof SeasonModel,
+    @Inject(FEEDBACK_DAO) private feedbackRepo: typeof FeedbackModel,
     @Inject(PROGRAM_DAO) private programRepo: typeof ProgramModel
   ) {}
 
@@ -239,6 +243,25 @@ export class RecruiterViewService {
     if (!ans) throw new UnauthorizedException(`Unauthorized`);
 
     return ans.map((event) => event.get({ plain: true }));
+  }
+
+  async postFeedback(feedbacks: PostFeedbackdto[], recruiterId: string) {
+    const eligibleJobIdsData = await this.jobRepo.findAll({
+      where: {
+        recruiterId: recruiterId,
+      },
+      attributes: ["id"],
+    });
+
+    const eligibleJobIds = eligibleJobIdsData.map((job) => job.id);
+
+    const filteredFeedbacks = feedbacks.filter((feedback) => eligibleJobIds.includes(feedback.jobId));
+
+    const ans = await this.feedbackRepo.bulkCreate(filteredFeedbacks);
+
+    if (!ans) throw new UnauthorizedException(`Unauthorized`);
+
+    return ans.map((feedback) => feedback.id);
   }
 
   async getEnums() {
