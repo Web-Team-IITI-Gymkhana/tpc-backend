@@ -54,8 +54,8 @@ export class UpdateJobsDto {
   @NestedString({ optional: true })
   attachment?: string;
 
-  @NestedString({ optional: true })
-  skills?: string;
+  @NestedString({ optional: true, isArray: true })
+  skills?: string[];
 
   @NestedDate({ optional: true })
   offerLetterReleaseDate?: Date;

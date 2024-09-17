@@ -222,7 +222,6 @@ export const JOBS: Optional<JobModel, NullishPropertiesOf<JobModel>>[] = Array.f
   selectionProcedure: SELECTION_PROCEDURES[idx],
   description: faker.datatype.boolean() ? faker.string.alpha() : undefined,
   attachment: faker.datatype.boolean() ? faker.string.uuid() + ".pdf" : undefined,
-  skills: faker.datatype.boolean() ? faker.string.alpha() : undefined,
   location: faker.string.alpha(),
   medicalRequirements: faker.string.alpha(),
   additionalInfo: faker.string.alpha(),

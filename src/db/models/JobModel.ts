@@ -165,9 +165,9 @@ export class JobModel extends Model<JobModel> {
   attachment?: string;
 
   @Column({
-    type: sequelize.STRING,
+    type: sequelize.ARRAY(sequelize.STRING),
   })
-  skills?: string;
+  skills?: string[];
 
   @Column({
     type: sequelize.STRING,
