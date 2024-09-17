@@ -6,19 +6,22 @@ import {
   NestedNumber,
   NestedObject,
   NestedString,
+  NestedUrl,
   NestedUUID,
 } from "src/decorators/dto";
 import {
   BacklogEnum,
   CategoryEnum,
+  CompanyCategoryEnum,
   DepartmentEnum,
   EventTypeEnum,
   GenderEnum,
+  IndustryDomainEnum,
   JobCoordinatorRoleEnum,
   SeasonTypeEnum,
   TpcMemberRoleEnum,
 } from "src/enums";
-import { RecruiterFilledDto, SelectionProcedureDto } from "src/job/dtos/jaf.dto";
+import { AddressDto, RecruiterFilledDto, SelectionProcedureDto } from "src/job/dtos/jaf.dto";
 
 class UserDto {
   @NestedUUID({})
@@ -168,11 +171,32 @@ class RecruiterDto {
 }
 
 class CompanyDto {
-  @NestedUUID({})
-  id: string;
-
   @NestedString({})
   name: string;
+
+  @NestedEnum(CompanyCategoryEnum, {})
+  category: CompanyCategoryEnum;
+
+  @NestedString({})
+  yearOfEstablishment: string;
+
+  @NestedUrl({ optional: true })
+  website?: string;
+
+  @NestedNumber({ optional: true })
+  size?: number;
+
+  @NestedString({ optional: true })
+  annualTurnover?: string;
+
+  @NestedUrl({ optional: true })
+  socialMediaLink?: string;
+
+  @NestedEnum(IndustryDomainEnum, { isArray: true })
+  domains: IndustryDomainEnum[];
+
+  @NestedObject({ type: AddressDto })
+  address: AddressDto;
 }
 
 export class GetJobsDto {
