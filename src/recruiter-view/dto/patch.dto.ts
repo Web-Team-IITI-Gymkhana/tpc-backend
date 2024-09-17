@@ -130,8 +130,8 @@ export class UpdateJobDto {
   @NestedNumber({ optional: true })
   noOfVacancies?: number;
 
-  @NestedNumber({ optional: true })
-  duration?: number;
+  @NestedString({ optional: true })
+  duration?: string;
 
   @NestedString({ optional: true })
   location?: string;

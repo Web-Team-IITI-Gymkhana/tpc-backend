@@ -225,8 +225,8 @@ class SalaryDto {
   @NestedNumber({ optional: true })
   stipend?: number;
 
-  @NestedNumber({ optional: true })
-  foreignCurrencyStipend?: number;
+  @NestedString({ optional: true })
+  foreignCurrencyStipend?: string;
 
   @NestedNumber({ optional: true })
   accommodation?: number;
@@ -281,8 +281,8 @@ class JobDto {
   @NestedDate({ optional: true })
   joiningDate?: Date;
 
-  @NestedNumber({ optional: true })
-  duration?: number;
+  @NestedString({ optional: true })
+  duration?: string;
 }
 
 export class JafDto {

@@ -196,9 +196,9 @@ export class JobModel extends Model<JobModel> {
   joiningDate?: Date;
 
   @Column({
-    type: sequelize.INTEGER,
+    type: sequelize.STRING,
   })
-  duration?: number;
+  duration?: string;
 
   @Column({
     type: sequelize.STRING,
