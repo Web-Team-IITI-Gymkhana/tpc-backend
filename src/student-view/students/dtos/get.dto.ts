@@ -171,6 +171,9 @@ class RecruiterDto {
 }
 
 class CompanyDto {
+  @NestedUUID({})
+  id: string;
+
   @NestedString({})
   name: string;
 
