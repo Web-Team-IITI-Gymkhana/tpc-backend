@@ -29,6 +29,7 @@ import {
   TpcMemberModel,
   UserModel,
 } from "src/db/models";
+import { FeedbackModel } from "src/db/models/FeedbackModel";
 import { CategoryEnum, DepartmentEnum, GenderEnum } from "src/enums";
 import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
 import { SeasonStatusEnum } from "src/enums/SeasonStatus.enum";
@@ -284,8 +285,18 @@ export class StudentService {
           where: whereSalary,
           required: true,
         },
+        {
+          model: FeedbackModel,
+          as: "feedbacks",
+          required: false,
+          where: {
+            studentId: studentId,
+          },
+        },
       ],
     });
+
+    // console.log(ans);
 
     if (!ans) throw new UnauthorizedException("You are not authorized to access this job");
 

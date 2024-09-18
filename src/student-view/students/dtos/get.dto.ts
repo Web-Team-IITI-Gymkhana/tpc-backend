@@ -1,3 +1,4 @@
+import { isArray } from "lodash";
 import {
   NestedBoolean,
   NestedDate,
@@ -188,8 +189,8 @@ export class GetJobsDto {
   @NestedObject({ type: RecruiterFilledDto })
   recruiterDetailsFilled: RecruiterFilledDto;
 
-  @NestedNumber({ optional: true })
-  duration?: number;
+  @NestedString({ optional: true })
+  duration?: string;
 
   @NestedString({})
   location: string;
@@ -343,6 +344,23 @@ class SalariesDto {
   PPOConfirmationDate?: Date;
 }
 
+class Feedbackdto {
+  @NestedUUID({})
+  id: string;
+
+  @NestedUUID({})
+  jobId: string;
+
+  @NestedUUID({})
+  studentId: string;
+
+  @NestedString({})
+  remarks: string;
+
+  @NestedDate({})
+  createdAt: Date;
+}
+
 export class GetJobDto extends GetJobsDto {
   @NestedObject({ type: RecruiterFilledDto })
   recruiterDetailsFilled: RecruiterFilledDto;
@@ -353,17 +371,14 @@ export class GetJobDto extends GetJobsDto {
   @NestedString({ optional: true })
   attachment?: string;
 
-  @NestedString({ optional: true })
-  skills?: string;
+  @NestedString({ optional: true, isArray: true })
+  skills?: string[];
 
   @NestedDate({ optional: true })
   offerLetterReleaseDate?: Date;
 
   @NestedDate({ optional: true })
   joiningDate?: Date;
-
-  @NestedString({ optional: true })
-  feedback?: string;
 
   @NestedObject({ type: JobCoordinatorsDto, isArray: true })
   jobCoordinators: JobCoordinatorsDto[];
@@ -373,4 +388,7 @@ export class GetJobDto extends GetJobsDto {
 
   @NestedObject({ type: SalariesDto, isArray: true })
   salaries: SalariesDto[];
+
+  @NestedObject({ type: Feedbackdto, isArray: true })
+  feedbacks: Feedbackdto[];
 }
