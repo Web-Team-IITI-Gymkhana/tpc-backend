@@ -37,6 +37,9 @@ class SeasonDto {
 }
 
 class CompanyDto {
+  @NestedUUID({})
+  id: string;
+
   @NestedString({})
   name: string;
 
