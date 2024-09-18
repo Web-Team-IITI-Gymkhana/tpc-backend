@@ -159,8 +159,8 @@ class JobDto {
   @NestedString({})
   role: string;
 
-  @NestedString({ optional: true })
-  skills?: string;
+  @NestedString({ optional: true, isArray: true })
+  skills?: string[];
 
   @NestedString({})
   location: string;
@@ -191,8 +191,8 @@ class JobExDto extends JobDto {
   @NestedDate({ optional: true })
   offerLetterReleaseDate?: Date;
 
-  @NestedNumber({ optional: true })
-  duration?: number;
+  @NestedString({ optional: true })
+  duration?: string;
 
   @NestedString({ optional: true })
   feedback?: string;

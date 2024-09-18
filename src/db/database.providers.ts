@@ -45,10 +45,12 @@ import {
   STUDENT_DAO,
   TPC_MEMBER_DAO,
   USER_DAO,
+  FEEDBACK_DAO,
 } from "src/constants";
 import { env, IEnvironmentVariables } from "src/config";
 import { RegistrationModel } from "./models/RegistrationModel";
 import { InterviewExperienceModel } from "./models/InterviewExperienceModel";
+import { FeedbackModel } from "./models/FeedbackModel";
 
 export const databaseProviders = [
   {
@@ -91,6 +93,7 @@ export const databaseProviders = [
         RegistrationModel,
         InterviewExperienceModel,
         ExternalOpportunitiesModel,
+        FeedbackModel,
       ]);
 
       // await sequelize.sync({ force: true });
@@ -184,5 +187,9 @@ export const spacesProviders = [
   {
     provide: EXTERNAL_OPPORTUNITIES_DAO,
     useValue: ExternalOpportunitiesModel,
+  },
+  {
+    provide: FEEDBACK_DAO,
+    useValue: FeedbackModel,
   },
 ];

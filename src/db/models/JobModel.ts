@@ -33,6 +33,7 @@ import { RegistrationModel } from "./RegistrationModel";
 import path from "path";
 import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
 import { ProgramModel } from "./ProgramModel";
+import { FeedbackModel } from "./FeedbackModel";
 
 const environmentVariables: IEnvironmentVariables = env();
 const { MAIL_USER, APP_NAME, FRONTEND_URL, DEFAULT_MAIL_TO, SEND_MAIL } = environmentVariables;
@@ -165,9 +166,9 @@ export class JobModel extends Model<JobModel> {
   attachment?: string;
 
   @Column({
-    type: sequelize.STRING,
+    type: sequelize.ARRAY(sequelize.STRING),
   })
-  skills?: string;
+  skills?: string[];
 
   @Column({
     type: sequelize.STRING,
@@ -196,9 +197,9 @@ export class JobModel extends Model<JobModel> {
   joiningDate?: Date;
 
   @Column({
-    type: sequelize.INTEGER,
+    type: sequelize.STRING,
   })
-  duration?: number;
+  duration?: string;
 
   @Column({
     type: sequelize.STRING,
@@ -241,6 +242,12 @@ export class JobModel extends Model<JobModel> {
     onDelete: "CASCADE",
   })
   applications: ApplicationModel[];
+
+  @HasMany(() => FeedbackModel, {
+    foreignKey: "jobId",
+    onDelete: "CASCADE",
+  })
+  feedbacks: FeedbackModel[];
 
   @AfterCreate
   static async sendEmailHook(instance: JobModel) {

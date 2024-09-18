@@ -222,7 +222,6 @@ export const JOBS: Optional<JobModel, NullishPropertiesOf<JobModel>>[] = Array.f
   selectionProcedure: SELECTION_PROCEDURES[idx],
   description: faker.datatype.boolean() ? faker.string.alpha() : undefined,
   attachment: faker.datatype.boolean() ? faker.string.uuid() + ".pdf" : undefined,
-  skills: faker.datatype.boolean() ? faker.string.alpha() : undefined,
   location: faker.string.alpha(),
   medicalRequirements: faker.string.alpha(),
   additionalInfo: faker.string.alpha(),
@@ -230,7 +229,7 @@ export const JOBS: Optional<JobModel, NullishPropertiesOf<JobModel>>[] = Array.f
   expectedNoOfHires: faker.datatype.boolean() ? faker.number.int({ min: 0, max: MAX_INT }) : undefined,
   offerLetterReleaseDate: faker.datatype.boolean() ? faker.date.anytime() : undefined,
   joiningDate: faker.datatype.boolean() ? faker.date.anytime() : undefined,
-  duration: faker.datatype.boolean() ? faker.number.int({ min: 0, max: MAX_INT }) : undefined,
+  duration: faker.string.alpha(),
 }));
 
 function makeCriteria() {
@@ -274,7 +273,7 @@ export const SALARIES: Optional<SalaryModel, NullishPropertiesOf<SalaryModel>>[]
     retentionBonus: faker.number.int({ min: 0, max: 200000 }),
     deductions: faker.number.int({ min: 0, max: 200000 }),
     stipend: faker.number.int({ min: 0, max: 200000 }),
-    foreignCurrencyStipend: faker.number.int({ min: 0, max: 200000 }),
+    foreignCurrencyStipend: faker.string.alpha(),
     accomodation: faker.number.int({ min: 0, max: 200000 }),
     tenetativeCTC: faker.number.int({ min: 0, max: 200000 }),
     foreignCurrencyCode: faker.string.alpha(),

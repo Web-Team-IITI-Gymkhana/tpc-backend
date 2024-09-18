@@ -328,8 +328,8 @@ class SalariesDto {
   @NestedNumber({ optional: true })
   stipend?: number;
 
-  @NestedNumber({ optional: true })
-  foreignCurrencyStipend?: number;
+  @NestedString({ optional: true })
+  foreignCurrencyStipend?: string;
 
   @NestedNumber({ optional: true })
   accommodation?: number;
@@ -351,8 +351,8 @@ export class GetJobDto extends GetJobsDto {
   @NestedString({ optional: true })
   attachment?: string;
 
-  @NestedString({ optional: true })
-  skills?: string;
+  @NestedString({ optional: true, isArray: true })
+  skills?: string[];
 
   @NestedDate({ optional: true })
   offerLetterReleaseDate?: Date;
@@ -366,8 +366,8 @@ export class GetJobDto extends GetJobsDto {
   @NestedNumber({ optional: true })
   noOfVacancies?: number;
 
-  @NestedNumber({ optional: true })
-  duration?: number;
+  @NestedString({ optional: true })
+  duration?: string;
 
   @NestedString({ optional: true })
   feedback?: string;

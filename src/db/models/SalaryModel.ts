@@ -212,10 +212,10 @@ export class SalaryModel extends Model<SalaryModel> {
   stipend?: number;
 
   @Column({
-    type: sequelize.INTEGER,
+    type: sequelize.STRING,
     allowNull: true,
   })
-  foreignCurrencyStipend?: number;
+  foreignCurrencyStipend?: string;
 
   @Column({
     type: sequelize.INTEGER,

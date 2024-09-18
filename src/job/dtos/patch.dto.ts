@@ -39,8 +39,8 @@ export class UpdateJobsDto {
   @NestedNumber({ optional: true })
   noOfVacancies?: number;
 
-  @NestedNumber({ optional: true })
-  duration?: number;
+  @NestedString({ optional: true })
+  duration?: string;
 
   @NestedString({ optional: true })
   location?: string;
@@ -54,8 +54,8 @@ export class UpdateJobsDto {
   @NestedString({ optional: true })
   attachment?: string;
 
-  @NestedString({ optional: true })
-  skills?: string;
+  @NestedString({ optional: true, isArray: true })
+  skills?: string[];
 
   @NestedDate({ optional: true })
   offerLetterReleaseDate?: Date;
