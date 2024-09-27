@@ -286,8 +286,8 @@ class SalariesDto {
   @NestedNumber({ optional: true })
   stipend?: number;
 
-  @NestedNumber({ optional: true })
-  foreignCurrencyStipend?: number;
+  @NestedString({ optional: true })
+  foreignCurrencyStipend?: string;
 
   @NestedNumber({ optional: true })
   accommodation?: number;
