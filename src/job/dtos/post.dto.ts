@@ -12,6 +12,13 @@ export class CreateJobCoordinatorsDto {
   @NestedEnum(JobCoordinatorRoleEnum, {})
   role: JobCoordinatorRoleEnum;
 }
+export class CreateApplicationDto {
+  @NestedUUID({})
+  eventId: string;
+
+  @NestedUUID({})
+  resumeId: string;
+}
 
 export class CreateAttachmentDto {
   @ApiProperty({ type: "string", format: "binary" })
