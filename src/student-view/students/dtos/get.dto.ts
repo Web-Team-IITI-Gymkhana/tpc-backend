@@ -211,6 +211,9 @@ export class GetJobsDto {
   role: string;
 
   @NestedString({ optional: true })
+  attachment?: string;
+
+  @NestedString({ optional: true })
   description?: string;
 
   @NestedObject({ type: RecruiterFilledDto })
