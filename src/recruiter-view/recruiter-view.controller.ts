@@ -44,7 +44,7 @@ import { PostFeedbackdto } from "./dto/post.dto";
 @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.RECRUITER))
 export class RecruiterViewController {
   folderName = RESUME_FOLDER;
-  jdfoldername = JD_FOLDER;
+  JDFolder = JD_FOLDER;
 
   constructor(
     private readonly recruiterViewService: RecruiterViewService,
@@ -138,7 +138,7 @@ export class RecruiterViewController {
       jaf.job.attachment = filename;
 
       const ans = await this.recruiterViewService.createJaf(jaf.job, jaf.salaries, t, user.recruiterId);
-      await this.fileService.uploadFile(path.join(this.jdfoldername, filename), file);
+      await this.fileService.uploadFile(path.join(this.JDFolder, filename), file);
 
       return ans;
     }
@@ -146,6 +146,16 @@ export class RecruiterViewController {
     const ans = await this.recruiterViewService.createJaf(jaf.job, jaf.salaries, t, user.recruiterId);
 
     return ans;
+  }
+
+  @GetFile(["application/pdf"], "jd")
+  async getJd(@Param("filename") filename: string, @Res({ passthrough: true }) res: Response, @User() user: IUser) {
+    const ans = await this.recruiterViewService.getJD(filename, user.recruiterId);
+    if (!ans) throw new NotFoundException(`File ${filename} not found`);
+    const file = this.fileService.getFile(path.join(this.JDFolder, filename));
+    res.setHeader("Content-Type", "application/pdf");
+
+    return new StreamableFile(file);
   }
 
   @Post("/feedbacks")

@@ -361,6 +361,14 @@ export class RecruiterViewService {
     return ans.id;
   }
 
+  async getJD(filename: string, recruiterId: string) {
+    const ans = await this.jobRepo.findOne({
+      where: { attachment: filename, recruiterId: recruiterId },
+    });
+
+    return ans;
+  }
+
   async getJafDetails() {
     const [seasons, programs] = await Promise.all([this.seasonRepo.findAll(), this.programRepo.findAll()]);
 

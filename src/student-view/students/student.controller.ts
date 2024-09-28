@@ -24,7 +24,7 @@ import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
 import { v4 as uuidv4 } from "uuid";
-import { RESUME_FOLDER } from "src/constants";
+import { JD_FOLDER, RESUME_FOLDER } from "src/constants";
 import { FileService } from "src/services/FileService";
 import path from "path";
 import { DeleteFilesDto } from "src/utils/utils.dto";
@@ -43,6 +43,7 @@ import { GetEventsDto } from "src/event/dtos/get.dto";
 @ApiBearerAuth("jwt")
 export class StudentController {
   folderName = RESUME_FOLDER;
+  JDFolder = JD_FOLDER;
 
   constructor(
     private studentService: StudentService,
@@ -136,6 +137,16 @@ export class StudentController {
     const ans = await this.studentService.getResumes({ studentId: user.studentId, filepath: filename });
     if (ans.length === 0) throw new NotFoundException(`Resume with filename ${filename} not found`);
     const file = this.fileService.getFile(path.join(this.folderName, filename));
+    res.setHeader("Content-Type", "application/pdf");
+
+    return new StreamableFile(file);
+  }
+
+  @GetFile(["application/pdf"], "jd")
+  async getJd(@Param("filename") filename: string, @User() user: IUser, @Res({ passthrough: true }) res: Response) {
+    const ans = await this.studentService.getJD(filename, user.studentId);
+    if (!ans) throw new NotFoundException(`File ${filename} not found`);
+    const file = this.fileService.getFile(path.join(this.JDFolder, filename));
     res.setHeader("Content-Type", "application/pdf");
 
     return new StreamableFile(file);

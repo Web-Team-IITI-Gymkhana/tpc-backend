@@ -212,6 +212,14 @@ export class JobService {
     return ans.map((application) => application.id);
   }
 
+  async getJD(filename: string) {
+    const ans = await this.jobRepo.findOne({
+      where: { attachment: filename },
+    });
+
+    return ans;
+  }
+
   async updateJob(job: UpdateJobsDto) {
     const [ans] = await this.jobRepo.update(job, { where: { id: job.id } });
 
