@@ -280,8 +280,8 @@ export class GetStudentSalariesDto {
   @NestedNumber({ optional: true })
   stipend?: number;
 
-  @NestedNumber({ optional: true })
-  foreignCurrencyStipend?: number;
+  @NestedString({ optional: true })
+  foreignCurrencyStipend?: string;
 
   @NestedNumber({ optional: true })
   accomodation?: number;

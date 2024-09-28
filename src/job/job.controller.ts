@@ -5,7 +5,7 @@ import { DeleteValues, GetValue, GetValues, PatchValues } from "src/decorators/c
 import { JobsQueryDto } from "./dtos/query.dto";
 import { GetJobDto, GetJobsDto } from "./dtos/get.dto";
 import { createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
-import { CreateJobCoordinatorsDto } from "./dtos/post.dto";
+import { CreateApplicationDto, CreateJobCoordinatorsDto } from "./dtos/post.dto";
 import { UpdateJobsDto } from "./dtos/patch.dto";
 import { DeleteValuesDto } from "src/utils/utils.dto";
 import { AuthGuard } from "@nestjs/passport";
@@ -40,6 +40,15 @@ export class JobController {
     @Body(createArrayPipe(CreateJobCoordinatorsDto)) jobCoordinators: CreateJobCoordinatorsDto[]
   ) {
     const ans = await this.jobService.createJobCoordinators(jobCoordinators);
+
+    return ans;
+  }
+
+  @Post("/applications")
+  @ApiBody({ type: CreateApplicationDto, isArray: true })
+  @ApiResponse({ type: String, isArray: true })
+  async createApplications(@Body(createArrayPipe(CreateApplicationDto)) body: CreateApplicationDto[]) {
+    const ans = await this.jobService.createApplication(body);
 
     return ans;
   }

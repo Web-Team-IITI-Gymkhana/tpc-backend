@@ -1,12 +1,14 @@
 import { Inject, Injectable, NotFoundException } from "@nestjs/common";
-import { JOB_COORDINATOR_DAO, JOB_DAO, PROGRAM_DAO } from "src/constants";
+import { APPLICATION_DAO, EVENT_DAO, JOB_COORDINATOR_DAO, JOB_DAO, RESUME_DAO, PROGRAM_DAO } from "src/constants";
 import {
+  ApplicationModel,
   CompanyModel,
   EventModel,
   JobCoordinatorModel,
   JobModel,
   ProgramModel,
   RecruiterModel,
+  ResumeModel,
   SalaryModel,
   SeasonModel,
   StudentModel,
@@ -16,7 +18,7 @@ import {
 import { JobsQueryDto } from "./dtos/query.dto";
 import { FindOptions, Op, Transaction } from "sequelize";
 import { parseFilter, parseOrder, parsePagesize } from "src/utils";
-import { CreateJobCoordinatorsDto } from "./dtos/post.dto";
+import { CreateApplicationDto, CreateJobCoordinatorsDto } from "./dtos/post.dto";
 import { UpdateJobsDto } from "./dtos/patch.dto";
 
 @Injectable()
@@ -24,6 +26,9 @@ export class JobService {
   constructor(
     @Inject(JOB_DAO) private jobRepo: typeof JobModel,
     @Inject(PROGRAM_DAO) private programRepo: typeof ProgramModel,
+    @Inject(RESUME_DAO) private resumeRepo: typeof ResumeModel,
+    @Inject(EVENT_DAO) private eventRepo: typeof EventModel,
+    @Inject(APPLICATION_DAO) private applicationRepo: typeof ApplicationModel,
     @Inject(JOB_COORDINATOR_DAO) private jobCoordinatorRepo: typeof JobCoordinatorModel
   ) {}
 
@@ -152,6 +157,59 @@ export class JobService {
     const ans = await this.jobCoordinatorRepo.bulkCreate(jobCoordinators);
 
     return ans.map((jobCoordinator) => jobCoordinator.id);
+  }
+
+  async createApplication(body: CreateApplicationDto[]) {
+    const resumeIds = body.map((item) => item.resumeId);
+    const eventIds = body.map((item) => item.eventId);
+
+    const resumes = await this.resumeRepo.findAll({
+      where: {
+        id: {
+          [Op.in]: resumeIds,
+        },
+      },
+    });
+
+    const events = await this.eventRepo.findAll({
+      where: {
+        id: {
+          [Op.in]: eventIds,
+        },
+      },
+    });
+
+    const eventRoundMap = events.reduce((acc, event) => {
+      acc[event.id] = event.roundNumber;
+
+      return acc;
+    }, {});
+
+    const eventJobMap = events.reduce((acc, event) => {
+      acc[event.id] = event.jobId;
+
+      return acc;
+    }, {});
+
+    const resumeStudentMap = resumes.reduce((acc, resume) => {
+      acc[resume.id] = resume.studentId;
+
+      return acc;
+    }, {});
+
+    const filteredBody = body.filter((item) => {
+      return eventRoundMap[item.eventId] === 0;
+    });
+
+    const updatedBody = filteredBody.map((item) => ({
+      ...item,
+      studentId: resumeStudentMap[item.resumeId],
+      jobId: eventJobMap[item.eventId],
+    }));
+
+    const ans = await this.applicationRepo.bulkCreate(updatedBody);
+
+    return ans.map((application) => application.id);
   }
 
   async updateJob(job: UpdateJobsDto) {
