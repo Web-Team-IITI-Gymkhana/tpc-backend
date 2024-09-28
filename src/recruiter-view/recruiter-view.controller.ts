@@ -122,7 +122,13 @@ export class RecruiterViewController {
   @ApiResponse({ type: String })
   @UseInterceptors(TransactionInterceptor)
   async createJaf(@Body() jaf: JafDto, @TransactionParam() t: Transaction, @User() user: IUser) {
-    const file = jaf.job.attachment ? { buffer: Buffer.from(jaf.job.attachment, "base64"), size: 0 } : undefined;
+    const base64String = jaf.job.attachment;
+
+    const base64Data = base64String.startsWith("data:application/pdf;base64,")
+      ? base64String.slice("data:application/pdf;base64,".length)
+      : base64String;
+
+    const file = base64Data ? { buffer: Buffer.from(base64Data, "base64"), size: 0 } : undefined;
     if (file) {
       file.size = file.buffer.length;
       const magic = file.buffer.subarray(0, 4).toString("ascii");
