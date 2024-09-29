@@ -36,9 +36,9 @@ export class SalaryService {
     const department: DepartmentEnum = student.program.department;
 
     const where: WhereOptions<SalaryModel> = {
-      programs: { [Op.or]: { [Op.contains]: [student.programId], [Op.is]: null } },
-      genders: { [Op.or]: { [Op.contains]: [student.gender as GenderEnum], [Op.is]: null } },
-      categories: { [Op.or]: { [Op.contains]: [student.category as CategoryEnum], [Op.is]: null } },
+      programs: { [Op.or]: { [Op.contains]: [student.programId], [Op.is]: null, [Op.eq]: [] } },
+      genders: { [Op.or]: { [Op.contains]: [student.gender as GenderEnum], [Op.is]: null, [Op.eq]: [] } },
+      categories: { [Op.or]: { [Op.contains]: [student.category as CategoryEnum], [Op.is]: null, [Op.eq]: [] } },
       minCPI: { [Op.lte]: student.cpi },
       tenthMarks: { [Op.lte]: student.tenthMarks },
       twelthMarks: { [Op.lte]: student.twelthMarks },
