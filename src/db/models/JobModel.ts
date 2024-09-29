@@ -363,8 +363,12 @@ export class JobModel extends Model<JobModel> {
 
     const conditions = salaries.map((salary) => ({
       cpi: { [Op.gte]: salary.minCPI },
-      category: { [Op.in]: salary.categories },
-      gender: { [Op.in]: salary.genders },
+      category: {
+        [Op.or]: [{ [Op.in]: salary.categories }, salary.categories.length === 0],
+      },
+      gender: {
+        [Op.or]: [{ [Op.in]: salary.genders }, salary.genders.length === 0],
+      },
       tenthMarks: { [Op.gte]: salary.tenthMarks },
       twelthMarks: { [Op.gte]: salary.twelthMarks },
       id: {
@@ -373,7 +377,7 @@ export class JobModel extends Model<JobModel> {
         ),
       },
       programId: {
-        [Op.in]: salary.programs,
+        [Op.or]: [{ [Op.in]: salary.programs }, salary.programs.length === 0],
         [Op.not]: programIds[salary.id],
       },
     }));
