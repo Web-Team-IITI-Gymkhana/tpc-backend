@@ -213,6 +213,9 @@ export class GetJobsDto {
   @NestedString({ optional: true })
   attachment?: string;
 
+  @NestedString({ optional: true, isArray: true })
+  skills?: string[];
+
   @NestedString({ optional: true })
   description?: string;
 
@@ -400,9 +403,6 @@ export class GetJobDto extends GetJobsDto {
 
   @NestedString({ optional: true })
   attachment?: string;
-
-  @NestedString({ optional: true, isArray: true })
-  skills?: string[];
 
   @NestedDate({ optional: true })
   offerLetterReleaseDate?: Date;
