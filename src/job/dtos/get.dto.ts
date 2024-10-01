@@ -6,6 +6,7 @@ import {
   NestedNumber,
   NestedObject,
   NestedString,
+  NestedUrl,
   NestedUUID,
 } from "src/decorators/dto";
 import {
@@ -17,8 +18,11 @@ import {
   SeasonTypeEnum,
   TpcMemberRoleEnum,
   JobCoordinatorRoleEnum,
+  BacklogEnum,
+  CompanyCategoryEnum,
+  IndustryDomainEnum,
 } from "src/enums";
-import { CompanyFilledDto, RecruiterFilledDto, SelectionProcedureDto } from "./jaf.dto";
+import { AddressDto, RecruiterFilledDto, SelectionProcedureDto } from "./jaf.dto";
 import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
 
 class SeasonDto {
@@ -38,6 +42,30 @@ class CompanyDto {
 
   @NestedString({})
   name: string;
+
+  @NestedEnum(CompanyCategoryEnum, {})
+  category: CompanyCategoryEnum;
+
+  @NestedString({})
+  yearOfEstablishment: string;
+
+  @NestedUrl({ optional: true })
+  website?: string;
+
+  @NestedNumber({ optional: true })
+  size?: number;
+
+  @NestedString({ optional: true })
+  annualTurnover?: string;
+
+  @NestedUrl({ optional: true })
+  socialMediaLink?: string;
+
+  @NestedEnum(IndustryDomainEnum, { isArray: true })
+  domains: IndustryDomainEnum[];
+
+  @NestedObject({ type: AddressDto })
+  address: AddressDto;
 }
 
 class UserDto {
@@ -85,10 +113,13 @@ export class GetJobsDto {
   currentStatus: JobStatusTypeEnum;
 
   @NestedNumber({ optional: true })
-  noOfVacancies?: number;
+  minNoOfHires?: number;
 
   @NestedNumber({ optional: true })
-  duration?: number;
+  expectedNoOfHires?: number;
+
+  @NestedString({ optional: true })
+  duration?: string;
 
   @NestedString({})
   location: string;
@@ -96,11 +127,11 @@ export class GetJobsDto {
   @NestedObject({ type: SeasonDto })
   season: SeasonDto;
 
-  @NestedObject({ type: CompanyFilledDto })
-  company: CompanyFilledDto;
-
   @NestedObject({ type: RecruiterDto })
   recruiter: RecruiterDto;
+
+  @NestedObject({ type: CompanyDto })
+  company: CompanyDto;
 }
 
 class ProgramDto {
@@ -180,17 +211,14 @@ class SalariesDto {
   @NestedUUID({})
   id: string;
 
-  @NestedString({ optional: true })
-  salaryPeriod?: string;
-
-  @NestedString({ optional: true })
-  others?: string;
-
-  @NestedUUID({ optional: true, isArray: true })
-  programs?: string[];
+  @NestedObject({ type: ProgramDto, isArray: true })
+  programs?: ProgramDto[];
 
   @NestedEnum(DepartmentEnum, { isArray: true })
   facultyApprovals: DepartmentEnum[];
+
+  @NestedEnum(BacklogEnum, { optional: true })
+  isBacklogAllowed?: BacklogEnum;
 
   @NestedEnum(GenderEnum, { optional: true, isArray: true })
   genders: GenderEnum[];
@@ -207,26 +235,86 @@ class SalariesDto {
   @NestedNumber({})
   twelthMarks: number;
 
-  @NestedNumber({})
+  // PLACEMENT
+  @NestedNumber({ optional: true })
   baseSalary: number;
 
-  @NestedNumber({})
+  @NestedNumber({ optional: true })
   totalCTC: number;
 
-  @NestedNumber({})
+  @NestedNumber({ optional: true })
   takeHomeSalary: number;
 
-  @NestedNumber({})
+  @NestedNumber({ optional: true })
   grossSalary: number;
 
-  @NestedNumber({})
+  @NestedNumber({ optional: true })
+  joiningBonus?: number;
+
+  @NestedNumber({ optional: true })
+  performanceBonus?: number;
+
+  @NestedNumber({ optional: true })
+  relocation?: number;
+
+  @NestedNumber({ optional: true })
+  bondAmount?: number;
+
+  @NestedNumber({ optional: true })
+  esopAmount?: number;
+
+  @NestedString({ optional: true })
+  esopVestPeriod?: string;
+
+  @NestedNumber({ optional: true })
+  firstYearCTC?: number;
+
+  @NestedNumber({ optional: true })
+  retentionBonus?: number;
+
+  @NestedNumber({ optional: true })
+  deductions?: number;
+
+  @NestedNumber({ optional: true })
+  medicalAllowance?: number;
+
+  @NestedString({ optional: true })
+  bondDuration?: string;
+
+  @NestedNumber({ optional: true })
+  foreignCurrencyCTC?: number;
+
+  @NestedString({ optional: true })
+  foreignCurrencyCode?: string;
+
+  @NestedNumber({ optional: true })
   otherCompensations: number;
+
+  @NestedString({ optional: true })
+  salaryPeriod?: string;
+
+  @NestedString({ optional: true })
+  others?: string;
+
+  //INTERNSHIP
+
+  @NestedNumber({ optional: true })
+  stipend?: number;
+
+  @NestedString({ optional: true })
+  foreignCurrencyStipend?: string;
+
+  @NestedNumber({ optional: true })
+  accomodation?: number;
+
+  @NestedNumber({ optional: true })
+  tenetativeCTC?: number;
+
+  @NestedDate({ optional: true })
+  PPOConfirmationDate?: Date;
 }
 
 export class GetJobDto extends GetJobsDto {
-  @NestedObject({ type: CompanyFilledDto })
-  companyDetailsFilled: CompanyFilledDto;
-
   @NestedObject({ type: RecruiterFilledDto })
   recruiterDetailsFilled: RecruiterFilledDto;
 
@@ -239,8 +327,8 @@ export class GetJobDto extends GetJobsDto {
   @NestedString({ optional: true })
   attachment?: string;
 
-  @NestedString({ optional: true })
-  skills?: string;
+  @NestedString({ optional: true, isArray: true })
+  skills?: string[];
 
   @NestedDate({ optional: true })
   offerLetterReleaseDate?: Date;

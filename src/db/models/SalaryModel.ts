@@ -1,7 +1,7 @@
 import sequelize from "sequelize";
-import { BelongsTo, Column, ForeignKey, HasMany, Model, Table } from "sequelize-typescript";
+import { AllowNull, BelongsTo, Column, ForeignKey, HasMany, Model, Table } from "sequelize-typescript";
 import { JobModel } from "./JobModel";
-import { GenderEnum, CategoryEnum, DepartmentEnum } from "src/enums";
+import { GenderEnum, CategoryEnum, DepartmentEnum, BacklogEnum } from "src/enums";
 import { FacultyApprovalRequestModel } from "./FacultyApprovalRequestModel";
 import { OnCampusOfferModel } from "./OnCampusOfferModel";
 
@@ -55,11 +55,21 @@ export class SalaryModel extends Model<SalaryModel> {
   categories?: CategoryEnum[];
 
   @Column({
+    type: sequelize.ARRAY(sequelize.ENUM(...Object.values(DepartmentEnum))),
+  })
+  departments?: DepartmentEnum[];
+
+  @Column({
     type: sequelize.FLOAT,
     allowNull: false,
     defaultValue: 0.0,
   })
   minCPI: number;
+
+  @Column({
+    type: sequelize.ENUM(...Object.values(BacklogEnum)),
+  })
+  isBacklogAllowed?: BacklogEnum;
 
   @Column({
     type: sequelize.FLOAT,
@@ -82,35 +92,148 @@ export class SalaryModel extends Model<SalaryModel> {
   })
   facultyApprovals?: DepartmentEnum[];
 
-  @Column({
-    type: sequelize.INTEGER,
-    allowNull: false,
-  })
-  baseSalary: number;
+  // SALARY FOR FTE JAF
 
   @Column({
     type: sequelize.INTEGER,
-    allowNull: false,
+    allowNull: true,
   })
   totalCTC: number;
 
   @Column({
     type: sequelize.INTEGER,
-    allowNull: false,
+    allowNull: true,
   })
-  takeHomeSalary: number;
+  foreignCurrencyCTC?: number;
+
+  @Column({
+    type: sequelize.STRING(3),
+    allowNull: true,
+    defaultValue: "USD",
+  })
+  foreignCurrencyCode?: string;
 
   @Column({
     type: sequelize.INTEGER,
-    allowNull: false,
+    allowNull: true,
   })
   grossSalary: number;
 
   @Column({
     type: sequelize.INTEGER,
-    allowNull: false,
+    allowNull: true,
+  })
+  takeHomeSalary: number;
+
+  @Column({
+    type: sequelize.INTEGER,
+    allowNull: true,
+  })
+  baseSalary: number;
+
+  @Column({
+    type: sequelize.INTEGER,
+    allowNull: true,
+  })
+  joiningBonus?: number;
+
+  @Column({
+    type: sequelize.INTEGER,
+    allowNull: true,
+  })
+  performanceBonus?: number;
+
+  @Column({
+    type: sequelize.INTEGER,
+    allowNull: true,
+  })
+  relocation?: number;
+
+  @Column({
+    type: sequelize.STRING,
+    allowNull: true,
+  })
+  bondDuration: string;
+
+  @Column({
+    type: sequelize.INTEGER,
+    allowNull: true,
+  })
+  bondAmount?: number;
+
+  @Column({
+    type: sequelize.INTEGER,
+    allowNull: true,
+  })
+  esopAmount?: number;
+
+  @Column({
+    type: sequelize.STRING,
+    allowNull: true,
+  })
+  esopVestPeriod: string;
+
+  @Column({
+    type: sequelize.INTEGER,
+    allowNull: true,
+  })
+  firstYearCTC?: number;
+
+  @Column({
+    type: sequelize.INTEGER,
+    allowNull: true,
+  })
+  medicalAllowance?: number;
+
+  @Column({
+    type: sequelize.INTEGER,
+    allowNull: true,
+  })
+  retentionBonus?: number;
+
+  @Column({
+    type: sequelize.INTEGER,
+    allowNull: true,
+  })
+  deductions?: number;
+
+  @Column({
+    type: sequelize.INTEGER,
+    allowNull: true,
   })
   otherCompensations: number;
+
+  // SALARY FOR INTERN JAF
+
+  @Column({
+    type: sequelize.INTEGER,
+    allowNull: true,
+  })
+  stipend?: number;
+
+  @Column({
+    type: sequelize.STRING,
+    allowNull: true,
+  })
+  foreignCurrencyStipend?: string;
+
+  @Column({
+    type: sequelize.INTEGER,
+    allowNull: true,
+  })
+  accomodation?: number;
+
+  @Column({
+    type: sequelize.INTEGER,
+    allowNull: true,
+  })
+  tenetativeCTC?: number;
+
+  @Column({
+    type: sequelize.DATE,
+    allowNull: true,
+  })
+  PPOConfirmationDate?: Date;
 
   @HasMany(() => FacultyApprovalRequestModel, {
     foreignKey: "salaryId",

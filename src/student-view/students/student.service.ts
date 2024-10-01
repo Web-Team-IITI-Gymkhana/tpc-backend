@@ -29,6 +29,7 @@ import {
   TpcMemberModel,
   UserModel,
 } from "src/db/models";
+import { FeedbackModel } from "src/db/models/FeedbackModel";
 import { CategoryEnum, DepartmentEnum, GenderEnum } from "src/enums";
 import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
 import { SeasonStatusEnum } from "src/enums/SeasonStatus.enum";
@@ -54,9 +55,9 @@ export class StudentService {
     const department: DepartmentEnum = student.program.department;
 
     const where: WhereOptions<SalaryModel> = {
-      programs: { [Op.or]: { [Op.contains]: [student.programId], [Op.is]: null } },
-      genders: { [Op.or]: { [Op.contains]: [student.gender as GenderEnum], [Op.is]: null } },
-      categories: { [Op.or]: { [Op.contains]: [student.category as CategoryEnum], [Op.is]: null } },
+      programs: { [Op.or]: { [Op.contains]: [student.programId], [Op.is]: null, [Op.eq]: [] } },
+      genders: { [Op.or]: { [Op.contains]: [student.gender as GenderEnum], [Op.is]: null, [Op.eq]: [] } },
+      categories: { [Op.or]: { [Op.contains]: [student.category as CategoryEnum], [Op.is]: null, [Op.eq]: [] } },
       minCPI: { [Op.lte]: student.cpi },
       tenthMarks: { [Op.lte]: student.tenthMarks },
       twelthMarks: { [Op.lte]: student.twelthMarks },
@@ -284,8 +285,18 @@ export class StudentService {
           where: whereSalary,
           required: true,
         },
+        {
+          model: FeedbackModel,
+          as: "feedbacks",
+          required: false,
+          where: {
+            studentId: studentId,
+          },
+        },
       ],
     });
+
+    // console.log(ans);
 
     if (!ans) throw new UnauthorizedException("You are not authorized to access this job");
 
@@ -410,6 +421,23 @@ export class StudentService {
     const ans = await this.resumeRepo.findAll({ where });
 
     return ans.map((resume) => resume.get({ plain: true }));
+  }
+
+  async getJD(filename: string, studentId: string) {
+    const whereSalary = await this.filterSalaries(studentId);
+    const ans = await this.jobRepo.findOne({
+      where: { attachment: filename, active: true },
+      include: [
+        {
+          model: SalaryModel,
+          as: "salaries",
+          where: whereSalary,
+          required: true,
+        },
+      ],
+    });
+
+    return ans;
   }
 
   async addResume(studentId: string, filepath: string, name: string, t: Transaction) {

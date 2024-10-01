@@ -33,6 +33,7 @@ import { RegistrationModel } from "./RegistrationModel";
 import path from "path";
 import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
 import { ProgramModel } from "./ProgramModel";
+import { FeedbackModel } from "./FeedbackModel";
 
 const environmentVariables: IEnvironmentVariables = env();
 const { MAIL_USER, APP_NAME, FRONTEND_URL, DEFAULT_MAIL_TO, SEND_MAIL } = environmentVariables;
@@ -155,7 +156,7 @@ export class JobModel extends Model<JobModel> {
   selectionProcedure: object;
 
   @Column({
-    type: sequelize.STRING,
+    type: sequelize.TEXT({ length: "long" }),
   })
   description?: string;
 
@@ -165,9 +166,9 @@ export class JobModel extends Model<JobModel> {
   attachment?: string;
 
   @Column({
-    type: sequelize.STRING,
+    type: sequelize.ARRAY(sequelize.STRING),
   })
-  skills?: string;
+  skills?: string[];
 
   @Column({
     type: sequelize.STRING,
@@ -178,7 +179,12 @@ export class JobModel extends Model<JobModel> {
   @Column({
     type: sequelize.INTEGER,
   })
-  noOfVacancies?: number;
+  minNoOfHires?: number;
+
+  @Column({
+    type: sequelize.INTEGER,
+  })
+  expectedNoOfHires?: number;
 
   @Column({
     type: sequelize.DATE,
@@ -191,9 +197,19 @@ export class JobModel extends Model<JobModel> {
   joiningDate?: Date;
 
   @Column({
-    type: sequelize.INTEGER,
+    type: sequelize.STRING,
   })
-  duration?: number;
+  duration?: string;
+
+  @Column({
+    type: sequelize.STRING,
+  })
+  medicalRequirements?: string;
+
+  @Column({
+    type: sequelize.STRING,
+  })
+  additionalInfo?: string;
 
   @Column({
     type: sequelize.TEXT({ length: "long" }),
@@ -226,6 +242,12 @@ export class JobModel extends Model<JobModel> {
     onDelete: "CASCADE",
   })
   applications: ApplicationModel[];
+
+  @HasMany(() => FeedbackModel, {
+    foreignKey: "jobId",
+    onDelete: "CASCADE",
+  })
+  feedbacks: FeedbackModel[];
 
   @AfterCreate
   static async sendEmailHook(instance: JobModel) {
@@ -341,8 +363,12 @@ export class JobModel extends Model<JobModel> {
 
     const conditions = salaries.map((salary) => ({
       cpi: { [Op.gte]: salary.minCPI },
-      category: { [Op.in]: salary.categories },
-      gender: { [Op.in]: salary.genders },
+      category: {
+        [Op.or]: [{ [Op.in]: salary.categories }, salary.categories.length === 0],
+      },
+      gender: {
+        [Op.or]: [{ [Op.in]: salary.genders }, salary.genders.length === 0],
+      },
       tenthMarks: { [Op.gte]: salary.tenthMarks },
       twelthMarks: { [Op.gte]: salary.twelthMarks },
       id: {
@@ -351,7 +377,7 @@ export class JobModel extends Model<JobModel> {
         ),
       },
       programId: {
-        [Op.in]: salary.programs,
+        [Op.or]: [{ [Op.in]: salary.programs }, salary.programs.length === 0],
         [Op.not]: programIds[salary.id],
       },
     }));

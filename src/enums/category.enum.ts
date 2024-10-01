@@ -4,4 +4,5 @@ export enum CategoryEnum {
   SC = "SC",
   ST = "ST",
   PWD = "PWD",
+  DAP = "DAP",
 }

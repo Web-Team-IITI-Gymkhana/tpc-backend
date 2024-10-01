@@ -12,13 +12,14 @@ import {
   Res,
   NotFoundException,
   StreamableFile,
+  BadRequestException,
 } from "@nestjs/common";
 import { RecruiterViewService } from "./recruiter-view.service";
 import { AuthGuard } from "@nestjs/passport";
-import { ApiTags, ApiBearerAuth, ApiResponse } from "@nestjs/swagger";
+import { ApiTags, ApiBearerAuth, ApiResponse, ApiBody } from "@nestjs/swagger";
 import { IUser } from "src/auth/User";
 import { User } from "src/decorators/User";
-import { pipeTransform, pipeTransformArray } from "src/utils/utils";
+import { pipeTransform, pipeTransformArray, createArrayPipe } from "src/utils/utils";
 import { GetEventDto, GetJobDto, GetJobsDto, GetRecruiterDto } from "./dto/get.dto";
 import { JobsQueryDto } from "./dto/query.dto";
 import { Transaction } from "sequelize";
@@ -29,10 +30,13 @@ import { UpdateJobDto, UpdateRecruiterDto, UpdateSalariesDto } from "./dto/patch
 import { RoleGuard } from "src/auth/roleGaurd";
 import { RoleEnum } from "src/enums";
 import { GetFile } from "src/decorators/controller";
-import { RESUME_FOLDER } from "src/constants";
+import { JD_FOLDER, JD_SIZE_LIMIT, RESUME_FOLDER } from "src/constants";
 import { Response } from "express";
 import { FileService } from "src/services/FileService";
 import path from "path";
+import { v4 as uuidv4 } from "uuid";
+import { GetJafValuesDto, JafDto } from "src/job/dtos/jaf.dto";
+import { PostFeedbackdto } from "./dto/post.dto";
 
 @Controller("recruiter-view")
 @ApiTags("recruiter-view")
@@ -40,6 +44,7 @@ import path from "path";
 @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.RECRUITER))
 export class RecruiterViewController {
   folderName = RESUME_FOLDER;
+  JDFolder = JD_FOLDER;
 
   constructor(
     private readonly recruiterViewService: RecruiterViewService,
@@ -102,5 +107,63 @@ export class RecruiterViewController {
   @UseInterceptors(TransactionInterceptor)
   async updateFaculty(@Body() recruiter: UpdateRecruiterDto, @TransactionParam() t: Transaction, @User() user: IUser) {
     return await this.recruiterViewService.updateRecruiter(recruiter, user.recruiterId, t);
+  }
+
+  @Get("jaf")
+  @ApiResponse({ type: GetJafValuesDto })
+  async getJafDetails() {
+    const ans = await this.recruiterViewService.getJafDetails();
+    // console.log(ans);
+
+    return pipeTransform(ans, GetJafValuesDto);
+  }
+
+  @Post("jaf")
+  @ApiResponse({ type: String })
+  @UseInterceptors(TransactionInterceptor)
+  async createJaf(@Body() jaf: JafDto, @TransactionParam() t: Transaction, @User() user: IUser) {
+    const base64String = jaf.job.attachment;
+
+    const base64Data = base64String.startsWith("data:application/pdf;base64,")
+      ? base64String.slice("data:application/pdf;base64,".length)
+      : base64String;
+
+    const file = base64Data ? { buffer: Buffer.from(base64Data, "base64"), size: 0 } : undefined;
+    if (file) {
+      file.size = file.buffer.length;
+      const magic = file.buffer.subarray(0, 4).toString("ascii");
+      if (magic !== "%PDF") throw new BadRequestException("Only PDF is supported");
+      if (file.size > JD_SIZE_LIMIT) throw new BadRequestException("File size too large");
+      const filename = uuidv4() + ".pdf";
+      jaf.job.attachment = filename;
+
+      const ans = await this.recruiterViewService.createJaf(jaf.job, jaf.salaries, t, user.recruiterId);
+      await this.fileService.uploadFile(path.join(this.JDFolder, filename), file);
+
+      return ans;
+    }
+
+    const ans = await this.recruiterViewService.createJaf(jaf.job, jaf.salaries, t, user.recruiterId);
+
+    return ans;
+  }
+
+  @GetFile(["application/pdf"], "jd")
+  async getJd(@Param("filename") filename: string, @Res({ passthrough: true }) res: Response, @User() user: IUser) {
+    const ans = await this.recruiterViewService.getJD(filename, user.recruiterId);
+    if (!ans) throw new NotFoundException(`File ${filename} not found`);
+    const file = this.fileService.getFile(path.join(this.JDFolder, filename));
+    res.setHeader("Content-Type", "application/pdf");
+
+    return new StreamableFile(file);
+  }
+
+  @Post("/feedbacks")
+  @ApiBody({ type: PostFeedbackdto, isArray: true })
+  @ApiResponse({ type: String, isArray: true })
+  async createfeedbacks(@Body(createArrayPipe(PostFeedbackdto)) feedbacks: PostFeedbackdto[], @User() user: IUser) {
+    const ans = await this.recruiterViewService.postFeedback(feedbacks, user.recruiterId);
+
+    return ans;
   }
 }
