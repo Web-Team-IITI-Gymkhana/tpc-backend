@@ -251,7 +251,7 @@ export class ClashOnCampusDto {
   @NestedUUID({})
   studentId: string;
 
-  @NestedString({})
+  @NestedString({ optional: true })
   rollNo: string;
 
   @NestedEnum(GenderEnum, {})
