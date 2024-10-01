@@ -32,6 +32,7 @@ import { AnalyticsDashboardModule } from "./analytics-dashboard/analytics-dashbo
 import { RecruiterViewModule } from "./recruiter-view/recruiter-view.module";
 import { ExternalOpportunitiesModule } from "./externalOpportunities/externalOpportunities.module";
 import { TpcMemberViewModule } from "./tpc-member-view/tpc-member-view.module";
+import { ClashesModule } from "./clashes/clashes.module";
 
 @Module({
   imports: [
@@ -64,6 +65,7 @@ import { TpcMemberViewModule } from "./tpc-member-view/tpc-member-view.module";
     RecruiterViewModule,
     ExternalOpportunitiesModule,
     TpcMemberViewModule,
+    ClashesModule,
   ],
   controllers: [AppController],
   providers: [Logger, TransactionInterceptor, QueryInterceptor, AppService],
