@@ -108,7 +108,9 @@ export class AuthController {
     assert(req.user !== undefined, "Google did not provide an email");
 
     const user = await this.userService.getUserByEmail(req.user.email);
-    if (!user) throw new UnauthorizedException(`User not found`);
+    if (!user) {
+      throw new UnauthorizedException(`User with email ${req.user.email} not found`);
+    }
     const token = await this.authService.vendJWT(user);
     res.cookie("accessToken", token, { httpOnly: false });
     res.cookie("user", JSON.stringify(jwtDecode(token)), {
