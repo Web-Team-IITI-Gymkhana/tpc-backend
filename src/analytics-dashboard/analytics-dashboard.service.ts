@@ -511,4 +511,398 @@ export class AnalyticsDashboardService {
 
     return statistics.genderWiseStats;
   }
+
+  async getCumulativeStatsOverall(seasonIds: string[]) {
+    const totalRegisteredStudentsCount = await this.registrationsRepo.count({
+      col: "studentId",
+      distinct: true,
+      where: { seasonId: { [Op.in]: seasonIds }, registered: true },
+    });
+
+    const offers = await this.onCampusRepo.findAll({
+      include: [
+        {
+          model: SalaryModel,
+          as: "salary",
+          required: true,
+          include: [
+            {
+              model: JobModel,
+              as: "job",
+              required: true,
+              where: {
+                seasonId: { [Op.in]: seasonIds },
+              },
+            },
+          ],
+        },
+      ],
+    });
+
+    const studentIdsSet = new Set();
+    const companyIds = new Set();
+    const ctcArray = [];
+
+    offers.forEach((offer) => {
+      if (offer.studentId) {
+        studentIdsSet.add(offer.studentId);
+      }
+      if (offer.salary && offer.salary.job) {
+        companyIds.add(offer.salary.job.companyId);
+      }
+      if (offer.salary && offer.salary.totalCTC !== null) {
+        ctcArray.push(offer.salary.totalCTC);
+      }
+    });
+
+    const statistics = this.calculateStatistics(ctcArray);
+    const totalCompaniesOffering = companyIds.size;
+    const totalOffers = offers.length;
+    const placedStudentsCount = studentIdsSet.size;
+    const placementPercentage =
+      totalRegisteredStudentsCount === 0 ? 0 : (placedStudentsCount / totalRegisteredStudentsCount) * 100;
+    const unplacedPercentage = 100 - placementPercentage;
+
+    return {
+      totalRegisteredStudentsCount,
+      placedStudentsCount,
+      placementPercentage,
+      unplacedPercentage,
+      totalOffers,
+      totalCompaniesOffering,
+      ...statistics,
+    };
+  }
+
+  async getCumulativeStatsCourseWise(seasonIds: string[]) {
+    const programs = await this.programRepo.findAll({
+      attributes: ["course"],
+      group: ["course"],
+    });
+    const courses = programs.map((program) => program.course);
+
+    const registrations = await this.registrationsRepo.findAll({
+      where: { seasonId: { [Op.in]: seasonIds }, registered: true },
+      include: [
+        {
+          model: StudentModel,
+          as: "student",
+          include: [{ model: ProgramModel, as: "program" }],
+        },
+      ],
+    });
+
+    const registeredStudents = registrations.map((registration) => registration.student);
+    const courseWiseRegisteredCount = {};
+
+    registeredStudents.forEach((student) => {
+      const courseId = student.program.course;
+      courseWiseRegisteredCount[courseId] = (courseWiseRegisteredCount[courseId] || 0) + 1;
+    });
+
+    const offers = await this.onCampusRepo.findAll({
+      include: [
+        {
+          model: SalaryModel,
+          as: "salary",
+          required: true,
+          include: [
+            {
+              model: JobModel,
+              as: "job",
+              required: true,
+              where: { seasonId: { [Op.in]: seasonIds } },
+            },
+          ],
+        },
+        {
+          model: StudentModel,
+          as: "student",
+          include: [{ model: ProgramModel, as: "program" }],
+        },
+      ],
+    });
+
+    const statistics = { courseWiseStats: {} };
+    const courseOffersMap = {};
+
+    offers.forEach((offer) => {
+      const courseId = offer.student.program.course;
+      courseOffersMap[courseId] = courseOffersMap[courseId] || [];
+      courseOffersMap[courseId].push(offer);
+    });
+
+    courses.forEach((course) => {
+      const courseId = course;
+      const courseOffers = courseOffersMap[courseId] || [];
+      const registeredCount = courseWiseRegisteredCount[courseId] || 0;
+      const placedCount = new Set(courseOffers.map((offer) => offer.studentId)).size;
+      const placementPercentage = (placedCount / registeredCount) * 100 || 0;
+      const unplacedPercentage = 100 - placementPercentage;
+
+      const ctcArray = courseOffers.map((offer) => offer.salary?.totalCTC).filter((ctc) => ctc !== null);
+
+      const stats = this.calculateStatistics(ctcArray);
+
+      statistics.courseWiseStats[courseId] = {
+        totalRegisteredStudentsCount: registeredCount,
+        placedStudentsCount: placedCount,
+        placementPercentage,
+        unplacedPercentage,
+        ...stats,
+        totalOffers: courseOffers.length,
+        totalCompaniesOffering: new Set(courseOffers.map((offer) => offer.salary.job.companyId)).size,
+      };
+    });
+
+    return statistics.courseWiseStats;
+  }
+
+  async getCumulativeStatsDepartmentWise(seasonIds: string[]) {
+    const programs = await this.programRepo.findAll({
+      attributes: ["department"],
+      group: ["department"],
+    });
+    const departments = programs.map((program) => program.department);
+
+    const registrations = await this.registrationsRepo.findAll({
+      where: { seasonId: { [Op.in]: seasonIds }, registered: true },
+      include: [
+        {
+          model: StudentModel,
+          as: "student",
+          include: [{ model: ProgramModel, as: "program" }],
+        },
+      ],
+    });
+
+    const registeredStudents = registrations.map((registration) => registration.student);
+    const departmentWiseRegisteredCount = {};
+
+    registeredStudents.forEach((student) => {
+      const departmentId = student.program.department;
+      departmentWiseRegisteredCount[departmentId] = (departmentWiseRegisteredCount[departmentId] || 0) + 1;
+    });
+
+    const offers = await this.onCampusRepo.findAll({
+      include: [
+        {
+          model: SalaryModel,
+          as: "salary",
+          required: true,
+          include: [
+            {
+              model: JobModel,
+              as: "job",
+              required: true,
+              where: { seasonId: { [Op.in]: seasonIds } },
+            },
+          ],
+        },
+        {
+          model: StudentModel,
+          as: "student",
+          include: [{ model: ProgramModel, as: "program" }],
+        },
+      ],
+    });
+
+    const statistics = { departmentWiseStats: {} };
+    const departmentOffersMap = {};
+
+    offers.forEach((offer) => {
+      const departmentId = offer.student.program.department;
+      departmentOffersMap[departmentId] = departmentOffersMap[departmentId] || [];
+      departmentOffersMap[departmentId].push(offer);
+    });
+
+    departments.forEach((department) => {
+      const departmentId = department;
+      const departmentOffers = departmentOffersMap[departmentId] || [];
+      const registeredCount = departmentWiseRegisteredCount[departmentId] || 0;
+      const placedCount = new Set(departmentOffers.map((offer) => offer.studentId)).size;
+      const placementPercentage = (placedCount / registeredCount) * 100 || 0;
+      const unplacedPercentage = 100 - placementPercentage;
+
+      const ctcArray = departmentOffers.map((offer) => offer.salary?.totalCTC).filter((ctc) => ctc !== null);
+
+      const stats = this.calculateStatistics(ctcArray);
+
+      statistics.departmentWiseStats[departmentId] = {
+        totalRegisteredStudentsCount: registeredCount,
+        placedStudentsCount: placedCount,
+        placementPercentage,
+        unplacedPercentage,
+        ...stats,
+        totalOffers: departmentOffers.length,
+        totalCompaniesOffering: new Set(departmentOffers.map((offer) => offer.salary.job.companyId)).size,
+      };
+    });
+
+    return statistics.departmentWiseStats;
+  }
+  async getCumulativeStatsCategoryWise(seasonIds: string[]) {
+    const categories = Object.keys(CategoryEnum).map((key) => CategoryEnum[key]);
+
+    const registrations = await this.registrationsRepo.findAll({
+      where: { seasonId: { [Op.in]: seasonIds }, registered: true },
+      include: [
+        {
+          model: StudentModel,
+          as: "student",
+        },
+      ],
+    });
+
+    const registeredStudents = registrations.map((registration) => registration.student);
+    const categoryWiseRegisteredCount: Record<string, number> = {};
+
+    registeredStudents.forEach((student) => {
+      const categoryId = student.category;
+      categoryWiseRegisteredCount[categoryId] = (categoryWiseRegisteredCount[categoryId] || 0) + 1;
+    });
+
+    const offers = await this.onCampusRepo.findAll({
+      include: [
+        {
+          model: SalaryModel,
+          as: "salary",
+          required: true,
+          include: [
+            {
+              model: JobModel,
+              as: "job",
+              required: true,
+              where: {
+                seasonId: { [Op.in]: seasonIds },
+              },
+            },
+          ],
+        },
+        {
+          model: StudentModel,
+          as: "student",
+        },
+      ],
+    });
+
+    const statistics = {
+      categoryWiseStats: {},
+    };
+
+    const categoryOffersMap = {};
+
+    offers.forEach((offer) => {
+      const categoryId = offer.student.category;
+      categoryOffersMap[categoryId] = categoryOffersMap[categoryId] || [];
+      categoryOffersMap[categoryId].push(offer);
+    });
+
+    categories.forEach((category) => {
+      const categoryId = category;
+      const categoryOffers = categoryOffersMap[categoryId] || [];
+      const categoryRegisteredStudentsCount = categoryWiseRegisteredCount[categoryId] || 0;
+      const categoryPlacedStudentsCount = new Set(categoryOffers.map((offer) => offer.studentId)).size;
+      const placementPercentage = (categoryPlacedStudentsCount / categoryRegisteredStudentsCount) * 100 || 0;
+      const unplacedPercentage = 100 - placementPercentage;
+      const ctcArray = categoryOffers.map((offer) => offer.salary?.totalCTC || 0).filter((ctc) => ctc !== null);
+
+      const stats = this.calculateStatistics(ctcArray);
+
+      statistics[categoryId] = {
+        totalRegisteredStudentsCount: categoryRegisteredStudentsCount,
+        placedStudentsCount: categoryPlacedStudentsCount,
+        placementPercentage: placementPercentage,
+        unplacedPercentage: unplacedPercentage,
+        ...stats,
+        totalOffers: categoryOffers.length,
+        totalCompaniesOffering: new Set(categoryOffers.map((offer) => offer.salary.job.companyId)).size,
+      };
+    });
+
+    return statistics;
+  }
+
+  async getCumulativeStatsGenderWise(seasonIds: string[]) {
+    const genders = Object.keys(GenderEnum).map((key) => GenderEnum[key]);
+
+    const registrations = await this.registrationsRepo.findAll({
+      where: { seasonId: { [Op.in]: seasonIds }, registered: true },
+      include: [
+        {
+          model: StudentModel,
+          as: "student",
+        },
+      ],
+    });
+
+    const registeredStudents = registrations.map((registration) => registration.student);
+    const genderWiseRegisteredCount: Record<string, number> = {};
+
+    registeredStudents.forEach((student) => {
+      const genderId = student.gender;
+      genderWiseRegisteredCount[genderId] = (genderWiseRegisteredCount[genderId] || 0) + 1;
+    });
+
+    const offers = await this.onCampusRepo.findAll({
+      include: [
+        {
+          model: SalaryModel,
+          as: "salary",
+          required: true,
+          include: [
+            {
+              model: JobModel,
+              as: "job",
+              required: true,
+              where: {
+                seasonId: { [Op.in]: seasonIds },
+              },
+            },
+          ],
+        },
+        {
+          model: StudentModel,
+          as: "student",
+        },
+      ],
+    });
+
+    const statistics = {
+      genderWiseStats: {},
+    };
+
+    const genderOffersMap = {};
+
+    offers.forEach((offer) => {
+      const genderId = offer.student.gender;
+      genderOffersMap[genderId] = genderOffersMap[genderId] || [];
+      genderOffersMap[genderId].push(offer);
+    });
+
+    genders.forEach((gender) => {
+      const genderId = gender;
+      const genderOffers = genderOffersMap[genderId] || [];
+      const genderRegisteredStudentsCount = genderWiseRegisteredCount[genderId] || 0;
+      const genderPlacedStudentsCount = new Set(genderOffers.map((offer) => offer.studentId)).size;
+      const placementPercentage = (genderPlacedStudentsCount / genderRegisteredStudentsCount) * 100 || 0;
+      const unplacedPercentage = 100 - placementPercentage;
+
+      const ctcArray = genderOffers.map((offer) => offer.salary?.totalCTC || 0).filter((ctc) => ctc !== null);
+
+      const stats = this.calculateStatistics(ctcArray);
+
+      statistics[genderId] = {
+        totalRegisteredStudentsCount: genderRegisteredStudentsCount,
+        placedStudentsCount: genderPlacedStudentsCount,
+        placementPercentage: placementPercentage,
+        unplacedPercentage: unplacedPercentage,
+        ...stats,
+        totalOffers: genderOffers.length,
+        totalCompaniesOffering: new Set(genderOffers.map((offer) => offer.salary.job.companyId)).size,
+      };
+    });
+
+    return statistics;
+  }
 }
