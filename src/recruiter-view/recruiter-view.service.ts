@@ -363,7 +363,7 @@ export class RecruiterViewService {
 
   async getJD(filename: string, recruiterId: string) {
     const ans = await this.jobRepo.findOne({
-      where: { attachment: filename, recruiterId: recruiterId },
+      where: { attachments: { [Op.contains]: [filename] }, recruiterId: recruiterId },
     });
 
     return ans;

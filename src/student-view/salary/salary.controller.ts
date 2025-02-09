@@ -39,9 +39,13 @@ export class SalaryController {
   async getSalary(@Param("id", new ParseUUIDPipe()) id: string, @User() user: IUser) {
     const ans = await this.salaryService.getSalary(id, user.studentId);
 
-    if (ans.job.attachment) {
-      const file = await this.fileService.getFileasBuffer(path.join(this.folderPath, ans.job.attachment));
-      ans.job.attachment = file.toString("base64");
+    if (ans.job.attachments && ans.job.attachments.length > 0) {
+      const files = [];
+      for (const attachment of ans.job.attachments) {
+        const file = await this.fileService.getFileasBuffer(path.join(this.folderPath, attachment));
+        files.push(file.toString("base64"));
+      }
+      ans.job.attachments = files;
     }
 
     return pipeTransform(ans, GetStudentSalaryDto);

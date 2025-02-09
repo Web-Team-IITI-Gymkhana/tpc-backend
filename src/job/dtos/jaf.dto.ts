@@ -251,8 +251,8 @@ class JobDto {
   @NestedString({ optional: true })
   others?: string;
 
-  @NestedObject({ type: RecruiterFilledDto })
-  recruiterDetailsFilled: RecruiterFilledDto;
+  @NestedObject({ type: RecruiterFilledDto, isArray: true })
+  recruiterDetailsFilled: RecruiterFilledDto[];
 
   @NestedObject({ type: SelectionProcedureDto })
   selectionProcedure: SelectionProcedureDto;

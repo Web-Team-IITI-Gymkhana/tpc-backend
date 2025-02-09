@@ -88,8 +88,10 @@ export class InsertService {
     }
 
     for (const job of JOBS) {
-      if (!job.attachment) continue;
-      await this.fileService.uploadFile(path.join(this.jdFolder, job.attachment), { buffer: file });
+      if (!job.attachments) continue;
+      for (const attachment of job.attachments) {
+        await this.fileService.uploadFile(path.join(this.jdFolder, attachment), { buffer: file });
+      }
     }
 
     this.logger.log("Successfully Inserted");

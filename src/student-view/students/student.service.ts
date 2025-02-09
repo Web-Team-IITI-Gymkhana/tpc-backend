@@ -426,7 +426,7 @@ export class StudentService {
   async getJD(filename: string, studentId: string) {
     const whereSalary = await this.filterSalaries(studentId);
     const ans = await this.jobRepo.findOne({
-      where: { attachment: filename, active: true },
+      where: { attachments: { [Op.contains]: [filename] }, active: true },
       include: [
         {
           model: SalaryModel,

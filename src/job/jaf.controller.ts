@@ -30,28 +30,4 @@ export class JafController {
 
     return pipeTransform(ans, GetJafValuesDto);
   }
-
-  @Post()
-  @ApiResponse({ type: String })
-  @UseInterceptors(TransactionInterceptor)
-  async createJaf(@Body() jaf: JafDto, @TransactionParam() t: Transaction) {
-    const file = jaf.job.attachment ? { buffer: Buffer.from(jaf.job.attachment, "base64"), size: 0 } : undefined;
-    if (file) {
-      file.size = file.buffer.length;
-      const magic = file.buffer.subarray(0, 4).toString("ascii");
-      if (magic !== "%PDF") throw new BadRequestException("Only PDF is supported");
-      if (file.size > JD_SIZE_LIMIT) throw new BadRequestException("File size too large");
-      const filename = uuidv4() + ".pdf";
-      jaf.job.attachment = filename;
-
-      const ans = await this.jafService.createJaf(jaf.job, jaf.salaries, t);
-      await this.fileService.uploadFile(path.join(this.foldername, filename), file);
-
-      return ans;
-    }
-
-    const ans = await this.jafService.createJaf(jaf.job, jaf.salaries, t);
-
-    return ans;
-  }
 }
