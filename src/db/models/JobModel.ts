@@ -34,6 +34,7 @@ import path from "path";
 import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
 import { ProgramModel } from "./ProgramModel";
 import { FeedbackModel } from "./FeedbackModel";
+import { isArray } from "class-validator";
 
 const environmentVariables: IEnvironmentVariables = env();
 const { MAIL_USER, APP_NAME, FRONTEND_URL, DEFAULT_MAIL_TO, SEND_MAIL } = environmentVariables;
@@ -161,9 +162,9 @@ export class JobModel extends Model<JobModel> {
   description?: string;
 
   @Column({
-    type: sequelize.STRING,
+    type: sequelize.ARRAY(sequelize.STRING),
   })
-  attachment?: string;
+  attachments?: string[];
 
   @Column({
     type: sequelize.ARRAY(sequelize.STRING),
@@ -293,7 +294,7 @@ export class JobModel extends Model<JobModel> {
     };
 
     await mailerService.sendEmail(mailToAdmin);
-    await mailerService.sendEmail(mailToRecruiter);
+    // await mailerService.sendEmail(mailToRecruiter);
   }
 
   @BeforeBulkUpdate

@@ -294,8 +294,8 @@ export const LOGIN_RECRUITER = {};
 export const LOGIN_TPC_MEMBER = {};
 
 export const RESUME_SIZE_LIMIT = 102400; // 1MB
-export const IE_SIZE_LIMIT = RESUME_SIZE_LIMIT * 10; // 10MB.
-export const JD_SIZE_LIMIT = RESUME_SIZE_LIMIT * 10; // 10MB.
+export const IE_SIZE_LIMIT = RESUME_SIZE_LIMIT * 100; // 10MB.
+export const JD_SIZE_LIMIT = RESUME_SIZE_LIMIT * 100; // 10MB.
 
 export const ROLES_KEY = "roles";
 

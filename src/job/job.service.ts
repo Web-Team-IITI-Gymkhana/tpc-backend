@@ -214,7 +214,7 @@ export class JobService {
 
   async getJD(filename: string) {
     const ans = await this.jobRepo.findOne({
-      where: { attachment: filename },
+      where: { attachments: { [Op.contains]: [filename] } },
     });
 
     return ans;
@@ -239,17 +239,28 @@ export class JobService {
   }
 
   async addAttachment(body: { filename: string; jobId: string }, t: Transaction) {
-    const [ans] = await this.jobRepo.update(
-      { attachment: body.filename },
-      { where: { id: body.jobId, attachment: { [Op.is]: null } }, transaction: t }
-    );
-    if (ans === 0) throw new NotFoundException(`The Job with id: ${body.jobId} does not exist or already has a JD`);
+    const job = await this.jobRepo.findByPk(body.jobId, { transaction: t });
+
+    if (!job) {
+      throw new NotFoundException(`The Job with id: ${body.jobId} does not exist`);
+    }
+
+    const attachments = job.attachments ? [...job.attachments, body.filename] : [body.filename];
+
+    const [ans] = await this.jobRepo.update({ attachments }, { where: { id: body.jobId }, transaction: t });
 
     return ans;
   }
 
   async deleteAttachments(filenames: string | string[], t: Transaction) {
-    const ans = await this.jobRepo.update({ attachment: null }, { where: { attachment: filenames }, transaction: t });
+    if (!Array.isArray(filenames)) {
+      filenames = [filenames];
+    }
+
+    const ans = await this.jobRepo.update(
+      { attachments: null },
+      { where: { attachments: { [Op.overlap]: filenames } }, transaction: t }
+    );
 
     return ans;
   }

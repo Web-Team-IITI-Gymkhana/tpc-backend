@@ -210,8 +210,8 @@ export class GetJobsDto {
   @NestedString({})
   role: string;
 
-  @NestedString({ optional: true })
-  attachment?: string;
+  @NestedString({ optional: true, isArray: true })
+  attachments?: string[];
 
   @NestedString({ optional: true, isArray: true })
   skills?: string[];
@@ -401,8 +401,8 @@ export class GetJobDto extends GetJobsDto {
   @NestedObject({ type: SelectionProcedureDto })
   selectionProcedure: SelectionProcedureDto;
 
-  @NestedString({ optional: true })
-  attachment?: string;
+  @NestedString({ optional: true, isArray: true })
+  attachments?: string[];
 
   @NestedDate({ optional: true })
   offerLetterReleaseDate?: Date;
