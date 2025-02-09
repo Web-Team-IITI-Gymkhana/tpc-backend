@@ -294,7 +294,7 @@ export class JobModel extends Model<JobModel> {
     };
 
     await mailerService.sendEmail(mailToAdmin);
-    await mailerService.sendEmail(mailToRecruiter);
+    // await mailerService.sendEmail(mailToRecruiter);
   }
 
   @BeforeBulkUpdate

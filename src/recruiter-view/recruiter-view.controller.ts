@@ -122,7 +122,7 @@ export class RecruiterViewController {
   @ApiResponse({ type: String })
   @UseInterceptors(TransactionInterceptor)
   async createJaf(@Body() jaf: JafDto, @TransactionParam() t: Transaction, @User() user: IUser) {
-    const attachments = jaf.job.attachments;
+    const attachments = jaf.job.attachments || [];
     const uploadedFiles = [];
 
     for (const base64String of attachments) {
