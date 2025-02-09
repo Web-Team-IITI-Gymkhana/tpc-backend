@@ -324,8 +324,8 @@ export class GetJobDto extends GetJobsDto {
   @NestedString({ optional: true })
   description?: string;
 
-  @NestedString({ optional: true })
-  attachment?: string;
+  @NestedString({ optional: true, isArray: true })
+  attachments?: string[];
 
   @NestedString({ optional: true, isArray: true })
   skills?: string[];

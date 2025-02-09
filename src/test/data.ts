@@ -221,7 +221,9 @@ export const JOBS: Optional<JobModel, NullishPropertiesOf<JobModel>>[] = Array.f
   recruiterDetailsFilled: RECRUITERS_DETAILS_FILLED[idx],
   selectionProcedure: SELECTION_PROCEDURES[idx],
   description: faker.datatype.boolean() ? faker.string.alpha() : undefined,
-  attachment: faker.datatype.boolean() ? faker.string.uuid() + ".pdf" : undefined,
+  attachments: faker.datatype.boolean()
+    ? Array.from({ length: faker.number.int({ min: 1, max: 5 }) }, () => faker.string.uuid() + ".pdf")
+    : undefined,
   location: faker.string.alpha(),
   medicalRequirements: faker.string.alpha(),
   additionalInfo: faker.string.alpha(),
