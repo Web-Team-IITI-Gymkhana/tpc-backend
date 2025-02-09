@@ -102,16 +102,16 @@ class TestDto {
   @NestedEnum(TestTypesEnum, {})
   type: TestTypesEnum;
 
-  @NestedNumber({})
-  duration: number;
+  @NestedString({})
+  duration: string;
 }
 
 class InterviewDto {
   @NestedEnum(InterviewTypesEnum, {})
   type: InterviewTypesEnum;
 
-  @NestedNumber({})
-  duration: number;
+  @NestedString({})
+  duration: string;
 }
 
 export class SelectionProcedureDto {
@@ -260,8 +260,8 @@ class JobDto {
   @NestedString({ optional: true })
   description?: string;
 
-  @NestedString({ optional: true })
-  attachment?: string;
+  @NestedString({ optional: true, isArray: true })
+  attachments?: string[];
 
   @NestedString({ optional: true, isArray: true })
   skills?: string[];
