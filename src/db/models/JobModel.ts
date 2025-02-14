@@ -145,10 +145,9 @@ export class JobModel extends Model<JobModel> {
   companyDetailsFilled: object;
 
   @Column({
-    type: sequelize.JSONB,
-    defaultValue: Sequelize.literal("'{}'::jsonb"),
+    type: sequelize.ARRAY(sequelize.JSONB),
   })
-  recruiterDetailsFilled: object;
+  recruiterDetailsFilled: object[];
 
   @Column({
     type: sequelize.JSONB,
@@ -273,10 +272,6 @@ export class JobModel extends Model<JobModel> {
     const adminContent = getHtmlContent(adminPath, adminReplacements);
 
     const recruiterPath = path.resolve(process.cwd(), "src/html", "JafToRecruiter.html");
-    const recruiterReplacements = {
-      recruiterName: (instance.recruiterDetailsFilled as IRecruiterDetails).name,
-    };
-    const recruiterContent = getHtmlContent(recruiterPath, recruiterReplacements);
 
     const mailToAdmin: SendEmailDto = {
       from: { name: APP_NAME, address: MAIL_USER },
@@ -284,13 +279,6 @@ export class JobModel extends Model<JobModel> {
       // recepients: [{ address: DEFAULT_MAIL_TO }],
       subject: `Job Announcement Form Filled by ${(instance.companyDetailsFilled as ICompanyDetails).name}`,
       html: adminContent,
-    };
-    const mailToRecruiter: SendEmailDto = {
-      from: { name: APP_NAME, address: MAIL_USER },
-      recepients: [{ address: (instance.recruiterDetailsFilled as IRecruiterDetails).email }],
-      // recepients: [{ address: DEFAULT_MAIL_TO }],
-      subject: "Job Announcement Form Successfully Submitted",
-      html: recruiterContent,
     };
 
     await mailerService.sendEmail(mailToAdmin);

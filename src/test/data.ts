@@ -218,7 +218,7 @@ export const JOBS: Optional<JobModel, NullishPropertiesOf<JobModel>>[] = Array.f
   currentStatus: faker.helpers.enumValue(JobStatusTypeEnum),
   registration: faker.helpers.enumValue(JobRegistrationEnum),
   companyDetailsFilled: COMPANIES_DETAILS_FILLED[idx],
-  recruiterDetailsFilled: RECRUITERS_DETAILS_FILLED[idx],
+  recruiterDetailsFilled: [RECRUITERS_DETAILS_FILLED[idx]],
   selectionProcedure: SELECTION_PROCEDURES[idx],
   description: faker.datatype.boolean() ? faker.string.alpha() : undefined,
   attachments: faker.datatype.boolean()
