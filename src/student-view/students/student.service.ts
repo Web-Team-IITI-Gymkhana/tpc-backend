@@ -1,5 +1,5 @@
 import { ForbiddenException, Inject, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
-import sequelize from "sequelize";
+import sequelize, { Sequelize } from "sequelize";
 import { FindOptions, Op, Transaction, WhereOptions } from "sequelize";
 import {
   EVENT_DAO,
@@ -46,7 +46,8 @@ export class StudentService {
     @Inject(JOB_DAO) private jobRepo: typeof JobModel,
     @Inject(ON_CAMPUS_OFFER_DAO) private offerRepo: typeof OnCampusOfferModel,
     @Inject(SEASON_DAO) private seasonRepo: typeof SeasonModel,
-    @Inject(REGISTRATIONS_DAO) private registrationsRepo: typeof RegistrationModel
+    @Inject(REGISTRATIONS_DAO) private registrationsRepo: typeof RegistrationModel,
+    @Inject("SEQUELIZE") private readonly sequelizeInstance: Sequelize
   ) {}
 
   async filterSalaries(studentId: string) {
@@ -136,17 +137,6 @@ export class StudentService {
           as: "salaries",
           where: whereSalary,
           required: true,
-        },
-        {
-          model: RecruiterModel,
-          as: "recruiter",
-          required: true,
-          include: [
-            {
-              model: UserModel,
-              as: "user",
-            },
-          ],
         },
       ],
     };
@@ -447,6 +437,32 @@ export class StudentService {
   }
 
   async deleteResumes(studentId: string, filepath: string | string[], t: Transaction) {
+    const jobs = await this.sequelizeInstance.query(
+      `
+      WITH resume_cte AS (
+        SELECT id FROM "Resume" WHERE "studentId" = '${studentId}' AND "filepath" = '${filepath}'
+      ),
+      application_cte AS (
+        SELECT "jobId" FROM "Application" WHERE "resumeId" IN (SELECT id FROM resume_cte)
+      ),
+      job_cte AS (
+        SELECT * FROM "Job" WHERE "id" IN (SELECT "jobId" FROM application_cte)
+      )
+      SELECT job_cte.role, "Company".name 
+      FROM "Company"
+      INNER JOIN job_cte ON job_cte."companyId" = "Company".id
+      WHERE "Company".id IN (SELECT "companyId" FROM job_cte)
+    `,
+      { replacements: { studentId, filepath }, type: sequelize.QueryTypes.SELECT, transaction: t }
+    );
+
+    if (jobs.length > 0) {
+      const job = jobs?.[0] as { role: string; name: string };
+      throw new ForbiddenException(
+        `Cannot delete resume as it is associated with an active job application: ${job.role}, ${job.name}`
+      );
+    }
+
     const ans = await this.resumeRepo.destroy({ where: { studentId, filepath }, transaction: t });
 
     return ans;
