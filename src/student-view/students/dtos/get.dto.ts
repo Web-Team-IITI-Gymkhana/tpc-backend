@@ -219,8 +219,8 @@ export class GetJobsDto {
   @NestedString({ optional: true })
   description?: string;
 
-  @NestedObject({ type: RecruiterFilledDto, isArray: true })
-  recruiterDetailsFilled: RecruiterFilledDto[];
+  @NestedObject({ type: RecruiterFilledDto, isArray: true, optional: true })
+  recruiterDetailsFilled?: RecruiterFilledDto[];
 
   @NestedString({ optional: true })
   duration?: string;
@@ -234,7 +234,7 @@ export class GetJobsDto {
   @NestedObject({ type: CompanyDto })
   company: CompanyDto;
 
-  @NestedObject({ type: RecruiterDto })
+  @NestedObject({ type: RecruiterDto, optional: true })
   recruiter: RecruiterDto;
 }
 
