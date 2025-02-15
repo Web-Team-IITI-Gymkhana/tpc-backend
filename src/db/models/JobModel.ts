@@ -145,7 +145,7 @@ export class JobModel extends Model<JobModel> {
   companyDetailsFilled: object;
 
   @Column({
-    type: sequelize.ARRAY(sequelize.JSONB),
+    type: sequelize.ARRAY(sequelize.JSON),
   })
   recruiterDetailsFilled: object[];
 

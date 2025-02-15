@@ -219,8 +219,8 @@ export class GetJobsDto {
   @NestedString({ optional: true })
   description?: string;
 
-  @NestedObject({ type: RecruiterFilledDto })
-  recruiterDetailsFilled: RecruiterFilledDto;
+  @NestedObject({ type: RecruiterFilledDto, isArray: true })
+  recruiterDetailsFilled: RecruiterFilledDto[];
 
   @NestedString({ optional: true })
   duration?: string;
@@ -395,8 +395,8 @@ class Feedbackdto {
 }
 
 export class GetJobDto extends GetJobsDto {
-  @NestedObject({ type: RecruiterFilledDto })
-  recruiterDetailsFilled: RecruiterFilledDto;
+  @NestedObject({ type: RecruiterFilledDto, isArray: true })
+  recruiterDetailsFilled: RecruiterFilledDto[];
 
   @NestedObject({ type: SelectionProcedureDto })
   selectionProcedure: SelectionProcedureDto;
