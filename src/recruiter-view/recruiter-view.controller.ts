@@ -122,27 +122,28 @@ export class RecruiterViewController {
   @ApiResponse({ type: String })
   @UseInterceptors(TransactionInterceptor)
   async createJaf(@Body() jaf: JafDto, @TransactionParam() t: Transaction, @User() user: IUser) {
-    const base64String = jaf.job.attachment;
+    const attachments = jaf.job.attachments || [];
+    const uploadedFiles = [];
 
-    const base64Data = base64String.startsWith("data:application/pdf;base64,")
-      ? base64String.slice("data:application/pdf;base64,".length)
-      : base64String;
+    for (const base64String of attachments) {
+      const base64Data = base64String.startsWith("data:application/pdf;base64,")
+        ? base64String.slice("data:application/pdf;base64,".length)
+        : base64String;
 
-    const file = base64Data ? { buffer: Buffer.from(base64Data, "base64"), size: 0 } : undefined;
-    if (file) {
-      file.size = file.buffer.length;
-      const magic = file.buffer.subarray(0, 4).toString("ascii");
-      if (magic !== "%PDF") throw new BadRequestException("Only PDF is supported");
-      if (file.size > JD_SIZE_LIMIT) throw new BadRequestException("File size too large");
-      const filename = uuidv4() + ".pdf";
-      jaf.job.attachment = filename;
+      const file = base64Data ? { buffer: Buffer.from(base64Data, "base64"), size: 0 } : undefined;
+      if (file) {
+        file.size = file.buffer.length;
+        const magic = file.buffer.subarray(0, 4).toString("ascii");
+        if (magic !== "%PDF") throw new BadRequestException("Only PDF is supported");
+        if (file.size > JD_SIZE_LIMIT) throw new BadRequestException("File size too large");
+        const filename = uuidv4() + ".pdf";
+        uploadedFiles.push(filename);
 
-      const ans = await this.recruiterViewService.createJaf(jaf.job, jaf.salaries, t, user.recruiterId);
-      await this.fileService.uploadFile(path.join(this.JDFolder, filename), file);
-
-      return ans;
+        await this.fileService.uploadFile(path.join(this.JDFolder, filename), file);
+      }
     }
 
+    jaf.job.attachments = uploadedFiles;
     const ans = await this.recruiterViewService.createJaf(jaf.job, jaf.salaries, t, user.recruiterId);
 
     return ans;

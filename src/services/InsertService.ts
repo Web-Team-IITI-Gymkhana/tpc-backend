@@ -23,6 +23,8 @@ import {
   INTERVIEW_EXPERIENCES,
 } from "src/test/data";
 import {
+  CUSTOM_STUDENTS,
+  CUSTOM_USERS,
   DUMMY_COMPANY,
   DUMMY_RECRUITER,
   DUMMY_USER,
@@ -76,6 +78,12 @@ export class InsertService {
     await this.sequelizeInstance.models.UserModel.create(DUMMY_USER);
     await this.sequelizeInstance.models.RecruiterModel.create(DUMMY_RECRUITER);
     await this.sequelizeInstance.models.UserModel.create(LOGIN_ADMIN);
+    await this.sequelizeInstance.models.UserModel.bulkCreate(CUSTOM_USERS);
+    const updatedCustomStudents = CUSTOM_STUDENTS.map((student) => ({
+      ...student,
+      programId: programs[0].dataValues.id,
+    }));
+    await this.sequelizeInstance.models.StudentModel.bulkCreate(updatedCustomStudents);
 
     const file = await this.fileService.getFileasBuffer("src/test/resume.pdf");
 
@@ -88,8 +96,10 @@ export class InsertService {
     }
 
     for (const job of JOBS) {
-      if (!job.attachment) continue;
-      await this.fileService.uploadFile(path.join(this.jdFolder, job.attachment), { buffer: file });
+      if (!job.attachments) continue;
+      for (const attachment of job.attachments) {
+        await this.fileService.uploadFile(path.join(this.jdFolder, attachment), { buffer: file });
+      }
     }
 
     this.logger.log("Successfully Inserted");

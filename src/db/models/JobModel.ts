@@ -34,6 +34,7 @@ import path from "path";
 import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
 import { ProgramModel } from "./ProgramModel";
 import { FeedbackModel } from "./FeedbackModel";
+import { isArray } from "class-validator";
 
 const environmentVariables: IEnvironmentVariables = env();
 const { MAIL_USER, APP_NAME, FRONTEND_URL, DEFAULT_MAIL_TO, SEND_MAIL } = environmentVariables;
@@ -144,10 +145,9 @@ export class JobModel extends Model<JobModel> {
   companyDetailsFilled: object;
 
   @Column({
-    type: sequelize.JSONB,
-    defaultValue: Sequelize.literal("'{}'::jsonb"),
+    type: sequelize.ARRAY(sequelize.JSON),
   })
-  recruiterDetailsFilled: object;
+  recruiterDetailsFilled: object[];
 
   @Column({
     type: sequelize.JSONB,
@@ -161,9 +161,9 @@ export class JobModel extends Model<JobModel> {
   description?: string;
 
   @Column({
-    type: sequelize.STRING,
+    type: sequelize.ARRAY(sequelize.STRING),
   })
-  attachment?: string;
+  attachments?: string[];
 
   @Column({
     type: sequelize.ARRAY(sequelize.STRING),
@@ -272,10 +272,6 @@ export class JobModel extends Model<JobModel> {
     const adminContent = getHtmlContent(adminPath, adminReplacements);
 
     const recruiterPath = path.resolve(process.cwd(), "src/html", "JafToRecruiter.html");
-    const recruiterReplacements = {
-      recruiterName: (instance.recruiterDetailsFilled as IRecruiterDetails).name,
-    };
-    const recruiterContent = getHtmlContent(recruiterPath, recruiterReplacements);
 
     const mailToAdmin: SendEmailDto = {
       from: { name: APP_NAME, address: MAIL_USER },
@@ -284,16 +280,9 @@ export class JobModel extends Model<JobModel> {
       subject: `Job Announcement Form Filled by ${(instance.companyDetailsFilled as ICompanyDetails).name}`,
       html: adminContent,
     };
-    const mailToRecruiter: SendEmailDto = {
-      from: { name: APP_NAME, address: MAIL_USER },
-      recepients: [{ address: (instance.recruiterDetailsFilled as IRecruiterDetails).email }],
-      // recepients: [{ address: DEFAULT_MAIL_TO }],
-      subject: "Job Announcement Form Successfully Submitted",
-      html: recruiterContent,
-    };
 
     await mailerService.sendEmail(mailToAdmin);
-    await mailerService.sendEmail(mailToRecruiter);
+    // await mailerService.sendEmail(mailToRecruiter);
   }
 
   @BeforeBulkUpdate
@@ -318,6 +307,7 @@ export class JobModel extends Model<JobModel> {
     const newActive = options.attributes.active;
 
     const filteredJobs = jobs.filter((job) => job.active === false && newActive === true);
+    if (filteredJobs.length === 0) return;
 
     const salaries = await SalaryModel.findAll({
       where: {
@@ -364,10 +354,15 @@ export class JobModel extends Model<JobModel> {
     const conditions = salaries.map((salary) => ({
       cpi: { [Op.gte]: salary.minCPI },
       category: {
-        [Op.or]: [{ [Op.in]: salary.categories }, salary.categories.length === 0],
+        [Op.or]: [
+          { [Op.in]: salary.categories },
+          salary.categories.length === 0 ? { [Op.is]: null } : undefined,
+        ].filter(Boolean),
       },
       gender: {
-        [Op.or]: [{ [Op.in]: salary.genders }, salary.genders.length === 0],
+        [Op.or]: [{ [Op.in]: salary.genders }, salary.genders.length === 0 ? { [Op.is]: null } : undefined].filter(
+          Boolean
+        ),
       },
       tenthMarks: { [Op.gte]: salary.tenthMarks },
       twelthMarks: { [Op.gte]: salary.twelthMarks },
@@ -377,7 +372,9 @@ export class JobModel extends Model<JobModel> {
         ),
       },
       programId: {
-        [Op.or]: [{ [Op.in]: salary.programs }, salary.programs.length === 0],
+        [Op.or]: [{ [Op.in]: salary.programs }, salary.programs.length === 0 ? { [Op.is]: null } : undefined].filter(
+          Boolean
+        ),
         [Op.not]: programIds[salary.id],
       },
     }));
