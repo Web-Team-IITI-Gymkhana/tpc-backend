@@ -210,8 +210,8 @@ export class GetJobsDto {
   @NestedString({})
   role: string;
 
-  @NestedString({ optional: true })
-  attachment?: string;
+  @NestedString({ optional: true, isArray: true })
+  attachments?: string[];
 
   @NestedString({ optional: true, isArray: true })
   skills?: string[];
@@ -219,8 +219,8 @@ export class GetJobsDto {
   @NestedString({ optional: true })
   description?: string;
 
-  @NestedObject({ type: RecruiterFilledDto })
-  recruiterDetailsFilled: RecruiterFilledDto;
+  @NestedObject({ type: RecruiterFilledDto, isArray: true, optional: true })
+  recruiterDetailsFilled?: RecruiterFilledDto[];
 
   @NestedString({ optional: true })
   duration?: string;
@@ -234,7 +234,7 @@ export class GetJobsDto {
   @NestedObject({ type: CompanyDto })
   company: CompanyDto;
 
-  @NestedObject({ type: RecruiterDto })
+  @NestedObject({ type: RecruiterDto, optional: true })
   recruiter: RecruiterDto;
 }
 
@@ -395,14 +395,14 @@ class Feedbackdto {
 }
 
 export class GetJobDto extends GetJobsDto {
-  @NestedObject({ type: RecruiterFilledDto })
-  recruiterDetailsFilled: RecruiterFilledDto;
+  @NestedObject({ type: RecruiterFilledDto, isArray: true })
+  recruiterDetailsFilled: RecruiterFilledDto[];
 
   @NestedObject({ type: SelectionProcedureDto })
   selectionProcedure: SelectionProcedureDto;
 
-  @NestedString({ optional: true })
-  attachment?: string;
+  @NestedString({ optional: true, isArray: true })
+  attachments?: string[];
 
   @NestedDate({ optional: true })
   offerLetterReleaseDate?: Date;

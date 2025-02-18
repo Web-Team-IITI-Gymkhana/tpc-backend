@@ -1,7 +1,7 @@
 import { NullishPropertiesOf } from "sequelize/types/utils";
-import { CompanyModel, RecruiterModel, UserModel } from "./db/models";
+import { CompanyModel, RecruiterModel, StudentModel, UserModel } from "./db/models";
 import { Optional } from "sequelize";
-import { CompanyCategoryEnum, RoleEnum, DepartmentEnum } from "./enums";
+import { CompanyCategoryEnum, RoleEnum, DepartmentEnum, CategoryEnum, GenderEnum } from "./enums";
 import path from "path";
 import { env } from "./config";
 
@@ -285,6 +285,80 @@ export const LOGIN_ADMIN: Optional<UserModel, NullishPropertiesOf<UserModel>> = 
   role: RoleEnum.ADMIN,
 };
 
+export const CUSTOM_USERS: Optional<UserModel, NullishPropertiesOf<UserModel>>[] = [
+  {
+    id: "994b4d15-4e5a-4e7d-b78a-6f0f4dea7e66",
+    name: "Aryan Kulkarni",
+    email: "me210003016@iiti.ac.in",
+    contact: "9881317549",
+    role: RoleEnum.STUDENT,
+  },
+  {
+    id: "8ce6d580-26a2-4a28-a439-83d0adb4f2af",
+    name: "Ishaan Mittal",
+    email: "me210003039@iiti.ac.in",
+    contact: "9881317549",
+    role: RoleEnum.STUDENT,
+  },
+  {
+    id: "5ca3ab28-d16c-4a0b-91cb-42b312694244",
+    name: "G Aakash",
+    email: "cse210003015@iiti.ac.in",
+    contact: "9881317549",
+    role: RoleEnum.STUDENT,
+  },
+  {
+    id: "e9850f69-7458-425b-81fc-c06bd6e73d83",
+    name: "Harsh Soni",
+    email: "me210003035@iiti.ac.in",
+    contact: "9881317549",
+    role: RoleEnum.STUDENT,
+  },
+];
+
+export const CUSTOM_STUDENTS: Optional<StudentModel, NullishPropertiesOf<StudentModel>>[] = [
+  {
+    programId: "427d69ed-a4b4-4463-8fc7-2949143d2812",
+    rollNo: "210003016",
+    category: CategoryEnum.GENERAL,
+    gender: GenderEnum.MALE,
+    cpi: 10,
+    tenthMarks: 100,
+    twelthMarks: 100,
+    userId: "994b4d15-4e5a-4e7d-b78a-6f0f4dea7e66",
+  },
+  {
+    programId: "427d69ed-a4b4-4463-8fc7-2949143d2812",
+    rollNo: "210003039",
+    category: CategoryEnum.GENERAL,
+    gender: GenderEnum.MALE,
+    cpi: 10,
+    tenthMarks: 100,
+    twelthMarks: 100,
+    userId: "8ce6d580-26a2-4a28-a439-83d0adb4f2af",
+  },
+  {
+    programId: "427d69ed-a4b4-4463-8fc7-2949143d2812",
+    rollNo: "210001015",
+    category: CategoryEnum.GENERAL,
+    gender: GenderEnum.MALE,
+    cpi: 10,
+    tenthMarks: 100,
+    twelthMarks: 100,
+    userId: "5ca3ab28-d16c-4a0b-91cb-42b312694244",
+  },
+  {
+    programId: "427d69ed-a4b4-4463-8fc7-2949143d2812",
+    rollNo: "210003035",
+    category: CategoryEnum.GENERAL,
+    gender: GenderEnum.MALE,
+    cpi: 10,
+    tenthMarks: 100,
+    twelthMarks: 100,
+    userId: "e9850f69-7458-425b-81fc-c06bd6e73d83",
+  },
+];
+
 export const LOGIN_STUDENT = {};
 
 export const LOGIN_FACULTY = {};
@@ -294,8 +368,8 @@ export const LOGIN_RECRUITER = {};
 export const LOGIN_TPC_MEMBER = {};
 
 export const RESUME_SIZE_LIMIT = 102400; // 1MB
-export const IE_SIZE_LIMIT = RESUME_SIZE_LIMIT * 10; // 10MB.
-export const JD_SIZE_LIMIT = RESUME_SIZE_LIMIT * 10; // 10MB.
+export const IE_SIZE_LIMIT = RESUME_SIZE_LIMIT * 100; // 10MB.
+export const JD_SIZE_LIMIT = RESUME_SIZE_LIMIT * 100; // 10MB.
 
 export const ROLES_KEY = "roles";
 
