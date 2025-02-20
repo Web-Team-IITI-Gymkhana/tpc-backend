@@ -114,3 +114,20 @@ export class CourseWiseStatsDto {
   @NestedObject({ type: StatsDto })
   BTech_MTech: StatsDto;
 }
+
+export class SeasonStatsDto {
+  @NestedObject({ type: StatsDto })
+  overallStats: StatsDto;
+
+  @NestedObject({ type: DepartmentWiseStatsDto })
+  departmentWiseStats: DepartmentWiseStatsDto;
+
+  @NestedObject({ type: CategoryWiseStatsDto })
+  categoryWiseStats: CategoryWiseStatsDto;
+
+  @NestedObject({ type: GenderWiseStatsDto })
+  genderWiseStats: GenderWiseStatsDto;
+
+  @NestedObject({ type: CourseWiseStatsDto })
+  courseWiseStats: CourseWiseStatsDto;
+}
