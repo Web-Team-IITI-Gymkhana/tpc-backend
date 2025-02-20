@@ -17,8 +17,10 @@ import { CategoryEnum, GenderEnum } from "src/enums";
 @Injectable()
 export class AnalyticsDashboardService {
   constructor(
-    @Inject(ON_CAMPUS_OFFER_DAO) private onCampusRepo: typeof OnCampusOfferModel,
-    @Inject(REGISTRATIONS_DAO) private registrationsRepo: typeof RegistrationModel,
+    @Inject(ON_CAMPUS_OFFER_DAO)
+    private onCampusRepo: typeof OnCampusOfferModel,
+    @Inject(REGISTRATIONS_DAO)
+    private registrationsRepo: typeof RegistrationModel,
     @Inject(PROGRAM_DAO) private programRepo: typeof ProgramModel
   ) {}
 
@@ -510,6 +512,22 @@ export class AnalyticsDashboardService {
     });
 
     return statistics.genderWiseStats;
+  }
+
+  async getSeasonStats(seasonId: string) {
+    const overallStats = await this.getStatsOverall(seasonId);
+    const courseWiseStats = await this.getStatsCourseWise(seasonId);
+    const departmentWiseStats = await this.getStatsDepartmentWise(seasonId);
+    const categoryWiseStats = await this.getStatsCategoryWise(seasonId);
+    const genderWiseStats = await this.getStatsGenderWise(seasonId);
+
+    return {
+      overallStats,
+      courseWiseStats,
+      departmentWiseStats,
+      categoryWiseStats,
+      genderWiseStats,
+    };
   }
 
   async getCumulativeStatsOverall(seasonIds: string[]) {
