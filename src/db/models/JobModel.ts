@@ -307,6 +307,7 @@ export class JobModel extends Model<JobModel> {
     const newActive = options.attributes.active;
 
     const filteredJobs = jobs.filter((job) => job.active === false && newActive === true);
+    if (filteredJobs.length === 0) return;
 
     const salaries = await SalaryModel.findAll({
       where: {
@@ -353,10 +354,15 @@ export class JobModel extends Model<JobModel> {
     const conditions = salaries.map((salary) => ({
       cpi: { [Op.gte]: salary.minCPI },
       category: {
-        [Op.or]: [{ [Op.in]: salary.categories }, salary.categories.length === 0],
+        [Op.or]: [
+          { [Op.in]: salary.categories },
+          salary.categories.length === 0 ? { [Op.is]: null } : undefined,
+        ].filter(Boolean),
       },
       gender: {
-        [Op.or]: [{ [Op.in]: salary.genders }, salary.genders.length === 0],
+        [Op.or]: [{ [Op.in]: salary.genders }, salary.genders.length === 0 ? { [Op.is]: null } : undefined].filter(
+          Boolean
+        ),
       },
       tenthMarks: { [Op.gte]: salary.tenthMarks },
       twelthMarks: { [Op.gte]: salary.twelthMarks },
@@ -366,7 +372,9 @@ export class JobModel extends Model<JobModel> {
         ),
       },
       programId: {
-        [Op.or]: [{ [Op.in]: salary.programs }, salary.programs.length === 0],
+        [Op.or]: [{ [Op.in]: salary.programs }, salary.programs.length === 0 ? { [Op.is]: null } : undefined].filter(
+          Boolean
+        ),
         [Op.not]: programIds[salary.id],
       },
     }));
