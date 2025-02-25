@@ -1,5 +1,5 @@
 import { Controller, Body, UseGuards, Query, UseInterceptors, Res, HttpStatus } from "@nestjs/common";
-import { ApiTags } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { DeleteValues, GetValues, PatchValues, PostValues } from "src/decorators/controller";
 import { ExternalOpportunitiesService } from "./externalOpportunities.service";
 import { Transaction } from "sequelize";
@@ -8,7 +8,7 @@ import { pipeTransformArray, createArrayPipe } from "src/utils/utils";
 import { GetExternalOpportunitiesDto } from "./dtos/get.dto";
 import { ExternalOpportunitiesQueryDto } from "./dtos/query.dto";
 import { PostExternalOpportunitiesDto } from "./dtos/post.dto";
-import { UpdateExternalOpportunitiesDto } from "./dtos/patch.dto";
+import { PatchExternalOpportunitiesDto } from "./dtos/patch.dto";
 import { DeleteValuesDto } from "src/utils/utils.dto";
 import { AuthGuard } from "@nestjs/passport";
 import { RoleGuard } from "src/auth/roleGaurd";
@@ -18,6 +18,7 @@ import { Response } from "express";
 
 @Controller("external-opportunities")
 @ApiTags("ExternalOpportunities")
+@ApiBearerAuth("jwt")
 export class ExternalOpportunitiesController {
   constructor(private externalOpportunitiesService: ExternalOpportunitiesService) {}
 
@@ -32,10 +33,11 @@ export class ExternalOpportunitiesController {
   @PostValues(PostExternalOpportunitiesDto)
   async createExternalOpportunity(
     @Body(createArrayPipe(PostExternalOpportunitiesDto)) externalOpportunities: PostExternalOpportunitiesDto[],
-    @Res({ passthrough: true }) res: Response
+    @Res({ passthrough: true }) res: Response,
+    @TransactionParam() t: Transaction
   ) {
     try {
-      await this.externalOpportunitiesService.createExternalOpportunities(externalOpportunities);
+      await this.externalOpportunitiesService.createExternalOpportunities(externalOpportunities, t);
       res.status(HttpStatus.OK);
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -46,12 +48,12 @@ export class ExternalOpportunitiesController {
   @PatchValues(PostExternalOpportunitiesDto)
   @UseInterceptors(TransactionInterceptor)
   async updateExternalOpportunity(
-    @Body(createArrayPipe(PostExternalOpportunitiesDto)) externalOpportunities: PostExternalOpportunitiesDto[],
+    @Body(createArrayPipe(PostExternalOpportunitiesDto)) externalOpportunities: PatchExternalOpportunitiesDto[],
     @TransactionParam() t: Transaction,
     @Res({ passthrough: true }) res: Response
   ) {
     try {
-      await this.externalOpportunitiesService.createExternalOpportunities(externalOpportunities);
+      await this.externalOpportunitiesService.createExternalOpportunities(externalOpportunities, t);
       res.status(HttpStatus.OK);
     } catch (error) {
       res.status(HttpStatus.INTERNAL_SERVER_ERROR);
