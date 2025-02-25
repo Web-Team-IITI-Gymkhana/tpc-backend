@@ -29,6 +29,6 @@ export class ExternalOpportunitiesQueryDto {
   @NestedObject({ type: OrderExternalOpportunitiesDto, optional: true })
   orderBy?: OrderExternalOpportunitiesDto;
 
-  @NestedString({})
+  @NestedString({ optional: true })
   link?: string;
 }

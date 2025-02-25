@@ -24,21 +24,23 @@ export class ExternalOpportunitiesService {
     return ans.map((externalOpportunity) => externalOpportunity.get({ plain: true }));
   }
 
-  async createExternalOpportunities(externalOpportunities: PostExternalOpportunitiesDto[]) {
+  async createExternalOpportunities(externalOpportunities: PostExternalOpportunitiesDto[], t?: Transaction) {
     const ans = await this.externalOpportunitiesRepo.bulkCreate(externalOpportunities, {
       updateOnDuplicate: ["company", "lastdate", "link"],
+      transaction: t,
     });
 
     return ans.map((externalOpportunity) => externalOpportunity.id);
   }
 
-  async deleteExternalOpportunities(ids: string[]) {
+  async deleteExternalOpportunities(ids: string[], t?: Transaction) {
     const ans = await this.externalOpportunitiesRepo.destroy({
       where: {
         id: {
           [Op.in]: ids,
         },
       },
+      transaction: t,
     });
 
     return ans;
