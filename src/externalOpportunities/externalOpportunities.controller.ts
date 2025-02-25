@@ -45,10 +45,10 @@ export class ExternalOpportunitiesController {
   }
 
   @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
-  @PatchValues(PostExternalOpportunitiesDto)
+  @PatchValues(PatchExternalOpportunitiesDto)
   @UseInterceptors(TransactionInterceptor)
   async updateExternalOpportunity(
-    @Body(createArrayPipe(PostExternalOpportunitiesDto)) externalOpportunities: PatchExternalOpportunitiesDto[],
+    @Body(createArrayPipe(PatchExternalOpportunitiesDto)) externalOpportunities: PatchExternalOpportunitiesDto[],
     @TransactionParam() t: Transaction,
     @Res({ passthrough: true }) res: Response
   ) {
@@ -61,11 +61,12 @@ export class ExternalOpportunitiesController {
   }
 
   @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
+  @UseInterceptors(TransactionInterceptor)
   @DeleteValues()
-  async deleteExternalOpportunity(@Query() query: DeleteValuesDto) {
+  async deleteExternalOpportunity(@Query() query: DeleteValuesDto, @TransactionParam() t: Transaction) {
     const ids = query.id;
     const pids = typeof ids === "string" ? [ids] : ids;
 
-    return await this.externalOpportunitiesService.deleteExternalOpportunities(pids);
+    return await this.externalOpportunitiesService.deleteExternalOpportunities(pids, t);
   }
 }
