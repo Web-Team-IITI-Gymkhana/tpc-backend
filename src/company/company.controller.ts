@@ -15,7 +15,6 @@ import { RoleEnum } from "src/enums";
 @Controller("companies")
 @ApiTags("Company")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
 export class CompanyController {
   constructor(private companyService: CompanyService) {}
 
