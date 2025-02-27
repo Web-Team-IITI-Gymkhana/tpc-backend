@@ -18,6 +18,7 @@ import { RoleEnum } from "src/enums";
 @Controller("faculties")
 @ApiTags("Faculty")
 @ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
 export class FacultyController {
   constructor(private facultyService: FacultyService) {}
 

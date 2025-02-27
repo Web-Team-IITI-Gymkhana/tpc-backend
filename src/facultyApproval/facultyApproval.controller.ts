@@ -18,18 +18,15 @@ import { RoleEnum } from "src/enums";
 @Controller("faculty-approvals")
 @ApiTags("FacultyApproval")
 @ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
 export class FacultyApprovalController {
   constructor(private facultyApprovalService: FacultyApprovalService) {}
-
-  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
   @GetValues(FacultyApprovalsQueryDto, GetFacultyApprovalsDto)
   async getFacultyApprovals(@Query("q") where: FacultyApprovalsQueryDto) {
     const ans = await this.facultyApprovalService.getFacultyApprovals(where);
 
     return pipeTransformArray(ans, GetFacultyApprovalsDto);
   }
-
-  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @Post("/:salaryId")
   @ApiBody({ type: CreateFacultyApprovalsDto, isArray: true })
   @ApiParam({ name: "salaryId", type: String })
@@ -44,8 +41,6 @@ export class FacultyApprovalController {
 
     return ans;
   }
-
-  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @PatchValues(UpdateFacultyApprovalsDto)
   @UseInterceptors(TransactionInterceptor)
   async updateFacultyApprovals(
@@ -59,8 +54,6 @@ export class FacultyApprovalController {
 
     return ans.flat();
   }
-
-  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @DeleteValues()
   async deleteFacultyApprovals(@Query() query: DeleteValuesDto, @TransactionParam() t: Transaction) {
     const ids = typeof query.id === "string" ? [query.id] : query.id;

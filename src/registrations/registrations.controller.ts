@@ -16,30 +16,23 @@ import { RoleEnum } from "src/enums";
 @Controller("registrations")
 @ApiTags("Registration")
 @ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
 export class RegistrationsController {
   constructor(private registrationsService: RegistrationsService) {}
-
-  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
   @GetValues(RegistrationsQueryDto, GetRegistrationsDto)
   async getRegistrations(@Query("q") where: RegistrationsQueryDto) {
     const ans = await this.registrationsService.getRegistrations(where);
 
     return pipeTransformArray(ans, GetRegistrationsDto);
   }
-
-  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
   @PostValues(CreateRegistrationsDto)
   async createRegistrations(@Body(createArrayPipe(CreateRegistrationsDto)) registrations: CreateRegistrationsDto[]) {
     return await this.registrationsService.createRegistrations(registrations);
   }
-
-  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
   @DeleteValues()
   async deleteRegistrations(@Query() query: DeleteValuesDto) {
     return await this.registrationsService.deleteRegistrations(query.id);
   }
-
-  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
   @PatchValues(CreateRegistrationsDto)
   async updateRegistrations(
     @Body(createArrayPipe(CreateRegistrationsDto)) registrations: CreateRegistrationsDto[]
