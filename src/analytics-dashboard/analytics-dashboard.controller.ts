@@ -10,7 +10,9 @@ import {
   DepartmentWiseStatsDto,
   GenderWiseStatsDto,
   StatsDto,
+  SeasonStatsDto,
 } from "./dto/get.dto";
+import { SeasonStatusEnum } from "src/enums/SeasonStatus.enum";
 
 @Controller("analytics-dashboard")
 @UseGuards(AuthGuard("jwt"))
@@ -63,5 +65,15 @@ export class AnalyticsDashboardController {
     }
 
     return this.analyticsDashboardService.getStatsGenderWise(seasonId);
+  }
+
+  @Get("getSeasonStats/:seasonId")
+  @ApiResponse({ type: SeasonStatsDto })
+  async getPlacementStats(@Param("seasonId") seasonId: string, @User() user: IUser) {
+    if (user.role !== "ADMIN") {
+      throw new UnauthorizedException("You are not authorized to access this resource");
+    }
+
+    return this.analyticsDashboardService.getSeasonStats(seasonId);
   }
 }
