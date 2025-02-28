@@ -15,26 +15,21 @@ import { RoleEnum } from "src/enums";
 @Controller("penalties")
 @ApiTags("Penalty")
 @ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
 export class PenaltyController {
   constructor(private penaltyService: PenaltyService) {}
-
-  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
   @GetValues(PenaltyQueryDto, GetPenaltiesDto)
   async getPenalties(@Query("q") where: PenaltyQueryDto) {
     const ans = await this.penaltyService.getPenalties(where);
 
     return pipeTransformArray(ans, GetPenaltiesDto);
   }
-
-  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @PostValues(CreatePenaltiesDto)
   async createPenalties(@Body(createArrayPipe(CreatePenaltiesDto)) penalties: CreatePenaltiesDto[]) {
     const ans = await this.penaltyService.createPenalties(penalties);
 
     return ans;
   }
-
-  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @PatchValues(UpdatePenaltiesDto)
   async updatePenalties(@Body(createArrayPipe(UpdatePenaltiesDto)) penalties: UpdatePenaltiesDto[]) {
     const pr = penalties.map((penalty) => this.penaltyService.updatePenalty(penalty));
@@ -42,8 +37,6 @@ export class PenaltyController {
 
     return ans.flat();
   }
-
-  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @DeleteValues()
   async deletePenalties(@Query() query: DeleteValuesDto) {
     const ans = await this.penaltyService.deletePenalties(query.id);

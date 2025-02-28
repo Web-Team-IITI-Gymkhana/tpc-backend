@@ -1,17 +1,6 @@
-import {
-  NestedBoolean,
-  NestedDate,
-  NestedEmail,
-  NestedEnum,
-  NestedNumber,
-  NestedString,
-  NestedUUID,
-} from "src/decorators/dto";
+import { NestedDate, NestedString } from "src/decorators/dto";
 
 export class PostExternalOpportunitiesDto {
-  @NestedUUID({})
-  id: string;
-
   @NestedString({})
   company: string;
 
