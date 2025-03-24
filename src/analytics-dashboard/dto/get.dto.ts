@@ -115,6 +115,37 @@ export class CourseWiseStatsDto {
   BTech_MTech: StatsDto;
 }
 
+export class AcademicWiseStatsDto {
+  @NestedObject({ type: StatsDto })
+  "0-1": StatsDto;
+
+  @NestedObject({ type: StatsDto })
+  "1-2": StatsDto;
+
+  @NestedObject({ type: StatsDto })
+  "2-3": StatsDto;
+
+  @NestedObject({ type: StatsDto })
+  "3-4": StatsDto;
+
+  @NestedObject({ type: StatsDto })
+  "4-5": StatsDto;
+
+  @NestedObject({ type: StatsDto })
+  "5-6": StatsDto;
+
+  @NestedObject({ type: StatsDto })
+  "6-7": StatsDto;
+
+  @NestedObject({ type: StatsDto })
+  "7-8": StatsDto;
+
+  @NestedObject({ type: StatsDto })
+  "8-9": StatsDto;
+
+  @NestedObject({ type: StatsDto })
+  "9-10": StatsDto;
+}
 export class SeasonStatsDto {
   @NestedObject({ type: StatsDto })
   overallStats: StatsDto;
@@ -130,4 +161,7 @@ export class SeasonStatsDto {
 
   @NestedObject({ type: CourseWiseStatsDto })
   courseWiseStats: CourseWiseStatsDto;
+
+  @NestedObject({ type: AcademicWiseStatsDto })
+  academicWiseStats: AcademicWiseStatsDto;
 }

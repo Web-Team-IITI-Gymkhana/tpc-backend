@@ -514,12 +514,130 @@ export class AnalyticsDashboardService {
     return statistics.genderWiseStats;
   }
 
+  async getStatsAcademicWise(seasonId: string) {
+    // Define CPI ranges (0-10 with 1 point intervals)
+    const cpiRanges = [
+      { min: 0, max: 1 },
+      { min: 1, max: 2 },
+      { min: 2, max: 3 },
+      { min: 3, max: 4 },
+      { min: 4, max: 5 },
+      { min: 5, max: 6 },
+      { min: 6, max: 7 },
+      { min: 7, max: 8 },
+      { min: 8, max: 9 },
+      { min: 9, max: 10 },
+    ];
+
+    // Get all registered students with their CPI
+    const registrations = await this.registrationsRepo.findAll({
+      where: { seasonId: seasonId, registered: true },
+      include: [
+        {
+          model: StudentModel,
+          as: "student",
+        },
+      ],
+    });
+
+    const registeredStudents = registrations.map((registration) => registration.student);
+    const cpiWiseRegisteredCount = {};
+
+    // Initialize counts for each range
+    cpiRanges.forEach((range) => {
+      const rangeKey = `${range.min}-${range.max}`;
+      cpiWiseRegisteredCount[rangeKey] = 0;
+    });
+
+    // Count students in each CPI range
+    registeredStudents.forEach((student) => {
+      const cpi = student.cpi;
+      cpiRanges.forEach((range) => {
+        const rangeKey = `${range.min}-${range.max}`;
+        if (cpi >= range.min && cpi < range.max) {
+          cpiWiseRegisteredCount[rangeKey]++;
+        }
+      });
+    });
+
+    // Get all offers with student details
+    const offers = await this.onCampusRepo.findAll({
+      include: [
+        {
+          model: SalaryModel,
+          as: "salary",
+          required: true,
+          include: [
+            {
+              model: JobModel,
+              as: "job",
+              required: true,
+              where: {
+                seasonId: seasonId,
+              },
+            },
+          ],
+        },
+        {
+          model: StudentModel,
+          as: "student",
+        },
+      ],
+    });
+
+    const statistics = {
+      academicWiseStats: {},
+    };
+
+    const cpiOffersMap = {};
+
+    // Group offers by CPI ranges
+    offers.forEach((offer) => {
+      const studentCpi = offer.student.cpi;
+      cpiRanges.forEach((range) => {
+        const rangeKey = `${range.min}-${range.max}`;
+        if (studentCpi >= range.min && studentCpi < range.max) {
+          cpiOffersMap[rangeKey] = cpiOffersMap[rangeKey] || [];
+          cpiOffersMap[rangeKey].push(offer);
+        }
+      });
+    });
+
+    // Calculate statistics for each CPI range
+    cpiRanges.forEach((range) => {
+      const rangeKey = `${range.min}-${range.max}`;
+      const rangeOffers = cpiOffersMap[rangeKey] || [];
+      const registeredStudentsCount = cpiWiseRegisteredCount[rangeKey] || 0;
+      const placedStudentsCount = new Set(rangeOffers.map((offer) => offer.studentId)).size;
+      const placementPercentage = (placedStudentsCount / registeredStudentsCount) * 100 || 0;
+      const unplacedPercentage = 100 - placementPercentage;
+
+      const ctcArray = rangeOffers
+        .filter((offer) => offer.salary && offer.salary.totalCTC !== null)
+        .map((offer) => offer.salary.totalCTC);
+
+      const stats = this.calculateStatistics(ctcArray);
+      statistics.academicWiseStats[rangeKey] = {
+        totalRegisteredStudentsCount: registeredStudentsCount,
+        placedStudentsCount: placedStudentsCount,
+        placementPercentage: placementPercentage,
+        unplacedPercentage: unplacedPercentage,
+        ...stats,
+        totalOffers: rangeOffers.length,
+        totalCompaniesOffering: new Set(rangeOffers.map((offer) => offer.salary.job.companyId)).size,
+      };
+    });
+
+    return statistics.academicWiseStats;
+  }
+
   async getSeasonStats(seasonId: string) {
     const overallStats = await this.getStatsOverall(seasonId);
     const courseWiseStats = await this.getStatsCourseWise(seasonId);
     const departmentWiseStats = await this.getStatsDepartmentWise(seasonId);
     const categoryWiseStats = await this.getStatsCategoryWise(seasonId);
     const genderWiseStats = await this.getStatsGenderWise(seasonId);
+    const academicWiseStats = await this.getStatsAcademicWise(seasonId);
 
     return {
       overallStats,
@@ -527,6 +645,7 @@ export class AnalyticsDashboardService {
       departmentWiseStats,
       categoryWiseStats,
       genderWiseStats,
+      academicWiseStats,
     };
   }
 
