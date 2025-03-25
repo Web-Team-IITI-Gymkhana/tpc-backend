@@ -9,6 +9,7 @@ import {
   CourseWiseStatsDto,
   DepartmentWiseStatsDto,
   GenderWiseStatsDto,
+  AcademicWiseStatsDto,
   StatsDto,
   SeasonStatsDto,
 } from "./dto/get.dto";
@@ -65,6 +66,16 @@ export class AnalyticsDashboardController {
     }
 
     return this.analyticsDashboardService.getStatsGenderWise(seasonId);
+  }
+
+  @Get("statsAcademicWise/:seasonId")
+  @ApiResponse({ type: AcademicWiseStatsDto })
+  async getPlacementStatisticsAcademicWise(@Param("seasonId") seasonId: string, @User() user: IUser) {
+    if (user.role !== "ADMIN") {
+      throw new UnauthorizedException("You are not authorized to access this resource");
+    }
+
+    return this.analyticsDashboardService.getStatsAcademicWise(seasonId);
   }
 
   @Get("getSeasonStats/:seasonId")
