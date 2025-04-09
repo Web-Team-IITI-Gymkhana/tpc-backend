@@ -713,7 +713,6 @@ export class AnalyticsDashboardService {
     const categoryWiseStats = await this.getStatsCategoryWise(seasonId);
     const genderWiseStats = await this.getStatsGenderWise(seasonId);
     const academicWiseStats = await this.getStatsAcademicWise(seasonId);
-    const academicWiseStats = await this.getStatsAcademicWise(seasonId);
 
     return {
       overallStats,
@@ -721,7 +720,6 @@ export class AnalyticsDashboardService {
       departmentWiseStats,
       categoryWiseStats,
       genderWiseStats,
-      academicWiseStats,
       academicWiseStats,
     };
   }
