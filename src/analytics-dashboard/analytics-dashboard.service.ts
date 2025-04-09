@@ -9,10 +9,11 @@ import {
   SalaryModel,
   StudentModel,
   UserModel,
+  SeasonModel,
 } from "src/db/models";
 import { ON_CAMPUS_OFFER_DAO, PROGRAM_DAO, REGISTRATIONS_DAO, STUDENT_DAO, USER_DAO } from "src/constants";
 import { Op, Sequelize } from "sequelize";
-import { CategoryEnum, GenderEnum } from "src/enums";
+import { CategoryEnum, GenderEnum, SeasonTypeEnum } from "src/enums";
 
 @Injectable()
 export class AnalyticsDashboardService {
@@ -85,6 +86,16 @@ export class AnalyticsDashboardService {
               where: {
                 seasonId: seasonId,
               },
+              include: [
+                {
+                  model: SeasonModel,
+                  as: "season",
+                  required: true,
+                  where: {
+                    id: seasonId,
+                  },
+                },
+              ],
             },
           ],
         },
@@ -112,8 +123,10 @@ export class AnalyticsDashboardService {
     const ctcArray = [];
 
     offers.forEach((offer) => {
-      if (offer.salary && offer.salary.totalCTC !== null) {
+      if (offer?.salary?.job?.season?.type === SeasonTypeEnum.PLACEMENT && offer?.salary?.totalCTC !== null) {
         ctcArray.push(offer.salary.totalCTC);
+      } else if (offer?.salary?.job?.season?.type === SeasonTypeEnum.INTERN && offer?.salary?.stipend !== null) {
+        ctcArray.push(offer.salary.stipend);
       }
     });
 
@@ -181,6 +194,16 @@ export class AnalyticsDashboardService {
               where: {
                 seasonId: seasonId,
               },
+              include: [
+                {
+                  model: SeasonModel,
+                  as: "season",
+                  required: true,
+                  where: {
+                    id: seasonId,
+                  },
+                },
+              ],
             },
           ],
         },
@@ -219,8 +242,10 @@ export class AnalyticsDashboardService {
       const ctcArray = [];
 
       courseOffers.forEach((offer) => {
-        if (offer.salary && offer.salary.totalCTC !== null) {
+        if (offer?.salary?.job?.season?.type === SeasonTypeEnum.PLACEMENT && offer?.salary?.totalCTC !== null) {
           ctcArray.push(offer.salary.totalCTC);
+        } else if (offer?.salary?.job?.season?.type === SeasonTypeEnum.INTERN && offer?.salary?.stipend !== null) {
+          ctcArray.push(offer.salary.stipend);
         }
       });
 
@@ -283,6 +308,16 @@ export class AnalyticsDashboardService {
               where: {
                 seasonId: seasonId,
               },
+              include: [
+                {
+                  model: SeasonModel,
+                  as: "season",
+                  required: true,
+                  where: {
+                    id: seasonId,
+                  },
+                },
+              ],
             },
           ],
         },
@@ -321,8 +356,10 @@ export class AnalyticsDashboardService {
       const ctcArray = [];
 
       departmentOffers.forEach((offer) => {
-        if (offer.salary && offer.salary.totalCTC !== null) {
+        if (offer?.salary?.job?.season?.type === SeasonTypeEnum.PLACEMENT && offer?.salary?.totalCTC !== null) {
           ctcArray.push(offer.salary.totalCTC);
+        } else if (offer?.salary?.job?.season?.type === SeasonTypeEnum.INTERN && offer?.salary?.stipend !== null) {
+          ctcArray.push(offer.salary.stipend);
         }
       });
 
@@ -375,6 +412,16 @@ export class AnalyticsDashboardService {
               where: {
                 seasonId: seasonId,
               },
+              include: [
+                {
+                  model: SeasonModel,
+                  as: "season",
+                  required: true,
+                  where: {
+                    id: seasonId,
+                  },
+                },
+              ],
             },
           ],
         },
@@ -407,8 +454,10 @@ export class AnalyticsDashboardService {
       const ctcArray = [];
 
       categoryOffers.forEach((offer) => {
-        if (offer.salary && offer.salary.totalCTC !== null) {
+        if (offer?.salary?.job?.season?.type === SeasonTypeEnum.PLACEMENT && offer?.salary?.totalCTC !== null) {
           ctcArray.push(offer.salary.totalCTC);
+        } else if (offer?.salary?.job?.season?.type === SeasonTypeEnum.INTERN && offer?.salary?.stipend !== null) {
+          ctcArray.push(offer.salary.stipend);
         }
       });
 
@@ -461,6 +510,16 @@ export class AnalyticsDashboardService {
               where: {
                 seasonId: seasonId,
               },
+              include: [
+                {
+                  model: SeasonModel,
+                  as: "season",
+                  required: true,
+                  where: {
+                    id: seasonId,
+                  },
+                },
+              ],
             },
           ],
         },
@@ -493,8 +552,10 @@ export class AnalyticsDashboardService {
       const ctcArray = [];
 
       genderOffers.forEach((offer) => {
-        if (offer.salary && offer.salary.totalCTC !== null) {
+        if (offer?.salary?.job?.season?.type === SeasonTypeEnum.PLACEMENT && offer?.salary?.totalCTC !== null) {
           ctcArray.push(offer.salary.totalCTC);
+        } else if (offer?.salary?.job?.season?.type === SeasonTypeEnum.INTERN && offer?.salary?.stipend !== null) {
+          ctcArray.push(offer.salary.stipend);
         }
       });
 
@@ -575,6 +636,16 @@ export class AnalyticsDashboardService {
               where: {
                 seasonId: seasonId,
               },
+              include: [
+                {
+                  model: SeasonModel,
+                  as: "season",
+                  required: true,
+                  where: {
+                    id: seasonId,
+                  },
+                },
+              ],
             },
           ],
         },
@@ -613,8 +684,12 @@ export class AnalyticsDashboardService {
       const unplacedPercentage = 100 - placementPercentage;
 
       const ctcArray = rangeOffers
-        .filter((offer) => offer.salary && offer.salary.totalCTC !== null)
-        .map((offer) => offer.salary.totalCTC);
+        .filter(
+          (offer) =>
+            (offer?.salary?.job?.season?.type === SeasonTypeEnum.PLACEMENT && offer?.salary?.totalCTC !== null) ||
+            (offer?.salary?.job?.season?.type === SeasonTypeEnum.INTERN && offer?.salary?.stipend !== null)
+        )
+        .map((offer) => (offer.salary.totalCTC !== null ? offer.salary.totalCTC : offer.salary.stipend));
 
       const stats = this.calculateStatistics(ctcArray);
       statistics.academicWiseStats[rangeKey] = {
