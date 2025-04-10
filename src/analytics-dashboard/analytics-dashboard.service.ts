@@ -615,7 +615,7 @@ export class AnalyticsDashboardService {
       const cpi = student.cpi;
       cpiRanges.forEach((range) => {
         const rangeKey = `${range.min}-${range.max}`;
-        if (cpi >= range.min && cpi < range.max) {
+        if ((cpi >= range.min && cpi < range.max) || (range.max === 10 && cpi === 10)) {
           cpiWiseRegisteredCount[rangeKey]++;
         }
       });
@@ -667,7 +667,7 @@ export class AnalyticsDashboardService {
       const studentCpi = offer.student.cpi;
       cpiRanges.forEach((range) => {
         const rangeKey = `${range.min}-${range.max}`;
-        if (studentCpi >= range.min && studentCpi < range.max) {
+        if ((studentCpi >= range.min && studentCpi < range.max) || (range.max === 10 && studentCpi === 10)) {
           cpiOffersMap[rangeKey] = cpiOffersMap[rangeKey] || [];
           cpiOffersMap[rangeKey].push(offer);
         }
