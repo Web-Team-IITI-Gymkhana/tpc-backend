@@ -17,7 +17,7 @@ export class AuthService {
 
   private logger = new Logger(AuthService.name);
   private secretKey = env().USER_SECRET;
-  private issuer = "tpc.iiti.ac.in";
+  private issuer = "placement.iiti.ac.in";
   private audience = "tpc-backend";
   private expiry = 7 * 24 * 60 * 60;
   private algorithm: jwt.Algorithm = "HS256";
