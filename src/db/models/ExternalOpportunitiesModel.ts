@@ -34,9 +34,9 @@ export class ExternalOpportunitiesModel extends Model<ExternalOpportunitiesModel
 
   @Column({
     type: sequelize.DATE,
-    allowNull: false,
+    allowNull: true,
   })
-  lastdate: Date;
+  lastdate?: Date;
 
   @Column({
     type: sequelize.STRING,
