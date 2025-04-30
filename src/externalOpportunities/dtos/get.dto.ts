@@ -16,7 +16,7 @@ export class GetExternalOpportunitiesDto {
   company: string;
 
   @NestedDate({})
-  lastdate: Date;
+  lastdate: string;
 
   @NestedString({})
   link: string;
