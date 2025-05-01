@@ -21,6 +21,9 @@ class OrderExternalOpportunitiesDto {
 
   @NestedEnum(OrderByEnum, { optional: true })
   lastdate?: OrderByEnum;
+
+  @NestedEnum(OrderByEnum, { optional: true })
+  createdAt?: OrderByEnum;
 }
 export class ExternalOpportunitiesQueryDto {
   @NestedObject({ type: FilterExternalOpportunitiesDto, optional: true })
