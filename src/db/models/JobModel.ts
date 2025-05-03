@@ -287,6 +287,7 @@ export class JobModel extends Model<JobModel> {
 
   @BeforeBulkUpdate
   static async sendEmailOnEventChange(options: IUpdateOptions) {
+    return;
     if (SEND_MAIL == "FALSE") return;
     if (options.attributes.active === undefined) return;
     if (options.attributes.active === false) return;
