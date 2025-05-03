@@ -4,8 +4,8 @@ export class PostExternalOpportunitiesDto {
   @NestedString({})
   company: string;
 
-  @NestedDate({})
-  lastdate: Date;
+  @NestedString({})
+  lastdate: string;
 
   @NestedString({})
   link: string;
