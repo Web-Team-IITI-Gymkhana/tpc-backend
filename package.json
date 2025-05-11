@@ -50,7 +50,8 @@
     "sequelize-typescript": "^2.1.5",
     "swagger-ui-plugin-hierarchical-tags": "^1.0.4",
     "uuid": "^9.0.1",
-    "winston": "^3.11.0"
+    "winston": "^3.11.0",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@nestjs/cli": "^10.0.0",

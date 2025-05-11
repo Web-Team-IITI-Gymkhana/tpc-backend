@@ -44,7 +44,7 @@ export class InsertService {
   private logger = new Logger(InsertService.name);
 
   constructor(
-    @Inject("SEQUELIZE") private readonly sequelizeInstance: Sequelize,
+    // @Inject("SEQUELIZE") private readonly sequelizeInstance: Sequelize,
     private fileService: FileService
   ) {}
 
@@ -53,56 +53,56 @@ export class InsertService {
   }
 
   async insert() {
-    const seasons = await this.sequelizeInstance.models.SeasonModel.bulkCreate(SEASONS);
-    const users = await this.sequelizeInstance.models.UserModel.bulkCreate(USERS);
-    const programs = await this.sequelizeInstance.models.ProgramModel.bulkCreate(PROGRAMS);
-    const companies = await this.sequelizeInstance.models.CompanyModel.bulkCreate(COMPANIES);
-    const faculties = await this.sequelizeInstance.models.FacultyModel.bulkCreate(FACULTIES);
-    const students = await this.sequelizeInstance.models.StudentModel.bulkCreate(STUDENTS);
-    const penalties = await this.sequelizeInstance.models.PenaltyModel.bulkCreate(PENALTIES);
-    const tpcMembers = await this.sequelizeInstance.models.TpcMemberModel.bulkCreate(TPC_MEMBERS);
-    const recruiters = await this.sequelizeInstance.models.RecruiterModel.bulkCreate(RECRUITERS);
-    const resumes = await this.sequelizeInstance.models.ResumeModel.bulkCreate(RESUMES);
-    const jobs = await this.sequelizeInstance.models.JobModel.bulkCreate(JOBS);
-    const salaries = await this.sequelizeInstance.models.SalaryModel.bulkCreate(SALARIES);
-    const onCampusOffers = await this.sequelizeInstance.models.OnCampusOfferModel.bulkCreate(ON_CAMPUS_OFFERS);
-    const offCampusOffers = await this.sequelizeInstance.models.OffCampusOfferModel.bulkCreate(OFF_CAMPUS_OFFERS);
-    const jobCoordinators = await this.sequelizeInstance.models.JobCoordinatorModel.bulkCreate(JOB_COORDINATORS);
-    const approvals =
-      await this.sequelizeInstance.models.FacultyApprovalRequestModel.bulkCreate(FACULTY_APPROVAL_REQUESTS);
-    const events = await this.sequelizeInstance.models.EventModel.bulkCreate(EVENTS);
-    const applications = await this.sequelizeInstance.models.ApplicationModel.bulkCreate(APPLICATIONS);
-    const registerations = await this.sequelizeInstance.models.RegistrationModel.bulkCreate(REGISTRATIONS);
-    const ies = await this.sequelizeInstance.models.InterviewExperienceModel.bulkCreate(INTERVIEW_EXPERIENCES);
-    await this.sequelizeInstance.models.CompanyModel.create(DUMMY_COMPANY);
-    await this.sequelizeInstance.models.UserModel.create(DUMMY_USER);
-    await this.sequelizeInstance.models.RecruiterModel.create(DUMMY_RECRUITER);
-    await this.sequelizeInstance.models.UserModel.create(LOGIN_ADMIN);
-    await this.sequelizeInstance.models.UserModel.bulkCreate(CUSTOM_USERS);
-    const updatedCustomStudents = CUSTOM_STUDENTS.map((student) => ({
-      ...student,
-      programId: programs[0].dataValues.id,
-    }));
-    await this.sequelizeInstance.models.StudentModel.bulkCreate(updatedCustomStudents);
+    // const seasons = await this.sequelizeInstance.models.SeasonModel.bulkCreate(SEASONS);
+    // const users = await this.sequelizeInstance.models.UserModel.bulkCreate(USERS);
+    // const programs = await this.sequelizeInstance.models.ProgramModel.bulkCreate(PROGRAMS);
+    // const companies = await this.sequelizeInstance.models.CompanyModel.bulkCreate(COMPANIES);
+    // const faculties = await this.sequelizeInstance.models.FacultyModel.bulkCreate(FACULTIES);
+    // const students = await this.sequelizeInstance.models.StudentModel.bulkCreate(STUDENTS);
+    // const penalties = await this.sequelizeInstance.models.PenaltyModel.bulkCreate(PENALTIES);
+    // const tpcMembers = await this.sequelizeInstance.models.TpcMemberModel.bulkCreate(TPC_MEMBERS);
+    // const recruiters = await this.sequelizeInstance.models.RecruiterModel.bulkCreate(RECRUITERS);
+    // const resumes = await this.sequelizeInstance.models.ResumeModel.bulkCreate(RESUMES);
+    // const jobs = await this.sequelizeInstance.models.JobModel.bulkCreate(JOBS);
+    // const salaries = await this.sequelizeInstance.models.SalaryModel.bulkCreate(SALARIES);
+    // const onCampusOffers = await this.sequelizeInstance.models.OnCampusOfferModel.bulkCreate(ON_CAMPUS_OFFERS);
+    // const offCampusOffers = await this.sequelizeInstance.models.OffCampusOfferModel.bulkCreate(OFF_CAMPUS_OFFERS);
+    // const jobCoordinators = await this.sequelizeInstance.models.JobCoordinatorModel.bulkCreate(JOB_COORDINATORS);
+    // const approvals =
+    //   await this.sequelizeInstance.models.FacultyApprovalRequestModel.bulkCreate(FACULTY_APPROVAL_REQUESTS);
+    // const events = await this.sequelizeInstance.models.EventModel.bulkCreate(EVENTS);
+    // const applications = await this.sequelizeInstance.models.ApplicationModel.bulkCreate(APPLICATIONS);
+    // const registerations = await this.sequelizeInstance.models.RegistrationModel.bulkCreate(REGISTRATIONS);
+    // const ies = await this.sequelizeInstance.models.InterviewExperienceModel.bulkCreate(INTERVIEW_EXPERIENCES);
+    // await this.sequelizeInstance.models.CompanyModel.create(DUMMY_COMPANY);
+    // await this.sequelizeInstance.models.UserModel.create(DUMMY_USER);
+    // await this.sequelizeInstance.models.RecruiterModel.create(DUMMY_RECRUITER);
+    // await this.sequelizeInstance.models.UserModel.create(LOGIN_ADMIN);
+    // await this.sequelizeInstance.models.UserModel.bulkCreate(CUSTOM_USERS);
+    // const updatedCustomStudents = CUSTOM_STUDENTS.map((student) => ({
+    //   ...student,
+    //   programId: programs[0].dataValues.id,
+    // }));
+    // await this.sequelizeInstance.models.StudentModel.bulkCreate(updatedCustomStudents);
 
-    const file = await this.fileService.getFileasBuffer("src/test/resume.pdf");
+    // const file = await this.fileService.getFileasBuffer("src/test/resume.pdf");
 
-    for (const resume of RESUMES) {
-      await this.fileService.uploadFile(path.join(this.resumeFolder, resume.filepath), { buffer: file });
-    }
+    // for (const resume of RESUMES) {
+    //   await this.fileService.uploadFile(path.join(this.resumeFolder, resume.filepath), { buffer: file });
+    // }
 
-    for (const ie of INTERVIEW_EXPERIENCES) {
-      await this.fileService.uploadFile(path.join(this.ieFolder, ie.filename), { buffer: file });
-    }
+    // for (const ie of INTERVIEW_EXPERIENCES) {
+    //   await this.fileService.uploadFile(path.join(this.ieFolder, ie.filename), { buffer: file });
+    // }
 
-    for (const job of JOBS) {
-      if (!job.attachments) continue;
-      for (const attachment of job.attachments) {
-        await this.fileService.uploadFile(path.join(this.jdFolder, attachment), { buffer: file });
-      }
-    }
+    // for (const job of JOBS) {
+    //   if (!job.attachments) continue;
+    //   for (const attachment of job.attachments) {
+    //     await this.fileService.uploadFile(path.join(this.jdFolder, attachment), { buffer: file });
+    //   }
+    // }
 
-    this.logger.log("Successfully Inserted");
+    // this.logger.log("Successfully Inserted");
 
     return true;
   }
