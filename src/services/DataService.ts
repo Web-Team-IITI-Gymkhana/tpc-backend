@@ -15,7 +15,7 @@ import {
   SeasonModel,
   StudentModel,
   UserModel,
-} from "src/db/models";
+} from "../db/models"; // Adjust the import path as needed
 import {
   BacklogEnum,
   CategoryEnum,
@@ -24,8 +24,9 @@ import {
   OfferStatusEnum,
   RoleEnum,
   SeasonTypeEnum,
-} from "src/enums";
-import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
+} from "../enums";
+import { JobRegistrationEnum } from "../enums/jobRegistration.enum";
+import { off } from "process";
 
 interface IRowType {
   sNo: number;
@@ -40,7 +41,7 @@ interface IRowType {
   contactNo: string;
   phone1: string;
   stipendPerMonth: string;
-  companyOrInstitute: string; // Off-Campus / Mitacs / DAAD / Etc.
+  companyOrInstitute: string;
   jobRoleIntern: string;
   ppoCtcFirstYear: string;
   ppoCtcTotal: string;
@@ -147,11 +148,15 @@ export class DataUploadService {
         totalCTC: data.finalOverallCtc,
         firstYearCTC: data.fteCtcFirstYear,
       });
+
+      return salary.id;
     } else {
       const salary = await this.salaryRepo.create({
         jobId: job.id,
         stipend: data.stipendPerMonth,
       });
+
+      return salary.id;
     }
   }
 
@@ -163,6 +168,8 @@ export class DataUploadService {
     });
 
     console.log(`On-campus offer created with ID: ${offer.id}`);
+
+    return offer.id;
   }
 
   async uploadFromExcel(filePath: string, year: string, course: string, seasonId: string) {
@@ -172,7 +179,46 @@ export class DataUploadService {
 
     const workbook = XLSX.readFile(filePath);
     const sheetName = workbook.SheetNames[0];
-    const data = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName]);
+    const sheet = workbook.Sheets[sheetName];
+
+    // Parse the sheet into raw rows including the header
+    const rawRows: any[][] = XLSX.utils.sheet_to_json(sheet, { header: 1 }); // `header: 1` gives rows as arrays
+
+    // Extract header row
+    const [headerRow, ...dataRows] = rawRows;
+
+    // Define mapping based on column indices
+    const columnMap: { [index: number]: keyof IRowType } = {
+      0: "sNo",
+      1: "rollNumber",
+      2: "officialEmail",
+      3: "name",
+      4: "aggregateCPI",
+      5: "department",
+      6: "gender",
+      7: "personalEmail",
+      8: "contactNo",
+      9: "phone1",
+      10: "stipendPerMonth",
+      11: "companyOrInstitute",
+      12: "jobRoleIntern",
+      13: "ppoCtcFirstYear",
+      14: "ppoCtcTotal",
+      15: "fteCompany",
+      16: "fteJobRole",
+      17: "fteCtcFirstYear",
+      18: "fteCtcTotal",
+      19: "finalOverallCtc",
+    };
+
+    const data: IRowType[] = dataRows.map((row) => {
+      const mapped: Partial<IRowType> = {};
+      Object.entries(columnMap).forEach(([key, index]) => {
+        (mapped as any)[key] = row[+index];
+      });
+
+      return mapped as IRowType;
+    });
 
     const dummyRecruiterUserId = await this.createDummyUserForRecruiter();
 
@@ -183,6 +229,10 @@ export class DataUploadService {
       typedRow.programId = programId;
       const studentId = await this.CreateStudent(typedRow);
       const recruiter = await this.CreateRecuiter(typedRow, dummyRecruiterUserId);
+      const salaryId = await this.CreateJob(typedRow, recruiter, seasonId);
+      const offer = await this.CreateOnCampusOffer(studentId, salaryId);
+
+      console.log(`Offer created with ID: ${offer}`);
     }
 
     console.log("Data upload complete!");

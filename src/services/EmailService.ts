@@ -2,7 +2,7 @@
 
 import { Global, HttpException, Injectable, Logger } from "@nestjs/common";
 import * as nodemailer from "nodemailer";
-import { env, IEnvironmentVariables } from "src/config";
+import { env, IEnvironmentVariables } from "../config";
 import { Mail } from "nodemailer/lib/mailer";
 import { Address } from "nodemailer/lib/mailer";
 import * as fs from "fs";

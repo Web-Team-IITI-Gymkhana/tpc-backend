@@ -6,7 +6,7 @@ import { ProgramModel } from "./ProgramModel";
 import { OffCampusOfferModel } from "./OffCampusOfferModel";
 import { ResumeModel } from "./ResumeModel";
 import { OnCampusOfferModel } from "./OnCampusOfferModel";
-import { CategoryEnum, GenderEnum, BacklogEnum } from "src/enums";
+import { CategoryEnum, GenderEnum, BacklogEnum } from "../../enums";
 import { RegistrationModel } from "./RegistrationModel";
 import { TpcMemberModel } from "./TpcMemberModel";
 

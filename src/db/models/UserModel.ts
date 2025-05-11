@@ -1,6 +1,6 @@
 import { Table, Column, Model, IsEmail, Unique, AllowNull, HasOne } from "sequelize-typescript";
 import sequelize from "sequelize";
-import { RoleEnum } from "src/enums";
+import { RoleEnum } from "../../enums";
 import { StudentModel } from "./StudentModel";
 import { RecruiterModel } from "./RecruiterModel";
 import { FacultyModel } from "./FacultyModel";

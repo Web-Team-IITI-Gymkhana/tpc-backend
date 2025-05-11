@@ -1,7 +1,7 @@
 import { Table, Column, Model, ForeignKey, BelongsTo, Unique, HasMany } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { UserModel } from "./UserModel";
-import { DepartmentEnum } from "src/enums";
+import { DepartmentEnum } from "../../enums";
 import { FacultyApprovalRequestModel } from "./FacultyApprovalRequestModel";
 
 @Table({
