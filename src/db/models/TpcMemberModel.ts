@@ -2,7 +2,7 @@ import { ForeignKey, Column, BelongsTo, Table, Model, HasMany } from "sequelize-
 import sequelize from "sequelize";
 import { UserModel } from "./UserModel";
 import { JobCoordinatorModel } from "./JobCoordinatorModel";
-import { TpcMemberRoleEnum, DepartmentEnum } from "src/enums";
+import { TpcMemberRoleEnum, DepartmentEnum } from "../../enums";
 import { StudentModel } from "./StudentModel";
 
 @Table({

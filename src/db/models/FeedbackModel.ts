@@ -1,6 +1,6 @@
 import { Table, Column, Model, DataType, HasMany, ForeignKey, BelongsTo } from "sequelize-typescript";
 import sequelize, { Sequelize } from "sequelize";
-import { CompanyCategoryEnum, IndustryDomainEnum } from "src/enums";
+import { CompanyCategoryEnum, IndustryDomainEnum } from "../../enums";
 import { JobModel } from "./JobModel";
 import { StudentModel } from "./StudentModel";
 

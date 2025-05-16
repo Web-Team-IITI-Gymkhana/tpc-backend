@@ -2,11 +2,11 @@ import { Model, Column, Table, ForeignKey, Unique, BelongsTo, AfterBulkCreate } 
 import sequelize from "sequelize";
 import { StudentModel } from "./StudentModel";
 import { SalaryModel } from "./SalaryModel";
-import { OfferStatusEnum } from "src/enums";
+import { OfferStatusEnum } from "../../enums";
 import { EmailService, getHtmlContent } from "src/services/EmailService";
 import { SendEmailDto } from "src/services/EmailService";
 import { UserModel } from "./UserModel";
-import { IEnvironmentVariables, env } from "src/config";
+import { IEnvironmentVariables, env } from "../../config";
 import { NotFoundException } from "@nestjs/common";
 import { JobModel } from "./JobModel";
 import { CompanyModel } from "./CompanyModel";
@@ -67,81 +67,81 @@ export class OnCampusOfferModel extends Model<OnCampusOfferModel> {
   })
   metadata?: string;
 
-  @AfterBulkCreate
-  static async sendEmailHook(instance: OnCampusOfferModel[]) {
-    if (SEND_MAIL == "FALSE") return;
-    const mailerService = new EmailService();
+  // @AfterBulkCreate
+  // static async sendEmailHook(instance: OnCampusOfferModel[]) {
+  //   if (SEND_MAIL == "FALSE") return;
+  //   const mailerService = new EmailService();
 
-    const students = await StudentModel.findAll({
-      where: {
-        id: instance.map((offer) => offer.studentId),
-      },
-      include: [
-        {
-          model: UserModel,
-          as: "user",
-        },
-      ],
-    });
+  //   const students = await StudentModel.findAll({
+  //     where: {
+  //       id: instance.map((offer) => offer.studentId),
+  //     },
+  //     include: [
+  //       {
+  //         model: UserModel,
+  //         as: "user",
+  //       },
+  //     ],
+  //   });
 
-    const salaries = await SalaryModel.findAll({
-      where: {
-        id: instance.map((offer) => offer.salaryId),
-      },
-      include: [
-        {
-          model: JobModel,
-          as: "job",
-          include: [
-            {
-              model: CompanyModel,
-              as: "company",
-            },
-          ],
-        },
-      ],
-    });
+  //   const salaries = await SalaryModel.findAll({
+  //     where: {
+  //       id: instance.map((offer) => offer.salaryId),
+  //     },
+  //     include: [
+  //       {
+  //         model: JobModel,
+  //         as: "job",
+  //         include: [
+  //           {
+  //             model: CompanyModel,
+  //             as: "company",
+  //           },
+  //         ],
+  //       },
+  //     ],
+  //   });
 
-    const studentDict = students.reduce((acc, student) => {
-      acc[student.id] = student;
+  //   const studentDict = students.reduce((acc, student) => {
+  //     acc[student.id] = student;
 
-      return acc;
-    }, {});
+  //     return acc;
+  //   }, {});
 
-    const salaryDict = salaries.reduce((acc, salary) => {
-      acc[salary.id] = salary;
+  //   const salaryDict = salaries.reduce((acc, salary) => {
+  //     acc[salary.id] = salary;
 
-      return acc;
-    }, {});
+  //     return acc;
+  //   }, {});
 
-    const offers = instance.map((offer) => {
-      return {
-        ...offer,
-        student: studentDict[offer.studentId],
-        salary: salaryDict[offer.salaryId],
-      };
-    });
+  //   const offers = instance.map((offer) => {
+  //     return {
+  //       ...offer,
+  //       student: studentDict[offer.studentId],
+  //       salary: salaryDict[offer.salaryId],
+  //     };
+  //   });
 
-    const url = `${FRONTEND_URL}/student/onCampus`;
-    const templatePath = path.resolve(process.cwd(), "src/html", "OfferToStudent.html");
+  //   const url = `${FRONTEND_URL}/student/onCampus`;
+  //   const templatePath = path.resolve(process.cwd(), "src/html", "OfferToStudent.html");
 
-    for (const offer of offers) {
-      const replacements = {
-        companyName: offer.salary.job.company.name,
-        studentName: offer.student.user.name,
-        role: offer.salary.job.role,
-        url: url,
-      };
-      const emailHtmlContent = getHtmlContent(templatePath, replacements);
-      const data: SendEmailDto = {
-        from: { name: APP_NAME, address: MAIL_USER },
-        // recepients: [{ address: DEFAULT_MAIL_TO }],
-        recepients: [{ address: offer.student.user.email }],
-        subject: `Job Offer from ${offer.salary.job.company.name}`,
-        html: emailHtmlContent,
-      };
+  //   for (const offer of offers) {
+  //     const replacements = {
+  //       companyName: offer.salary.job.company.name,
+  //       studentName: offer.student.user.name,
+  //       role: offer.salary.job.role,
+  //       url: url,
+  //     };
+  //     const emailHtmlContent = getHtmlContent(templatePath, replacements);
+  //     const data: SendEmailDto = {
+  //       from: { name: APP_NAME, address: MAIL_USER },
+  //       // recepients: [{ address: DEFAULT_MAIL_TO }],
+  //       recepients: [{ address: offer.student.user.email }],
+  //       subject: `Job Offer from ${offer.salary.job.company.name}`,
+  //       html: emailHtmlContent,
+  //     };
 
-      await mailerService.sendEmail(data);
-    }
-  }
+  //     await mailerService.sendEmail(data);
+  //   }
+  // }
 }
