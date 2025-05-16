@@ -9,5 +9,4 @@ export enum CategoryEnum {
   SC_PWD = "SC_PWD",
   ST_PWD = "ST_PWD",
   EWS_PWD = "EWS_PWD",
-  TEST = "TEST",
 }
