@@ -2,10 +2,10 @@ import { Table, Column, Model, ForeignKey, BelongsTo, AfterBulkCreate } from "se
 import sequelize from "sequelize";
 
 import { StudentModel } from "./StudentModel";
-import { EmailService, getHtmlContent, SendEmailDto } from "src/services/EmailService";
+import { EmailService, getHtmlContent, SendEmailDto } from "../../services/EmailService";
 import { UserModel } from "./UserModel";
 import path from "path";
-import { env, IEnvironmentVariables } from "src/config";
+import { env, IEnvironmentVariables } from "../../config";
 
 const environmentVariables: IEnvironmentVariables = env();
 const { MAIL_USER, APP_NAME, DEFAULT_MAIL_TO, SEND_MAIL } = environmentVariables;

@@ -1,7 +1,7 @@
 import sequelize from "sequelize";
 import { AllowNull, BelongsTo, Column, ForeignKey, HasMany, Model, Table } from "sequelize-typescript";
 import { JobModel } from "./JobModel";
-import { GenderEnum, CategoryEnum, DepartmentEnum, BacklogEnum } from "src/enums";
+import { GenderEnum, CategoryEnum, DepartmentEnum, BacklogEnum } from "../../enums";
 import { FacultyApprovalRequestModel } from "./FacultyApprovalRequestModel";
 import { OnCampusOfferModel } from "./OnCampusOfferModel";
 

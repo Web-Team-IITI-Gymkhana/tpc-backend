@@ -10,9 +10,9 @@ import {
   IndustryDomainEnum,
   CountriesEnum,
   BacklogEnum,
-} from "src/enums";
+} from "../enums";
 import { faker } from "@faker-js/faker";
-import { AddressDto } from "src/job/dtos/jaf.dto";
+import { AddressDto } from "../job/dtos/jaf.dto";
 import {
   ApplicationModel,
   CompanyModel,
@@ -32,11 +32,11 @@ import {
   StudentModel,
   TpcMemberModel,
   UserModel,
-} from "src/db/models";
+} from "../db/models";
 import { Optional } from "sequelize";
 import { NullishPropertiesOf } from "sequelize/types/utils";
 import { floor } from "lodash";
-import { allCourses, MAX_INT, YEARS } from "src/constants";
+import { allCourses, MAX_INT, YEARS } from "../constants";
 import {
   DepartmentEnum,
   FacultyApprovalStatusEnum,
@@ -45,11 +45,11 @@ import {
   OfferStatusEnum,
   SelectionModeEnum,
   TestTypesEnum,
-} from "src/enums";
-import { RegistrationModel } from "src/db/models/RegistrationModel";
-import { InterviewExperienceModel } from "src/db/models/InterviewExperienceModel";
-import { SeasonStatusEnum } from "src/enums/SeasonStatus.enum";
-import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
+} from "../enums";
+import { RegistrationModel } from "../db/models/RegistrationModel";
+import { InterviewExperienceModel } from "../db/models/InterviewExperienceModel";
+import { SeasonStatusEnum } from "../enums/SeasonStatus.enum";
+import { JobRegistrationEnum } from "../enums/jobRegistration.enum";
 
 export const SEASONS: Optional<SeasonModel, NullishPropertiesOf<SeasonModel>>[] = Array.from({ length: 5 }, () => ({
   id: faker.string.uuid(),

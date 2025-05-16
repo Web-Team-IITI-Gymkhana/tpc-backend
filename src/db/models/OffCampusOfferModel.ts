@@ -3,11 +3,11 @@ import { Model, Column, Table, ForeignKey, Unique, BelongsTo, AfterBulkCreate } 
 import { CompanyModel } from "./CompanyModel";
 import { SeasonModel } from "./SeasonModel";
 import { StudentModel } from "./StudentModel";
-import { OfferStatusEnum } from "src/enums";
-import { EmailService } from "src/services/EmailService";
-import { SendEmailDto } from "src/services/EmailService";
+import { OfferStatusEnum } from "../../enums";
+import { EmailService } from "../../services/EmailService";
+import { SendEmailDto } from "../../services/EmailService";
 import { UserModel } from "./UserModel";
-import { IEnvironmentVariables, env } from "src/config";
+import { IEnvironmentVariables, env } from "../../config";
 import { NotFoundException } from "@nestjs/common";
 
 const environmentVariables: IEnvironmentVariables = env();

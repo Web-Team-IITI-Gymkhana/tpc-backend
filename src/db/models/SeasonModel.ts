@@ -1,9 +1,9 @@
 import { Table, Column, Model, Unique, HasMany } from "sequelize-typescript";
 import sequelize from "sequelize";
-import { SeasonTypeEnum } from "src/enums";
+import { SeasonTypeEnum } from "../../enums";
 import { JobModel } from "./JobModel";
 import { RegistrationModel } from "./RegistrationModel";
-import { SeasonStatusEnum } from "src/enums/SeasonStatus.enum";
+import { SeasonStatusEnum } from "../../enums/SeasonStatus.enum";
 
 @Table({
   tableName: "Season",

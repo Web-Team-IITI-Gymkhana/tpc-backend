@@ -2,11 +2,11 @@ import { Table, Column, Model, ForeignKey, Unique, BelongsTo, AfterBulkCreate } 
 import sequelize from "sequelize";
 import { FacultyModel } from "./FacultyModel";
 import { SalaryModel } from "./SalaryModel";
-import { FacultyApprovalStatusEnum } from "src/enums";
-import { EmailService, getHtmlContent } from "src/services/EmailService";
-import { SendEmailDto } from "src/services/EmailService";
+import { FacultyApprovalStatusEnum } from "../../enums";
+import { EmailService, getHtmlContent } from "../../services/EmailService";
+import { SendEmailDto } from "../../services/EmailService";
 import { UserModel } from "./UserModel";
-import { IEnvironmentVariables, env } from "src/config";
+import { IEnvironmentVariables, env } from "../../config";
 import { NotFoundException } from "@nestjs/common";
 import { JobModel } from "./JobModel";
 import { CompanyModel } from "./CompanyModel";

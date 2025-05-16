@@ -47,7 +47,7 @@ import {
   USER_DAO,
   FEEDBACK_DAO,
 } from "src/constants";
-import { env, IEnvironmentVariables } from "src/config";
+import { env, IEnvironmentVariables } from "../config";
 import { RegistrationModel } from "./models/RegistrationModel";
 import { InterviewExperienceModel } from "./models/InterviewExperienceModel";
 import { FeedbackModel } from "./models/FeedbackModel";

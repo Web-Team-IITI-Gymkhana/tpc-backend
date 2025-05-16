@@ -1,7 +1,7 @@
 import { Table, Column, Model, ForeignKey, Unique, DataType, BelongsTo, HasMany } from "sequelize-typescript";
 import sequelize, { Sequelize } from "sequelize";
 import { JobModel } from "./JobModel";
-import { EventTypeEnum } from "src/enums";
+import { EventTypeEnum } from "../../enums";
 import { ApplicationModel } from "./ApplicationModel";
 
 @Table({
