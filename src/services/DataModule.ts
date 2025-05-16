@@ -11,6 +11,7 @@ import {
   SeasonModel,
   UserModel,
   StudentModel,
+  RegistrationModel,
 } from "../db/models";
 import { DataUploadService } from "./DataService";
 
@@ -26,6 +27,7 @@ import { DataUploadService } from "./DataService";
       RecruiterModel,
       SeasonModel,
       UserModel,
+      RegistrationModel,
       StudentModel,
     ]),
   ],

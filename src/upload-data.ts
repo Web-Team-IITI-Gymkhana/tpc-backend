@@ -1,24 +1,27 @@
 /* eslint-disable no-console */
+// src/main.upload.ts
 import { NestFactory } from "@nestjs/core";
-import { DataModule } from "./services/DataModule"; // Adjust path as needed
-import { DataUploadService } from "./services/DataService"; // Adjust path as needed
+import { DataCliModule } from "./services/DataCliModule";
+import { DataUploadService } from "./services/DataService";
 
 async function bootstrap() {
-  const app = await NestFactory.createApplicationContext(DataModule);
-  const dataUploadService = app.get(DataUploadService);
+  const appContext = await NestFactory.createApplicationContext(DataCliModule);
+  const service = appContext.get(DataUploadService);
 
-  const filePath = process.argv[2];
-  if (!filePath) {
-    console.error("Please provide a path to the Excel file.");
+  const [, , filePath, year, course, seasonId] = process.argv;
+
+  if (!filePath || !year || !course || !seasonId) {
+    console.error("❌ Missing arguments: filePath, year, course, seasonId are required");
     process.exit(1);
   }
 
   try {
-    await dataUploadService.uploadFromExcel(filePath, "2025", "BTech", "d4b2e14e-5dec-45b2-aec9-3bcdcb3b00d5");
+    await service.uploadFromExcel(filePath, year, course, seasonId);
+    console.log("✅ Upload complete.");
   } catch (err) {
-    console.error("Error uploading data:", err.message);
-  } finally {
-    await app.close();
+    console.error("❌ Upload failed:", err);
   }
+
+  await appContext.close();
 }
 bootstrap();
