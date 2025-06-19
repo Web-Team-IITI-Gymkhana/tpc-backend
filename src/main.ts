@@ -13,11 +13,12 @@ import { json, urlencoded } from "express";
 
 const environmentVariables: IEnvironmentVariables = env();
 const logger = new Logger("main");
+const isProd = isProductionEnv();
 
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
     logger: createWinstonLogger(),
-    cors: true,
+    cors: !isProd,
   });
   //Increase request size limits
   app.use(json({ limit: "50mb" }));
