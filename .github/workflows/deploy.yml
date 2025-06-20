@@ -35,7 +35,7 @@ jobs:
             git pull origin develop
 
             echo "📦 Installing backend dependencies"
-            yarn install --frozen-lockfile
+            yarn install
 
             echo "🛠 Building backend"
             yarn build
