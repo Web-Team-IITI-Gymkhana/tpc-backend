@@ -24,7 +24,9 @@ async function bootstrap(): Promise<void> {
   app.use(json({ limit: "50mb" }));
   app.use(urlencoded({ extended: true, limit: "50mb" }));
   app.setGlobalPrefix("api/v1");
-  createSwagger(app);
+  if (!isProd) {
+    createSwagger(app);
+  }
   app.use(Helmet());
   app.useGlobalInterceptors(new LoggerInterceptor());
   app.useGlobalFilters(new HttpExceptionFilter());
