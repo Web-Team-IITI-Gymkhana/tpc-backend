@@ -13,6 +13,7 @@ import {
   UnauthorizedException,
   Res,
   Req,
+  ForbiddenException,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import {
@@ -31,6 +32,7 @@ import { env } from "src/config";
 import { Response } from "express";
 import { assert } from "console";
 import { jwtDecode } from "jwt-decode";
+import axios from "axios";
 
 @Controller("auth")
 @ApiTags("Auth")
@@ -118,5 +120,19 @@ export class AuthController {
       maxAge: 365 * 24 * 60 * 60 * 1000,
     });
     res.redirect(this.frontendUrl);
+  }
+
+  @Post("verify-captcha")
+  async verifyCaptcha(@Body() body: { token: string }) {
+    const { token } = body;
+    const secret = env().RECAPTCHA_SECRET;
+
+    const res = await axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${token}`);
+
+    if (!res.data.success) {
+      throw new ForbiddenException("Invalid captcha");
+    }
+
+    return JSON.stringify({ success: true, message: "Captcha verified successfully" });
   }
 }
