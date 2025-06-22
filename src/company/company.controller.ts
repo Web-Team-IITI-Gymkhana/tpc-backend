@@ -11,6 +11,7 @@ import { DeleteValuesDto } from "src/utils/utils.dto";
 import { AuthGuard } from "@nestjs/passport";
 import { RoleGuard } from "src/auth/roleGaurd";
 import { RoleEnum } from "src/enums";
+import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
 
 @Controller("companies")
 @ApiTags("Company")
@@ -31,6 +32,8 @@ export class CompanyController {
     return pipeTransform(ans, GetCompanyDto);
   }
 
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 2, ttl: 60 * 1000 } })
   @PostValues(CreateCompaniesDto)
   async createCompanies(@Body(createArrayPipe(CreateCompaniesDto)) companies: CreateCompaniesDto[]) {
     const ans = await this.companyService.createCompanies(companies);

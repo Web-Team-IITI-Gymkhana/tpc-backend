@@ -33,12 +33,21 @@ import { RecruiterViewModule } from "./recruiter-view/recruiter-view.module";
 import { ExternalOpportunitiesModule } from "./externalOpportunities/externalOpportunities.module";
 import { TpcMemberViewModule } from "./tpc-member-view/tpc-member-view.module";
 import { ClashesModule } from "./clashes/clashes.module";
+import { ThrottlerModule } from "@nestjs/throttler";
 
 @Module({
   imports: [
     ConfigModule.forRoot(),
     { module: DatabaseModule, global: true },
     { module: ServiceModule, global: true },
+    ThrottlerModule.forRoot({
+      throttlers: [
+        {
+          ttl: 60000,
+          limit: 2,
+        },
+      ],
+    }),
     AuthModule,
     StudentModule,
     RecruiterModule,

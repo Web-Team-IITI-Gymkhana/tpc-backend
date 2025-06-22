@@ -34,6 +34,7 @@ import { assert } from "console";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { isProductionEnv } from "src/utils";
+import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
 
 @Controller("auth")
 @ApiTags("Auth")
@@ -80,6 +81,8 @@ export class AuthController {
     return "Email Sent Successfully";
   }
 
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 2, ttl: 60 * 1000 } })
   @Post("recruiter")
   @UseInterceptors(ClassSerializerInterceptor)
   async signupRecruiter(@Body() body: CreateRecruitersDto): Promise<{ success: boolean; message: string }> {
