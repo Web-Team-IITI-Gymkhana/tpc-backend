@@ -21,6 +21,7 @@ export interface IEnvironmentVariables {
   DEFAULT_MAIL_TO: string;
   SEND_MAIL: string;
   APP_NAME: string;
+  RECAPTCHA_SECRET: string;
 }
 
 export function env(): IEnvironmentVariables {
@@ -46,6 +47,7 @@ export function env(): IEnvironmentVariables {
     DEFAULT_MAIL_TO: process.env.DEFAULT_MAIL_TO,
     SEND_MAIL: process.env.SEND_MAIL,
     APP_NAME: process.env.APP_NAME,
+    RECAPTCHA_SECRET: process.env.RECAPTCHA_SECRET,
   };
 
   for (const key in ans) {
