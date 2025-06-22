@@ -3,8 +3,8 @@ import { applyDecorators, InternalServerErrorException, ParseArrayPipe, Type, Va
 import { ApiExtraModels, ApiQuery, getSchemaPath } from "@nestjs/swagger";
 import { ValidationError } from "class-validator";
 import { Transaction } from "sequelize";
-import { RemoveNullArrayPipe } from "src/interceptor/RemoveNullArrayPipe";
-import { RemoveNullValidationPipe } from "src/interceptor/RemoveNullPipe";
+import { RemoveNullArrayPipe } from "../interceptor/RemoveNullArrayPipe";
+import { RemoveNullValidationPipe } from "../interceptor/RemoveNullPipe";
 
 export const isProductionEnv = (): boolean => {
   return process.env.NODE_ENV === "production" || process.env.NODE_ENV === "staging";

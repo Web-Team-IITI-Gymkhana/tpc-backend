@@ -46,7 +46,7 @@ import {
   TPC_MEMBER_DAO,
   USER_DAO,
   FEEDBACK_DAO,
-} from "src/constants";
+} from "../constants";
 import { env, IEnvironmentVariables } from "../config";
 import { RegistrationModel } from "./models/RegistrationModel";
 import { InterviewExperienceModel } from "./models/InterviewExperienceModel";
