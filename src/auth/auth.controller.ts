@@ -36,6 +36,7 @@ import axios from "axios";
 import { isProductionEnv } from "src/utils";
 import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
 
+
 @Controller("auth")
 @ApiTags("Auth")
 @ApiBearerAuth("jwt")
@@ -53,7 +54,7 @@ export class AuthController {
   async login(@Body() body: UserLogInDto): Promise<{ accessToken: string }> {
     // Devlogin only in development mode
     if (isProductionEnv()) {
-      throw new HttpException("Dev login is not allowed in production", HttpStatus.FORBIDDEN);
+      throw new HttpException("Dev login is not available", HttpStatus.FORBIDDEN);
     }
 
     const user = await this.userService.getUserByEmail(body.email);
