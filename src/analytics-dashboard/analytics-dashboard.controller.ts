@@ -13,12 +13,14 @@ import {
   StatsDto,
   SeasonStatsDto,
 } from "./dto/get.dto";
-import { SeasonStatusEnum } from "src/enums/SeasonStatus.enum";
+import { RoleGuard } from "src/auth/roleGaurd";
+import { RoleEnum } from "src/enums";
 
 @Controller("analytics-dashboard")
 @UseGuards(AuthGuard("jwt"))
 @ApiTags("analytics-dashboard")
 @ApiBearerAuth("jwt")
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
 export class AnalyticsDashboardController {
   constructor(private readonly analyticsDashboardService: AnalyticsDashboardService) {}
 
