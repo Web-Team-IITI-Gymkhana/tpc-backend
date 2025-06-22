@@ -18,7 +18,17 @@
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
-    "upload:data": "ts-node src/upload-data.ts"
+    "upload:data": "ts-node src/upload-data.ts",
+    "db:sync": "ts-node src/sync-database.ts",
+    "db:sync:force": "ts-node src/sync-database.ts --force",
+    "db:sync:alter": "ts-node src/sync-database.ts --alter",
+    "db:backup": "ts-node src/backup-database.ts",
+    "db:restore": "ts-node src/restore-database.ts",
+    "db:restore:latest": "ts-node src/restore-database.ts --latest",
+    "db:restore:list": "ts-node src/restore-database.ts --list",
+    "db:migrate": "ts-node src/migrate-database.ts",
+    "db:migrate:safe": "ts-node src/migrate-database.ts --backup",
+    "db:migrate:dry": "ts-node src/migrate-database.ts --dry-run"
   },
   "dependencies": {
     "@faker-js/faker": "^9.4.0",
