@@ -38,6 +38,7 @@ export class CompanyController {
     return ans;
   }
   @PatchValues(UpdateCompaniesDto)
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
   async updateCompanies(@Body(createArrayPipe(UpdateCompaniesDto)) companies: UpdateCompaniesDto[]) {
     const pr = companies.map((company) => this.companyService.updateCompany(company));
     const ans = await Promise.all(pr);
@@ -45,6 +46,7 @@ export class CompanyController {
     return ans.flat();
   }
   @DeleteValues()
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
   async deleteCompanies(@Query() query: DeleteValuesDto) {
     const ans = await this.companyService.deleteCompanies(query.id);
 

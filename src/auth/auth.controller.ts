@@ -33,6 +33,7 @@ import { Response } from "express";
 import { assert } from "console";
 import { jwtDecode } from "jwt-decode";
 import axios from "axios";
+import { isProductionEnv } from "src/utils";
 
 @Controller("auth")
 @ApiTags("Auth")
@@ -49,6 +50,11 @@ export class AuthController {
 
   @Post("login")
   async login(@Body() body: UserLogInDto): Promise<{ accessToken: string }> {
+    // Devlogin only in development mode
+    if (isProductionEnv()) {
+      throw new HttpException("Dev login is not available", HttpStatus.FORBIDDEN);
+    }
+
     const user = await this.userService.getUserByEmail(body.email);
     if (!user) {
       throw new HttpException(
