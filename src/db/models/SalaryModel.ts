@@ -221,13 +221,13 @@ export class SalaryModel extends Model<SalaryModel> {
     type: sequelize.INTEGER,
     allowNull: true,
   })
-  accomodation?: number;
+  accommodation?: number;
 
   @Column({
     type: sequelize.INTEGER,
     allowNull: true,
   })
-  tenetativeCTC?: number;
+  tentativeCTC?: number;
 
   @Column({
     type: sequelize.DATE,
