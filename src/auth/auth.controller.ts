@@ -35,6 +35,7 @@ import { jwtDecode } from "jwt-decode";
 import axios from "axios";
 import { isProductionEnv } from "src/utils";
 import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
+import { verifyRecaptcha } from "src/utils/recaptcha";
 
 @Controller("auth")
 @ApiTags("Auth")
@@ -68,17 +69,33 @@ export class AuthController {
     return { accessToken: token };
   }
 
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 2, ttl: 60 * 1000 } })
   @Post("passwordless")
   @UseInterceptors(ClassSerializerInterceptor)
   async loginRecruiter(@Body() body: PasswordlessLoginDto): Promise<string> {
+    const verified = await verifyRecaptcha(body.token);
+
+    if (!verified) {
+      throw new ForbiddenException("Invalid captcha");
+    }
+
+    if (!body.email) {
+      throw new HttpException("Email is required", HttpStatus.BAD_REQUEST);
+    }
+    1;
+
     const user = await this.userService.getUserByEmail(body.email);
     if (!user || !(user.role === RoleEnum.RECRUITER || user.role === RoleEnum.ADMIN))
-      throw new NotFoundException(`The user with email ${body.email} and Role ${RoleEnum.RECRUITER} Not Found`);
+      throw new ForbiddenException(`The user with email ${body.email} and Role ${RoleEnum.RECRUITER} Not Found`);
     const jwt = await this.authService.vendJWT(user, this.recruiterSecret);
     const res = await this.emailService.sendTokenEmail(user.email, jwt);
     if (!res) throw new HttpException("Error sending email", HttpStatus.INTERNAL_SERVER_ERROR);
 
-    return "Email Sent Successfully";
+    return JSON.stringify({
+      success: true,
+      message: "Email Sent Successfully",
+    });
   }
 
   @UseGuards(ThrottlerGuard)
@@ -133,12 +150,9 @@ export class AuthController {
 
   @Post("verify-captcha")
   async verifyCaptcha(@Body() body: { token: string }) {
-    const { token } = body;
-    const secret = env().RECAPTCHA_SECRET;
+    const verified = await verifyRecaptcha(body.token);
 
-    const res = await axios.post(`https://www.google.com/recaptcha/api/siteverify?secret=${secret}&response=${token}`);
-
-    if (!res.data.success) {
+    if (!verified) {
       throw new ForbiddenException("Invalid captcha");
     }
 
