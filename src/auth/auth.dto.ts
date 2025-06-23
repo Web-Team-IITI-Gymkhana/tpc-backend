@@ -41,6 +41,12 @@ export class PasswordlessLoginDto {
   @ApiProperty()
   @IsEmail()
   email: string;
+
+  @ApiProperty({
+    type: String,
+  })
+  @IsString()
+  token: string;
 }
 
 export class PasswordlessLoginVerifyDto {
