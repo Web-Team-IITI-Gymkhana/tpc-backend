@@ -1,6 +1,7 @@
 export enum CompanyCategoryEnum {
-  PUBLIC = "PUBLIC",
-  GOVERNMENT = "GOVERNMENT",
-  PSU = "PSU",
+  PRIVATE = "PRIVATE",
   MNC = "MNC",
+  PSU_GOVERNMENT = "PSU/GOVERNMENT",
+  STARTUP = "STARTUP",
+  OTHER = "OTHER",
 }

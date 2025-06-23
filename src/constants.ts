@@ -251,7 +251,7 @@ export const MAX_INT = 2147483647;
 export const DUMMY_COMPANY: Optional<CompanyModel, NullishPropertiesOf<CompanyModel>> = {
   id: "f47ac10b-58cc-4372-a567-0e02b2c3d479",
   name: "Not Approved Yet",
-  category: CompanyCategoryEnum.GOVERNMENT,
+  category: CompanyCategoryEnum.PSU_GOVERNMENT,
   address: {
     line1: "IIT Indore",
     city: "Indore",
