@@ -1,5 +1,5 @@
 import { NestedEnum, NestedString, NestedUUID } from "src/decorators/dto";
-import { DepartmentEnum } from "src/enums";
+import { CourseEnum, DepartmentEnum } from "src/enums";
 
 export class GetProgramsDto {
   @NestedUUID({})
@@ -8,8 +8,8 @@ export class GetProgramsDto {
   @NestedString({})
   branch: string;
 
-  @NestedString({})
-  course: string;
+  @NestedEnum(CourseEnum, {})
+  course: CourseEnum;
 
   @NestedString({})
   year: string;

@@ -11,6 +11,7 @@ import {
 } from "src/decorators/dto";
 import {
   CategoryEnum,
+  CourseEnum,
   DepartmentEnum,
   EventTypeEnum,
   GenderEnum,
@@ -141,8 +142,8 @@ class ProgramDto {
   @NestedString({})
   branch: string;
 
-  @NestedString({})
-  course: string;
+  @NestedEnum(CourseEnum, {})
+  course: CourseEnum;
 
   @NestedString({})
   year: string;

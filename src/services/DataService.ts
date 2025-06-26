@@ -22,6 +22,7 @@ import {
   BacklogEnum,
   CategoryEnum,
   CompanyCategoryEnum,
+  CourseEnum,
   GenderEnum,
   JobStatusTypeEnum,
   OfferStatusEnum,
@@ -72,7 +73,7 @@ export class DataUploadService {
     @InjectModel(StudentModel) private readonly studentRepo: typeof StudentModel
   ) {}
 
-  async findProgramIdByName(branch: string, year: string, course: string): Promise<string | null> {
+  async findProgramIdByName(branch: string, year: string, course: CourseEnum): Promise<string | null> {
     const program = await this.programRepo.findOne({
       where: {
         branch: branch,
@@ -297,7 +298,8 @@ export class DataUploadService {
       const { department } = typedRow;
       console.log("Raw Row:", typedRow);
       console.log("department (branch):", typedRow.department, "year:", year, "course:", course);
-      const programId = await this.findProgramIdByName(department, year, course);
+      // Note: This service appears to be mapping department field as branch - may need adjustment based on actual data structure
+      const programId = await this.findProgramIdByName(department, year, course as CourseEnum);
       typedRow.programId = programId;
       const studentId = await this.CreateStudent(typedRow, seasonId);
       if (typedRow.fteCompany && typedRow.fteCompany.trim() !== "") {
