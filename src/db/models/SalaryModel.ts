@@ -218,10 +218,16 @@ export class SalaryModel extends Model<SalaryModel> {
   foreignCurrencyStipend?: string;
 
   @Column({
-    type: sequelize.INTEGER,
+    type: sequelize.BOOLEAN,
     allowNull: true,
   })
-  accommodation?: number;
+  accommodation?: boolean;
+
+  @Column({
+    type: sequelize.BOOLEAN,
+    allowNull: true,
+  })
+  ppoProvisionOnPerformance?: boolean;
 
   @Column({
     type: sequelize.INTEGER,
