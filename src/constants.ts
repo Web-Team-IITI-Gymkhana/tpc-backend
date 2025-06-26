@@ -1,7 +1,7 @@
 import { NullishPropertiesOf } from "sequelize/types/utils";
 import { CompanyModel, RecruiterModel, StudentModel, UserModel } from "./db/models";
 import { Optional } from "sequelize";
-import { CompanyCategoryEnum, RoleEnum, DepartmentEnum, CategoryEnum, GenderEnum } from "./enums";
+import { CompanyCategoryEnum, CourseEnum, RoleEnum, DepartmentEnum, CategoryEnum, GenderEnum } from "./enums";
 import path from "path";
 import { env } from "./config";
 
@@ -33,212 +33,224 @@ export const SEQUELIZE_DAO = "SEQUELIZE",
 export const allCourses = [
   // Bachelor of Technology (BTech)
   {
-    course: "BTech",
+    course: CourseEnum.BTECH,
     branch: "Computer Science and Engineering",
     department: DepartmentEnum.COMPUTER_SCIENCE_AND_ENGINEERING,
   },
-  { course: "BTech", branch: "Electrical Engineering", department: DepartmentEnum.ELECTRICAL_ENGINEERING },
-  { course: "BTech", branch: "Mechanical Engineering", department: DepartmentEnum.MECHANICAL_ENGINEERING },
-  { course: "BTech", branch: "Civil Engineering", department: DepartmentEnum.CIVIL_ENGINEERING },
+  { course: CourseEnum.BTECH, branch: "Electrical Engineering", department: DepartmentEnum.ELECTRICAL_ENGINEERING },
+  { course: CourseEnum.BTECH, branch: "Mechanical Engineering", department: DepartmentEnum.MECHANICAL_ENGINEERING },
+  { course: CourseEnum.BTECH, branch: "Civil Engineering", department: DepartmentEnum.CIVIL_ENGINEERING },
   {
-    course: "BTech",
+    course: CourseEnum.BTECH,
     branch: "Metallurgical Engineering and Materials Science",
     department: DepartmentEnum.METALLURGICAL_ENGINEERING_AND_MATERIALS_SCIENCE,
   },
-  { course: "BTech", branch: "Chemical Engineering", department: DepartmentEnum.CHEMISTRY },
-  { course: "BTech", branch: "Mathematics and Computing", department: DepartmentEnum.MATHEMATICS },
-  { course: "BTech", branch: "Engineering Physics", department: DepartmentEnum.PHYSICS },
+  { course: CourseEnum.BTECH, branch: "Chemical Engineering", department: DepartmentEnum.CHEMISTRY },
+  { course: CourseEnum.BTECH, branch: "Mathematics and Computing", department: DepartmentEnum.MATHEMATICS },
+  { course: CourseEnum.BTECH, branch: "Engineering Physics", department: DepartmentEnum.PHYSICS },
   {
-    course: "BTech",
+    course: CourseEnum.BTECH,
     branch: "Space Sciences and Engineering (SSE)",
     department: DepartmentEnum.ASTRONOMY_ASTROPHYSICS_AND_SPACE_ENGINEERING,
   },
 
   // Master of Technology (MTech)
   {
-    course: "MTech",
+    course: CourseEnum.MTECH,
     branch: "Electrical Engineering with specialization in Communication and Signal Processing",
     department: DepartmentEnum.ELECTRICAL_ENGINEERING,
   },
   {
-    course: "MTech",
+    course: CourseEnum.MTECH,
     branch: "Electrical Engineering with specialization in VLSI Design and Nanoelectronics",
     department: DepartmentEnum.ELECTRICAL_ENGINEERING,
   },
   {
-    course: "MTech",
+    course: CourseEnum.MTECH,
     branch: "Mechanical Engineering with specialization in Advanced Manufacturing (AM)",
     department: DepartmentEnum.MECHANICAL_ENGINEERING,
   },
   {
-    course: "MTech",
+    course: CourseEnum.MTECH,
     branch: "Mechanical Engineering with specialization in Thermal Energy Systems (TES)",
     department: DepartmentEnum.MECHANICAL_ENGINEERING,
   },
   {
-    course: "MTech",
+    course: CourseEnum.MTECH,
     branch: "Mechanical Engineering with specialization in Mechanical Systems Design",
     department: DepartmentEnum.MECHANICAL_ENGINEERING,
   },
   {
-    course: "MTech",
+    course: CourseEnum.MTECH,
     branch: "Metallurgy Engineering and Materials Science with specialization in Materials Science and Engineering",
     department: DepartmentEnum.METALLURGICAL_ENGINEERING_AND_MATERIALS_SCIENCE,
   },
   {
-    course: "MTech",
+    course: CourseEnum.MTECH,
     branch: "Metallurgy Engineering and Materials Science with specialization in Metallurgical Engineering",
     department: DepartmentEnum.METALLURGICAL_ENGINEERING_AND_MATERIALS_SCIENCE,
   },
   {
-    course: "MTech",
+    course: CourseEnum.MTECH,
     branch:
       "M.Tech. in Electric Vehicle Technology from Center for Electric Vehicles Intelligent Transport Systems (CEVITS)",
     department: DepartmentEnum.ELECTRICAL_ENGINEERING,
   },
   {
-    course: "MTech",
+    course: CourseEnum.MTECH,
     branch: "M.Tech. in Space Engineering from DepartmentEnum of Astronomy, Astrophysics And Space Engineering (DAASE)",
     department: DepartmentEnum.ASTRONOMY_ASTROPHYSICS_AND_SPACE_ENGINEERING,
   },
   {
-    course: "MTech",
+    course: CourseEnum.MTECH,
     branch: "Computer Science and Engineering with specialization in Computer Science and Engineering",
     department: DepartmentEnum.COMPUTER_SCIENCE_AND_ENGINEERING,
   },
   {
-    course: "MTech",
+    course: CourseEnum.MTECH,
     branch: "Civil Engineering with specialization in Water, Climate and Sustainability",
     department: DepartmentEnum.CIVIL_ENGINEERING,
   },
   {
-    course: "MTech",
+    course: CourseEnum.MTECH,
     branch: "Biosciences and Biomedical Engineering with specialization in Biomedical Engineering",
     department: DepartmentEnum.BIOSCIENCES_AND_BIOMEDICAL_ENGINEERING,
   },
   {
-    course: "MTech",
+    course: CourseEnum.MTECH,
     branch: "Mechanical Engineering with specialization in Applied Optics and laser Technology",
     department: DepartmentEnum.MECHANICAL_ENGINEERING,
   },
   {
-    course: "MTech",
+    course: CourseEnum.MTECH,
     branch: "Civil Engineering with specialization in Structural Engineering",
     department: DepartmentEnum.CIVIL_ENGINEERING,
   },
   {
-    course: "MTech",
+    course: CourseEnum.MTECH,
     branch: "Center of Futuristic Defence and Space Technology with specialization in Defence Technology",
     department: DepartmentEnum.ASTRONOMY_ASTROPHYSICS_AND_SPACE_ENGINEERING,
   },
 
   // Two-year Master of Science (MSc)
-  { course: "MSc", branch: "Chemistry", department: DepartmentEnum.CHEMISTRY },
-  { course: "MSc", branch: "Physics", department: DepartmentEnum.PHYSICS },
-  { course: "MSc", branch: "Mathematics", department: DepartmentEnum.MATHEMATICS },
-  { course: "MSc", branch: "Biotechnology", department: DepartmentEnum.BIOSCIENCES_AND_BIOMEDICAL_ENGINEERING },
-  { course: "MSc", branch: "Astronomy", department: DepartmentEnum.ASTRONOMY_ASTROPHYSICS_AND_SPACE_ENGINEERING },
+  { course: CourseEnum.MSC, branch: "Chemistry", department: DepartmentEnum.CHEMISTRY },
+  { course: CourseEnum.MSC, branch: "Physics", department: DepartmentEnum.PHYSICS },
+  { course: CourseEnum.MSC, branch: "Mathematics", department: DepartmentEnum.MATHEMATICS },
+  {
+    course: CourseEnum.MSC,
+    branch: "Biotechnology",
+    department: DepartmentEnum.BIOSCIENCES_AND_BIOMEDICAL_ENGINEERING,
+  },
+  {
+    course: CourseEnum.MSC,
+    branch: "Astronomy",
+    department: DepartmentEnum.ASTRONOMY_ASTROPHYSICS_AND_SPACE_ENGINEERING,
+  },
 
   // Five-year BTech + MTech
   {
-    course: "BTech + MTech",
+    course: CourseEnum.BTECH_MTECH,
     branch: "BTech in Electrical Engineering with MTech in Communication and Signal Processing",
     department: DepartmentEnum.ELECTRICAL_ENGINEERING,
   },
   {
-    course: "BTech + MTech",
+    course: CourseEnum.BTECH_MTECH,
     branch: "BTech in Electrical Engineering with MTech in VLSI Design and Nanoelectronics",
     department: DepartmentEnum.ELECTRICAL_ENGINEERING,
   },
   {
-    course: "BTech + MTech",
+    course: CourseEnum.BTECH_MTECH,
     branch: "BTech in Mechanical Engineering with MTech in Production and Industrial Engineering",
     department: DepartmentEnum.MECHANICAL_ENGINEERING,
   },
   {
-    course: "BTech + MTech",
+    course: CourseEnum.BTECH_MTECH,
     branch: "BTech in Mechanical Engineering with MTech in Mechanical Systems Design",
     department: DepartmentEnum.MECHANICAL_ENGINEERING,
   },
 
   // MS(Research)
   {
-    course: "MS(Research)",
+    course: CourseEnum.MS,
     branch: "MS (Research) in Computer Science and Engineering",
     department: DepartmentEnum.COMPUTER_SCIENCE_AND_ENGINEERING,
   },
   {
-    course: "MS(Research)",
+    course: CourseEnum.MS,
     branch: "MS (Research) in Electrical Engineering",
     department: DepartmentEnum.ELECTRICAL_ENGINEERING,
   },
   {
-    course: "MS(Research)",
+    course: CourseEnum.MS,
     branch: "MS (Research) in Mechanical Engineering",
     department: DepartmentEnum.MECHANICAL_ENGINEERING,
   },
   {
-    course: "MS(Research)",
+    course: CourseEnum.MS,
     branch:
       "M.S. (Research) in Space Science and Engineering from DepartmentEnum of Astronomy, Astrophysics And Space Engineering (DAASE)",
     department: DepartmentEnum.ASTRONOMY_ASTROPHYSICS_AND_SPACE_ENGINEERING,
   },
   {
-    course: "MS(Research)",
+    course: CourseEnum.MS,
     branch: "M.S. (Research) in Humanities and Social Science from School of Humanities and Social Science (HSS)",
     department: DepartmentEnum.HUMANITIES_AND_SOCIAL_SCIENCES,
   },
   {
-    course: "MS(Research)",
+    course: CourseEnum.MS,
     branch: "Master of Science in Data Science and Management (MS-DSM)",
     department: DepartmentEnum.COMPUTER_SCIENCE_AND_ENGINEERING,
   },
 
   // Doctor of Philosophy
   {
-    course: "PhD",
+    course: CourseEnum.PHD,
     branch: "Computer Science and Engineering",
     department: DepartmentEnum.COMPUTER_SCIENCE_AND_ENGINEERING,
   },
-  { course: "PhD", branch: "Electrical Engineering", department: DepartmentEnum.ELECTRICAL_ENGINEERING },
-  { course: "PhD", branch: "Mechanical Engineering", department: DepartmentEnum.MECHANICAL_ENGINEERING },
-  { course: "PhD", branch: "Civil Engineering", department: DepartmentEnum.CIVIL_ENGINEERING },
+  { course: CourseEnum.PHD, branch: "Electrical Engineering", department: DepartmentEnum.ELECTRICAL_ENGINEERING },
+  { course: CourseEnum.PHD, branch: "Mechanical Engineering", department: DepartmentEnum.MECHANICAL_ENGINEERING },
+  { course: CourseEnum.PHD, branch: "Civil Engineering", department: DepartmentEnum.CIVIL_ENGINEERING },
   {
-    course: "PhD",
+    course: CourseEnum.PHD,
     branch: "Metallurgy Engineering and Materials Science",
     department: DepartmentEnum.METALLURGICAL_ENGINEERING_AND_MATERIALS_SCIENCE,
   },
   {
-    course: "PhD",
+    course: CourseEnum.PHD,
     branch: "Bio-sciences and Bio-medical Engineering",
     department: DepartmentEnum.BIOSCIENCES_AND_BIOMEDICAL_ENGINEERING,
   },
-  { course: "PhD", branch: "Chemistry", department: DepartmentEnum.CHEMISTRY },
-  { course: "PhD", branch: "Physics", department: DepartmentEnum.PHYSICS },
-  { course: "PhD", branch: "Mathematics", department: DepartmentEnum.MATHEMATICS },
-  { course: "PhD", branch: "English", department: DepartmentEnum.HUMANITIES_AND_SOCIAL_SCIENCES },
-  { course: "PhD", branch: "Philosophy", department: DepartmentEnum.HUMANITIES_AND_SOCIAL_SCIENCES },
-  { course: "PhD", branch: "Economics", department: DepartmentEnum.HUMANITIES_AND_SOCIAL_SCIENCES },
-  { course: "PhD", branch: "Psychology", department: DepartmentEnum.HUMANITIES_AND_SOCIAL_SCIENCES },
-  { course: "PhD", branch: "Sociology", department: DepartmentEnum.HUMANITIES_AND_SOCIAL_SCIENCES },
+  { course: CourseEnum.PHD, branch: "Chemistry", department: DepartmentEnum.CHEMISTRY },
+  { course: CourseEnum.PHD, branch: "Physics", department: DepartmentEnum.PHYSICS },
+  { course: CourseEnum.PHD, branch: "Mathematics", department: DepartmentEnum.MATHEMATICS },
+  { course: CourseEnum.PHD, branch: "English", department: DepartmentEnum.HUMANITIES_AND_SOCIAL_SCIENCES },
+  { course: CourseEnum.PHD, branch: "Philosophy", department: DepartmentEnum.HUMANITIES_AND_SOCIAL_SCIENCES },
+  { course: CourseEnum.PHD, branch: "Economics", department: DepartmentEnum.HUMANITIES_AND_SOCIAL_SCIENCES },
+  { course: CourseEnum.PHD, branch: "Psychology", department: DepartmentEnum.HUMANITIES_AND_SOCIAL_SCIENCES },
+  { course: CourseEnum.PHD, branch: "Sociology", department: DepartmentEnum.HUMANITIES_AND_SOCIAL_SCIENCES },
   {
-    course: "PhD",
+    course: CourseEnum.PHD,
     branch: "Astronomy, Astrophysics and Space Engineering",
     department: DepartmentEnum.ASTRONOMY_ASTROPHYSICS_AND_SPACE_ENGINEERING,
   },
-  { course: "PhD", branch: "Centre of Advanced Electronics", department: DepartmentEnum.ELECTRICAL_ENGINEERING },
   {
-    course: "PhD",
+    course: CourseEnum.PHD,
+    branch: "Centre of Advanced Electronics",
+    department: DepartmentEnum.ELECTRICAL_ENGINEERING,
+  },
+  {
+    course: CourseEnum.PHD,
     branch: "Centre for Rural Development and Technology (CRDT)",
     department: DepartmentEnum.CIVIL_ENGINEERING,
   },
   {
-    course: "PhD",
+    course: CourseEnum.PHD,
     branch: "Center for Electric Vehicle and Intelligent Transport Systems (CEVITS)",
     department: DepartmentEnum.ELECTRICAL_ENGINEERING,
   },
   {
-    course: "PhD",
+    course: CourseEnum.PHD,
     branch: "Center of Futuristic Defense and Space Technology (CFDST)",
     department: DepartmentEnum.ASTRONOMY_ASTROPHYSICS_AND_SPACE_ENGINEERING,
   },

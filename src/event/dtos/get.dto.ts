@@ -9,7 +9,7 @@ import {
   NestedObject,
   NestedEmail,
 } from "src/decorators/dto";
-import { EventTypeEnum, SeasonTypeEnum, DepartmentEnum, IndustryDomainEnum } from "src/enums";
+import { CourseEnum, EventTypeEnum, SeasonTypeEnum, DepartmentEnum, IndustryDomainEnum } from "src/enums";
 
 class CompanyDto {
   @NestedUUID({})
@@ -102,8 +102,8 @@ class ProgramDto {
   @NestedString({})
   branch: string;
 
-  @NestedString({})
-  course: string;
+  @NestedEnum(CourseEnum, {})
+  course: CourseEnum;
 
   @NestedString({})
   year: string;

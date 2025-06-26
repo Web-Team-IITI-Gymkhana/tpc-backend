@@ -11,17 +11,18 @@ import {
   NestedUUID,
 } from "src/decorators/dto";
 import {
+  BacklogEnum,
   CategoryEnum,
   CompanyCategoryEnum,
+  CountriesEnum,
+  CourseEnum,
   DepartmentEnum,
   GenderEnum,
-  SeasonTypeEnum,
-  CountriesEnum,
   IndustryDomainEnum,
   InterviewTypesEnum,
+  SeasonTypeEnum,
   SelectionModeEnum,
   TestTypesEnum,
-  BacklogEnum,
 } from "src/enums";
 
 export class AddressDto {
@@ -314,14 +315,14 @@ class ProgramsDto {
   @NestedString({})
   branch: string;
 
-  @NestedString({})
-  course: string;
+  @NestedEnum(CourseEnum, {})
+  course: CourseEnum;
 
   @NestedString({})
   year: string;
 
   @NestedEnum(DepartmentEnum, {})
-  department: string;
+  department: DepartmentEnum;
 }
 
 export class GetJafValuesDto {
