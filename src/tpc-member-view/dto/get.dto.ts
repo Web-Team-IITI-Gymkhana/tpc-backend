@@ -289,8 +289,11 @@ class SalariesDto {
   @NestedString({ optional: true })
   foreignCurrencyStipend?: string;
 
-  @NestedNumber({ optional: true })
-  accommodation?: number;
+  @NestedBoolean({ optional: true })
+  accommodation?: boolean;
+
+  @NestedBoolean({ optional: true })
+  ppoProvisionOnPerformance?: boolean;
 
   @NestedNumber({ optional: true })
   tentativeCTC?: number;
