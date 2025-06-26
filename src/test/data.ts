@@ -84,7 +84,13 @@ export const COMPANIES: Optional<CompanyModel, NullishPropertiesOf<CompanyModel>
 );
 
 export const PROGRAMS: Optional<ProgramModel, NullishPropertiesOf<ProgramModel>>[] = YEARS.flatMap((year) =>
-  allCourses.map((course) => ({ year, ...course, id: faker.string.uuid() }))
+  allCourses.map((course) => ({
+    id: faker.string.uuid(),
+    year,
+    course: course.course,
+    branch: course.branch,
+    department: course.department,
+  }))
 );
 
 export const USERS: Optional<UserModel, NullishPropertiesOf<UserModel>>[] = Array.from({ length: 25 }, (_, idx) => {

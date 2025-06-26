@@ -1,6 +1,6 @@
 import sequelize from "sequelize";
 import { Model, Table, Column, Unique } from "sequelize-typescript";
-import { DepartmentEnum } from "../../enums";
+import { CourseEnum, DepartmentEnum } from "../../enums";
 
 @Table({
   tableName: "Program",
@@ -16,10 +16,10 @@ export class ProgramModel extends Model<ProgramModel> {
 
   @Unique("Course-Branch-Year-Unique")
   @Column({
-    type: sequelize.STRING,
+    type: sequelize.ENUM(...Object.values(CourseEnum)),
     allowNull: false,
   })
-  course: string;
+  course: CourseEnum;
 
   @Unique("Course-Branch-Year-Unique")
   @Column({
