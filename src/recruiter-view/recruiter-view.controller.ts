@@ -37,6 +37,7 @@ import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { GetJafValuesDto, JafDto } from "src/job/dtos/jaf.dto";
 import { PostFeedbackdto } from "./dto/post.dto";
+import { Readable } from "stream";
 
 @Controller("recruiter-view")
 @ApiTags("recruiter-view")
@@ -97,10 +98,15 @@ export class RecruiterViewController {
   async getResume(@Param("filename") filename: string, @User() user: IUser, @Res({ passthrough: true }) res: Response) {
     const ans = await this.recruiterViewService.getResume(filename, user.recruiterId);
     if (ans.length === 0) throw new NotFoundException(`Resume with filename ${filename} not found`);
-    const file = this.fileService.getFile(path.join(this.folderName, filename));
+    const fileBuffer = await this.fileService.getFileasBuffer(path.join(this.folderName, filename));
+
+    if (!fileBuffer) {
+      throw new NotFoundException(`File content for ID ${filename} could not be retrieved.`);
+    }
+
     res.setHeader("Content-Type", "application/pdf");
 
-    return new StreamableFile(file);
+    return new StreamableFile(Readable.from(fileBuffer));
   }
 
   @Patch("recruiter")
@@ -123,7 +129,7 @@ export class RecruiterViewController {
   @UseInterceptors(TransactionInterceptor)
   async createJaf(@Body() jaf: JafDto, @TransactionParam() t: Transaction, @User() user: IUser) {
     const attachments = jaf.job.attachments || [];
-    const uploadedFiles = [];
+    const uploadedFileIds = []; // This will now store Google Drive File IDs
 
     for (const base64String of attachments) {
       const base64Data = base64String.startsWith("data:application/pdf;base64,")
@@ -133,17 +139,29 @@ export class RecruiterViewController {
       const file = base64Data ? { buffer: Buffer.from(base64Data, "base64"), size: 0 } : undefined;
       if (file) {
         file.size = file.buffer.length;
+        // The magic number check for PDF and size limit should remain here (client-side validation is good too)
         const magic = file.buffer.subarray(0, 4).toString("ascii");
-        if (magic !== "%PDF") throw new BadRequestException("Only PDF is supported");
-        if (file.size > JD_SIZE_LIMIT) throw new BadRequestException("File size too large");
-        const filename = uuidv4() + ".pdf";
-        uploadedFiles.push(filename);
+        if (magic !== "%PDF") {
+          throw new BadRequestException("Only PDF is supported");
+        }
+        if (file.size > JD_SIZE_LIMIT) {
+          throw new BadRequestException("File size too large");
+        }
 
-        await this.fileService.uploadFile(path.join(this.JDFolder, filename), file);
+        const filename = uuidv4() + ".pdf";
+        // Now, upload to Google Drive and store the returned file ID
+        // JD_FOLDER is now just a conceptual category, the actual GDrive folder is set in env vars
+        const googleDriveFileId = await this.fileService.uploadFile(
+          `${JD_FOLDER}/${filename}`, // Conceptual path for identifying the file
+          file,
+          "application/pdf" // Explicitly pass MIME type
+        );
+        uploadedFileIds.push(googleDriveFileId); // Store the Google Drive File ID
       }
     }
 
-    jaf.job.attachments = uploadedFiles;
+    // Update jaf.job.attachments with the Google Drive File IDs
+    jaf.job.attachments = uploadedFileIds;
     const ans = await this.recruiterViewService.createJaf(jaf.job, jaf.salaries, t, user.recruiterId);
 
     return ans;
@@ -153,10 +171,15 @@ export class RecruiterViewController {
   async getJd(@Param("filename") filename: string, @Res({ passthrough: true }) res: Response, @User() user: IUser) {
     const ans = await this.recruiterViewService.getJD(filename, user.recruiterId);
     if (!ans) throw new NotFoundException(`File ${filename} not found`);
-    const file = this.fileService.getFile(path.join(this.JDFolder, filename));
+    const fileBuffer = await this.fileService.getFileasBuffer(path.join(this.JDFolder, filename));
+
+    if (!fileBuffer) {
+      throw new NotFoundException(`File content for ID ${filename} could not be retrieved.`);
+    }
+
     res.setHeader("Content-Type", "application/pdf");
 
-    return new StreamableFile(file);
+    return new StreamableFile(Readable.from(fileBuffer));
   }
 
   @Post("/feedbacks")
