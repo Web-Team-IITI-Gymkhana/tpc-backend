@@ -11,12 +11,23 @@ import {
   SeasonModel,
   UserModel,
 } from "src/db/models";
-import { RoleEnum } from "src/enums";
+import { RoleEnum, DepartmentEnum } from "src/enums";
 import { parseFilter, parseOrder, parsePagesize } from "src/utils";
 import { FacultyQueryDto } from "./dtos/query.dto";
 import { CreateFacultiesDto } from "./dtos/post.dto";
 import { omit } from "lodash";
 import { UpdateFacultiesDto } from "./dtos/patch.dto";
+
+// Interface for faculty creation with nested user that matches Sequelize bulk creation expectations
+interface FacultyCreationData {
+  department: DepartmentEnum;
+  user: {
+    name: string;
+    email: string;
+    contact: string;
+    role: RoleEnum;
+  };
+}
 
 @Injectable()
 export class FacultyService {
@@ -87,17 +98,19 @@ export class FacultyService {
   }
 
   async createFaculties(body: CreateFacultiesDto[]) {
-    const faculties = body.map((faculty) => {
-      faculty.user.role = RoleEnum.FACULTY;
+    const faculties: FacultyCreationData[] = body.map((faculty) => ({
+      department: faculty.department,
+      user: {
+        name: faculty.user.name,
+        email: faculty.user.email,
+        contact: faculty.user.contact,
+        role: RoleEnum.FACULTY,
+      },
+    }));
 
-      return faculty;
+    const ans = await this.facultyRepo.bulkCreate(faculties as any[], {
+      include: [{ model: UserModel, as: "user" }],
     });
-    const ans = await this.facultyRepo.bulkCreate(
-      faculties.map((faculty) => omit(faculty, "user")),
-      {
-        include: [{ model: UserModel, as: "user" }],
-      }
-    );
 
     return ans.map((faculty) => faculty.id);
   }
