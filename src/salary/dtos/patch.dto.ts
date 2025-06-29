@@ -1,5 +1,5 @@
 import { NestedString, NestedUUID, NestedEnum, NestedNumber } from "src/decorators/dto";
-import { CategoryEnum, GenderEnum } from "src/enums";
+import { CategoryEnum, GenderEnum, DepartmentEnum } from "src/enums";
 
 export class UpdateSalariesDto {
   @NestedUUID({ optional: true })
@@ -34,6 +34,9 @@ export class UpdateSalariesDto {
 
   @NestedUUID({ optional: true, isArray: true })
   programs?: string[];
+
+  @NestedEnum(DepartmentEnum, { optional: true, isArray: true })
+  facultyApprovals?: DepartmentEnum[];
 
   @NestedEnum(CategoryEnum, { optional: true, isArray: true })
   categories?: CategoryEnum[];
