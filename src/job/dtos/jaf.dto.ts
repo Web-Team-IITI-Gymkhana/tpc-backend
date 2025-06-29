@@ -302,7 +302,7 @@ class SeasonsDto {
   id: string;
 
   @NestedEnum(SeasonTypeEnum, {})
-  type: string;
+  type: SeasonTypeEnum;
 
   @NestedString({})
   year: string;
