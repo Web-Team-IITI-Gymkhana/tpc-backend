@@ -37,6 +37,7 @@ import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { GetJafValuesDto, JafDto } from "src/job/dtos/jaf.dto";
 import { PostFeedbackdto } from "./dto/post.dto";
+import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
 
 @Controller("recruiter-view")
 @ApiTags("recruiter-view")
@@ -118,6 +119,8 @@ export class RecruiterViewController {
     return pipeTransform(ans, GetJafValuesDto);
   }
 
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 2, ttl: 60 * 1000 } })
   @Post("jaf")
   @ApiResponse({ type: String })
   @UseInterceptors(TransactionInterceptor)
@@ -159,6 +162,8 @@ export class RecruiterViewController {
     return new StreamableFile(file);
   }
 
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 50, ttl: 60 * 1000 } })
   @Post("/feedbacks")
   @ApiBody({ type: PostFeedbackdto, isArray: true })
   @ApiResponse({ type: String, isArray: true })
