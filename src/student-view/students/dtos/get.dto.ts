@@ -128,11 +128,14 @@ export class StudentViewDto {
   @NestedNumber({})
   cpi: number;
 
-  @NestedNumber({})
-  tenthMarks: number;
+  @NestedEnum(BacklogEnum, { optional: true })
+  backlog?: BacklogEnum;
 
-  @NestedNumber({})
-  twelthMarks: number;
+  @NestedNumber({ optional: true })
+  tenthMarks?: number;
+
+  @NestedNumber({ optional: true })
+  twelthMarks?: number;
 
   @NestedObject({ type: UserDto })
   user: UserDto;

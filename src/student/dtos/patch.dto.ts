@@ -1,5 +1,5 @@
 import { NestedEmail, NestedEnum, NestedNumber, NestedObject, NestedString, NestedUUID } from "src/decorators/dto";
-import { CategoryEnum, GenderEnum } from "src/enums";
+import { CategoryEnum, GenderEnum, BacklogEnum } from "src/enums";
 
 class UpdateUserDto {
   @NestedString({ optional: true })
@@ -31,6 +31,9 @@ export class UpdateStudentsDto {
   @NestedNumber({ optional: true })
   cpi?: number;
 
+  @NestedEnum(BacklogEnum, { optional: true })
+  backlog?: BacklogEnum;
+
   @NestedNumber({ optional: true })
   tenthMarks?: number;
 
@@ -39,4 +42,16 @@ export class UpdateStudentsDto {
 
   @NestedObject({ type: UpdateUserDto, optional: true })
   user?: UpdateUserDto;
+}
+
+// New DTO specifically for onboarding updates
+export class OnboardingUpdateDto {
+  @NestedEnum(BacklogEnum, { optional: true })
+  backlog?: BacklogEnum;
+
+  @NestedNumber({ optional: true })
+  tenthMarks?: number;
+
+  @NestedNumber({ optional: true })
+  twelthMarks?: number;
 }
