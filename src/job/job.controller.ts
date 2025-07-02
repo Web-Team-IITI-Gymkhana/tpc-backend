@@ -12,7 +12,7 @@ import {
   UseGuards,
   HttpException,
   HttpStatus,
-  ForbiddenException, // ✅ Added
+  ForbiddenException, 
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { JobService } from "./job.service";
@@ -72,7 +72,7 @@ export class JobController {
   @ApiBody({ type: CreateApplicationDto, isArray: true })
   @ApiResponse({ type: String, isArray: true })
   async createApplications(@Body(createArrayPipe(CreateApplicationDto)) body: CreateApplicationDto[]) {
-    // ✅ CAPTCHA verification code inserted here
+   
     const verified = await verifyRecaptcha(body[0]?.token);
 
     if (!verified) {
