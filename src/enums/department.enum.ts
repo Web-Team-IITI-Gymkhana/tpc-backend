@@ -10,4 +10,6 @@ export enum DepartmentEnum {
   MECHANICAL_ENGINEERING = "Mechanical Engineering",
   METALLURGICAL_ENGINEERING_AND_MATERIALS_SCIENCE = "Metallurgical Engineering and Materials Science",
   PHYSICS = "Physics",
+  CHEMICAL_ENGINEERING = "Chemical Engineering",
+  CEVITS = "Center for Electric Vehicles Intelligent Transport Systems",
 }
