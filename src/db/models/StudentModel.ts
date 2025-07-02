@@ -72,15 +72,15 @@ export class StudentModel extends Model<StudentModel> {
 
   @Column({
     type: sequelize.FLOAT,
-    allowNull: false,
+    allowNull: true,
   })
-  tenthMarks: number;
+  tenthMarks?: number;
 
   @Column({
     type: sequelize.FLOAT,
-    allowNull: false,
+    allowNull: true,
   })
-  twelthMarks: number;
+  twelthMarks?: number;
 
   @ForeignKey(() => ProgramModel)
   @Column({

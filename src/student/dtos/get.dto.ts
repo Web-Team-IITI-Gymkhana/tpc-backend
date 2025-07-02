@@ -7,7 +7,7 @@ import {
   NestedString,
   NestedUUID,
 } from "src/decorators/dto";
-import { CategoryEnum, CourseEnum, DepartmentEnum, GenderEnum } from "src/enums";
+import { CategoryEnum, CourseEnum, DepartmentEnum, GenderEnum, BacklogEnum } from "src/enums";
 
 class UserDto {
   @NestedUUID({})
@@ -56,11 +56,14 @@ export class GetStudentsDto {
   @NestedNumber({})
   cpi: number;
 
-  @NestedNumber({})
-  tenthMarks: number;
+  @NestedEnum(BacklogEnum, { optional: true })
+  backlog?: BacklogEnum;
 
-  @NestedNumber({})
-  twelthMarks: number;
+  @NestedNumber({ optional: true })
+  tenthMarks?: number;
+
+  @NestedNumber({ optional: true })
+  twelthMarks?: number;
 
   @NestedObject({ type: UserDto })
   user: UserDto;
