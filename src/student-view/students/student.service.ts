@@ -1,4 +1,11 @@
-import { ForbiddenException, Inject, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
+import {
+  ForbiddenException,
+  Inject,
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+  BadRequestException,
+} from "@nestjs/common";
 import sequelize, { Sequelize } from "sequelize";
 import { FindOptions, Op, Transaction, WhereOptions } from "sequelize";
 import {
@@ -36,6 +43,7 @@ import { SeasonStatusEnum } from "src/enums/SeasonStatus.enum";
 import { EventsQueryDto } from "src/event/dtos/query.dto";
 import { JobsQueryDto } from "src/job/dtos/query.dto";
 import { parseFilter, parseOrder, parsePagesize } from "src/utils";
+import { OnboardingUpdateDto } from "../../student/dtos/patch.dto";
 
 @Injectable()
 export class StudentService {
@@ -469,6 +477,24 @@ export class StudentService {
   }
 
   async registerSeason(studentId: string, seasonId: string) {
+    
+    const student = await this.studentRepo.findByPk(studentId);
+    if (!student) {
+      throw new NotFoundException(`Student with id ${studentId} not found`);
+    }
+
+    
+    if (
+      student.backlog === null ||
+      student.backlog === undefined ||
+      student.tenthMarks === null ||
+      student.tenthMarks === undefined ||
+      student.twelthMarks === null ||
+      student.twelthMarks === undefined
+    ) {
+      throw new BadRequestException("Please complete your profile onboarding before registering for seasons");
+    }
+
     const season = await this.seasonRepo.findOne({ where: { id: seasonId } });
 
     if (season && season.status === SeasonStatusEnum.ACTIVE) {
@@ -484,6 +510,24 @@ export class StudentService {
   }
 
   async deregisterSeason(studentId: string, seasonId: string) {
+   
+    const student = await this.studentRepo.findByPk(studentId);
+    if (!student) {
+      throw new NotFoundException(`Student with id ${studentId} not found`);
+    }
+
+    
+    if (
+      student.backlog === null ||
+      student.backlog === undefined ||
+      student.tenthMarks === null ||
+      student.tenthMarks === undefined ||
+      student.twelthMarks === null ||
+      student.twelthMarks === undefined
+    ) {
+      throw new BadRequestException("Please complete your profile onboarding before modifying season registrations");
+    }
+
     const season = await this.seasonRepo.findOne({ where: { id: seasonId } });
 
     if (season && season.status === SeasonStatusEnum.ACTIVE) {
@@ -496,5 +540,50 @@ export class StudentService {
     } else {
       return [seasonId];
     }
+  }
+
+  async updateOnboarding(studentId: string, updateData: OnboardingUpdateDto) {
+   
+    const currentStudent = await this.studentRepo.findByPk(studentId);
+
+    if (!currentStudent) {
+      throw new NotFoundException(`Student with id ${studentId} not found`);
+    }
+
+   
+    const updates: any = {};
+
+    if (updateData.backlog !== undefined) {
+      if (currentStudent.backlog !== null && currentStudent.backlog !== undefined) {
+        throw new BadRequestException("Backlog status has already been set and cannot be modified");
+      }
+      updates.backlog = updateData.backlog;
+    }
+
+    if (updateData.tenthMarks !== undefined) {
+      if (currentStudent.tenthMarks !== null && currentStudent.tenthMarks !== undefined) {
+        throw new BadRequestException("10th marks have already been set and cannot be modified");
+      }
+      updates.tenthMarks = updateData.tenthMarks;
+    }
+
+    if (updateData.twelthMarks !== undefined) {
+      if (currentStudent.twelthMarks !== null && currentStudent.twelthMarks !== undefined) {
+        throw new BadRequestException("12th marks have already been set and cannot be modified");
+      }
+      updates.twelthMarks = updateData.twelthMarks;
+    }
+
+   
+    if (Object.keys(updates).length === 0) {
+      return { message: "No updates to apply" };
+    }
+
+    
+    await this.studentRepo.update(updates, {
+      where: { id: studentId },
+    });
+
+    return { message: "Onboarding data updated successfully" };
   }
 }

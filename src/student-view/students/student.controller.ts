@@ -36,6 +36,7 @@ import { RoleEnum } from "src/enums";
 import { JobsQueryDto } from "src/job/dtos/query.dto";
 import { EventsQueryDto } from "src/event/dtos/query.dto";
 import { GetEventsDto } from "src/event/dtos/get.dto";
+import { OnboardingUpdateDto } from "../../student/dtos/patch.dto";
 
 @Controller("student-view")
 @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.STUDENT))
@@ -150,6 +151,12 @@ export class StudentController {
     res.setHeader("Content-Type", "application/pdf");
 
     return new StreamableFile(file);
+  }
+
+  @Patch("/onboarding")
+  @ApiResponse({ type: String })
+  async updateOnboarding(@Body() updateData: OnboardingUpdateDto, @User() user: IUser) {
+    return await this.studentService.updateOnboarding(user.studentId, updateData);
   }
 
   @Patch("/registrations/:seasonId")

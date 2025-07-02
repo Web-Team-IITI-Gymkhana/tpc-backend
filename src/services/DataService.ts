@@ -138,9 +138,9 @@ export class DataUploadService {
       category: this.changeCategory(data.category),
       gender: this.changeGender(data.gender),
       cpi: data.aggregateCPI,
-      backlog: BacklogEnum.NEVER,
-      tenthMarks: 85,
-      twelthMarks: 85,
+      backlog: null, 
+      tenthMarks: null, 
+      twelthMarks: null,
     });
 
     const registration = await this.registrationRepo.create({
