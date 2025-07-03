@@ -27,7 +27,6 @@ import { Response } from "express";
 import path from "path";
 import { FileService } from "src/services/FileService";
 import { JD_FOLDER } from "src/constants";
-import { verifyRecaptcha } from "src/utils/recaptcha"; 
 
 @Controller("jobs")
 @ApiTags("Job")
