@@ -24,7 +24,7 @@ import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { TransactionParam } from "src/decorators/TransactionParam";
 import { Transaction } from "sequelize";
 import { v4 as uuidv4 } from "uuid";
-import { JD_FOLDER, RESUME_FOLDER } from "src/constants";
+import { JD_FOLDER, RESUME_FOLDER, POLICY_FOLDER } from "src/constants";
 import { FileService } from "src/services/FileService";
 import path from "path";
 import { DeleteFilesDto } from "src/utils/utils.dto";
@@ -45,6 +45,7 @@ import { OnboardingUpdateDto } from "../../student/dtos/patch.dto";
 export class StudentController {
   folderName = RESUME_FOLDER;
   JDFolder = JD_FOLDER;
+  policyFolder = POLICY_FOLDER;
 
   constructor(
     private studentService: StudentService,
@@ -171,5 +172,26 @@ export class StudentController {
   @ApiResponse({ type: String, isArray: true })
   async deregisterSeason(@Param("seasonId", new ParseUUIDPipe()) seasonId: string, @User() user: IUser) {
     return await this.studentService.deregisterSeason(user.studentId, seasonId);
+  }
+
+  @GetFile(["application/pdf"], "policy")
+  async getPolicyDocument(
+    @Param("filename") filename: string,
+    @User() user: IUser,
+    @Res({ passthrough: true }) res: Response
+  ) {
+    // Verify that the student has access to this policy document
+    // by checking if they have any registration for a season with this policy document
+    const studentData = await this.studentService.getStudent(user.studentId);
+    const hasAccess = studentData.registrations.some((registration) => registration.season.policyDocument === filename);
+
+    if (!hasAccess) {
+      throw new NotFoundException(`Policy document ${filename} not found or access denied`);
+    }
+
+    const file = this.fileService.getFile(path.join(this.policyFolder, filename));
+    res.setHeader("Content-Type", "application/pdf");
+
+    return new StreamableFile(file);
   }
 }

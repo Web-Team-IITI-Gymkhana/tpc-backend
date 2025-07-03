@@ -35,6 +35,11 @@ export class SeasonModel extends Model<SeasonModel> {
   })
   status: SeasonStatusEnum;
 
+  @Column({
+    allowNull: true,
+  })
+  policyDocument: string;
+
   @HasMany(() => JobModel, {
     foreignKey: "seasonId",
   })

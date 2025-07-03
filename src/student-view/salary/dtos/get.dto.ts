@@ -45,6 +45,9 @@ class SeasonDto {
 
   @NestedEnum(SeasonTypeEnum, {})
   type: SeasonTypeEnum;
+
+  @NestedString({ optional: true })
+  policyDocument?: string;
 }
 
 class EventsDto {
