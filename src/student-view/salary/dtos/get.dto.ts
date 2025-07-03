@@ -10,6 +10,7 @@ import {
 } from "src/decorators/dto";
 import {
   CompanyCategoryEnum,
+  CourseEnum,
   DepartmentEnum,
   EventTypeEnum,
   JobCoordinatorRoleEnum,
@@ -44,6 +45,9 @@ class SeasonDto {
 
   @NestedEnum(SeasonTypeEnum, {})
   type: SeasonTypeEnum;
+
+  @NestedString({ optional: true })
+  policyDocument?: string;
 }
 
 class EventsDto {
@@ -72,6 +76,9 @@ class ResumeDto {
 
   @NestedString({ optional: true })
   filepath?: string;
+
+  @NestedString({ optional: true })
+  name?: string;
 
   @NestedBoolean({})
   verified: boolean;
@@ -109,8 +116,8 @@ class ProgramDto {
   @NestedString({})
   branch: string;
 
-  @NestedString({})
-  course: string;
+  @NestedEnum(CourseEnum, {})
+  course: CourseEnum;
 
   @NestedString({})
   year: string;

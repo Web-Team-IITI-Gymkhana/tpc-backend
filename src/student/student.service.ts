@@ -69,15 +69,25 @@ export class StudentService {
     return { ...ans.get({ plain: true }), totalPenalty };
   }
 
-  async createStudents(students) {
-    students.forEach((student) => {
-      student.user.role = RoleEnum.STUDENT;
-    });
-    const ans = await this.studentRepo.bulkCreate(students, {
-      include: [{ model: UserModel, as: "user" }],
-    });
+  async createStudents(students: CreateStudentsDto[]) {
+    const transaction = await this.studentRepo.sequelize.transaction();
 
-    return ans.map((student) => student.id);
+    try {
+      students.forEach((student) => {
+        student.user.role = RoleEnum.STUDENT;
+      });
+
+      const ans = await this.studentRepo.bulkCreate(students as any[], {
+        include: [{ model: UserModel, as: "user" }],
+        transaction,
+      });
+
+      await transaction.commit();
+      return ans.map((student) => student.id);
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
   }
 
   async updateStudent(student: UpdateStudentsDto, t: Transaction) {

@@ -14,6 +14,7 @@ import {
   BacklogEnum,
   CategoryEnum,
   CompanyCategoryEnum,
+  CourseEnum,
   DepartmentEnum,
   EventTypeEnum,
   GenderEnum,
@@ -68,8 +69,8 @@ class ProgramDto {
   @NestedString({})
   branch: string;
 
-  @NestedString({})
-  course: string;
+  @NestedEnum(CourseEnum, {})
+  course: CourseEnum;
 
   @NestedString({})
   year: string;
@@ -98,6 +99,9 @@ class SeasonDto {
 
   @NestedEnum(SeasonTypeEnum, {})
   type: SeasonTypeEnum;
+
+  @NestedString({ optional: true })
+  policyDocument?: string;
 }
 
 class RegistrationsDto {
@@ -127,11 +131,14 @@ export class StudentViewDto {
   @NestedNumber({})
   cpi: number;
 
-  @NestedNumber({})
-  tenthMarks: number;
+  @NestedEnum(BacklogEnum, { optional: true })
+  backlog?: BacklogEnum;
 
-  @NestedNumber({})
-  twelthMarks: number;
+  @NestedNumber({ optional: true })
+  tenthMarks?: number;
+
+  @NestedNumber({ optional: true })
+  twelthMarks?: number;
 
   @NestedObject({ type: UserDto })
   user: UserDto;

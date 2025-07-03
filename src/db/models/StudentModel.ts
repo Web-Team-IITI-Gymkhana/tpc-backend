@@ -66,21 +66,20 @@ export class StudentModel extends Model<StudentModel> {
   @Column({
     type: sequelize.ENUM(...Object.values(BacklogEnum)),
     allowNull: true,
-    defaultValue: BacklogEnum.NEVER,
   })
   backlog?: BacklogEnum;
 
   @Column({
     type: sequelize.FLOAT,
-    allowNull: false,
+    allowNull: true,
   })
-  tenthMarks: number;
+  tenthMarks?: number;
 
   @Column({
     type: sequelize.FLOAT,
-    allowNull: false,
+    allowNull: true,
   })
-  twelthMarks: number;
+  twelthMarks?: number;
 
   @ForeignKey(() => ProgramModel)
   @Column({

@@ -14,4 +14,7 @@ export class UpdateSeasonsDto {
 
   @NestedEnum(SeasonStatusEnum, { optional: true })
   status?: SeasonStatusEnum;
+
+  @NestedString({ optional: true })
+  policyDocument?: string;
 }

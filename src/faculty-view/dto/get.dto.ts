@@ -63,8 +63,11 @@ class SalaryDto {
   @NestedUUID({})
   id: string;
 
-  @NestedNumber({})
-  totalCTC: number;
+  @NestedNumber({ optional: true })
+  totalCTC?: number;
+
+  @NestedNumber({ optional: true })
+  stipend?: number;
 
   @NestedString({ optional: true })
   salaryPeriod?: string;

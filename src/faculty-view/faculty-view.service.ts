@@ -8,8 +8,8 @@ import {
   CompanyModel,
   SeasonModel,
 } from "src/db/models";
-import { FACULTY_DAO, FACULTY_APPROVAL_REQUEST_DAO, USER_DAO } from "src/constants";
-import sequelize, { WhereOptions, Transaction } from "sequelize";
+import { FACULTY_DAO, FACULTY_APPROVAL_REQUEST_DAO, USER_DAO, SEQUELIZE_DAO } from "src/constants";
+import sequelize, { WhereOptions, Transaction, Sequelize } from "sequelize";
 import { FacultyApprovalStatusEnum } from "src/enums";
 import { UpdateFacultyApprovalStatusDto, UpdateFacultyDto } from "./dto/patch.dto";
 import { omit } from "lodash";
@@ -19,7 +19,8 @@ export class FacultyViewService {
   constructor(
     @Inject(FACULTY_DAO) private facultyRepo: typeof FacultyModel,
     @Inject(FACULTY_APPROVAL_REQUEST_DAO) private facultyapprovalrequestRepo: typeof FacultyApprovalRequestModel,
-    @Inject(USER_DAO) private userRepo: typeof UserModel
+    @Inject(USER_DAO) private userRepo: typeof UserModel,
+    @Inject(SEQUELIZE_DAO) private sequelizeInstance: Sequelize
   ) {}
 
   async getFaculty(facultyId: string) {
@@ -74,12 +75,120 @@ export class FacultyViewService {
   }
 
   async updateApprovalStatus(approval: UpdateFacultyApprovalStatusDto, facultyId: string) {
-    const [ans] = await this.facultyapprovalrequestRepo.update(approval, {
-      where: { id: approval.id, facultyId: facultyId },
-    });
-    if (ans == 0) throw new UnauthorizedException(`Unauthorized`);
+    return await this.sequelizeInstance.transaction(async (t) => {
+      // First verify the faculty approval request belongs to this faculty
+      const facultyApprovalRequest = await this.facultyapprovalrequestRepo.findOne({
+        where: { id: approval.id, facultyId: facultyId },
+        transaction: t,
+      });
 
-    return ans > 0 ? [] : [approval.id];
+      if (!facultyApprovalRequest) {
+        throw new UnauthorizedException(`Unauthorized`);
+      }
+
+      // Update the faculty approval request status and remarks
+      const [updateCount] = await this.facultyapprovalrequestRepo.update(approval, {
+        where: { id: approval.id, facultyId: facultyId },
+        transaction: t,
+      });
+
+      if (updateCount === 0) {
+        throw new UnauthorizedException(`Unauthorized`);
+      }
+
+      // Update the salary's facultyApprovals array based on the approval status
+      if (approval.status === FacultyApprovalStatusEnum.APPROVED) {
+        // Remove the faculty's department from the facultyApprovals array
+        await this.removeFacultyApproval(approval.id, t);
+      } else {
+        // Add the faculty's department to the facultyApprovals array (for REJECTED or PENDING)
+        await this.addFacultyApproval(approval.id, t);
+      }
+
+      return updateCount > 0 ? [] : [approval.id];
+    });
+  }
+
+  private async removeFacultyApproval(facultyApprovalId: string, t: Transaction) {
+    await this.sequelizeInstance.query(
+      `UPDATE
+        "Salary"
+    SET
+        "facultyApprovals" = array_remove(
+            "facultyApprovals" :: text [],
+            (
+                SELECT
+                    "department" :: text
+                FROM
+                    "Faculty"
+                WHERE
+                    "id" IN (
+                        SELECT
+                            "facultyId"
+                        FROM
+                            "FacultyApprovalRequest"
+                        WHERE
+                            id = '${facultyApprovalId}'
+                    )
+                LIMIT
+                    1 OFFSET 0
+            )
+        ) :: "enum_Salary_facultyApprovals" [], "updatedAt" = '${new Date().toISOString()}'
+    WHERE
+        "id" IN (
+            SELECT
+                "salaryId"
+            FROM
+                "FacultyApprovalRequest"
+            WHERE
+                "id" = '${facultyApprovalId}'
+        )`,
+      { type: sequelize.QueryTypes.UPDATE, transaction: t }
+    );
+  }
+
+  private async addFacultyApproval(facultyApprovalId: string, t: Transaction) {
+    await this.sequelizeInstance.query(
+      `UPDATE
+      "Salary"
+  SET
+      "facultyApprovals" = ARRAY(
+          SELECT
+              DISTINCT unnest(
+                  array_cat(
+                      "facultyApprovals" :: text [],
+                      (
+                          SELECT
+                              ARRAY (
+                                  SELECT
+                                      "department"
+                                  FROM
+                                      "Faculty"
+                                  WHERE
+                                      "id" IN (
+                                          SELECT
+                                              "facultyId"
+                                          FROM
+                                              "FacultyApprovalRequest"
+                                          WHERE
+                                              "id" = '${facultyApprovalId}'
+                                      )
+                              )
+                      ) :: text []
+                  ) :: "enum_Salary_facultyApprovals" []
+              ) AS "S"
+      ), "updatedAt" = '${new Date().toISOString()}'
+  WHERE
+  "id" IN (
+    SELECT
+        "salaryId"
+    FROM
+        "FacultyApprovalRequest"
+    WHERE
+        "id" = '${facultyApprovalId}'
+)`,
+      { type: sequelize.QueryTypes.UPDATE, transaction: t }
+    );
   }
 
   async updateFaculty(faculty: UpdateFacultyDto, t: Transaction, facultyId: string) {

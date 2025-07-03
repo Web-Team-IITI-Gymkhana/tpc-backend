@@ -7,7 +7,7 @@ import {
   NestedString,
   NestedUUID,
 } from "src/decorators/dto";
-import { DepartmentEnum, EventTypeEnum, GenderEnum, OfferStatusEnum, SeasonTypeEnum } from "src/enums";
+import { CourseEnum, DepartmentEnum, EventTypeEnum, GenderEnum, OfferStatusEnum, SeasonTypeEnum } from "src/enums";
 
 export class ClashCompanyDto {
   @NestedUUID({})
@@ -57,8 +57,8 @@ export class ClashProgramDto {
   @NestedUUID({})
   id: string;
 
-  @NestedString({})
-  course: string;
+  @NestedEnum(CourseEnum, {})
+  course: CourseEnum;
 
   @NestedString({})
   branch: string;
@@ -145,8 +145,8 @@ class ClashEventsDto {
   @NestedString({})
   contact: string;
 
-  @NestedString({})
-  course: string;
+  @NestedEnum(CourseEnum, {})
+  course: CourseEnum;
 
   @NestedString({})
   branch: string;
@@ -204,8 +204,8 @@ export class ClashOffCampusDto {
   @NestedString({})
   contact: string;
 
-  @NestedString({})
-  course: string;
+  @NestedEnum(CourseEnum, {})
+  course: CourseEnum;
 
   @NestedString({})
   branch: string;
@@ -269,8 +269,8 @@ export class ClashOnCampusDto {
   @NestedString({})
   contact: string;
 
-  @NestedString({})
-  course: string;
+  @NestedEnum(CourseEnum, {})
+  course: CourseEnum;
 
   @NestedString({})
   branch: string;

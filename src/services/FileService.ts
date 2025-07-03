@@ -1,18 +1,20 @@
 import { Injectable } from "@nestjs/common";
 import * as fsp from "fs/promises";
 import * as fs from "fs";
-import { IE_FOLDER, JD_FOLDER, RESUME_FOLDER } from "src/constants";
+import { IE_FOLDER, JD_FOLDER, RESUME_FOLDER, POLICY_FOLDER } from "src/constants";
 
 @Injectable()
 export class FileService {
   resumeFolder = RESUME_FOLDER;
   ieFolder = IE_FOLDER;
   jdFolder = JD_FOLDER;
+  policyFolder = POLICY_FOLDER;
 
   async onModuleInit() {
     this.makeFolder(this.resumeFolder);
     this.makeFolder(this.ieFolder);
     this.makeFolder(this.jdFolder);
+    this.makeFolder(this.policyFolder);
   }
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any

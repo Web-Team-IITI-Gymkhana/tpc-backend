@@ -77,6 +77,9 @@ class ResumeDto {
   @NestedString({})
   filepath: string;
 
+  @NestedString({ optional: true })
+  name?: string;
+
   @NestedBoolean({})
   verified: boolean;
 }
