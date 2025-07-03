@@ -382,9 +382,11 @@ export const LOGIN_TPC_MEMBER = {};
 export const RESUME_SIZE_LIMIT = 102400; // 1MB
 export const IE_SIZE_LIMIT = RESUME_SIZE_LIMIT * 100; // 10MB.
 export const JD_SIZE_LIMIT = RESUME_SIZE_LIMIT * 100; // 10MB.
+export const POLICY_SIZE_LIMIT = RESUME_SIZE_LIMIT * 100; // 10MB.
 
 export const ROLES_KEY = "roles";
 
 export const RESUME_FOLDER = path.join(env().UPLOAD_DIR, "resume");
 export const JD_FOLDER = path.join(env().UPLOAD_DIR, "jd");
 export const IE_FOLDER = path.join(env().UPLOAD_DIR, "ie");
+export const POLICY_FOLDER = path.join(env().UPLOAD_DIR, "policy");
