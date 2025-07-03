@@ -9,7 +9,8 @@ import {
   Query,
   Res,
   StreamableFile,
-  UseGuards, 
+  UseGuards,
+  
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { JobService } from "./job.service";
