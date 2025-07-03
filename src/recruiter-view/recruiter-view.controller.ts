@@ -13,6 +13,9 @@ import {
   NotFoundException,
   StreamableFile,
   BadRequestException,
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
 } from "@nestjs/common";
 import { RecruiterViewService } from "./recruiter-view.service";
 import { AuthGuard } from "@nestjs/passport";
@@ -37,6 +40,7 @@ import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { GetJafValuesDto, JafDto } from "src/job/dtos/jaf.dto";
 import { PostFeedbackdto } from "./dto/post.dto";
+import { verifyRecaptcha } from "src/utils/recaptcha";
 
 @Controller("recruiter-view")
 @ApiTags("recruiter-view")
@@ -113,7 +117,7 @@ export class RecruiterViewController {
   @ApiResponse({ type: GetJafValuesDto })
   async getJafDetails() {
     const ans = await this.recruiterViewService.getJafDetails();
-    // console.log(ans);
+
 
     return pipeTransform(ans, GetJafValuesDto);
   }
@@ -121,7 +125,16 @@ export class RecruiterViewController {
   @Post("jaf")
   @ApiResponse({ type: String })
   @UseInterceptors(TransactionInterceptor)
-  async createJaf(@Body() jaf: JafDto, @TransactionParam() t: Transaction, @User() user: IUser) {
+  async createJaf(@Body() jaf: JafDto & { token?: string }, @TransactionParam() t: Transaction, @User() user: IUser) {
+    const verified = await verifyRecaptcha(jaf.token);
+    if (!verified) {
+      throw new ForbiddenException("Invalid captcha");
+    }
+
+    if (!jaf?.job?.recruiterDetailsFilled?.[0]?.email) {
+      throw new HttpException("Email is required", HttpStatus.BAD_REQUEST);
+    }
+
     const attachments = jaf.job.attachments || [];
     const uploadedFiles = [];
 
