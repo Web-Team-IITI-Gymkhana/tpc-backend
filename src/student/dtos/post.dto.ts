@@ -30,12 +30,6 @@ export class CreateStudentsDto {
   @NestedNumber({})
   cpi: number;
 
-  @NestedNumber({})
-  tenthMarks: number;
-
-  @NestedNumber({})
-  twelthMarks: number;
-
   @NestedObject({ type: CreateUserDto })
   user: CreateUserDto;
 }
