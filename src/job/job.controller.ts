@@ -9,10 +9,7 @@ import {
   Query,
   Res,
   StreamableFile,
-  UseGuards,
-  HttpException,
-  HttpStatus,
-  ForbiddenException, 
+  UseGuards, 
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { JobService } from "./job.service";
@@ -72,16 +69,6 @@ export class JobController {
   @ApiBody({ type: CreateApplicationDto, isArray: true })
   @ApiResponse({ type: String, isArray: true })
   async createApplications(@Body(createArrayPipe(CreateApplicationDto)) body: CreateApplicationDto[]) {
-   
-    const verified = await verifyRecaptcha(body[0]?.token);
-
-    if (!verified) {
-      throw new ForbiddenException("Invalid captcha");
-    }
-
-    if (!body[0]?.email) {
-      throw new HttpException("Email is required", HttpStatus.BAD_REQUEST);
-    }
 
     const ans = await this.jobService.createApplication(body);
 
