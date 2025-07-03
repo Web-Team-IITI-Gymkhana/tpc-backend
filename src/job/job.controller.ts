@@ -68,7 +68,6 @@ export class JobController {
   @ApiBody({ type: CreateApplicationDto, isArray: true })
   @ApiResponse({ type: String, isArray: true })
   async createApplications(@Body(createArrayPipe(CreateApplicationDto)) body: CreateApplicationDto[]) {
-
     const ans = await this.jobService.createApplication(body);
 
     return ans;
