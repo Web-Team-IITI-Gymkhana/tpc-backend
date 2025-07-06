@@ -5,17 +5,18 @@ import {
   Param,
   ParseUUIDPipe,
   Query,
+  Res,
+  StreamableFile,
   UploadedFile,
   UseGuards,
   UseInterceptors,
-  Get,
 } from "@nestjs/common";
-import { ApiBearerAuth, ApiTags, ApiResponse } from "@nestjs/swagger";
+import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { ResumeService } from "./resume.service";
 import { ResumeQueryDto } from "./dtos/query.dto";
 import { createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
 import { GetResumeDto, GetResumesDto } from "./dtos/get.dto";
-import { CreateFile, DeleteFiles, GetValue, GetValues, PatchValues } from "src/decorators/controller";
+import { CreateFile, DeleteFiles, GetFile, GetValue, GetValues, PatchValues } from "src/decorators/controller";
 import { CreateResumeDto } from "./dtos/post.dto";
 import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { TransactionParam } from "src/decorators/TransactionParam";
@@ -25,12 +26,12 @@ import { RESUME_FOLDER, RESUME_SIZE_LIMIT } from "src/constants";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { omit } from "lodash";
+import { Response } from "express";
 import { UpdateResumesDto } from "./dtos/patch.dto";
 import { DeleteFilesDto } from "src/utils/utils.dto";
 import { AuthGuard } from "@nestjs/passport";
 import { RoleGuard } from "src/auth/roleGaurd";
 import { RoleEnum } from "src/enums";
-import { SignedUrlService } from "src/services/SignedUrlService";
 
 @Controller("resumes")
 @ApiTags("Resume")
@@ -40,8 +41,7 @@ export class ResumeController {
   foldername = RESUME_FOLDER;
   constructor(
     private resumeService: ResumeService,
-    private fileService: FileService,
-    private signedUrlService: SignedUrlService
+    private fileService: FileService
   ) {}
 
   @GetValues(ResumeQueryDto, GetResumesDto)
@@ -58,13 +58,12 @@ export class ResumeController {
     return pipeTransform(ans, GetResumeDto);
   }
 
-  @Get("/file/:filename/signed-url")
-  @ApiResponse({ type: String })
-  async getResumeFileSignedUrl(@Param("filename") filename: string) {
-    // You might want to add additional authorization checks here
-    const signedUrl = this.signedUrlService.generateSignedResumeUrl(filename);
+  @GetFile(["application/pdf"], "file")
+  async getResumeFile(@Param("filename") filename: string, @Res({ passthrough: true }) res: Response) {
+    const filestream = this.fileService.getFile(path.join(this.foldername, filename));
+    res.setHeader("Content-Type", "application/pdf");
 
-    return { url: signedUrl };
+    return new StreamableFile(filestream);
   }
 
   @CreateFile(CreateResumeDto, "resume")

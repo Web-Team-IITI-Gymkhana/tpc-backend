@@ -386,10 +386,6 @@ export const POLICY_SIZE_LIMIT = RESUME_SIZE_LIMIT * 100; // 10MB.
 
 export const ROLES_KEY = "roles";
 
-// Signed URL configuration
-export const SIGNED_URL_SECRET = process.env.NGINX_SIGNED_URL_SECRET || "s3cR3tK3y123!@#";
-export const SIGNED_URL_EXPIRY_MINUTES = 5;
-
 export const RESUME_FOLDER = path.join(env().UPLOAD_DIR, "resume");
 export const JD_FOLDER = path.join(env().UPLOAD_DIR, "jd");
 export const IE_FOLDER = path.join(env().UPLOAD_DIR, "ie");

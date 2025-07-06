@@ -9,7 +9,9 @@ import {
   UseGuards,
   Query,
   UseInterceptors,
+  Res,
   NotFoundException,
+  StreamableFile,
   BadRequestException,
 } from "@nestjs/common";
 import { RecruiterViewService } from "./recruiter-view.service";
@@ -27,14 +29,15 @@ import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { UpdateJobDto, UpdateRecruiterDto, UpdateSalariesDto } from "./dto/patch.dto";
 import { RoleGuard } from "src/auth/roleGaurd";
 import { RoleEnum } from "src/enums";
+import { GetFile } from "src/decorators/controller";
 import { JD_FOLDER, JD_SIZE_LIMIT, RESUME_FOLDER } from "src/constants";
+import { Response } from "express";
 import { FileService } from "src/services/FileService";
 import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { GetJafValuesDto, JafDto } from "src/job/dtos/jaf.dto";
 import { PostFeedbackdto } from "./dto/post.dto";
 import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
-import { SignedUrlService } from "src/services/SignedUrlService";
 
 @Controller("recruiter-view")
 @ApiTags("recruiter-view")
@@ -46,8 +49,7 @@ export class RecruiterViewController {
 
   constructor(
     private readonly recruiterViewService: RecruiterViewService,
-    private fileService: FileService,
-    private signedUrlService: SignedUrlService
+    private fileService: FileService
   ) {}
 
   @Get("recruiter")
@@ -92,15 +94,14 @@ export class RecruiterViewController {
     return pipeTransform(ans, GetEventDto);
   }
 
-  @Get("resume/:filename/signed-url")
-  @ApiResponse({ type: String })
-  async getResumeSignedUrl(@Param("filename") filename: string, @User() user: IUser) {
+  @GetFile(["application/pdf"], "resume")
+  async getResume(@Param("filename") filename: string, @User() user: IUser, @Res({ passthrough: true }) res: Response) {
     const ans = await this.recruiterViewService.getResume(filename, user.recruiterId);
     if (ans.length === 0) throw new NotFoundException(`Resume with filename ${filename} not found`);
+    const file = this.fileService.getFile(path.join(this.folderName, filename));
+    res.setHeader("Content-Type", "application/pdf");
 
-    const signedUrl = this.signedUrlService.generateSignedResumeUrl(filename);
-
-    return { url: signedUrl };
+    return new StreamableFile(file);
   }
 
   @Patch("recruiter")
@@ -151,15 +152,14 @@ export class RecruiterViewController {
     return ans;
   }
 
-  @Get("jd/:filename/signed-url")
-  @ApiResponse({ type: String })
-  async getJdSignedUrl(@Param("filename") filename: string, @User() user: IUser) {
+  @GetFile(["application/pdf"], "jd")
+  async getJd(@Param("filename") filename: string, @Res({ passthrough: true }) res: Response, @User() user: IUser) {
     const ans = await this.recruiterViewService.getJD(filename, user.recruiterId);
     if (!ans) throw new NotFoundException(`File ${filename} not found`);
+    const file = this.fileService.getFile(path.join(this.JDFolder, filename));
+    res.setHeader("Content-Type", "application/pdf");
 
-    const signedUrl = this.signedUrlService.generateSignedJdUrl(filename);
-
-    return { url: signedUrl };
+    return new StreamableFile(file);
   }
 
   @UseGuards(ThrottlerGuard)

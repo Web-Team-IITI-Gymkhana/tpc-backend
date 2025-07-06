@@ -5,16 +5,16 @@ import {
   Delete,
   Param,
   Query,
+  Res,
+  StreamableFile,
   UploadedFile,
   UseGuards,
   UseInterceptors,
-  Get,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { Response } from "express";
 import { InterviewExperienceService } from "./ie.service";
 import { FileService } from "src/services/FileService";
-import { SignedUrlService } from "src/services/SignedUrlService";
 import { CreateFile, GetFile, GetValues } from "src/decorators/controller";
 import { pipeTransformArray } from "src/utils/utils";
 import { GetInterviewExperiencesDto } from "./dtos/get.dto";
@@ -41,8 +41,7 @@ export class InterviewExperienceController {
 
   constructor(
     private ieService: InterviewExperienceService,
-    private fileService: FileService,
-    private signedUrlService: SignedUrlService
+    private fileService: FileService
   ) {}
 
   @GetValues(InterviewExperienceQueryDto, GetInterviewExperiencesDto)
@@ -52,12 +51,13 @@ export class InterviewExperienceController {
     return pipeTransformArray(ans, GetInterviewExperiencesDto);
   }
 
-  @Get("/:filename/signed-url")
-  @ApiResponse({ type: String })
-  async getInterviewExperienceFileSignedUrl(@Param("filename") filename: string) {
-    const signedUrl = this.signedUrlService.generateSignedIeUrl(filename);
+  @GetFile(["application/pdf"], "")
+  async getInterviewExperienceFile(@Param("filename") filename: string, @Res({ passthrough: true }) res: Response) {
+    const filepath = path.join(this.folder, filename);
+    const file = this.fileService.getFile(filepath);
+    res.setHeader("Content-Type", "application/pdf");
 
-    return { url: signedUrl };
+    return new StreamableFile(file);
   }
 
   @CreateFile(CreateIEDto, "ie")
