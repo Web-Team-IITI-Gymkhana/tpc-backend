@@ -4,64 +4,57 @@ import { createHmac } from "crypto";
 @Injectable()
 export class SignedUrlService {
   private readonly SECRET = process.env.NGINX_SIGNED_URL_SECRET || "s3cR3tK3y123!@#";
-  private readonly BASE_URL = process.env.FRONTEND_URL || "https://tpc.princecodes.online";
+  private readonly BASE_URL = process.env.BACKEND_URL || "https://tpc.princecodes.online";
   private readonly DEFAULT_EXPIRY_MINUTES = 5;
 
   /**
-   * Generate signed URL for resume files
+   * Encode buffer to base64 URL-safe format
    */
-  generateSignedResumeUrl(filename: string, expiryMinutes: number = this.DEFAULT_EXPIRY_MINUTES): string {
-    const uri = `/secure-resume/${filename}`;
-    const expires = Math.floor(Date.now() / 1000) + 60 * expiryMinutes;
-    const base = `${uri}${expires}`;
-    const signature = createHmac("md5", this.SECRET).update(base).digest("base64url");
-
-    return `${this.BASE_URL}${uri}?expires=${expires}&signature=${signature}`;
+  private base64UrlEncode(buffer: Buffer): string {
+    return buffer.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
   }
 
   /**
-   * Generate signed URL for JD files
+   * Generates HMAC-MD5 based signature in base64url format
    */
-  generateSignedJdUrl(filename: string, expiryMinutes: number = this.DEFAULT_EXPIRY_MINUTES): string {
-    const uri = `/secure-jd/${filename}`;
-    const expires = Math.floor(Date.now() / 1000) + 60 * expiryMinutes;
+  private generateSignature(uri: string, expires: number): string {
     const base = `${uri}${expires}`;
-    const signature = createHmac("md5", this.SECRET).update(base).digest("base64url");
-
-    return `${this.BASE_URL}${uri}?expires=${expires}&signature=${signature}`;
+    const hmac = createHmac("md5", this.SECRET).update(base).digest(); // binary
+    return this.base64UrlEncode(hmac);
   }
 
   /**
-   * Generate signed URL for Interview Experience files
+   * Generate secure signed URL
    */
-  generateSignedIeUrl(filename: string, expiryMinutes: number = this.DEFAULT_EXPIRY_MINUTES): string {
-    const uri = `/secure-ie/${filename}`;
+  private buildSignedUrl(path: string, expiryMinutes: number): string {
     const expires = Math.floor(Date.now() / 1000) + 60 * expiryMinutes;
-    const base = `${uri}${expires}`;
-    const signature = createHmac("md5", this.SECRET).update(base).digest("base64url");
-
-    return `${this.BASE_URL}${uri}?expires=${expires}&signature=${signature}`;
+    const signature = this.generateSignature(path, expires);
+    return `${this.BASE_URL}${path}?expires=${expires}&signature=${signature}`;
   }
 
   /**
-   * Generate signed URL for Policy files
+   * Public methods per file type
    */
-  generateSignedPolicyUrl(filename: string, expiryMinutes: number = this.DEFAULT_EXPIRY_MINUTES): string {
-    const uri = `/secure-policy/${filename}`;
-    const expires = Math.floor(Date.now() / 1000) + 60 * expiryMinutes;
-    const base = `${uri}${expires}`;
-    const signature = createHmac("md5", this.SECRET).update(base).digest("base64url");
-
-    return `${this.BASE_URL}${uri}?expires=${expires}&signature=${signature}`;
+  generateSignedResumeUrl(filename: string, expiryMinutes = this.DEFAULT_EXPIRY_MINUTES): string {
+    return this.buildSignedUrl(`/secure-resume/${filename}`, expiryMinutes);
   }
 
-  /**
-   * Generic signed URL generator for any file type
-   */
+  generateSignedJdUrl(filename: string, expiryMinutes = this.DEFAULT_EXPIRY_MINUTES): string {
+    return this.buildSignedUrl(`/secure-jd/${filename}`, expiryMinutes);
+  }
+
+  generateSignedIeUrl(filename: string, expiryMinutes = this.DEFAULT_EXPIRY_MINUTES): string {
+    return this.buildSignedUrl(`/secure-ie/${filename}`, expiryMinutes);
+  }
+
+  generateSignedPolicyUrl(filename: string, expiryMinutes = this.DEFAULT_EXPIRY_MINUTES): string {
+    return this.buildSignedUrl(`/secure-policy/${filename}`, expiryMinutes);
+  }
+
   generateSignedUrl(
     fileType: "resume" | "jd" | "ie" | "policy",
     filename: string,
-    expiryMinutes: number = this.DEFAULT_EXPIRY_MINUTES
+    expiryMinutes = this.DEFAULT_EXPIRY_MINUTES
   ): string {
     switch (fileType) {
       case "resume":
