@@ -18,28 +18,33 @@ import { RoleEnum } from "src/enums";
 @Controller("students")
 @ApiTags("Student")
 @ApiBearerAuth("jwt")
-@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
+@UseGuards(AuthGuard("jwt"))
 export class StudentController {
   constructor(private studentService: StudentService) {}
+
   @GetValues(StudentsQueryDto, GetStudentsDto)
+  @UseGuards(new RoleGuard(RoleEnum.TPC_MEMBER))
   async getStudents(@Query("q") where: StudentsQueryDto) {
     const ans = await this.studentService.getStudents(where);
-
     return pipeTransformArray(ans, GetStudentsDto);
   }
+
   @GetValue(GetStudentDto)
+  @UseGuards(new RoleGuard(RoleEnum.TPC_MEMBER))
   async getStudent(@Param("id", new ParseUUIDPipe()) id: string) {
     const ans = await this.studentService.getStudent(id);
-
     return pipeTransform(ans, GetStudentDto);
   }
+
   @PostValues(CreateStudentsDto)
+  @UseGuards(new RoleGuard(RoleEnum.ADMIN))
   async createStudents(@Body(createArrayPipe(CreateStudentsDto)) students: CreateStudentsDto[]) {
     const ans = await this.studentService.createStudents(students);
-
     return ans;
   }
+
   @PatchValues(UpdateStudentsDto)
+  @UseGuards(new RoleGuard(RoleEnum.ADMIN))
   @UseInterceptors(TransactionInterceptor)
   async updateStudents(
     @Body(createArrayPipe(UpdateStudentsDto)) students: UpdateStudentsDto[],
@@ -47,15 +52,15 @@ export class StudentController {
   ) {
     const pr = students.map((student) => this.studentService.updateStudent(student, t));
     const ans = await Promise.all(pr);
-
     return ans.flat();
   }
+
   @DeleteValues()
+  @UseGuards(new RoleGuard(RoleEnum.ADMIN))
   async deleteStudents(@Query() query: DeleteValuesDto) {
     const ids = query.id;
     const pids = typeof ids === "string" ? [ids] : ids;
     const ans = await this.studentService.deleteStudents(pids);
-
     return ans;
   }
 }
