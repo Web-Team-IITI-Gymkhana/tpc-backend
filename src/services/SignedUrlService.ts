@@ -5,7 +5,7 @@ import { createHmac } from "crypto";
 export class SignedUrlService {
   private readonly SECRET = process.env.NGINX_SIGNED_URL_SECRET || "s3cR3tK3y123!@#";
   private readonly BASE_URL = process.env.BACKEND_URL || "https://tpc.princecodes.online";
-  private readonly DEFAULT_EXPIRY_MINUTES = 5;
+  private readonly DEFAULT_EXPIRY_MINUTES = 10;
 
   /**
    * Encode buffer to base64 URL-safe format
