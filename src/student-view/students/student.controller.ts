@@ -37,7 +37,6 @@ import { JobsQueryDto } from "src/job/dtos/query.dto";
 import { EventsQueryDto } from "src/event/dtos/query.dto";
 import { GetEventsDto } from "src/event/dtos/get.dto";
 import { OnboardingUpdateDto } from "../../student/dtos/patch.dto";
-import { SignedUrlService } from "src/services/SignedUrlService";
 
 @Controller("student-view")
 @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.STUDENT))
@@ -50,8 +49,7 @@ export class StudentController {
 
   constructor(
     private studentService: StudentService,
-    private fileService: FileService,
-    private signedUrlService: SignedUrlService
+    private fileService: FileService
   ) {}
 
   @Get()
@@ -136,26 +134,24 @@ export class StudentController {
     return ans;
   }
 
-  @Get("/resume/:filename/signed-url")
-  @ApiResponse({ type: String })
-  async getResumeSignedUrl(@Param("filename") filename: string, @User() user: IUser) {
+  @GetFile(["application/pdf"], "resume")
+  async getResume(@Param("filename") filename: string, @User() user: IUser, @Res({ passthrough: true }) res: Response) {
     const ans = await this.studentService.getResumes({ studentId: user.studentId, filepath: filename });
     if (ans.length === 0) throw new NotFoundException(`Resume with filename ${filename} not found`);
+    const file = this.fileService.getFile(path.join(this.folderName, filename));
+    res.setHeader("Content-Type", "application/pdf");
 
-    const signedUrl = this.signedUrlService.generateSignedResumeUrl(filename);
-
-    return { url: signedUrl };
+    return new StreamableFile(file);
   }
 
-  @Get("/jd/:filename/signed-url")
-  @ApiResponse({ type: String })
-  async getJdSignedUrl(@Param("filename") filename: string, @User() user: IUser) {
+  @GetFile(["application/pdf"], "jd")
+  async getJd(@Param("filename") filename: string, @User() user: IUser, @Res({ passthrough: true }) res: Response) {
     const ans = await this.studentService.getJD(filename, user.studentId);
     if (!ans) throw new NotFoundException(`File ${filename} not found`);
+    const file = this.fileService.getFile(path.join(this.JDFolder, filename));
+    res.setHeader("Content-Type", "application/pdf");
 
-    const signedUrl = this.signedUrlService.generateSignedJdUrl(filename);
-
-    return { url: signedUrl };
+    return new StreamableFile(file);
   }
 
   @Patch("/onboarding")
@@ -178,9 +174,12 @@ export class StudentController {
     return await this.studentService.deregisterSeason(user.studentId, seasonId);
   }
 
-  @Get("/policy/:filename/signed-url")
-  @ApiResponse({ type: String })
-  async getPolicyDocumentSignedUrl(@Param("filename") filename: string, @User() user: IUser) {
+  @GetFile(["application/pdf"], "policy")
+  async getPolicyDocument(
+    @Param("filename") filename: string,
+    @User() user: IUser,
+    @Res({ passthrough: true }) res: Response
+  ) {
     // Verify that the student has access to this policy document
     // by checking if they have any registration for a season with this policy document
     const studentData = await this.studentService.getStudent(user.studentId);
@@ -190,8 +189,9 @@ export class StudentController {
       throw new NotFoundException(`Policy document ${filename} not found or access denied`);
     }
 
-    const signedUrl = this.signedUrlService.generateSignedPolicyUrl(filename);
+    const file = this.fileService.getFile(path.join(this.policyFolder, filename));
+    res.setHeader("Content-Type", "application/pdf");
 
-    return { url: signedUrl };
+    return new StreamableFile(file);
   }
 }

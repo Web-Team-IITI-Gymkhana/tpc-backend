@@ -7,12 +7,13 @@ import {
   ParseUUIDPipe,
   Post,
   Query,
-  Get,
+  Res,
+  StreamableFile,
   UseGuards,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { JobService } from "./job.service";
-import { DeleteValues, GetValue, GetValues, PatchValues } from "src/decorators/controller";
+import { DeleteValues, GetFile, GetValue, GetValues, PatchValues } from "src/decorators/controller";
 import { JobsQueryDto } from "./dtos/query.dto";
 import { GetJobDto, GetJobsDto } from "./dtos/get.dto";
 import { createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
@@ -22,16 +23,20 @@ import { DeleteValuesDto } from "src/utils/utils.dto";
 import { AuthGuard } from "@nestjs/passport";
 import { RoleGuard } from "src/auth/roleGaurd";
 import { RoleEnum } from "src/enums";
-import { SignedUrlService } from "src/services/SignedUrlService";
+import { Response } from "express";
+import path from "path";
+import { FileService } from "src/services/FileService";
+import { JD_FOLDER } from "src/constants";
 
 @Controller("jobs")
 @ApiTags("Job")
 @ApiBearerAuth("jwt")
 @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
 export class JobController {
+  JDFolder = JD_FOLDER;
   constructor(
     private jobService: JobService,
-    private signedUrlService: SignedUrlService
+    private fileService: FileService
   ) {}
 
   @GetValues(JobsQueryDto, GetJobsDto)
@@ -68,15 +73,14 @@ export class JobController {
     return ans;
   }
 
-  @Get("/jd/:filename/signed-url")
-  @ApiResponse({ type: String })
-  async getJdSignedUrl(@Param("filename") filename: string) {
+  @GetFile(["application/pdf"], "jd")
+  async getJd(@Param("filename") filename: string, @Res({ passthrough: true }) res: Response) {
     const ans = await this.jobService.getJD(filename);
     if (!ans) throw new NotFoundException(`File ${filename} not found`);
+    const file = this.fileService.getFile(path.join(this.JDFolder, filename));
+    res.setHeader("Content-Type", "application/pdf");
 
-    const signedUrl = this.signedUrlService.generateSignedJdUrl(filename);
-
-    return { url: signedUrl };
+    return new StreamableFile(file);
   }
 
   @PatchValues(UpdateJobsDto)
