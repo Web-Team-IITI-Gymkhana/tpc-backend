@@ -455,7 +455,7 @@ export class StudentService {
 
     const ans = await this.resumeRepo.create({ studentId, filepath, name }, { transaction: t });
 
-    return ans.id;
+    return { status: "success", message: "Resume added successfully", resumeId: ans.id };
   }
 
   async deleteResumes(studentId: string, filepath: string | string[], t: Transaction) {
