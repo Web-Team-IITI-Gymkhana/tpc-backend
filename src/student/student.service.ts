@@ -83,6 +83,7 @@ export class StudentService {
       });
 
       await transaction.commit();
+
       return ans.map((student) => student.id);
     } catch (error) {
       await transaction.rollback();
