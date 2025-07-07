@@ -20,7 +20,7 @@ interface SyncOptions {
 
 async function syncDatabase(options: SyncOptions = {}) {
   const logger = new Logger("DatabaseSync");
-  
+
   try {
     // Create application context with shutdown hooks
     const appContext = await NestFactory.createApplicationContext(DatabaseModule, {
@@ -30,7 +30,7 @@ async function syncDatabase(options: SyncOptions = {}) {
     const sequelize = appContext.get<Sequelize>("SEQUELIZE");
 
     logger.log("🔄 Starting database synchronization...");
-    
+
     // Configure sync options
     const syncOptions: any = {
       logging: options.logging ? (msg: string) => logger.debug(msg) : false,
@@ -65,7 +65,6 @@ async function syncDatabase(options: SyncOptions = {}) {
     forceExitAfterDelay(3000); // Safety net
     await appContext.close();
     process.exit(0);
-    
   } catch (error) {
     logger.error("❌ Database synchronization failed:", error);
     process.exit(1);
@@ -80,11 +79,11 @@ async function main() {
   if (args.includes("--force")) {
     options.force = true;
   }
-  
+
   if (args.includes("--alter")) {
     options.alter = true;
   }
-  
+
   if (args.includes("--verbose") || args.includes("-v")) {
     options.logging = true;
   }
@@ -109,6 +108,7 @@ Examples:
 
 Note: Always backup your database before running with --force option!
     `);
+
     return;
   }
 
@@ -117,8 +117,8 @@ Note: Always backup your database before running with --force option!
     console.log("⚠️  WARNING: You are about to DROP and RECREATE all database tables!");
     console.log("📦 This will delete ALL existing data!");
     console.log("💡 Press Ctrl+C to cancel, or wait 5 seconds to continue...");
-    
-    await new Promise(resolve => setTimeout(resolve, 5000));
+
+    await new Promise((resolve) => setTimeout(resolve, 5000));
   }
 
   await syncDatabase(options);
@@ -128,4 +128,4 @@ Note: Always backup your database before running with --force option!
 main().catch((error) => {
   console.error("❌ Script execution failed:", error);
   process.exit(1);
-}); 
+});
