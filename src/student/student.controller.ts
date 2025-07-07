@@ -26,7 +26,6 @@ export class StudentController {
   @UseGuards(new RoleGuard(RoleEnum.TPC_MEMBER))
   async getStudents(@Query("q") where: StudentsQueryDto) {
     const ans = await this.studentService.getStudents(where);
-
     return pipeTransformArray(ans, GetStudentsDto);
   }
 
@@ -34,7 +33,6 @@ export class StudentController {
   @UseGuards(new RoleGuard(RoleEnum.TPC_MEMBER))
   async getStudent(@Param("id", new ParseUUIDPipe()) id: string) {
     const ans = await this.studentService.getStudent(id);
-
     return pipeTransform(ans, GetStudentDto);
   }
 
@@ -42,7 +40,6 @@ export class StudentController {
   @UseGuards(new RoleGuard(RoleEnum.ADMIN))
   async createStudents(@Body(createArrayPipe(CreateStudentsDto)) students: CreateStudentsDto[]) {
     const ans = await this.studentService.createStudents(students);
-
     return ans;
   }
 
@@ -55,7 +52,6 @@ export class StudentController {
   ) {
     const pr = students.map((student) => this.studentService.updateStudent(student, t));
     const ans = await Promise.all(pr);
-
     return ans.flat();
   }
 
@@ -65,7 +61,6 @@ export class StudentController {
     const ids = query.id;
     const pids = typeof ids === "string" ? [ids] : ids;
     const ans = await this.studentService.deleteStudents(pids);
-
     return ans;
   }
 }
