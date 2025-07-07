@@ -23,7 +23,7 @@ interface MigrationOptions {
 
 async function runMigration(options: MigrationOptions = {}) {
   const logger = new Logger("DatabaseMigration");
-  
+
   try {
     // Create backup if requested
     if (options.backup) {
@@ -40,27 +40,27 @@ async function runMigration(options: MigrationOptions = {}) {
     const sequelize = appContext.get<Sequelize>("SEQUELIZE");
 
     logger.log("🔄 Starting database migration...");
-    
+
     // Test connection first
     await sequelize.authenticate();
     logger.log("🔗 Database connection verified");
 
     if (options.dryRun) {
       logger.log("🧪 DRY RUN MODE - No changes will be made to the database");
-      
+
       // Get current database structure
       const queryInterface = sequelize.getQueryInterface();
       const tables = await queryInterface.showAllTables();
-      
+
       logger.log(`📊 Current database has ${tables.length} tables:`);
-      tables.forEach(table => logger.log(`  - ${table}`));
-      
+      tables.forEach((table) => logger.log(`  - ${table}`));
+
       // Show what would be done
       logger.log("🔍 Models that would be synchronized:");
-      Object.values(sequelize.models).forEach(model => {
+      Object.values(sequelize.models).forEach((model) => {
         logger.log(`  - ${model.tableName} (${model.name})`);
       });
-      
+
       logger.log("✅ Dry run completed - no changes made");
       forceExitAfterDelay(3000); // Safety net
       await appContext.close();
@@ -102,15 +102,14 @@ async function runMigration(options: MigrationOptions = {}) {
     forceExitAfterDelay(3000); // Safety net
     await appContext.close();
     process.exit(0);
-    
   } catch (error) {
     logger.error("❌ Database migration failed:", error);
-    
+
     if (options.backup) {
       logger.log("💡 A backup was created before this migration attempt");
       logger.log("💡 You can restore from the backup if needed");
     }
-    
+
     process.exit(1);
   }
 }
@@ -123,19 +122,19 @@ async function main() {
   if (args.includes("--backup")) {
     options.backup = true;
   }
-  
+
   if (args.includes("--dry-run")) {
     options.dryRun = true;
   }
-  
+
   if (args.includes("--force")) {
     options.force = true;
   }
-  
+
   if (args.includes("--alter")) {
     options.alter = true;
   }
-  
+
   if (args.includes("--verbose") || args.includes("-v")) {
     options.verbose = true;
   }
@@ -169,6 +168,7 @@ Recommended workflow:
 
 Note: Always backup your database before destructive operations!
     `);
+
     return;
   }
 
@@ -176,13 +176,13 @@ Note: Always backup your database before destructive operations!
   if (options.force && !options.dryRun) {
     console.log("⚠️  WARNING: You are about to DROP and RECREATE all database tables!");
     console.log("📦 This will delete ALL existing data!");
-    
+
     if (!options.backup) {
       console.log("💡 Consider running with --backup flag for safety");
     }
-    
+
     console.log("💡 Press Ctrl+C to cancel, or wait 5 seconds to continue...");
-    await new Promise(resolve => setTimeout(resolve, 5000));
+    await new Promise((resolve) => setTimeout(resolve, 5000));
   }
 
   await runMigration(options);
@@ -192,4 +192,4 @@ Note: Always backup your database before destructive operations!
 main().catch((error) => {
   console.error("❌ Migration script execution failed:", error);
   process.exit(1);
-}); 
+});
