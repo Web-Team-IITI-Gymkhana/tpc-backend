@@ -110,7 +110,12 @@ export class RecruiterViewController {
 
   @Patch("recruiter")
   @UseInterceptors(TransactionInterceptor)
-  async updateFaculty(@Body() recruiter: UpdateRecruiterDto, @TransactionParam() t: Transaction, @User() user: IUser) {
+  async updateFaculty(
+    @Body() recruiter: UpdateRecruiterDto,
+
+    @TransactionParam() t: Transaction,
+    @User() user: IUser
+  ) {
     return await this.recruiterViewService.updateRecruiter(recruiter, user.recruiterId, t);
   }
 
@@ -118,7 +123,6 @@ export class RecruiterViewController {
   @ApiResponse({ type: GetJafValuesDto })
   async getJafDetails() {
     const ans = await this.recruiterViewService.getJafDetails();
-
 
     return pipeTransform(ans, GetJafValuesDto);
   }
@@ -128,8 +132,12 @@ export class RecruiterViewController {
   @Post("jaf")
   @ApiResponse({ type: String })
   @UseInterceptors(TransactionInterceptor)
-  async createJaf(@Body() jaf: JafDto & { token?: string }, @TransactionParam() t: Transaction, @User() user: IUser) {
-    const verified = await verifyRecaptcha(jaf.token);
+  async createJaf(
+    @Body() jaf: JafDto & { captchaToken?: string },
+    @TransactionParam() t: Transaction,
+    @User() user: IUser
+  ) {
+    const verified = await verifyRecaptcha(jaf.captchaToken);
     if (!verified) {
       throw new ForbiddenException("Invalid captcha");
     }
