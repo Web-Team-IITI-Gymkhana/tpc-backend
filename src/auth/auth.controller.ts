@@ -37,7 +37,6 @@ import { isProductionEnv } from "src/utils";
 import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
 import { verifyRecaptcha } from "src/utils/recaptcha";
 
-
 @Controller("auth")
 @ApiTags("Auth")
 @ApiBearerAuth("jwt")

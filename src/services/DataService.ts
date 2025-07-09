@@ -138,8 +138,8 @@ export class DataUploadService {
       category: this.changeCategory(data.category),
       gender: this.changeGender(data.gender),
       cpi: data.aggregateCPI,
-      backlog: null, 
-      tenthMarks: null, 
+      backlog: null,
+      tenthMarks: null,
       twelthMarks: null,
     });
 
