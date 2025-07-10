@@ -83,7 +83,6 @@ export class AuthController {
     if (!body.email) {
       throw new HttpException("Email is required", HttpStatus.BAD_REQUEST);
     }
-    1;
 
     const user = await this.userService.getUserByEmail(body.email);
     if (!user || !(user.role === RoleEnum.RECRUITER || user.role === RoleEnum.ADMIN))
@@ -140,10 +139,10 @@ export class AuthController {
       throw new UnauthorizedException(`User with email ${req.user.email} not found`);
     }
     const token = await this.authService.vendJWT(user);
-    res.cookie("accessToken", token, { httpOnly: false });
+    res.cookie("accessToken", token, { httpOnly: false, maxAge: 7 * 24 * 60 * 60 * 1000 });
     res.cookie("user", JSON.stringify(jwtDecode(token)), {
       httpOnly: false,
-      maxAge: 365 * 24 * 60 * 60 * 1000,
+      maxAge: 7 * 24 * 60 * 60 * 1000,
     });
     res.redirect(this.frontendUrl);
   }
