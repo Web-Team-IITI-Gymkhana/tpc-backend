@@ -180,8 +180,10 @@ export class StudentController {
     @User() user: IUser,
     @Res({ passthrough: true }) res: Response
   ) {
-    // Verify that the student has access to this policy document
-    // by checking if they have any registration for a season with this policy document
+    /*
+     * Verify that the student has access to this policy document
+     * by checking if they have any registration for a season with this policy document
+     */
     const studentData = await this.studentService.getStudent(user.studentId);
     const hasAccess = studentData.registrations.some((registration) => registration.season.policyDocument === filename);
 

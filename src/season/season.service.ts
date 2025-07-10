@@ -32,6 +32,7 @@ export class SeasonService {
   async createSeasons(seasons: CreateSeasonsDto[], t?: Transaction) {
     const createdSeasons = await this.seasonRepo.bulkCreate(seasons, { transaction: t });
     const seasonIds = createdSeasons.map((season) => season.id);
+
     return seasonIds;
   }
 
