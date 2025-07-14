@@ -266,7 +266,7 @@ export class JobModel extends Model<JobModel> {
 
     const adminPath = path.resolve(process.cwd(), "src/html", "JafToAdmin.html");
     const adminReplacements = {
-      companyName: (instance.companyDetailsFilled as ICompanyDetails).name,
+      companyName: instance.company.name,
       url: url,
     };
     const adminContent = getHtmlContent(adminPath, adminReplacements);
@@ -277,7 +277,7 @@ export class JobModel extends Model<JobModel> {
       from: { name: APP_NAME, address: MAIL_USER },
       recepients: [...emails],
       // recepients: [{ address: DEFAULT_MAIL_TO }],
-      subject: `Job Announcement Form Filled by ${(instance.companyDetailsFilled as ICompanyDetails).name}`,
+      subject: `Job Announcement Form Filled by ${instance.company.name}`,
       html: adminContent,
     };
 
