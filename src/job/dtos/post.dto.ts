@@ -18,6 +18,12 @@ export class CreateApplicationDto {
 
   @NestedUUID({})
   resumeId: string;
+
+  @NestedString({})
+  token: string;
+
+  @NestedString({})
+  email: string;
 }
 
 export class CreateAttachmentDto {
