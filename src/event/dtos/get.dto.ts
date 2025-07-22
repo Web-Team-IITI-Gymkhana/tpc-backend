@@ -7,9 +7,9 @@ import {
   NestedDate,
   NestedBoolean,
   NestedObject,
-  NestedEmail,
 } from "src/decorators/dto";
-import { CourseEnum, EventTypeEnum, SeasonTypeEnum, DepartmentEnum, IndustryDomainEnum } from "src/enums";
+import { EventTypeEnum, SeasonTypeEnum } from "src/enums";
+import { GetStudentsDto } from "src/student/dtos/get.dto";
 
 class CompanyDto {
   @NestedUUID({})
@@ -84,57 +84,12 @@ class ResumeDto {
   verified: boolean;
 }
 
-class UserDto {
-  @NestedUUID({})
-  id: string;
-
-  @NestedString({})
-  name: string;
-
-  @NestedEmail({})
-  email: string;
-
-  @NestedString({})
-  contact: string;
-}
-
-class ProgramDto {
-  @NestedUUID({})
-  id: string;
-
-  @NestedString({})
-  branch: string;
-
-  @NestedEnum(CourseEnum, {})
-  course: CourseEnum;
-
-  @NestedString({})
-  year: string;
-
-  @NestedEnum(DepartmentEnum, {})
-  department: DepartmentEnum;
-}
-
-class StudentDto {
-  @NestedUUID({})
-  id: string;
-
-  @NestedString({})
-  rollNo: string;
-
-  @NestedObject({ type: UserDto })
-  user: UserDto;
-
-  @NestedObject({ type: ProgramDto })
-  program: ProgramDto;
-}
-
 class ApplicationsDto {
   @NestedUUID({})
   id: string;
 
-  @NestedObject({ type: StudentDto })
-  student: StudentDto;
+  @NestedObject({ type: GetStudentsDto })
+  student: GetStudentsDto;
 
   @NestedObject({ type: ResumeDto })
   resume: ResumeDto;
