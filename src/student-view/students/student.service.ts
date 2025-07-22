@@ -38,7 +38,7 @@ import {
   UserModel,
 } from "src/db/models";
 import { FeedbackModel } from "src/db/models/FeedbackModel";
-import { CategoryEnum, DepartmentEnum, GenderEnum } from "src/enums";
+import { CategoryEnum, DepartmentEnum, GenderEnum, BacklogEnum } from "src/enums";
 import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
 import { SeasonStatusEnum } from "src/enums/SeasonStatus.enum";
 import { EventsQueryDto } from "src/event/dtos/query.dto";
@@ -64,6 +64,21 @@ export class StudentService {
     if (!student) throw new ForbiddenException(`Student with id ${studentId} not found`);
     const department: DepartmentEnum = student.program.department;
 
+    let backlogFilter: any = {};
+    if (student.backlog === BacklogEnum.ACTIVE) {
+      backlogFilter = {
+        isBacklogAllowed: BacklogEnum.ACTIVE,
+      };
+    } else if (student.backlog === BacklogEnum.PREVIOUS) {
+      backlogFilter = {
+        isBacklogAllowed: { [Op.in]: [BacklogEnum.PREVIOUS, BacklogEnum.ACTIVE] },
+      };
+    } else if (student.backlog === BacklogEnum.NEVER) {
+      backlogFilter = {
+        isBacklogAllowed: { [Op.in]: [BacklogEnum.NEVER, BacklogEnum.PREVIOUS, BacklogEnum.ACTIVE] },
+      };
+    }
+
     const where: WhereOptions<SalaryModel> = {
       programs: { [Op.or]: { [Op.contains]: [student.programId], [Op.is]: null, [Op.eq]: [] } },
       genders: { [Op.or]: { [Op.contains]: [student.gender as GenderEnum], [Op.is]: null, [Op.eq]: [] } },
@@ -72,6 +87,7 @@ export class StudentService {
       tenthMarks: { [Op.lte]: student.tenthMarks },
       twelthMarks: { [Op.lte]: student.twelthMarks },
       [Op.not]: { facultyApprovals: { [Op.contains]: [department] } },
+      ...backlogFilter,
     };
 
     return where;
