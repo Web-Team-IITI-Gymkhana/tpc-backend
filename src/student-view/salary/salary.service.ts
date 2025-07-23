@@ -20,6 +20,7 @@ import { parseFilter, parseOrder, parsePagesize } from "src/utils";
 import { StudentSalariesQueryDto } from "./dtos/query.dto";
 import { CategoryEnum, DepartmentEnum, GenderEnum } from "src/enums";
 import { JobRegistrationEnum } from "src/enums/jobRegistration.enum";
+import { EventTypeEnum } from "src/enums/eventType.enum";
 
 @Injectable()
 export class SalaryService {
@@ -197,7 +198,8 @@ export class SalaryService {
               {
                 model: EventModel,
                 as: "events",
-                where: { roundNumber: 0 },
+                order: [["roundNumber", "ASC"]],
+                limit: 1,
               },
               {
                 model: SeasonModel,
