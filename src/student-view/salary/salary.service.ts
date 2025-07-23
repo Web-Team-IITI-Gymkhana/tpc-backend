@@ -199,6 +199,7 @@ export class SalaryService {
                 model: EventModel,
                 as: "events",
                 order: [["roundNumber", "ASC"]],
+                limit: 1,
               },
               {
                 model: SeasonModel,
