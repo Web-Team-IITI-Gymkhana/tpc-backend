@@ -19,11 +19,13 @@ export class ClashesService {
             "Event"."startDateTime" as "startDateTime",
             "Event"."endDateTime" as "endDateTime",
             "Event"."roundNumber" as "roundNumber",
-            "Event"."type" as "type"
+            "Event"."type" as "type",
+            "Application"."studentId" as "studentId"
         FROM "Application"
         INNER JOIN "Event" ON "Application"."eventId" = "Event"."id"
         WHERE "Event"."endDateTime" >= NOW()
         AND "Event"."jobId" = '${jobId}'
+        AND "Event"."type" != 'POLL'
     ),
     "restEvents" AS (
         SELECT 
@@ -33,11 +35,13 @@ export class ClashesService {
             "Event"."endDateTime" as "cendDateTime",
             "Event"."roundNumber" as "croundNumber",
             "Event"."type" as "ctype",
-            "Application"."studentId" as "studentId",
+            "Application"."studentId" as "cstudentId",
             "Event"."jobId" as "jobId"
         FROM "Application"
         INNER JOIN "Event" ON "Application"."eventId" = "Event"."id"
-        WHERE "Event"."jobId" != '${jobId}'
+        WHERE "Event"."endDateTime" >= NOW()
+        AND "Event"."jobId" != '${jobId}'
+        AND "Event"."type" != 'POLL'
     ),
     "jobs" AS (
         SELECT 
@@ -93,7 +97,9 @@ export class ClashesService {
         "jobs"."name" as "companyName"
     FROM (
         SELECT * FROM "restEvents"
-        INNER JOIN "pa" ON NOT (
+        INNER JOIN "pa" 
+        ON "restEvents"."cstudentId" = "pa"."studentId"
+        AND NOT (
             "restEvents"."cstartDateTime" > "pa"."endDateTime" OR
             "restEvents"."cendDateTime" < "pa"."startDateTime"
         )
