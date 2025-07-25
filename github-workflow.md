@@ -49,7 +49,6 @@ git rebase origin/develop
 
 Git `fetch` and `rebase` are preferred over `pull` because they do not create a merge commit. Though `pull` is also acceptable.
 
-> **Note:** If you encounter conflicts during rebase, resolve them as prompted, then continue with `git rebase --continue`.
 
 ## Commit and Push Your Changes
 
@@ -58,7 +57,6 @@ git add .
 git commit -m "Commit message"
 git push -u origin <branch-name>
 ```
-> ⚠️ Use `-f` (force push) only if necessary, such as after a rebase or cherry-pick. Avoid force pushing to shared branches. Communicate with your team before force pushing.
 
 ## Creating a Pull Request
 
@@ -67,13 +65,6 @@ git push -u origin <branch-name>
 3. Get a code review from a team member.
 4. After approval, merge the pull request using the squash and merge option.
 5. The branch should be automatically deleted after the merge. If not, ensure that the branch is deleted manually.
-6. If a [Pull Request Template](../.github/pull_request_template.md) exists, please follow it for consistency.
-
-### Code Review Best Practices
-- Ensure your code is well-tested and passes all CI checks.
-- Follow the project's style and linting guidelines.
-- Write clear, descriptive commit messages.
-- Reviewers should check for logic, security, and maintainability.
 
 ## Release Process
 
@@ -93,4 +84,3 @@ git switch develop
 git cherry-pick <commit-hash>
 git push origin develop
 ```
-> ⚠️ If you have rebased or cherry-picked, you may need to force push. Use with caution and communicate with your team.
