@@ -13,6 +13,9 @@ import {
   NotFoundException,
   StreamableFile,
   BadRequestException,
+  ForbiddenException,
+  HttpException,
+  HttpStatus,
 } from "@nestjs/common";
 import { RecruiterViewService } from "./recruiter-view.service";
 import { AuthGuard } from "@nestjs/passport";
@@ -37,6 +40,7 @@ import path from "path";
 import { v4 as uuidv4 } from "uuid";
 import { GetJafValuesDto, JafDto } from "src/job/dtos/jaf.dto";
 import { PostFeedbackdto } from "./dto/post.dto";
+import { verifyRecaptcha } from "src/utils/recaptcha";
 import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
 
 @Controller("recruiter-view")
@@ -106,7 +110,12 @@ export class RecruiterViewController {
 
   @Patch("recruiter")
   @UseInterceptors(TransactionInterceptor)
-  async updateFaculty(@Body() recruiter: UpdateRecruiterDto, @TransactionParam() t: Transaction, @User() user: IUser) {
+  async updateFaculty(
+    @Body() recruiter: UpdateRecruiterDto,
+
+    @TransactionParam() t: Transaction,
+    @User() user: IUser
+  ) {
     return await this.recruiterViewService.updateRecruiter(recruiter, user.recruiterId, t);
   }
 
@@ -114,7 +123,6 @@ export class RecruiterViewController {
   @ApiResponse({ type: GetJafValuesDto })
   async getJafDetails() {
     const ans = await this.recruiterViewService.getJafDetails();
-    // console.log(ans);
 
     return pipeTransform(ans, GetJafValuesDto);
   }
