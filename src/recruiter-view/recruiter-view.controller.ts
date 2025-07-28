@@ -124,7 +124,16 @@ export class RecruiterViewController {
   @Post("jaf")
   @ApiResponse({ type: String })
   @UseInterceptors(TransactionInterceptor)
-  async createJaf(@Body() jaf: JafDto, @TransactionParam() t: Transaction, @User() user: IUser) {
+  async createJaf(
+    @Body() jaf: JafDto & { captchaToken?: string },
+    @TransactionParam() t: Transaction,
+    @User() user: IUser
+  ) {
+    const verified = await verifyRecaptcha(jaf.captchaToken);
+    if (!verified) {
+      throw new ForbiddenException("Invalid captcha");
+    }
+
     const attachments = jaf.job.attachments || [];
     const uploadedFiles = [];
 
