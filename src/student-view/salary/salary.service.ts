@@ -219,10 +219,17 @@ export class SalaryService {
       }),
     ]);
 
+    const event = res?.job?.events?.[0];
+    const currTime = new Date();
+
     if (!ans || !res)
       throw new UnauthorizedException("Not Authorized to apply for this salary or the Resume doesnt exist");
+
+    if (!event || event.startDateTime > currTime || event.endDateTime < currTime)
+      throw new ForbiddenException("Application time over! Cannot apply for this salary");
+
     const application = await this.applicationRepo.create({
-      eventId: res.job.events[0].id,
+      eventId: event.id,
       jobId: res.jobId,
       studentId: studentId,
       resumeId: resumeId,
