@@ -182,6 +182,55 @@ export class OfferService {
     return ans.map((salary) => salary.get({ plain: true }));
   }
 
+  async getOffersByJob(jobId: string) {
+    const findOptions: FindOptions<OnCampusOfferModel> = {
+      include: [
+        {
+          model: SalaryModel,
+          as: "salary",
+          required: true,
+          include: [
+            {
+              model: JobModel,
+              as: "job",
+              required: true,
+              where: { id: jobId },
+              include: [
+                {
+                  model: SeasonModel,
+                  as: "season",
+                },
+                {
+                  model: CompanyModel,
+                  as: "company",
+                },
+              ],
+            },
+          ],
+        },
+        {
+          model: StudentModel,
+          as: "student",
+          required: true,
+          include: [
+            {
+              model: UserModel,
+              as: "user",
+            },
+            {
+              model: ProgramModel,
+              as: "program",
+            },
+          ],
+        },
+      ],
+    };
+
+    const ans = await this.onCampusOfferRepo.findAll(findOptions);
+
+    return ans.map((offer) => offer.get({ plain: true }));
+  }
+
   async createOnCampusOffers(offers: CreateOnCampusOffersDto[]) {
     const ans = await this.onCampusOfferRepo.bulkCreate(offers);
 

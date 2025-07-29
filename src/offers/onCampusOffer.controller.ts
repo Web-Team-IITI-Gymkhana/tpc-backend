@@ -42,6 +42,14 @@ export class OnCampusOfferController {
     return pipeTransformArray(ans, GetStudentSalariesDto);
   }
 
+  @Get("job/:jobId")
+  @ApiResponse({ type: GetOnCampusOffersDto })
+  async getOffersByJob(@Param("jobId") jobId: string) {
+    const ans = await this.offerService.getOffersByJob(jobId);
+
+    return pipeTransformArray(ans, GetOnCampusOffersDto);
+  }
+
   @PatchValues(UpdateOnCampusOffersDto)
   async updateOnCampusOffers(@Body(createArrayPipe(UpdateOnCampusOffersDto)) offers: UpdateOnCampusOffersDto[]) {
     const pr = offers.map((offer) => this.offerService.updateOnCampusOffer(offer));
