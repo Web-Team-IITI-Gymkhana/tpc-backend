@@ -27,7 +27,7 @@ export class AnalyticsDashboardController {
   @Get("statsOverall/:seasonId")
   @ApiResponse({ type: StatsDto })
   async getPlacementStatisticsOverall(@Param("seasonId") seasonId: string, @User() user: IUser) {
-    if (user.role !== "ADMIN") {
+    if (user.role !== "ADMIN" && user.role !== "TPC_MEMBER") {
       throw new UnauthorizedException("You are not authorized to access this resource");
     }
 
@@ -36,7 +36,7 @@ export class AnalyticsDashboardController {
   @Get("statsCourseWise/:seasonId")
   @ApiResponse({ type: CourseWiseStatsDto })
   async getPlacementStatisticsCourseWise(@Param("seasonId") seasonId: string, @User() user: IUser) {
-    if (user.role !== "ADMIN") {
+    if (user.role !== "ADMIN" && user.role !== "TPC_MEMBER") {
       throw new UnauthorizedException("You are not authorized to access this resource");
     }
 
@@ -45,7 +45,7 @@ export class AnalyticsDashboardController {
   @Get("statsDepartmentWise/:seasonId")
   @ApiResponse({ type: DepartmentWiseStatsDto })
   async getPlacementStatisticsDepartmentWise(@Param("seasonId") seasonId: string, @User() user: IUser) {
-    if (user.role !== "ADMIN") {
+    if (user.role !== "ADMIN" && user.role !== "TPC_MEMBER") {
       throw new UnauthorizedException("You are not authorized to access this resource");
     }
 
@@ -54,7 +54,7 @@ export class AnalyticsDashboardController {
   @Get("statsCategoryWise/:seasonId")
   @ApiResponse({ type: CategoryWiseStatsDto })
   async getPlacementStatisticsCategoryWise(@Param("seasonId") seasonId: string, @User() user: IUser) {
-    if (user.role !== "ADMIN") {
+    if (user.role !== "ADMIN" && user.role !== "TPC_MEMBER") {
       throw new UnauthorizedException("You are not authorized to access this resource");
     }
 
@@ -63,7 +63,7 @@ export class AnalyticsDashboardController {
   @Get("statsGenderWise/:seasonId")
   @ApiResponse({ type: GenderWiseStatsDto })
   async getPlacementStatisticsGenderWise(@Param("seasonId") seasonId: string, @User() user: IUser) {
-    if (user.role !== "ADMIN") {
+    if (user.role !== "ADMIN" && user.role !== "TPC_MEMBER") {
       throw new UnauthorizedException("You are not authorized to access this resource");
     }
 
@@ -73,7 +73,7 @@ export class AnalyticsDashboardController {
   @Get("statsAcademicWise/:seasonId")
   @ApiResponse({ type: AcademicWiseStatsDto })
   async getPlacementStatisticsAcademicWise(@Param("seasonId") seasonId: string, @User() user: IUser) {
-    if (user.role !== "ADMIN") {
+    if (user.role !== "ADMIN" && user.role !== "TPC_MEMBER") {
       throw new UnauthorizedException("You are not authorized to access this resource");
     }
 
@@ -83,7 +83,7 @@ export class AnalyticsDashboardController {
   @Get("getSeasonStats/:seasonId")
   @ApiResponse({ type: SeasonStatsDto })
   async getPlacementStats(@Param("seasonId") seasonId: string, @User() user: IUser) {
-    if (user.role !== "ADMIN") {
+    if (user.role !== "ADMIN" && user.role !== "TPC_MEMBER") {
       throw new UnauthorizedException("You are not authorized to access this resource");
     }
 
