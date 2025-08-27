@@ -1,4 +1,5 @@
 export enum EventTypeEnum {
+  VERIFICATION = "VERIFICATION",
   POLL = "POLL",
   PPT = "PPT",
   INTERVIEW = "INTERVIEW",
