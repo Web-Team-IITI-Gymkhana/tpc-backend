@@ -54,7 +54,7 @@ export class SalaryController {
   @PostValues(ApplySalariesDto)
   async applySalaries(@Body(createArrayPipe(ApplySalariesDto)) salaries: ApplySalariesDto[], @User() user: IUser) {
     const pr = salaries.map((salary) =>
-      this.salaryService.applySalary(salary.salaryId, user.studentId, salary.resumeId)
+      this.salaryService.applySalary(salary.salaryId, user.studentId, salary.resumeId, salary.additionalData)
     );
     const ans = await Promise.all(pr);
 

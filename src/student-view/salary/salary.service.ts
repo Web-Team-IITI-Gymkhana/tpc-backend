@@ -181,7 +181,7 @@ export class SalaryService {
     return ans.get({ plain: true });
   }
 
-  async applySalary(salaryId: string, studentId: string, resumeId: string) {
+  async applySalary(salaryId: string, studentId: string, resumeId: string, additionalData?: Record<string, string>) {
     const whereSalary = await this.filterSalaries(studentId);
 
     const [ans, res] = await Promise.all([
@@ -233,6 +233,7 @@ export class SalaryService {
       jobId: res.jobId,
       studentId: studentId,
       resumeId: resumeId,
+      additionalData: additionalData || {},
     });
 
     return application.id;
