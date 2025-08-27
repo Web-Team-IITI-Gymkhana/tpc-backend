@@ -25,7 +25,7 @@ export class ClashesService {
         INNER JOIN "Event" ON "Application"."eventId" = "Event"."id"
         WHERE "Event"."endDateTime" >= NOW()
         AND "Event"."jobId" = '${jobId}'
-        AND "Event"."type" != 'POLL'
+        AND "Event"."type" NOT IN ('POLL','VERIFICATION')
     ),
     "restEvents" AS (
         SELECT 
@@ -41,7 +41,7 @@ export class ClashesService {
         INNER JOIN "Event" ON "Application"."eventId" = "Event"."id"
         WHERE "Event"."endDateTime" >= NOW()
         AND "Event"."jobId" != '${jobId}'
-        AND "Event"."type" != 'POLL'
+        AND "Event"."type" NOT IN ('POLL','VERIFICATION')
     ),
     "jobs" AS (
         SELECT 

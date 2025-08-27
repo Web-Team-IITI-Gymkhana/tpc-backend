@@ -17,6 +17,14 @@ module.exports = {
       defaultValue: {},
     });
 
+    // Ensure Event.type enum includes VERIFICATION
+    // Note: Enum alteration differs per dialect; this covers Postgres
+    if (queryInterface.sequelize.getDialect() === "postgres") {
+      await queryInterface.sequelize.query(
+        "ALTER TYPE \"enum_Event_type\" ADD VALUE IF NOT EXISTS 'VERIFICATION';",
+      );
+    }
+
     // Add additionalData column to Application table
     await queryInterface.addColumn("Application", "additionalData", {
       type: Sequelize.JSONB,
