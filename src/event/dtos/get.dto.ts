@@ -10,6 +10,8 @@ import {
 } from "src/decorators/dto";
 import { EventTypeEnum, SeasonTypeEnum } from "src/enums";
 import { GetStudentsDto } from "src/student/dtos/get.dto";
+import { ApiPropertyOptional } from "@nestjs/swagger";
+import { IsObject, IsOptional } from "class-validator";
 
 class CompanyDto {
   @NestedUUID({})
@@ -66,6 +68,14 @@ export class GetEventsDto {
   @NestedBoolean({})
   visibleToRecruiter: boolean;
 
+  @ApiPropertyOptional({
+    description: "Additional data fields required for this event as key-value pairs",
+    example: { "preferredLocation": "Enter your preferred work location", "skillLevel": "Rate your skill level (1-10)" }
+  })
+  @IsOptional()
+  @IsObject()
+  additionalData?: Record<string, string>;
+
   @NestedObject({ type: JobDto })
   job: JobDto;
 }
@@ -93,6 +103,14 @@ class ApplicationsDto {
 
   @NestedObject({ type: ResumeDto })
   resume: ResumeDto;
+
+  @ApiPropertyOptional({
+    description: "Additional data provided by student for this application",
+    example: { "preferredLocation": "San Francisco", "skillLevel": "8" }
+  })
+  @IsOptional()
+  @IsObject()
+  additionalData?: Record<string, string>;
 }
 
 export class GetEventDto extends GetEventsDto {
