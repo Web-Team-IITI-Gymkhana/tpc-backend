@@ -8,6 +8,8 @@ import {
   NestedString,
   NestedUUID,
 } from "src/decorators/dto";
+import { ApiPropertyOptional } from "@nestjs/swagger";
+import { IsObject, IsOptional } from "class-validator";
 import {
   CompanyCategoryEnum,
   CourseEnum,
@@ -68,6 +70,14 @@ class EventsDto {
 
   @NestedDate({})
   endDateTime: Date;
+
+  @ApiPropertyOptional({
+    description: "Additional data fields required for this event as key-value pairs",
+    example: { "preferredLocation": "Enter your preferred work location", "skillLevel": "Rate your skill level (1-10)" }
+  })
+  @IsOptional()
+  @IsObject()
+  additionalData?: Record<string, string>;
 }
 
 class ResumeDto {
@@ -93,6 +103,14 @@ class ApplicationsDto {
 
   @NestedObject({ type: ResumeDto })
   resume: ResumeDto;
+
+  @ApiPropertyOptional({
+    description: "Additional data provided by student for this application",
+    example: { "preferredLocation": "San Francisco", "skillLevel": "8" }
+  })
+  @IsOptional()
+  @IsObject()
+  additionalData?: Record<string, string>;
 }
 
 class UserDto {

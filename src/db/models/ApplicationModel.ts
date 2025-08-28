@@ -9,7 +9,7 @@ import {
   BeforeBulkUpdate,
   AfterCreate,
 } from "sequelize-typescript";
-import sequelize, { WhereOptions } from "sequelize";
+import sequelize, { WhereOptions, Sequelize } from "sequelize";
 
 import { EventModel } from "./EventModel";
 import { StudentModel } from "./StudentModel";
@@ -104,6 +104,12 @@ export class ApplicationModel extends Model<ApplicationModel> {
     onDelete: "RESTRICT",
   })
   resume: ResumeModel;
+
+  @Column({
+    type: sequelize.JSONB,
+    defaultValue: Sequelize.literal("'{}'::jsonb"),
+  })
+  additionalData: object;
 
   @AfterCreate
   static async sendEmailHook(instance: ApplicationModel) {
