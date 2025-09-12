@@ -21,12 +21,13 @@ import { RecruiterModel } from "./RecruiterModel";
 import { SalaryModel } from "./SalaryModel";
 import { JobCoordinatorModel } from "./JobCoordinatorModel";
 import { FacultyApprovalRequestModel } from "./FacultyApprovalRequestModel";
-import { BacklogEnum, CategoryEnum, DepartmentEnum, GenderEnum, JobStatusTypeEnum } from "../../enums";
+import { BacklogEnum, CategoryEnum, DepartmentEnum, GenderEnum, JobStatusTypeEnum, TpcMemberRoleEnum } from "../../enums";
 import { ApplicationModel } from "./ApplicationModel";
 import { EmailService, getHtmlContent } from "../../services/EmailService";
 import { SendEmailDto } from "../../services/EmailService";
 import { StudentModel } from "./StudentModel";
 import { UserModel } from "./UserModel";
+import { TpcMemberModel } from "./TpcMemberModel";
 import { IEnvironmentVariables, env } from "../../config";
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { RegistrationModel } from "./RegistrationModel";
@@ -260,12 +261,33 @@ export class JobModel extends Model<JobModel> {
       },
     });
 
+    // Get TPC managers
+    const tpcManagers = await TpcMemberModel.findAll({
+      where: {
+        role: TpcMemberRoleEnum.MANAGER,
+      },
+      include: [
+        {
+          model: StudentModel,
+          as: "student",
+          include: [
+            {
+              model: UserModel,
+              as: "user",
+            },
+          ],
+        },
+      ],
+    });
+
     // Job instance after create will have companyId but not company instance.
     const company = await CompanyModel.findByPk(instance.companyId, {
       attributes: ["name"],
     });
 
-    const emails = admins.map((admin) => ({ address: admin.email }));
+    const adminEmails = admins.map((admin) => ({ address: admin.email }));
+    const managerEmails = tpcManagers.map((manager) => ({ address: manager.student.user.email }));
+    const allEmails = [...adminEmails, ...managerEmails];
 
     const url = `${FRONTEND_URL}/admin/jobs/${instance.id}`;
 
@@ -280,7 +302,7 @@ export class JobModel extends Model<JobModel> {
 
     const mailToAdmin: SendEmailDto = {
       from: { name: APP_NAME, address: MAIL_USER },
-      recepients: [...emails],
+      recepients: [...allEmails],
       // recepients: [{ address: DEFAULT_MAIL_TO }],
       subject: `Job Announcement Form Filled by ${company?.name}`,
       html: adminContent,
