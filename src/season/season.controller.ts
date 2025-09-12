@@ -49,6 +49,7 @@ export class SeasonController {
   }
 
   @CreateFile(CreateSeasonsDto, "policy")
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   @UseInterceptors(TransactionInterceptor)
   async createSeasons(@Body() seasonData: CreateSeasonsDto, @UploadedFile() file, @TransactionParam() t: Transaction) {
     // Validate policy document if provided
@@ -70,6 +71,7 @@ export class SeasonController {
   }
 
   @PatchValues(UpdateSeasonsDto)
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   async updateSeasons(@Body(createArrayPipe(UpdateSeasonsDto)) seasons: UpdateSeasonsDto[]) {
     const pr = seasons.map((season) => this.seasonService.updateSeasons(season));
     const ans = await Promise.all(pr);
@@ -78,6 +80,7 @@ export class SeasonController {
   }
 
   @DeleteValues()
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   async deleteSeasons(@Query() query: DeleteValuesDto) {
     const ans = await this.seasonService.deleteSeasons(query.id);
 
