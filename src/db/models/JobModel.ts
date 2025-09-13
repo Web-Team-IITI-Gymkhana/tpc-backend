@@ -21,12 +21,13 @@ import { RecruiterModel } from "./RecruiterModel";
 import { SalaryModel } from "./SalaryModel";
 import { JobCoordinatorModel } from "./JobCoordinatorModel";
 import { FacultyApprovalRequestModel } from "./FacultyApprovalRequestModel";
-import { CategoryEnum, DepartmentEnum, GenderEnum, JobStatusTypeEnum } from "../../enums";
+import { BacklogEnum, CategoryEnum, DepartmentEnum, GenderEnum, JobStatusTypeEnum, TpcMemberRoleEnum } from "../../enums";
 import { ApplicationModel } from "./ApplicationModel";
 import { EmailService, getHtmlContent } from "../../services/EmailService";
 import { SendEmailDto } from "../../services/EmailService";
 import { StudentModel } from "./StudentModel";
 import { UserModel } from "./UserModel";
+import { TpcMemberModel } from "./TpcMemberModel";
 import { IEnvironmentVariables, env } from "../../config";
 import { ForbiddenException, NotFoundException } from "@nestjs/common";
 import { RegistrationModel } from "./RegistrationModel";
@@ -260,12 +261,33 @@ export class JobModel extends Model<JobModel> {
       },
     });
 
+    // Get TPC managers
+    const tpcManagers = await TpcMemberModel.findAll({
+      where: {
+        role: TpcMemberRoleEnum.MANAGER,
+      },
+      include: [
+        {
+          model: StudentModel,
+          as: "student",
+          include: [
+            {
+              model: UserModel,
+              as: "user",
+            },
+          ],
+        },
+      ],
+    });
+
     // Job instance after create will have companyId but not company instance.
     const company = await CompanyModel.findByPk(instance.companyId, {
       attributes: ["name"],
     });
 
-    const emails = admins.map((admin) => ({ address: admin.email }));
+    const adminEmails = admins.map((admin) => ({ address: admin.email }));
+    const managerEmails = tpcManagers.map((manager) => ({ address: manager.student.user.email }));
+    const allEmails = [...adminEmails, ...managerEmails];
 
     const url = `${FRONTEND_URL}/admin/jobs/${instance.id}`;
 
@@ -280,7 +302,7 @@ export class JobModel extends Model<JobModel> {
 
     const mailToAdmin: SendEmailDto = {
       from: { name: APP_NAME, address: MAIL_USER },
-      recepients: [...emails],
+      recepients: [...allEmails],
       // recepients: [{ address: DEFAULT_MAIL_TO }],
       subject: `Job Announcement Form Filled by ${company?.name}`,
       html: adminContent,
@@ -292,7 +314,6 @@ export class JobModel extends Model<JobModel> {
 
   @BeforeBulkUpdate
   static async sendEmailOnEventChange(options: IUpdateOptions) {
-    return;
     if (SEND_MAIL == "FALSE") return;
     if (options.attributes.active === undefined) return;
     if (options.attributes.active === false) return;
@@ -357,33 +378,43 @@ export class JobModel extends Model<JobModel> {
       })
     );
 
-    const conditions = salaries.map((salary) => ({
-      cpi: { [Op.gte]: salary.minCPI },
-      category: {
-        [Op.or]: [
-          { [Op.in]: salary.categories },
-          salary.categories.length === 0 ? { [Op.is]: null } : undefined,
-        ].filter(Boolean),
-      },
-      gender: {
-        [Op.or]: [{ [Op.in]: salary.genders }, salary.genders.length === 0 ? { [Op.is]: null } : undefined].filter(
-          Boolean
-        ),
-      },
-      tenthMarks: { [Op.gte]: salary.tenthMarks },
-      twelthMarks: { [Op.gte]: salary.twelthMarks },
-      id: {
-        [Op.in]: sequelize.literal(
-          `(SELECT "studentId" FROM "Registrations" WHERE "seasonId" = '${salary.job.season.id}' AND "registered" = true)`
-        ),
-      },
-      programId: {
-        [Op.or]: [{ [Op.in]: salary.programs }, salary.programs.length === 0 ? { [Op.is]: null } : undefined].filter(
-          Boolean
-        ),
-        [Op.not]: programIds[salary.id],
-      },
-    }));
+    const conditions = salaries.map((salary) => {
+      const condition: any = {
+        cpi: { [Op.gte]: salary.minCPI },
+        tenthMarks: { [Op.gte]: salary.tenthMarks },
+        twelthMarks: { [Op.gte]: salary.twelthMarks },
+        id: {
+          [Op.in]: sequelize.literal(
+            `(SELECT "studentId" FROM "Registrations" WHERE "seasonId" = '${salary.job.season.id}' AND "registered" = true)`
+          ),
+        },
+        programId: {
+          [Op.or]: [
+            { [Op.in]: salary.programs },
+            salary.programs.length === 0 ? { [Op.is]: null } : undefined,
+          ].filter(Boolean),
+          [Op.not]: programIds[salary.id],
+        },
+      };
+
+      if (salary.categories.length > 0) {
+        condition.category = { [Op.in]: salary.categories };
+      }
+      if (salary.genders.length > 0) {
+        condition.gender = { [Op.in]: salary.genders };
+      }
+      if (salary.isBacklogAllowed === BacklogEnum.NEVER) {
+        condition.backlog = { [Op.eq]: BacklogEnum.NEVER};
+      }
+      else if (salary.isBacklogAllowed === BacklogEnum.PREVIOUS) {
+        condition.backlog = { [Op.in]: [BacklogEnum.NEVER, BacklogEnum.PREVIOUS] };
+      }
+      else{
+        condition.backlog = { [Op.in]: [BacklogEnum.NEVER, BacklogEnum.PREVIOUS, BacklogEnum.ACTIVE] };
+      }  
+
+      return condition;
+    });
 
     const students = await StudentModel.findAll({
       where: {
