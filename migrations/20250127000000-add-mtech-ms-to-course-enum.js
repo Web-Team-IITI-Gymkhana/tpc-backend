@@ -7,7 +7,7 @@ module.exports = {
       return;
     }
     await queryInterface.sequelize.query(
-      "ALTER TYPE \"enum_Event_type\" ADD VALUE IF NOT EXISTS 'VERIFICATION' BEFORE 'POLL';",
+      "ALTER TYPE \"enum_Program_course\" ADD VALUE IF NOT EXISTS 'MTech / MS(Research)' BEFORE 'PhD';",
     );
   },
 
@@ -15,5 +15,3 @@ module.exports = {
     // No-op: dropping a single value from a Postgres enum is non-trivial; leave as-is
   },
 };
-
-
