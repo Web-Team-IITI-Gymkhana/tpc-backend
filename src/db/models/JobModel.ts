@@ -314,22 +314,23 @@ export class JobModel extends Model<JobModel> {
 
   @BeforeBulkUpdate
   static async sendEmailOnEventChange(options: IUpdateOptions) {
-    if (SEND_MAIL == "FALSE") return;
-    if (options.attributes.active === undefined) return;
-    if (options.attributes.active === false) return;
-    const jobs = await JobModel.findAll({
-      where: options.where,
-      include: [
-        {
-          model: EventModel,
-          as: "events",
-        },
-        {
-          model: CompanyModel,
-          as: "company",
-        },
-      ],
-    });
+    try {
+      if (SEND_MAIL == "FALSE") return;
+      if (options.attributes.active === undefined) return;
+      if (options.attributes.active === false) return;
+      const jobs = await JobModel.findAll({
+        where: options.where,
+        include: [
+          {
+            model: EventModel,
+            as: "events",
+          },
+          {
+            model: CompanyModel,
+            as: "company",
+          },
+        ],
+      });
 
     const newActive = options.attributes.active;
 
@@ -391,16 +392,16 @@ export class JobModel extends Model<JobModel> {
         programId: {
           [Op.or]: [
             { [Op.in]: salary.programs },
-            salary.programs.length === 0 ? { [Op.is]: null } : undefined,
+            salary.programs && salary.programs.length === 0 ? { [Op.is]: null } : undefined,
           ].filter(Boolean),
           [Op.not]: programIds[salary.id],
         },
       };
 
-      if (salary.categories.length > 0) {
+      if (salary.categories && salary.categories.length > 0) {
         condition.category = { [Op.in]: salary.categories };
       }
-      if (salary.genders.length > 0) {
+      if (salary.genders && salary.genders.length > 0) {
         condition.gender = { [Op.in]: salary.genders };
       }
       if (salary.isBacklogAllowed === BacklogEnum.NEVER) {
@@ -462,6 +463,10 @@ export class JobModel extends Model<JobModel> {
       };
 
       await mailerService.sendEmail(data);
+    }
+    } catch (error) {
+      // Email sending fails silently - don't throw error
+      console.log('Email sending failed in sendEmailOnEventChange:', error.message);
     }
   }
 }
