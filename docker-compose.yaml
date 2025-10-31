@@ -1,20 +1,42 @@
-# Use postgres/example user/password credentials
-version: '3.1'
-
 services:
-
   db:
     image: postgres
+    container_name: tpc-backend-db-1
     restart: always
     environment:
-      POSTGRES_USER: test
-      POSTGRES_PASSWORD: test
-      POSTGRES_DB: test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: tpc
     ports:
-      - 5432:5432
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql
 
   adminer:
     image: adminer
+    container_name: tpc-backend-adminer-1
     restart: always
     ports:
-      - 8080:8080
+      - "8080:8080"
+    depends_on:
+      - db
+
+  backend:
+    build: .
+    container_name: tpc-backend
+    restart: always
+    ports:
+      - "5000:5000"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USERNAME: postgres
+      DB_PASSWORD: postgres
+      DB_NAME: tpc
+    volumes:
+      - .:/app
+
+volumes:
+  pgdata:
