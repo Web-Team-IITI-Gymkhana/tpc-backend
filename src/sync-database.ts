@@ -96,7 +96,7 @@ async function main() {
 Usage: ts-node src/sync-database.ts [options]
 
 Options:
-  --force     Drop and recreate all tables (⚠️  DESTRUCTIVE)
+  --force     Drop and recreate all tables (destructive)
   --alter     Modify existing tables to match models
   --verbose   Enable detailed logging
   --help      Show this help message
