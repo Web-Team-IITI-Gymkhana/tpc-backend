@@ -598,6 +598,13 @@ export class StudentService {
       updates.twelthMarks = updateData.twelthMarks;
     }
 
+    if (updateData.numberOfBacklogs !== undefined) {
+      if (currentStudent.numberOfBacklogs !== null && currentStudent.numberOfBacklogs !== undefined) {
+        throw new BadRequestException("Number of backlogs has already been set and cannot be modified");
+      }
+      updates.numberOfBacklogs = updateData.numberOfBacklogs;
+    }
+
     if (Object.keys(updates).length === 0) {
       return { message: "No updates to apply" };
     }
