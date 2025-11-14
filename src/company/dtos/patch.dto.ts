@@ -27,8 +27,8 @@ export class UpdateCompaniesDto {
   @NestedUrl({ optional: true })
   socialMediaLink?: string;
 
-  @NestedEnum(IndustryDomainEnum, { isArray: true, optional: true })
-  domains?: IndustryDomainEnum[];
+  @NestedEnum(IndustryDomainEnum, { isArray: true })
+  domains: IndustryDomainEnum[];
 
   @NestedObject({ type: AddressDto, optional: true })
   address?: AddressDto;
