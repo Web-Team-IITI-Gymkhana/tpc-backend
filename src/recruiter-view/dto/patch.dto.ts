@@ -49,7 +49,7 @@ class UpdateCompanyDto {
   @NestedString({ optional: true })
   website?: string;
 
-  @NestedEnum(IndustryDomainEnum, { isArray: true, optional: true })
+  @NestedEnum(IndustryDomainEnum, { isArray: true, optional: false })
   domains?: IndustryDomainEnum[];
 
   @NestedEnum(CompanyCategoryEnum, { optional: true })
