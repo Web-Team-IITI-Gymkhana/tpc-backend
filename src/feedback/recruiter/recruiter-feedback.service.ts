@@ -1,12 +1,21 @@
-import { Inject, Injectable, ForbiddenException } from "@nestjs/common";
-import { CreateRecruiterFeedbackDto } from "./dtos/create-recruiter-feedback.dto";
+import {
+  Inject,
+  Injectable,
+  ForbiddenException,
+} from "@nestjs/common";
+import { Op } from "sequelize";
+import { CreateRecruiterFeedbackDto } from "./dtos/post.dto";
+import { RecruiterFeedbackSeasonDto } from "./dtos/get.dto";
+
 import {
   RECRUITER_FEEDBACK_DAO,
   RECRUITER_DAO,
   USER_DAO,
   COMPANY_DAO,
   SEASON_DAO,
+  JOB_DAO,
 } from "../../constants";
+
 import { EmailService, getHtmlContent } from "../../services/EmailService";
 import path from "path";
 
@@ -28,11 +37,16 @@ export class RecruiterFeedbackService {
     @Inject(SEASON_DAO)
     private readonly seasonDao: any,
 
+    @Inject(JOB_DAO)
+    private readonly jobDao: any,
+
     private readonly emailService: EmailService,
   ) {}
 
+  // ======================================================
+  // POST: Submit Recruiter Feedback (UNCHANGED LOGIC)
+  // ======================================================
   async submitFeedback(body: CreateRecruiterFeedbackDto, userId: string) {
-    /* Find recruiter + linked user */
     const recruiter = await this.recruiterDao.findOne({
       where: { userId },
       include: ["user"],
@@ -42,13 +56,23 @@ export class RecruiterFeedbackService {
       throw new ForbiddenException("Only recruiters can submit feedback");
     }
 
-    /* Fetch company */
-    const company = await this.companyDao.findByPk(recruiter.companyId);
+    // BEFORE creating feedback
+    const existingFeedback = await this.feedbackDao.findOne({
+      where: {
+        recruiterId: recruiter.id,
+        seasonId: body.seasonId,
+      },
+    });
 
-    /* Fetch season */
+    if (existingFeedback) {
+      throw new ForbiddenException(
+        "Feedback already submitted for this season"
+      );
+    }
+
+    const company = await this.companyDao.findByPk(recruiter.companyId);
     const season = await this.seasonDao.findByPk(body.seasonId);
 
-    /* Create feedback */
     const feedback = await this.feedbackDao.create({
       recruiterId: recruiter.id,
       companyId: recruiter.companyId,
@@ -67,7 +91,7 @@ export class RecruiterFeedbackService {
       recommendations: body.recommendations,
     });
 
-    /* Send admin email (non-blocking) */
+    // ---------- Admin Email (non-blocking) ----------
     try {
       const admins = await this.userDao.findAll({
         where: { role: "ADMIN" },
@@ -101,5 +125,58 @@ export class RecruiterFeedbackService {
     }
 
     return feedback;
+  }
+
+  // ======================================================
+  // GET: Seasons Eligible for Recruiter Feedback
+  // ======================================================
+  async getRecruiterFeedbackSeasons(
+    userId: string
+  ): Promise<RecruiterFeedbackSeasonDto[]> {
+    const recruiter = await this.recruiterDao.findOne({
+      where: { userId },
+    });
+
+    if (!recruiter) {
+      throw new ForbiddenException("Only recruiters can view feedback seasons");
+    }
+
+    // Jobs → seasons
+    const jobs = await this.jobDao.findAll({
+      where: { companyId: recruiter.companyId },
+      attributes: ["seasonId"],
+    });
+
+    const seasonIds = [
+      ...new Set(jobs.map(j => j.seasonId).filter(Boolean)),
+    ];
+
+    if (seasonIds.length === 0) {
+      return [];
+    }
+
+    // Fetch seasons
+    const seasons = await this.seasonDao.findAll({
+      where: { id: { [Op.in]: seasonIds } },
+      order: [["year", "DESC"]],
+    });
+
+    // Fetch submitted feedbacks
+    const feedbacks = await this.feedbackDao.findAll({
+      where: { recruiterId: recruiter.id },
+      attributes: ["seasonId"],
+    });
+
+    const submittedSeasonIds = new Set(
+      feedbacks.map(f => f.seasonId)
+    );
+
+    return seasons.map(season => ({
+      id: season.id,
+      year: season.year,
+      type: season.type,
+      status: season.status,
+      feedbackSubmitted: submittedSeasonIds.has(season.id),
+    }));
   }
 }
