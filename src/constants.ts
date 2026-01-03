@@ -384,7 +384,7 @@ export const RESUME_SIZE_LIMIT = 102400; // 1MB
 export const IE_SIZE_LIMIT = RESUME_SIZE_LIMIT * 100; // 10MB.
 export const JD_SIZE_LIMIT = RESUME_SIZE_LIMIT * 100; // 10MB.
 export const POLICY_SIZE_LIMIT = RESUME_SIZE_LIMIT * 100; // 10MB.
-export const MAX_RESUMES_PER_STUDENT = 10; // Maximum number of resumes a student can upload
+export const MAX_RESUMES_PER_STUDENT = 20; // Increased limit to 15 resumes per student
 
 export const ROLES_KEY = "roles";
 

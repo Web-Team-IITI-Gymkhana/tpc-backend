@@ -49,6 +49,12 @@ export class EventModel extends Model<EventModel> {
   @Column({ type: sequelize.BOOLEAN, allowNull: false, defaultValue: false })
   visibleToRecruiter: boolean;
 
+  @Column({
+    type: sequelize.JSONB,
+    defaultValue: Sequelize.literal("'{}'::jsonb"),
+  })
+  additionalData: object;
+
   @HasMany(() => ApplicationModel, {
     foreignKey: "eventId",
     onDelete: "RESTRICT",
