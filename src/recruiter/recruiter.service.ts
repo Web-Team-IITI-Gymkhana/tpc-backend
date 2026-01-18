@@ -33,7 +33,8 @@ export class RecruiterService {
     const pageOptions = parsePagesize(where);
     Object.assign(findOptions, pageOptions);
     parseFilter(findOptions, where.filterBy || {});
-    findOptions.order = parseOrder(where.orderBy || {});
+    const order = parseOrder(where.orderBy || {});
+    findOptions.order = order.length > 0 ? order : [["updatedAt", "DESC"]];
 
     const ans = await this.recruiterRepo.findAll(findOptions);
 

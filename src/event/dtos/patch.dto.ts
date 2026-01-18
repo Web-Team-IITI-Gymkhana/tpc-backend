@@ -1,5 +1,7 @@
 import { NestedEnum, NestedNumber, NestedUUID, NestedString, NestedBoolean, NestedDate } from "src/decorators/dto";
 import { EventTypeEnum } from "src/enums";
+import { ApiPropertyOptional } from "@nestjs/swagger";
+import { IsObject, IsOptional } from "class-validator";
 
 export class UpdateEventsDto {
   @NestedUUID({})
@@ -25,6 +27,14 @@ export class UpdateEventsDto {
 
   @NestedBoolean({ optional: true })
   visibleToRecruiter?: boolean;
+
+  @ApiPropertyOptional({
+    description: "Additional data fields required for this event as key-value pairs",
+    example: { "preferredLocation": "Enter your preferred work location", "skillLevel": "Rate your skill level (1-10)" }
+  })
+  @IsOptional()
+  @IsObject()
+  additionalData?: Record<string, string>;
 }
 
 export class AddApplicationsDto {

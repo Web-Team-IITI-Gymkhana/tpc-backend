@@ -23,6 +23,8 @@ WORKDIR /usr/src/app
 # Install app dependencies
 COPY package.json yarn.lock ./
 COPY src/html src/html
+COPY migrations ./migrations
+COPY config ./config
 
 RUN yarn install --production --frozen-lockfile
 
