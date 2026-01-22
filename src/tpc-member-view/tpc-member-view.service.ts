@@ -53,7 +53,7 @@ export class TpcMemberViewService {
       ],
     });
 
-    if (!ans) throw new NotFoundException(`The Tpc Member with id ${id} does not exist`);
+    if (!ans) throw new NotFoundException(`The CAMC Member with id ${id} does not exist`);
 
     return ans.get({ plain: true });
   }

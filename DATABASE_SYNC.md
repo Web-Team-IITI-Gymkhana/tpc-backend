@@ -1,13 +1,13 @@
 # Database Synchronization Scripts
 
-This document explains how to use the database synchronization and migration scripts for the TPC Backend.
+This document explains how to use the database synchronization and migration scripts for the CAMC Backend.
 
 ## Overview
 
 The project includes several scripts to manage database synchronization:
 
 - **sync-database.ts** - Basic database synchronization
-- **migrate-database.ts** - Advanced migration with backup support  
+- **migrate-database.ts** - Advanced migration with backup support
 - **backup-database.ts** - Database backup utility
 - **restore-database.ts** - Database restore from backup files
 
@@ -191,4 +191,4 @@ The sync scripts work alongside your existing `upload:data` script:
 # Typical workflow
 npm run db:migrate:safe     # Sync database schema
 npm run upload:data file.xlsx 2024 "Computer Science" 1  # Upload data
-``` 
+```

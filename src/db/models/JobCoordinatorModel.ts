@@ -21,7 +21,7 @@ export class JobCoordinatorModel extends Model<JobCoordinatorModel> {
   @Column({ type: sequelize.UUID, allowNull: false })
   tpcMemberId: string;
 
-  // Delete Job Coordinator onDelete of Tpc Member
+  // Delete Job Coordinator onDelete of CAMC Member
   @BelongsTo(() => TpcMemberModel, {
     foreignKey: "tpcMemberId",
     onDelete: "CASCADE",
