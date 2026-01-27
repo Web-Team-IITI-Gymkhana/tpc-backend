@@ -8,6 +8,7 @@ export interface IEnvironmentVariables {
   DB_PASSWORD: string;
   DB_HOST: string;
   DB_PORT: number;
+  DB_SSL: boolean;
   ROOT_DOCS_PATH: string;
   USER_SECRET: string;
   UPLOAD_DIR: string;
@@ -34,6 +35,7 @@ export function env(): IEnvironmentVariables {
     DB_PASSWORD: process.env.DB_PASSWORD,
     DB_HOST: process.env.DB_HOST,
     DB_PORT: Number(process.env.DB_PORT),
+    DB_SSL: Boolean(process.env.DB_SSL) || false,
     ROOT_DOCS_PATH: process.env.ROOT_DOCS_PATH || "/api/v1",
     USER_SECRET: process.env.USER_SECRET,
     UPLOAD_DIR: process.env.UPLOAD_DIR,

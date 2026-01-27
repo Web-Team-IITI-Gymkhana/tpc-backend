@@ -70,6 +70,12 @@ export const databaseProviders = [
           acquire: 30000,
           idle: 10000,
         },
+        dialectOptions: {
+          ssl: {
+            require: env().DB_SSL,
+            rejectUnauthorized: false,
+          },
+        },
       });
       sequelize.addModels([
         UserModel,
