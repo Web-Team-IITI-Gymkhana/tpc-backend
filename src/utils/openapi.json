@@ -232,7 +232,7 @@
       }
     }
   },
-  "info": { "title": "TPC Backend API", "description": "API for TPC backend", "version": "0.0.1", "contact": {} },
+  "info": { "title": "CAMC Backend API", "description": "API for CAMC backend", "version": "0.0.1", "contact": {} },
   "tags": [{ "name": "TPCBackend", "description": "" }],
   "servers": [],
   "components": {
