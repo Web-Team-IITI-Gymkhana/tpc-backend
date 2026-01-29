@@ -59,8 +59,9 @@ export class FacultyController {
     return ans.flat();
   }
 
-  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
+
   @DeleteValues()
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   async deleteFaculties(@Query() query: DeleteValuesDto) {
     const ids = query.id;
     const pids = typeof ids === "string" ? [ids] : ids;

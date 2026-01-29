@@ -44,6 +44,7 @@ export class SalaryController {
     return ans.flat();
   }
   @DeleteValues()
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   async deleteSalaries(@Query() query: DeleteValuesDto) {
     const ans = await this.salaryService.deleteSalaries(query.id);
 

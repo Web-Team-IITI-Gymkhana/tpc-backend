@@ -41,7 +41,8 @@ export class OffCampusOfferController {
     return ans.flat();
   }
 
-  @DeleteValues()
+@DeleteValues()
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   async deleteOffCampusOffers(@Query() query: DeleteValuesDto) {
     const ans = await this.offerService.deleteOffCampusOffers(query.id);
 

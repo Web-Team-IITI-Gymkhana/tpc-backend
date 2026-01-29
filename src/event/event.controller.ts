@@ -85,6 +85,7 @@ export class EventController {
   }
 
   @DeleteValues()
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   async deleteEvents(@Query() query: DeleteValuesDto) {
     const ans = await this.eventService.deleteEvents(query.id);
 
