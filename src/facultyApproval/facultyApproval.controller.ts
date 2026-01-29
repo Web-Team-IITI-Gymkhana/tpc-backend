@@ -55,6 +55,8 @@ export class FacultyApprovalController {
     return ans.flat();
   }
   @DeleteValues()
+  
+@UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   async deleteFacultyApprovals(@Query() query: DeleteValuesDto, @TransactionParam() t: Transaction) {
     const ids = typeof query.id === "string" ? [query.id] : query.id;
     const pr = ids.map((id) => this.facultyApprovalService.deleteFacultyApproval(id, t));

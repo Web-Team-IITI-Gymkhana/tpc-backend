@@ -49,6 +49,7 @@ export class TpcMemberController {
   }
 
   @DeleteValues()
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   async deleteTpcMembers(@Query() query: DeleteValuesDto) {
     const ans = await this.tpcMemberService.deleteTpcMembers(query.id);
 
