@@ -1,6 +1,6 @@
 # GitHub Workflow
 
-This document is an overview of the GitHub workflow used by the TPC project. It includes instuction about how to follow release and hotfix process.
+This document is an overview of the GitHub workflow used by the CAMC project. It includes instuction about how to follow release and hotfix process.
 
 ## Branches
 
@@ -13,7 +13,7 @@ This document is an overview of the GitHub workflow used by the TPC project. It 
 ```mermaid
 graph TD
     subgraph Feature/Support/Bug Branches
-        F1[feature/*] 
+        F1[feature/*]
         F2[bug/*]
         F3[support/*]
     end

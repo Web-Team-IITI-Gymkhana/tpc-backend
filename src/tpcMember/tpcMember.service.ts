@@ -103,7 +103,7 @@ export class TpcMemberService {
       ],
     });
 
-    if (!ans) throw new NotFoundException(`The Tpc Member with id ${id} does not exist`);
+    if (!ans) throw new NotFoundException(`The CAMC Member with id ${id} does not exist`);
 
     return ans.get({ plain: true });
   }
@@ -111,7 +111,7 @@ export class TpcMemberService {
   async createTpcMembers(tpcMembers: CreateTpcMembersDto[]) {
     const ans = await this.tpcMemberRepo.bulkCreate(tpcMembers);
 
-    // Update the user role to TPC_MEMBER for the created TPC members
+    // Update the user role to TPC_MEMBER for the created CAMC members
     const studentIds = ans.map((tpcMember) => tpcMember.studentId);
     const userIds = await StudentModel.findAll({
       where: {
