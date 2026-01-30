@@ -34,6 +34,8 @@ import { ExternalOpportunitiesModule } from "./externalOpportunities/externalOpp
 import { TpcMemberViewModule } from "./tpc-member-view/tpc-member-view.module";
 import { ClashesModule } from "./clashes/clashes.module";
 import { ThrottlerModule } from "@nestjs/throttler";
+import { RecruiterFeedbackModule } from "./feedback/recruiter/recruiter-feedback.module";
+import { AdminFeedbackModule } from "./feedback/admin/admin-feedback.module";
 
 @Module({
   imports: [
@@ -75,6 +77,8 @@ import { ThrottlerModule } from "@nestjs/throttler";
     ExternalOpportunitiesModule,
     TpcMemberViewModule,
     ClashesModule,
+    RecruiterFeedbackModule,
+    AdminFeedbackModule,
   ],
   controllers: [AppController],
   providers: [Logger, TransactionInterceptor, QueryInterceptor, AppService],
