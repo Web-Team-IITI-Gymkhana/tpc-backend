@@ -1,4 +1,8 @@
-S NO,Name,Official Email,Department,Gender,Date of Birth,Personal Email,Birth Category,Contact No.,Internship Company,Stipend p/m,Others (for accomodation etc),PPO- CTC,Offer rcd date,FTE-Company Name Final offer (including PPO),Job Title,1st year CTC,Overall CTC
-1,ATHARVA NANOTI,cse220001013@iiti.ac.in,Computer Science & Engineering,M,11/14/2003,atharva.nanoti.14@gmail.com,gen,7414924595,Quadeye,500000,500000,93,7/16/2025,Quadeye (PPO),Quant Role,10300000,10300000
-2,KODUDULA NIKETH REDDY,cse220001040@iiti.ac.in,Computer Science & Engineering,M,7/25/2004,nikethreddykodudula@gmail.com,gen,9392586193,Quadeye,300000,450000,50,7/16/2025,Quadeye (PPO),Product Role,5000000,5000000
-3,PRATHAM GUPTA,cse220001060@iiti.ac.in,Computer Science & Engineering,M,10/7/2003,pratham71003@gmail.com,gen,7668704619,Quadeye,300000,450000,50,7/16/2025,Quadeye (PPO),Product Role,5000000,5000000
+S NO,Name,Official Email,Roll Number,Department,Gender,Date of Birth,Personal Email,Birth Category,Contact No.,Internship Company,Stipend p/m,Others (for accomodation etc),PPO- CTC,Offer rcd date,FTE-Company Name Final offer (including PPO),Job Title,1st year CTC,Overall CTC
+1,ATHARVA NANOTI,cse220001013@iiti.ac.in,220001013,CSE,M,11/14/2003,atharva.nanoti.14@gmail.com,gen,7414924595,Quadeye,500000,500000,93,7/16/2025,Quadeye (PPO),Quant Role,103,103
+2,KODUDULA NIKETH REDDY,cse220001040@iiti.ac.in,220001040,CSE,M,7/25/2004,nikethreddykodudula@gmail.com,gen,9392586193,Quadeye,300000,450000,50,7/16/2025,Quadeye (PPO),Product Role,50,50
+3,PRATHAM GUPTA,cse220001060@iiti.ac.in,220001060,CSE,M,10/7/2003,pratham71003@gmail.com,gen,7668704619,Quadeye,300000,450000,50,7/16/2025,Quadeye (PPO),Product Role,50,50
+4,FemStu1,cse220001111@iiti.ac.in,220001111,CSE,F,11/14/2003,FemStu1@gmail.com,gen,7414934595,DataBricks,300000,500000,63,7/16/2025,DataBricks (PPO),SDE Role,83,83
+5,FemStu2,cse220001112@iiti.ac.in,220001112,CSE,F,11/14/2003,FemStu2@gmail.com,gen,7414934695,DataBricks,400000,400000,43,7/16/2025,DataBricks (PPO),SDE Role,53,53
+6,FemStu3,cse220001113@iiti.ac.in,220001113,CSE,F,11/14/2003,FemStu3@gmail.com,gen,7414934895,DataBricks,700000,700000,73,7/16/2025,DataBricks (PPO),SDE Role,93,93
+7,FemStu4,cse220001114@iiti.ac.in,220001114,CSE,F,11/14/2003,FemStu4@gmail.com,gen,7414434895,DataBricks,700000,700000,73,7/16/2025,DataBricks (PPO),SDE Role,93,93
