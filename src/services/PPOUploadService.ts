@@ -19,6 +19,7 @@ import {
   CategoryEnum,
   CompanyCategoryEnum,
   CourseEnum,
+  DepartmentEnum,
   GenderEnum,
   JobStatusTypeEnum,
   OfferStatusEnum,
@@ -60,6 +61,7 @@ interface IPPORowType {
 
   // For internal use
   programId?: string;
+  programDepartment?: DepartmentEnum;
 }
 
 @Injectable()
@@ -140,19 +142,26 @@ export class PPOUploadService {
     }
   }
 
+  private normalizeEmail(email?: string): string {
+    return (email || "").trim().toLowerCase();
+  }
+
+  private normalizeRollNumber(rollNumber?: string | number): string | undefined {
+    if (rollNumber === undefined || rollNumber === null) return undefined;
+    return rollNumber.toString().trim();
+  }
+
   /**
    * Find program by branch, year, and course
    */
-  private async findProgramId(branch: string, year: string, course: CourseEnum): Promise<string | null> {
-    const program = await this.programRepo.findOne({
+  private async findProgram(branch: string, year: string, course: CourseEnum): Promise<ProgramModel | null> {
+    return this.programRepo.findOne({
       where: {
         branch: branch,
         course: course,
         year: year,
       },
     });
-
-    return program ? program.id : null;
   }
 
   /**
@@ -160,21 +169,24 @@ export class PPOUploadService {
    */
   private async findOrCreateStudent(data: IPPORowType, seasonId: string): Promise<StudentModel> {
     // Try to find by roll number first
-    if (data.rollNumber) {
+    const normalizedRollNo = this.normalizeRollNumber(data.rollNumber);
+    if (normalizedRollNo) {
       const existing = await this.studentRepo.findOne({
-        where: { rollNo: data.rollNumber },
+        where: { rollNo: normalizedRollNo },
         include: [{ model: UserModel, as: "user" }],
       });
 
       if (existing) {
-        console.log(`  Found existing student: ${data.rollNumber}`);
+        console.log(`  Found existing student: ${normalizedRollNo}`);
         return existing;
       }
     }
 
+    const normalizedEmail = this.normalizeEmail(data.officialEmail);
+
     // Try to find by email
     const existingUser = await this.userRepo.findOne({
-      where: { email: data.officialEmail },
+      where: { email: normalizedEmail, role: RoleEnum.STUDENT },
     });
 
     if (existingUser) {
@@ -184,25 +196,40 @@ export class PPOUploadService {
       });
 
       if (existingStudent) {
-        console.log(`  Found existing student by email: ${data.officialEmail}`);
+        console.log(`  Found existing student by email: ${normalizedEmail}`);
         return existingStudent;
       }
+
+      const student = await this.studentRepo.create({
+        userId: existingUser.id,
+        programId: data.programId!,
+        rollNo: normalizedRollNo || `TEMP-${Date.now()}`,
+        category: this.parseCategory(data.category),
+        gender: this.parseGender(data.gender),
+        cpi: 0, // Default, should be updated later
+      });
+
+      console.log(`  Created missing student profile for: ${normalizedEmail}`);
+      return student;
     }
 
     // Create new student
     console.log(`  Creating new student: ${data.name}`);
 
-    const user = await this.userRepo.create({
-      name: data.name,
-      email: data.officialEmail,
-      contact: data.contactNo,
-      role: RoleEnum.STUDENT,
+    const [user] = await this.userRepo.findOrCreate({
+      where: { email: normalizedEmail, role: RoleEnum.STUDENT },
+      defaults: {
+        name: data.name,
+        email: normalizedEmail,
+        contact: data.contactNo,
+        role: RoleEnum.STUDENT,
+      },
     });
 
     const student = await this.studentRepo.create({
       userId: user.id,
       programId: data.programId!,
-      rollNo: data.rollNumber || `TEMP-${Date.now()}`,
+      rollNo: normalizedRollNo || `TEMP-${Date.now()}`,
       category: this.parseCategory(data.category),
       gender: this.parseGender(data.gender),
       cpi: 0, // Default, should be updated later
@@ -224,6 +251,37 @@ export class PPOUploadService {
     });
 
     return company;
+  }
+
+  private async findExistingOffer(
+    studentId: string,
+    companyName: string,
+    role: string,
+    seasonId: string
+  ): Promise<OnCampusOfferModel | null> {
+    return this.onCampusOfferRepo.findOne({
+      where: { studentId },
+      include: [
+        {
+          model: SalaryModel,
+          required: true,
+          include: [
+            {
+              model: JobModel,
+              required: true,
+              where: { seasonId, role },
+              include: [
+                {
+                  model: CompanyModel,
+                  required: true,
+                  where: { name: companyName.trim() },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
   }
 
   /**
@@ -298,6 +356,10 @@ export class PPOUploadService {
       baseSalary: baseSalary,
       salaryPeriod: "PER_ANNUM",
       others: data.internOthers ? data.internOthers.toString() : undefined,
+      programs: data.programId ? [data.programId] : undefined,
+      genders: data.gender ? [this.parseGender(data.gender)] : undefined,
+      categories: data.category ? [this.parseCategory(data.category)] : undefined,
+      departments: data.programDepartment ? [data.programDepartment] : undefined,
     });
 
     return salary;
@@ -363,27 +425,76 @@ export class PPOUploadService {
     console.log(`📊 Found ${dataRows.length} rows to process`);
     console.log(`📋 Headers: ${headerRow.join(", ")}`);
 
-    // Column mapping (adjust indices based on your CSV structure)
-    const columnMap: { [index: number]: keyof IPPORowType } = {
-      0: "sNo",
-      1: "name",
-      2: "officialEmail",
-      3: "department",
-      4: "gender",
-      5: "dateOfBirth",
-      6: "personalEmail",
-      7: "category",
-      8: "contactNo",
-      9: "internshipCompany",
-      10: "stipendPerMonth",
-      11: "internOthers",
-      12: "ppoCtcLakhs",
-      13: "ppoOfferDate",
-      14: "finalCompany",
-      15: "finalRole",
-      16: "final1stYearCtcLakhs",
-      17: "finalOverallCtcLakhs",
+    const buildColumnMap = (headers: any[]): { [index: number]: keyof IPPORowType } => {
+      const mapByHeader: Record<string, keyof IPPORowType> = {
+        sno: "sNo",
+        srno: "sNo",
+        name: "name",
+        officialemail: "officialEmail",
+        rollno: "rollNumber",
+        rollnumber: "rollNumber",
+        department: "department",
+        gender: "gender",
+        dateofbirth: "dateOfBirth",
+        personalemail: "personalEmail",
+        birthcategory: "category",
+        category: "category",
+        contactno: "contactNo",
+        internshipcompany: "internshipCompany",
+        stipendpm: "stipendPerMonth",
+        stipendpermonth: "stipendPerMonth",
+        othersforaccomodationetc: "internOthers",
+        ppoctc: "ppoCtcLakhs",
+        offerrcddate: "ppoOfferDate",
+        ftecompanynamefinalofferincludingppo: "finalCompany",
+        jobtitle: "finalRole",
+        "1styearctc": "final1stYearCtcLakhs",
+        overallctc: "finalOverallCtcLakhs",
+      };
+
+      const normalize = (value: any) =>
+        value
+          ?.toString()
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, "")
+          .trim();
+
+      const columnMap: { [index: number]: keyof IPPORowType } = {};
+      headers.forEach((header, index) => {
+        const key = normalize(header);
+        const mapped = key ? mapByHeader[key] : undefined;
+        if (mapped) {
+          columnMap[index] = mapped;
+        }
+      });
+
+      return columnMap;
     };
+
+    const columnMap = buildColumnMap(headerRow);
+
+    if (Object.keys(columnMap).length === 0) {
+      Object.assign(columnMap, {
+        0: "sNo",
+        1: "name",
+        2: "officialEmail",
+        3: "department",
+        4: "gender",
+        5: "dateOfBirth",
+        6: "personalEmail",
+        7: "category",
+        8: "contactNo",
+        9: "internshipCompany",
+        10: "stipendPerMonth",
+        11: "internOthers",
+        12: "ppoCtcLakhs",
+        13: "ppoOfferDate",
+        14: "finalCompany",
+        15: "finalRole",
+        16: "final1stYearCtcLakhs",
+        17: "finalOverallCtcLakhs",
+      });
+    }
 
     // Parse data rows
     const data: IPPORowType[] = dataRows
@@ -410,17 +521,26 @@ export class PPOUploadService {
 
         // Find program ID
         if (year && course) {
-          const programId = await this.findProgramId(row.department, year, course as CourseEnum);
-          if (!programId) {
+          const program = await this.findProgram(row.department, year, course as CourseEnum);
+          if (!program) {
             console.error(`  ❌ Program not found for ${row.department} - ${year} - ${course}`);
             errorCount++;
             continue;
           }
-          row.programId = programId;
+          row.programId = program.id;
+          row.programDepartment = program.department;
         }
 
         // 1. Find or create student
         const student = await this.findOrCreateStudent(row, seasonId);
+
+        // 1b. Skip if offer already exists for this student/company/role/season
+        const existingOffer = await this.findExistingOffer(student.id, row.finalCompany, row.finalRole, seasonId);
+        if (existingOffer) {
+          console.log(`  ⏭️  Offer already exists. Skipping duplicate for ${row.finalCompany} - ${row.finalRole}`);
+          successCount++;
+          continue;
+        }
 
         // 2. Find or create company
         const company = await this.findOrCreateCompany(row.finalCompany);

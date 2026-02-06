@@ -65,6 +65,10 @@ export class AnalyticsDashboardService {
     };
   }
 
+  private shouldFallbackToOffers(registrationCount: number): boolean {
+    return registrationCount === 0;
+  }
+
   async getStatsOverall(seasonId: string) {
     const totalRegisteredStudentsCount = await this.registrationsRepo.count({
       col: "studentId",
@@ -136,12 +140,15 @@ export class AnalyticsDashboardService {
     const totalCompaniesOffering = uniqueCompanyIds.length;
     const totalOffers = offers.length;
     const placedStudentsCount = uniqueStudentIds.length;
+    const effectiveRegisteredCount = this.shouldFallbackToOffers(totalRegisteredStudentsCount)
+      ? placedStudentsCount
+      : totalRegisteredStudentsCount;
     const placementPercentage =
-      totalRegisteredStudentsCount === 0 ? 0 : (placedStudentsCount / totalRegisteredStudentsCount) * 100;
+      effectiveRegisteredCount === 0 ? 0 : (placedStudentsCount / effectiveRegisteredCount) * 100;
     const unplacedPercentage = 100 - placementPercentage;
 
     return {
-      totalRegisteredStudentsCount,
+      totalRegisteredStudentsCount: effectiveRegisteredCount,
       placedStudentsCount,
       placementPercentage,
       unplacedPercentage,
@@ -225,17 +232,22 @@ export class AnalyticsDashboardService {
     };
 
     const courseOffersMap = {};
+    const courseOfferStudentMap = {};
 
     offers.forEach((offer) => {
       const courseId = offer.student.program.course;
       courseOffersMap[courseId] = courseOffersMap[courseId] || [];
       courseOffersMap[courseId].push(offer);
+      courseOfferStudentMap[courseId] = courseOfferStudentMap[courseId] || new Set();
+      courseOfferStudentMap[courseId].add(offer.studentId);
     });
 
     courses.forEach((course) => {
       const courseId = course;
       const courseOffers = courseOffersMap[courseId] || [];
-      const courseRegisteredStudentsCount = courseWiseRegisteredCount[courseId] || 0;
+      const courseRegisteredStudentsCount = this.shouldFallbackToOffers(registrations.length)
+        ? (courseOfferStudentMap[courseId]?.size || 0)
+        : courseWiseRegisteredCount[courseId] || 0;
       const coursePlacedStudentsCount = new Set(courseOffers.map((offer) => offer.studentId)).size;
       const placementPercentage = (coursePlacedStudentsCount / courseRegisteredStudentsCount) * 100 || 0;
       const unplacedPercentage = 100 - placementPercentage;
@@ -339,17 +351,22 @@ export class AnalyticsDashboardService {
     };
 
     const departmentOffersMap = {};
+    const departmentOfferStudentMap = {};
 
     offers.forEach((offer) => {
       const departmentId = offer.student.program.department;
       departmentOffersMap[departmentId] = departmentOffersMap[departmentId] || [];
       departmentOffersMap[departmentId].push(offer);
+      departmentOfferStudentMap[departmentId] = departmentOfferStudentMap[departmentId] || new Set();
+      departmentOfferStudentMap[departmentId].add(offer.studentId);
     });
 
     departmentes.forEach((department) => {
       const departmentId = department;
       const departmentOffers = departmentOffersMap[departmentId] || [];
-      const departmentRegisteredStudentsCount = departmentWiseRegisteredCount[departmentId] || 0;
+      const departmentRegisteredStudentsCount = this.shouldFallbackToOffers(registrations.length)
+        ? (departmentOfferStudentMap[departmentId]?.size || 0)
+        : departmentWiseRegisteredCount[departmentId] || 0;
       const departmentPlacedStudentsCount = new Set(departmentOffers.map((offer) => offer.studentId)).size;
       const placementPercentage = (departmentPlacedStudentsCount / departmentRegisteredStudentsCount) * 100 || 0;
       const unplacedPercentage = 100 - placementPercentage;
@@ -437,17 +454,22 @@ export class AnalyticsDashboardService {
     };
 
     const categoryOffersMap = {};
+    const categoryOfferStudentMap = {};
 
     offers.forEach((offer) => {
       const categoryId = offer.student.category;
       categoryOffersMap[categoryId] = categoryOffersMap[categoryId] || [];
       categoryOffersMap[categoryId].push(offer);
+      categoryOfferStudentMap[categoryId] = categoryOfferStudentMap[categoryId] || new Set();
+      categoryOfferStudentMap[categoryId].add(offer.studentId);
     });
 
     categories.forEach((category) => {
       const categoryId = category;
       const categoryOffers = categoryOffersMap[categoryId] || [];
-      const categoryRegisteredStudentsCount = categoryWiseRegisteredCount[categoryId] || 0;
+      const categoryRegisteredStudentsCount = this.shouldFallbackToOffers(registrations.length)
+        ? (categoryOfferStudentMap[categoryId]?.size || 0)
+        : categoryWiseRegisteredCount[categoryId] || 0;
       const categoryPlacedStudentsCount = new Set(categoryOffers.map((offer) => offer.studentId)).size;
       const placementPercentage = (categoryPlacedStudentsCount / categoryRegisteredStudentsCount) * 100 || 0;
       const unplacedPercentage = 100 - placementPercentage;
@@ -535,17 +557,22 @@ export class AnalyticsDashboardService {
     };
 
     const genderOffersMap = {};
+    const genderOfferStudentMap = {};
 
     offers.forEach((offer) => {
       const genderId = offer.student.gender;
       genderOffersMap[genderId] = genderOffersMap[genderId] || [];
       genderOffersMap[genderId].push(offer);
+      genderOfferStudentMap[genderId] = genderOfferStudentMap[genderId] || new Set();
+      genderOfferStudentMap[genderId].add(offer.studentId);
     });
 
     genders.forEach((gender) => {
       const genderId = gender;
       const genderOffers = genderOffersMap[genderId] || [];
-      const genderRegisteredStudentsCount = genderWiseRegisteredCount[genderId] || 0;
+      const genderRegisteredStudentsCount = this.shouldFallbackToOffers(registrations.length)
+        ? (genderOfferStudentMap[genderId]?.size || 0)
+        : genderWiseRegisteredCount[genderId] || 0;
       const genderPlacedStudentsCount = new Set(genderOffers.map((offer) => offer.studentId)).size;
       const placementPercentage = (genderPlacedStudentsCount / genderRegisteredStudentsCount) * 100 || 0;
       const unplacedPercentage = 100 - placementPercentage;
@@ -661,6 +688,7 @@ export class AnalyticsDashboardService {
     };
 
     const cpiOffersMap = {};
+    const cpiOfferStudentMap = {};
 
     // Group offers by CPI ranges
     offers.forEach((offer) => {
@@ -670,6 +698,8 @@ export class AnalyticsDashboardService {
         if ((studentCpi >= range.min && studentCpi < range.max) || (range.max === 10 && studentCpi === 10)) {
           cpiOffersMap[rangeKey] = cpiOffersMap[rangeKey] || [];
           cpiOffersMap[rangeKey].push(offer);
+          cpiOfferStudentMap[rangeKey] = cpiOfferStudentMap[rangeKey] || new Set();
+          cpiOfferStudentMap[rangeKey].add(offer.studentId);
         }
       });
     });
@@ -678,7 +708,9 @@ export class AnalyticsDashboardService {
     cpiRanges.forEach((range) => {
       const rangeKey = `${range.min}-${range.max}`;
       const rangeOffers = cpiOffersMap[rangeKey] || [];
-      const registeredStudentsCount = cpiWiseRegisteredCount[rangeKey] || 0;
+      const registeredStudentsCount = this.shouldFallbackToOffers(registrations.length)
+        ? (cpiOfferStudentMap[rangeKey]?.size || 0)
+        : cpiWiseRegisteredCount[rangeKey] || 0;
       const placedStudentsCount = new Set(rangeOffers.map((offer) => offer.studentId)).size;
       const placementPercentage = (placedStudentsCount / registeredStudentsCount) * 100 || 0;
       const unplacedPercentage = 100 - placementPercentage;
