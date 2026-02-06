@@ -140,6 +140,10 @@ export class PPOUploadService {
     }
   }
 
+  private normalizeEmail(email?: string): string {
+    return (email || "").trim().toLowerCase();
+  }
+
   /**
    * Find program by branch, year, and course
    */
@@ -172,9 +176,11 @@ export class PPOUploadService {
       }
     }
 
+    const normalizedEmail = this.normalizeEmail(data.officialEmail);
+
     // Try to find by email
     const existingUser = await this.userRepo.findOne({
-      where: { email: data.officialEmail },
+      where: { email: normalizedEmail, role: RoleEnum.STUDENT },
     });
 
     if (existingUser) {
@@ -184,19 +190,34 @@ export class PPOUploadService {
       });
 
       if (existingStudent) {
-        console.log(`  Found existing student by email: ${data.officialEmail}`);
+        console.log(`  Found existing student by email: ${normalizedEmail}`);
         return existingStudent;
       }
+
+      const student = await this.studentRepo.create({
+        userId: existingUser.id,
+        programId: data.programId!,
+        rollNo: data.rollNumber || `TEMP-${Date.now()}`,
+        category: this.parseCategory(data.category),
+        gender: this.parseGender(data.gender),
+        cpi: 0, // Default, should be updated later
+      });
+
+      console.log(`  Created missing student profile for: ${normalizedEmail}`);
+      return student;
     }
 
     // Create new student
     console.log(`  Creating new student: ${data.name}`);
 
-    const user = await this.userRepo.create({
-      name: data.name,
-      email: data.officialEmail,
-      contact: data.contactNo,
-      role: RoleEnum.STUDENT,
+    const [user] = await this.userRepo.findOrCreate({
+      where: { email: normalizedEmail, role: RoleEnum.STUDENT },
+      defaults: {
+        name: data.name,
+        email: normalizedEmail,
+        contact: data.contactNo,
+        role: RoleEnum.STUDENT,
+      },
     });
 
     const student = await this.studentRepo.create({
@@ -224,6 +245,37 @@ export class PPOUploadService {
     });
 
     return company;
+  }
+
+  private async findExistingOffer(
+    studentId: string,
+    companyName: string,
+    role: string,
+    seasonId: string
+  ): Promise<OnCampusOfferModel | null> {
+    return this.onCampusOfferRepo.findOne({
+      where: { studentId },
+      include: [
+        {
+          model: SalaryModel,
+          required: true,
+          include: [
+            {
+              model: JobModel,
+              required: true,
+              where: { seasonId, role },
+              include: [
+                {
+                  model: CompanyModel,
+                  required: true,
+                  where: { name: companyName.trim() },
+                },
+              ],
+            },
+          ],
+        },
+      ],
+    });
   }
 
   /**
@@ -421,6 +473,14 @@ export class PPOUploadService {
 
         // 1. Find or create student
         const student = await this.findOrCreateStudent(row, seasonId);
+
+        // 1b. Skip if offer already exists for this student/company/role/season
+        const existingOffer = await this.findExistingOffer(student.id, row.finalCompany, row.finalRole, seasonId);
+        if (existingOffer) {
+          console.log(`  ⏭️  Offer already exists. Skipping duplicate for ${row.finalCompany} - ${row.finalRole}`);
+          successCount++;
+          continue;
+        }
 
         // 2. Find or create company
         const company = await this.findOrCreateCompany(row.finalCompany);
