@@ -48,10 +48,10 @@ function createSwagger(app: INestApplication) {
   const version = require("../package.json").version || "0.1.0";
 
   const config = new DocumentBuilder()
-    .setTitle("TPC Backend API")
-    .setDescription("API for TPC backend")
+    .setTitle("CAMC Backend API")
+    .setDescription("API for CAMC backend")
     .setVersion(version)
-    .addTag("TPC Backend")
+    .addTag("CAMC Backend")
     .addBearerAuth(
       {
         type: "http",
