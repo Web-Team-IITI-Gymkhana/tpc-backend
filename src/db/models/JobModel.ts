@@ -261,7 +261,7 @@ export class JobModel extends Model<JobModel> {
       },
     });
 
-    // Get TPC managers
+    // Get CAMC managers
     const tpcManagers = await TpcMemberModel.findAll({
       where: {
         role: TpcMemberRoleEnum.MANAGER,
@@ -412,7 +412,7 @@ export class JobModel extends Model<JobModel> {
       }
       else{
         condition.backlog = { [Op.in]: [BacklogEnum.NEVER, BacklogEnum.PREVIOUS, BacklogEnum.ACTIVE] };
-      }  
+      }
 
       return condition;
     });
