@@ -34,7 +34,9 @@ import { ExternalOpportunitiesModule } from "./externalOpportunities/externalOpp
 import { TpcMemberViewModule } from "./tpc-member-view/tpc-member-view.module";
 import { ClashesModule } from "./clashes/clashes.module";
 import { ThrottlerModule } from "@nestjs/throttler";
-
+import { NoticeboardModule } from "./noticeboard/noticeboard.module";
+import { MongooseModule } from "@nestjs/mongoose";
+import { AdminModule } from "./admin/admin.module";
 @Module({
   imports: [
     ConfigModule.forRoot(),
@@ -75,6 +77,10 @@ import { ThrottlerModule } from "@nestjs/throttler";
     ExternalOpportunitiesModule,
     TpcMemberViewModule,
     ClashesModule,
+    AdminModule,
+    MongooseModule.forRoot("mongodb://localhost:27017/todo"), 
+    NoticeboardModule,
+    NoticeboardModule,
   ],
   controllers: [AppController],
   providers: [Logger, TransactionInterceptor, QueryInterceptor, AppService],
