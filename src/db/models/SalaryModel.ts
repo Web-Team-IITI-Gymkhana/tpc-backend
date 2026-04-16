@@ -109,7 +109,7 @@ export class SalaryModel extends Model<SalaryModel> {
   @Column({
     type: sequelize.STRING(3),
     allowNull: true,
-    defaultValue: "USD",
+    defaultValue: "INR",
   })
   foreignCurrencyCode?: string;
 
