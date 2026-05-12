@@ -1,11 +1,50 @@
-import { Schema } from "mongoose";
+import {
+    Entity,
+    PrimaryGeneratedColumn,
+    Column,
+    CreateDateColumn,
+    UpdateDateColumn,
+} from "typeorm";
 
-export const NoticeSchema = new Schema(
-    {
-        clubname: String,
-        heading: String,
-        info: String,
-        announcelogo: String,
-    },
-    { timestamps: true }
-);
+@Entity("noticeboard")
+export class Noticeboard {
+    @PrimaryGeneratedColumn()
+    id: number;
+
+    @Column({
+        type: "varchar",
+        length: 255,
+    })
+    clubname: string;
+
+    @Column({
+        type: "varchar",
+        length: 500,
+    })
+    heading: string;
+
+    @Column({
+        type: "text",
+    })
+    info: string;
+
+    @Column({
+        type: "text",
+        nullable: true,
+    })
+    announcelogo: string;
+
+    @Column({
+        type: "varchar",
+        length: 100,
+        nullable: true,
+        default: "all",
+    })
+    group: string;
+
+    @CreateDateColumn()
+    createdAt: Date;
+
+    @UpdateDateColumn()
+    updatedAt: Date;
+}

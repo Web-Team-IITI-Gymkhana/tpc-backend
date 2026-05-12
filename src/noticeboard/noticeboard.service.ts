@@ -1,82 +1,205 @@
-import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-import * as nodemailer from "nodemailer";
+import { Inject, Injectable } from "@nestjs/common";
+import { EmailService } from "src/services/EmailService";
+import { NOTICEBOARD_DAO } from "src/constants";
+import { NoticeboardModel } from "src/db/models";
+
+import { CreateAnnouncementDto } from "./dtos/create.dtos";
+import { QueryAnnouncementDto } from "./dtos/query.dtos";
 
 @Injectable()
 export class NoticeboardService {
     constructor(
-        @InjectModel("Announce") private model: Model<any>
+        @Inject(NOTICEBOARD_DAO)
+        private readonly noticeboardRepository: typeof NoticeboardModel,
+        private readonly emailService: EmailService
     ) { }
 
-    async createAnnouncement(data: any) {
-        const newAnnounce = new this.model(data);
-        const saved = await newAnnounce.save();
-
-        try {
-            const transporter = nodemailer.createTransport({
-                host: "smtp.iiti.ac.in",
-                port: 587,
-                secure: false,
-                auth: {
-                    user: process.env.EMIAL_USER,
-                    pass: process.env.EMAIL_PASS,
-                },
+    async createAnnouncement(
+        createAnnouncementDto: CreateAnnouncementDto
+    ) {
+        const savedAnnouncement =
+            await this.noticeboardRepository.create({
+                clubname: createAnnouncementDto.clubname,
+                heading: createAnnouncementDto.heading,
+                info: createAnnouncementDto.info,
+                announcelogo:
+                    createAnnouncementDto.announcelogo || "",
+                group:
+                    createAnnouncementDto.group || "all",
             });
 
-            const predefinedGroups = {
-                // Here we need to add the emails of the students in the respective groups
-                none: [],
-                all: ["all@iiti.ac.in"],
-                cse: ["cse1@iiti.ac.in", "cse2@iiti.ac.in"],
-                ece: ["ece1@iiti.ac.in"]
+        try {
+            if (process.env.SEND_MAIL !== "true") {
+                return {
+                    message:
+                        "Announcement created successfully. Email sending is disabled.",
+                    data: savedAnnouncement,
+                };
+            }
+
+            const predefinedGroups: Record<
+                string,
+                string[]
+            > = {
+                none: [
+                    process.env.DEFAULT_MAIL_TO || "",
+                ],
+                all: [],
+                cse: [],
+                ece: [],
             };
 
             let finalEmails: string[] = [];
 
-            // from dropdown
-            if (data.group && predefinedGroups[data.group]) {
-                finalEmails = [...predefinedGroups[data.group]];
+            // Add recipients from selected group
+            if (createAnnouncementDto.group) {
+                if (
+                    predefinedGroups[
+                    createAnnouncementDto.group
+                    ]
+                ) {
+                    finalEmails = [
+                        ...predefinedGroups[
+                        createAnnouncementDto.group
+                        ],
+                    ];
+                } else if (
+                    createAnnouncementDto.group.includes(
+                        "@"
+                    )
+                ) {
+                    finalEmails = [
+                        createAnnouncementDto.group,
+                    ];
+                }
             }
 
-            // from manual input
-            if (data.emails && data.emails.length > 0) {
-                finalEmails = [...finalEmails, ...data.emails];
+            // Add manually entered emails
+            if (
+                createAnnouncementDto.emails &&
+                createAnnouncementDto.emails.length > 0
+            ) {
+                finalEmails = [
+                    ...finalEmails,
+                    ...createAnnouncementDto.emails,
+                ];
             }
 
-            // remove duplicates
-            finalEmails = [...new Set(finalEmails)];
+            // Keep only @iiti.ac.in emails
+            finalEmails = finalEmails.filter(
+                (email) =>
+                    email &&
+                    email
+                        .trim()
+                        .toLowerCase()
+                        .endsWith("@iiti.ac.in")
+            );
 
-            if (finalEmails.length === 0) return saved;
+            // Remove duplicates
+            finalEmails = [
+                ...new Set(
+                    finalEmails.map((email) =>
+                        email.trim().toLowerCase()
+                    )
+                ),
+            ];
 
-            await transporter.sendMail({
-                from: process.env.EMAIL_USER,
-                bcc: finalEmails.join(","),
-                subject: `${data.heading}`,
-                html: `
-                    <h2>${data.heading}</h2>
-                    <p>${data.info}</p>
-                    <p>${data.clubname}</p>
-                    <img src="cid:logo" style="max-width:200px; margin-top:10px;" />
-                `,
-                attachments: [
-                    {
-                        filename: "logo.png",
-                        content: data.announcelogo.split("base64,")[1],
-                        encoding: "base64",
-                        cid: "logo",
-                    },
-                ],
+            console.log(
+                "Recipients:",
+                finalEmails
+            );
+
+            if (finalEmails.length === 0) {
+                return {
+                    message:
+                        "Announcement created successfully, but no valid recipients were found.",
+                    data: savedAnnouncement,
+                };
+            }
+
+            let html = `
+                <div style="font-family: Arial, sans-serif; line-height: 1.6;">
+                    <h2>${createAnnouncementDto.heading}</h2>
+                    <p>${createAnnouncementDto.info.replace(
+                /\n/g,
+                "<br>"
+            )}</p>
+                    <hr>
+                    <p><strong>${createAnnouncementDto.clubname}</strong></p>
+                </div>
+            `;
+
+            // Add image if provided
+            if (
+                createAnnouncementDto.announcelogo &&
+                createAnnouncementDto.announcelogo.includes(
+                    "base64,"
+                )
+            ) {
+                html += `
+                    <p>
+                        <img
+                            src="${createAnnouncementDto.announcelogo}"
+                            style="max-width: 200px; margin-top: 10px;"
+                        />
+                    </p>
+                `;
+            }
+
+            await this.emailService.sendEmail({
+                recepients: finalEmails.map(
+                    (email) => ({
+                        name: "",
+                        address: email,
+                    })
+                ),
+                subject:
+                    createAnnouncementDto.heading,
+                html,
             });
 
-        } catch (err) {
-            console.error("Email failed:", err);
+            console.log(
+                "Announcement email sent successfully."
+            );
+        } catch (error) {
+            console.error(
+                "Failed to send announcement email:",
+                error
+            );
         }
 
-        return saved;
+        return {
+            message:
+                "Announcement created successfully.",
+            data: savedAnnouncement,
+        };
     }
 
-    async getAnnouncements() {
-        return this.model.find().sort({ createdAt: -1 });
+    async getAnnouncements(
+        queryDto?: QueryAnnouncementDto
+    ) {
+        const page = queryDto?.page || 1;
+        const limit = queryDto?.limit || 50;
+
+        const { rows, count } =
+            await this.noticeboardRepository.findAndCountAll(
+                {
+                    order: [
+                        ["createdAt", "DESC"],
+                    ],
+                    offset:
+                        (page - 1) * limit,
+                    limit,
+                }
+            );
+
+        return {
+            data: rows.map((item) =>
+                item.get({ plain: true })
+            ),
+            total: count,
+            page,
+            limit,
+        };
     }
 }

@@ -1,10 +1,14 @@
 import { Logger, Module } from "@nestjs/common";
 import { ConfigModule } from "@nestjs/config";
+import { ThrottlerModule } from "@nestjs/throttler";
+
 import { AppController } from "./app.controller";
 import { AppService } from "./app.service";
+
 import { DatabaseModule } from "./db/database.module";
 import { TransactionInterceptor } from "./interceptor/TransactionInterceptor";
 import { QueryInterceptor } from "./interceptor/QueryInterceptor";
+
 import { StudentModule } from "./student/student.module";
 import { RecruiterModule } from "./recruiter/recruiter.module";
 import { TpcMemberModule } from "./tpcMember/tpcMember.module";
@@ -33,15 +37,17 @@ import { RecruiterViewModule } from "./recruiter-view/recruiter-view.module";
 import { ExternalOpportunitiesModule } from "./externalOpportunities/externalOpportunities.module";
 import { TpcMemberViewModule } from "./tpc-member-view/tpc-member-view.module";
 import { ClashesModule } from "./clashes/clashes.module";
-import { ThrottlerModule } from "@nestjs/throttler";
-import { NoticeboardModule } from "./noticeboard/noticeboard.module";
-import { MongooseModule } from "@nestjs/mongoose";
+
 import { AdminModule } from "./admin/admin.module";
+import { NoticeboardModule } from "./noticeboard/noticeboard.module";
+
 @Module({
   imports: [
     ConfigModule.forRoot(),
+
     { module: DatabaseModule, global: true },
     { module: ServiceModule, global: true },
+
     ThrottlerModule.forRoot({
       throttlers: [
         {
@@ -50,6 +56,7 @@ import { AdminModule } from "./admin/admin.module";
         },
       ],
     }),
+
     AuthModule,
     StudentModule,
     RecruiterModule,
@@ -77,12 +84,16 @@ import { AdminModule } from "./admin/admin.module";
     ExternalOpportunitiesModule,
     TpcMemberViewModule,
     ClashesModule,
+
     AdminModule,
-    MongooseModule.forRoot("mongodb://localhost:27017/todo"), 
-    NoticeboardModule,
     NoticeboardModule,
   ],
   controllers: [AppController],
-  providers: [Logger, TransactionInterceptor, QueryInterceptor, AppService],
+  providers: [
+    Logger,
+    TransactionInterceptor,
+    QueryInterceptor,
+    AppService,
+  ],
 })
-export class AppModule {}
+export class AppModule { }

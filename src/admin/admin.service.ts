@@ -1,13 +1,21 @@
-import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
+import { Inject, Injectable } from "@nestjs/common";
+import { ADMIN_DAO } from "src/constants";
+import { AdminModel } from "src/db/models";
 
 @Injectable()
 export class AdminService {
-    constructor(@InjectModel("Admin") private model: Model<any>) { }
+    constructor(
+        @Inject(ADMIN_DAO)
+        private readonly adminRepository: typeof AdminModel
+    ) { }
 
     async isAdmin(email: string): Promise<boolean> {
-        const admin = await this.model.findOne({ email });
+        const admin = await this.adminRepository.findOne({
+            where: {
+                email: email.trim().toLowerCase(),
+            },
+        });
+
         return !!admin;
     }
 }

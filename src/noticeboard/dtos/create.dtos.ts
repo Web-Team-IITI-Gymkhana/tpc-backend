@@ -1,4 +1,11 @@
-import { IsOptional, IsString, IsArray } from "class-validator";
+import {
+    IsArray,
+    IsOptional,
+    IsString,
+    ArrayUnique,
+    IsEmail,
+} from "class-validator";
+import { Type } from "class-transformer";
 
 export class CreateAnnouncementDto {
     @IsString()
@@ -10,14 +17,18 @@ export class CreateAnnouncementDto {
     @IsString()
     info: string;
 
+    @IsOptional()
     @IsString()
-    announcelogo: string;
+    announcelogo?: string;
 
     @IsOptional()
     @IsString()
     group?: string;
 
     @IsOptional()
+    @Type(() => String)
     @IsArray()
+    @ArrayUnique()
+    @IsEmail({}, { each: true })
     emails?: string[];
 }
