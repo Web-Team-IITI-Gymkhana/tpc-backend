@@ -1,52 +1,40 @@
 /* eslint-disable no-console */
-// src/upload-ppo-data.ts
 import { NestFactory } from "@nestjs/core";
 import { DataCliModule } from "./services/DataCliModule";
-import { PPOUploadService } from "./services/PPOUploadService";
+import { PPOSyncService } from "./services/PPOSyncService";
 
-async function bootstrap() {
-  console.log("🚀 PPO Data Upload Script");
-  console.log("=".repeat(60));
+async function bootstrap(): Promise<void> {
+  const [, , internSeasonId, placementSeasonId, filePath] = process.argv;
 
-  const appContext = await NestFactory.createApplicationContext(DataCliModule);
-  const service = appContext.get(PPOUploadService);
-
-  const [, , filePath, seasonId, year, course] = process.argv;
-
-  if (!filePath || !seasonId) {
+  if (!internSeasonId || !placementSeasonId || !filePath) {
     console.error(`
-❌ Missing required arguments!
-
 Usage:
-  npm run upload:ppo <filePath> <seasonId> [year] [course]
+  npx ts-node src/upload-ppo-data.ts <intern_season_id> <placement_season_id> <path_to_csv>
 
 Arguments:
-  filePath  - Path to the Excel/CSV file with PPO data
-  seasonId  - UUID of the placement season
-  year      - (Optional) Program year (e.g., "3" for Third Year)
-  course    - (Optional) Course type (e.g., "BTECH", "MTECH", "MS")
+  intern_season_id    - UUID of the internship season
+  placement_season_id - UUID of the placement season
+  path_to_csv         - Path to the CSV file
 
-Examples:
-  npm run upload:ppo ./resources/ppo-data.xlsx abc-123-def "3" "BTECH"
-  npm run upload:ppo ./data/ppo-2024.csv xyz-789-abc
-
-Note: 
-  - If year and course are not provided, students must already exist in database
-  - Season ID can be found from the seasons table or /api/v1/seasons endpoint
-  - Supported file formats: .xlsx, .xls, .csv
+Example:
+  npx ts-node src/upload-ppo-data.ts abc-111 xyz-222 ./resources/ppo-data.csv
     `);
     process.exit(1);
   }
 
-  try {
-    await service.uploadPPOFromExcel(filePath, seasonId, year, course);
-    console.log("\n✅ Upload complete. Check the analytics dashboard to verify.");
-  } catch (err) {
-    console.error("\n❌ Upload failed:", err);
-    process.exit(1);
-  }
+  const appContext = await NestFactory.createApplicationContext(DataCliModule, {
+    logger: ["error", "warn"],
+  });
 
-  await appContext.close();
+  try {
+    const service = appContext.get(PPOSyncService);
+    await service.syncPPOData(internSeasonId, placementSeasonId, filePath);
+  } catch (err) {
+    console.error("Fatal error:", err);
+    process.exit(1);
+  } finally {
+    await appContext.close();
+  }
 }
 
 bootstrap();

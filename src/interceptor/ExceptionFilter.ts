@@ -44,6 +44,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
       status = HttpStatus.INTERNAL_SERVER_ERROR;
     }
 
+    try {
+      const ts = new Date().toISOString();
+      const logMessage = Array.isArray(message) ? message.join(", ") : String(message ?? "");
+      console.error(`[Error] ${ts} ${request.method} ${request.url} ${status} ${logMessage}`);
+    } catch (_) {
+      // never let logging interfere with the response
+    }
+
     response.status(status).json({
       statusCode: status,
       message: message,

@@ -137,6 +137,16 @@ export class PPOUploadService {
       case "ONGOING":
       case "PENDING":
         return OfferStatusEnum.ONGOING;
+      case "PPO_ACCEPTED":
+      case "PPO ACCEPTED":
+        return OfferStatusEnum.PPO_ACCEPTED;
+      case "PLACEMENT_FTE":
+      case "PLACEMENT FTE":
+      case "FTE":
+        return OfferStatusEnum.PLACEMENT_FTE;
+      case "PLACEMENT_PPO":
+      case "PLACEMENT PPO":
+        return OfferStatusEnum.PLACEMENT_PPO;
       default:
         return OfferStatusEnum.ACCEPTED;
     }
