@@ -82,19 +82,21 @@ export class AuthService {
 
     if (user) throw new HttpException("Email already exist", HttpStatus.INTERNAL_SERVER_ERROR);
 
-    const { jaf, ...recruiterPayload } = body;
-    recruiterPayload.user = {
-      ...body.user,
-      role: RoleEnum.RECRUITER,
+    const recruiterPayload = {
+      ...body,
+      user: {
+        ...body.user,
+        role: RoleEnum.RECRUITER,
+      },
     };
 
-    const recruiter = await this.recruiterRepo.create(recruiterPayload as any, {
+    const recruiter = await this.recruiterRepo.create(recruiterPayload, {
       include: [{ model: UserModel, as: "user" }],
       transaction: t,
     });
 
     const jobPayload = {
-      ...jaf.job,
+      ...body.jaf.job,
       recruiterId: recruiter.id,
       companyId: body.companyId,
     };
@@ -103,7 +105,7 @@ export class AuthService {
       transaction: t,
     });
 
-    const salaries = (jaf.salaries || []).map((salary) => ({
+    const salaries = (body.jaf.salaries || []).map((salary) => ({
       ...salary,
       jobId: job.id,
     }));
