@@ -2,6 +2,7 @@ import { ApiProperty, ApiPropertyOptional } from "@nestjs/swagger";
 import { IsEmail, IsEnum, IsString } from "class-validator";
 import { NestedEmail, NestedObject, NestedString, NestedUUID } from "src/decorators/dto";
 import { RoleEnum } from "src/enums";
+import { JafDto } from "src/job/dtos/jaf.dto";
 
 export class UserSignUpDto {
   @ApiProperty({
@@ -82,4 +83,9 @@ export class CreateRecruitersDto {
 
   @NestedObject({ type: CreateUserDto })
   user: CreateUserDto;
+}
+
+export class CreateRecruiterWithJafDto extends CreateRecruitersDto {
+  @NestedObject({ type: JafDto })
+  jaf: JafDto;
 }
