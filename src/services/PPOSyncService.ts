@@ -15,6 +15,7 @@ import { OfferStatusEnum } from "../enums";
 interface PPORow {
   sNo: string;
   name: string;
+  rollNo: string;
   officialEmail: string;
   department: string;
   gender: string;
@@ -48,10 +49,9 @@ export class PPOSyncService {
     @InjectModel(SalaryModel) private readonly salaryRepo: typeof SalaryModel,
   ) {}
 
-  private extractRollNo(email: string): string | null {
-    const atIndex = email.indexOf("@");
-    if (atIndex <= 0) return null;
-    return email.substring(0, atIndex).trim().toLowerCase();
+  private normalizeRollNo(rollNo: string): string | null {
+    const normalized = rollNo.trim().toLowerCase();
+    return normalized || null;
   }
 
   private parseCSV(filePath: string): PPORow[] {
@@ -70,22 +70,23 @@ export class PPOSyncService {
       .map((row): PPORow => ({
         sNo:               String(row[0]  ?? ""),
         name:              String(row[1]  ?? ""),
-        officialEmail:     String(row[2]  ?? "").trim(),
-        department:        String(row[3]  ?? ""),
-        gender:            String(row[4]  ?? ""),
-        dateOfBirth:       String(row[5]  ?? ""),
-        personalEmail:     String(row[6]  ?? ""),
-        birthCategory:     String(row[7]  ?? ""),
-        contactNo:         String(row[8]  ?? ""),
-        internshipCompany: String(row[9]  ?? ""),
-        stipendPerMonth:   String(row[10] ?? ""),
-        others:            String(row[11] ?? ""),
-        ppoCTC:            String(row[12] ?? ""),
-        offerReceivedDate: String(row[13] ?? ""),
-        fteCompanyName:    String(row[14] ?? "").trim(),
-        jobTitle:          String(row[15] ?? ""),
-        firstYearCTC:      String(row[16] ?? ""),
-        overallCTC:        String(row[17] ?? ""),
+        rollNo:            String(row[2]  ?? "").trim(),
+        officialEmail:     String(row[3]  ?? "").trim(),
+        department:        String(row[4]  ?? ""),
+        gender:            String(row[5]  ?? ""),
+        dateOfBirth:       String(row[6]  ?? ""),
+        personalEmail:     String(row[7]  ?? ""),
+        birthCategory:     String(row[8]  ?? ""),
+        contactNo:         String(row[9]  ?? ""),
+        internshipCompany: String(row[10] ?? ""),
+        stipendPerMonth:   String(row[11] ?? ""),
+        others:            String(row[12] ?? ""),
+        ppoCTC:            String(row[13] ?? ""),
+        offerReceivedDate: String(row[14] ?? ""),
+        fteCompanyName:    String(row[15] ?? "").trim(),
+        jobTitle:          String(row[16] ?? ""),
+        firstYearCTC:      String(row[17] ?? ""),
+        overallCTC:        String(row[18] ?? ""),
       }));
   }
 
@@ -168,9 +169,9 @@ export class PPOSyncService {
     internSeasonId: string,
     placementSeasonId: string,
   ): Promise<"success" | "skipped"> {
-    const rollNo = this.extractRollNo(row.officialEmail);
+    const rollNo = this.normalizeRollNo(row.rollNo);
     if (!rollNo) {
-      console.warn(`[PPO Upload] SKIP (unparseable email): ${row.officialEmail}`);
+      console.warn(`[PPO Upload] SKIP (missing roll number): ${row.name || row.officialEmail}`);
       return "skipped";
     }
 
@@ -248,7 +249,7 @@ export class PPOSyncService {
     const stats: UploadStats = { total: rows.length, success: 0, skipped: 0, failed: 0 };
 
     for (const row of rows) {
-      const rollNo = this.extractRollNo(row.officialEmail) ?? row.officialEmail;
+      const rollNo = this.normalizeRollNo(row.rollNo) ?? row.officialEmail;
       try {
         const result = await this.processRow(row, internSeasonId, placementSeasonId);
         if (result === "success") {
