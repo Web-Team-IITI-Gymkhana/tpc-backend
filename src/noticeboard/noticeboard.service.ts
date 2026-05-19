@@ -37,10 +37,7 @@ export class NoticeboardService {
                 };
             }
 
-            const predefinedGroups: Record<
-                string,
-                string[]
-            > = {
+            const predefinedGroups: Record<string, string[]> = {
                 none: [
                     process.env.DEFAULT_MAIL_TO || "",
                 ],
@@ -104,10 +101,7 @@ export class NoticeboardService {
                 ),
             ];
 
-            console.log(
-                "Recipients:",
-                finalEmails
-            );
+            console.log("Recipients:", finalEmails);
 
             if (finalEmails.length === 0) {
                 return {
@@ -117,34 +111,44 @@ export class NoticeboardService {
                 };
             }
 
-            let html = `
-                <div style="font-family: Arial, sans-serif; line-height: 1.6;">
-                    <h2>${createAnnouncementDto.heading}</h2>
-                    <p>${createAnnouncementDto.info.replace(
-                /\n/g,
-                "<br>"
-            )}</p>
-                    <hr>
-                    <p><strong>${createAnnouncementDto.clubname}</strong></p>
+            // Generate email HTML with optional logo
+            const html = `
+                <div style="font-family: Arial, sans-serif; line-height: 1.6; color: #1e293b;">
+                    <h2 style="color: #0f172a; margin-bottom: 16px;">
+                        ${createAnnouncementDto.heading}
+                    </h2>
+
+                    <p style="font-size: 14px; margin-bottom: 20px;">
+                        ${createAnnouncementDto.info.replace(/\n/g, "<br>")}
+                    </p>
+
+                    ${createAnnouncementDto.announcelogo &&
+                    createAnnouncementDto.announcelogo.includes("base64,")
+                    ? `
+                                <div style="margin: 20px 0;">
+                                    <img
+                                        src="${createAnnouncementDto.announcelogo}"
+                                        alt="Announcement Logo"
+                                        style="
+                                            max-width: 250px;
+                                            width: 100%;
+                                            height: auto;
+                                            border-radius: 8px;
+                                            border: 1px solid #e2e8f0;
+                                        "
+                                    />
+                                </div>
+                              `
+                    : ""
+                }
+
+                    <hr style="margin: 24px 0; border: none; border-top: 1px solid #e2e8f0;" />
+
+                    <p style="font-weight: 600; color: #1d4ed8;">
+                        ${createAnnouncementDto.clubname}
+                    </p>
                 </div>
             `;
-
-            // Add image if provided
-            if (
-                createAnnouncementDto.announcelogo &&
-                createAnnouncementDto.announcelogo.includes(
-                    "base64,"
-                )
-            ) {
-                html += `
-                    <p>
-                        <img
-                            src="${createAnnouncementDto.announcelogo}"
-                            style="max-width: 200px; margin-top: 10px;"
-                        />
-                    </p>
-                `;
-            }
 
             await this.emailService.sendEmail({
                 recepients: finalEmails.map(
@@ -184,11 +188,8 @@ export class NoticeboardService {
         const { rows, count } =
             await this.noticeboardRepository.findAndCountAll(
                 {
-                    order: [
-                        ["createdAt", "DESC"],
-                    ],
-                    offset:
-                        (page - 1) * limit,
+                    order: [["createdAt", "DESC"]],
+                    offset: (page - 1) * limit,
                     limit,
                 }
             );
