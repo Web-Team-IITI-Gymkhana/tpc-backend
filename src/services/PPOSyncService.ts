@@ -93,8 +93,8 @@ export class PPOSyncService {
       case "general":
         return CategoryEnum.GENERAL;
       case "obc":
-      case "obc_nc":
-      case "obc-nc":
+      case "obc_ncl":
+      case "obc-ncl":
         return CategoryEnum.OBC;
       case "sc":
         return CategoryEnum.SC;
@@ -134,13 +134,26 @@ export class PPOSyncService {
   }
 
   private inferCourse(row: PPORow): CourseEnum {
-    const rollNo = this.normalizeRollNo(row.rollNo) || "";
-    const email = this.normalizeEmail(row.officialEmail);
+    // Infer Course of PhD, MTech, MS, MSC, BTech students from their mail
+    const email = this.normalizeEmail(row.officialEmail) || "";
 
-    if (/^\d{9}$/.test(rollNo) || /^[a-z]{2,4}\d{9}@/.test(email)) {
-      return CourseEnum.BTECH;
+    if (/^msc\d+@/i.test(email)) {
+      return CourseEnum.MSC;
+    }
+    
+    if (/^ms\d+@/i.test(email)) {
+      return CourseEnum.MS;
+    }
+    
+    if (/^mt\d+@/i.test(email)) {
+      return CourseEnum.MTECH;
+    }
+    
+    if (/^phd\d+@/i.test(email)) {
+      return CourseEnum.PHD;
     }
 
+    // If they aren't MSc, MS, MTech, or PhD, default to BTech
     return CourseEnum.BTECH;
   }
 
