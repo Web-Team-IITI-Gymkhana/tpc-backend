@@ -94,7 +94,6 @@ export class PPOSyncService {
         return CategoryEnum.GENERAL;
       case "obc":
       case "obc_ncl":
-      case "obc-ncl":
         return CategoryEnum.OBC;
       case "sc":
         return CategoryEnum.SC;
@@ -102,6 +101,17 @@ export class PPOSyncService {
         return CategoryEnum.ST;
       case "ews":
         return CategoryEnum.EWS;
+      case "gen_pwd":
+      case "general_pwd":
+        return CategoryEnum.GENERAL_PWD;
+      case "obc_pwd":
+        return CategoryEnum.OBC_PWD;
+      case "sc_pwd":
+        return CategoryEnum.SC_PWD;
+      case "st_pwd":
+        return CategoryEnum.ST_PWD;
+      case "ews_pwd":
+        return CategoryEnum.EWS_PWD;
       default:
         console.warn(`Unknown category: ${category || "(blank)"}, defaulting to GENERAL`);
         return CategoryEnum.GENERAL;

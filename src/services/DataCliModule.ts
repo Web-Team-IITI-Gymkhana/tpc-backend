@@ -2,7 +2,6 @@
 import { Module } from "@nestjs/common";
 import { SequelizeModule } from "@nestjs/sequelize";
 import { DataModule } from "./DataModule";
-import { PPOUploadService } from "./PPOUploadService";
 import { PPOSyncService } from "./PPOSyncService";
 import {
   UserModel,
@@ -82,7 +81,7 @@ const { DB_NAME, DB_HOST, DB_PASSWORD, DB_PORT, DB_USERNAME } = environmentVaria
       StudentModel,
     ]),
   ],
-  providers: [PPOUploadService, PPOSyncService],
-  exports: [PPOUploadService, PPOSyncService],
+  providers: [PPOSyncService],
+  exports: [PPOSyncService],
 })
 export class DataCliModule {}
