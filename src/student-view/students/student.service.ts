@@ -513,11 +513,16 @@ export class StudentService {
     }
 
     if (
-      student?.backlog === null ||
-      student?.tenthMarks === null ||
-      student?.twelthMarks === null
+      student?.backlog == null ||
+      student?.numberOfBacklogs == null ||
+      student?.tenthMarks == null ||
+      student?.twelthMarks == null
     ) {
       throw new BadRequestException("Please complete your profile onboarding before registering for seasons");
+    }
+
+    if (student?.numberOfBacklogs == null) {
+      throw new BadRequestException("Please go to your profile and update your 'Number of Backlogs' before continuing.");
     }
 
     const season = await this.seasonRepo.findOne({ where: { id: seasonId } });
@@ -541,11 +546,16 @@ export class StudentService {
     }
 
     if (
-      student?.backlog === null ||
-      student?.tenthMarks === null ||
-      student?.twelthMarks === null
+      student?.backlog == null ||
+      student?.numberOfBacklogs == null ||
+      student?.tenthMarks == null ||
+      student?.twelthMarks == null
     ) {
       throw new BadRequestException("Please complete your profile onboarding before modifying season registrations");
+    }
+
+    if (student?.numberOfBacklogs == null) {
+      throw new BadRequestException("Please go to your profile and update your 'Number of Backlogs' before continuing.");
     }
 
     const season = await this.seasonRepo.findOne({ where: { id: seasonId } });
@@ -576,6 +586,18 @@ export class StudentService {
         throw new BadRequestException("Backlog status has already been set and cannot be modified");
       }
       updates.backlog = updateData.backlog;
+
+      // Automatically assign 0 if the student has never had a backlog
+      if (updateData.backlog === BacklogEnum.NEVER) {
+        updates.numberOfBacklogs = 0;
+      }
+    }
+
+    if (updateData?.numberOfBacklogs !== undefined) {
+      if (currentStudent?.numberOfBacklogs != null) {
+        throw new BadRequestException("Number of backlogs has already been set and cannot be modified");
+      }
+      updates.numberOfBacklogs = updateData.numberOfBacklogs;
     }
 
     if (updateData?.tenthMarks !== undefined) {
