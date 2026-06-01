@@ -7,6 +7,7 @@ import {
   ClassSerializerInterceptor,
   HttpStatus,
   HttpException,
+  BadRequestException,
   NotFoundException,
   UseGuards,
   Get,
@@ -18,6 +19,7 @@ import {
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import {
   CreateRecruitersDto,
+  CreateRecruiterWithJafDto,
   PasswordlessLoginDto,
   PasswordlessLoginVerifyDto,
   UserLogInDto,
@@ -36,6 +38,13 @@ import axios from "axios";
 import { isProductionEnv } from "src/utils";
 import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
 import { verifyRecaptcha } from "src/utils/recaptcha";
+import { FileService } from "src/services/FileService";
+import { JD_FOLDER, JD_SIZE_LIMIT } from "src/constants";
+import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
+import { TransactionParam } from "src/decorators/TransactionParam";
+import { Transaction } from "sequelize";
+import { v4 as uuidv4 } from "uuid";
+import path from "path";
 
 @Controller("auth")
 @ApiTags("Auth")
@@ -47,7 +56,8 @@ export class AuthController {
   constructor(
     private userService: UserService,
     private authService: AuthService,
-    private emailService: EmailService
+    private emailService: EmailService,
+    private fileService: FileService
   ) {}
 
   @Post("login")
@@ -104,6 +114,50 @@ export class AuthController {
   @UseInterceptors(ClassSerializerInterceptor)
   async signupRecruiter(@Body() body: CreateRecruitersDto): Promise<{ success: boolean; message: string }> {
     const user = await this.authService.createRecruiter(body);
+    const jwt = await this.authService.vendJWT(user, this.recruiterSecret);
+    const res = await this.emailService.sendTokenEmail(user.email, jwt);
+    if (!res) throw new HttpException("Error sending email", HttpStatus.INTERNAL_SERVER_ERROR);
+
+    return {
+      success: true,
+      message: "Email Sent Successfully",
+    };
+  }
+
+  @UseGuards(ThrottlerGuard)
+  @Throttle({ default: { limit: 2, ttl: 60 * 1000 } })
+  @Post("recruiter-with-jaf")
+  @UseInterceptors(ClassSerializerInterceptor, TransactionInterceptor)
+  async signupRecruiterWithJaf(
+    @Body() body: CreateRecruiterWithJafDto,
+    @TransactionParam() t: Transaction
+  ): Promise<{ success: boolean; message: string }> {
+    const attachments = body.jaf?.job?.attachments || [];
+    const uploadedFiles = [];
+
+    for (const base64String of attachments) {
+      const base64Data = base64String.startsWith("data:application/pdf;base64,")
+        ? base64String.slice("data:application/pdf;base64,".length)
+        : base64String;
+
+      const file = base64Data ? { buffer: Buffer.from(base64Data, "base64"), size: 0 } : undefined;
+      if (file) {
+        file.size = file.buffer.length;
+        const magic = file.buffer.subarray(0, 4).toString("ascii");
+        if (magic !== "%PDF") throw new BadRequestException("Only PDF is supported");
+        if (file.size > JD_SIZE_LIMIT) throw new BadRequestException("File size too large");
+        const filename = uuidv4() + ".pdf";
+        uploadedFiles.push(filename);
+
+        await this.fileService.uploadFile(path.join(JD_FOLDER, filename), file);
+      }
+    }
+
+    if (body.jaf?.job) {
+      body.jaf.job.attachments = uploadedFiles;
+    }
+
+    const user = await this.authService.createRecruiterWithJaf(body, t);
     const jwt = await this.authService.vendJWT(user, this.recruiterSecret);
     const res = await this.emailService.sendTokenEmail(user.email, jwt);
     if (!res) throw new HttpException("Error sending email", HttpStatus.INTERNAL_SERVER_ERROR);

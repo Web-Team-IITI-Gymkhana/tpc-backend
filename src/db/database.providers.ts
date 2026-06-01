@@ -20,6 +20,8 @@ import {
   FacultyApprovalRequestModel,
   TpcMemberModel,
   ExternalOpportunitiesModel,
+  AdminModel,
+  NoticeboardModel,
 } from "./models";
 import { isProductionEnv } from "../utils";
 import {
@@ -74,6 +76,8 @@ export const databaseProviders = [
       sequelize.addModels([
         UserModel,
         StudentModel,
+        AdminModel,
+        NoticeboardModel,
         TpcMemberModel,
         RecruiterModel,
         FacultyModel,

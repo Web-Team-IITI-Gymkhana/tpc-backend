@@ -18,7 +18,12 @@ const isProd = isProductionEnv();
 async function bootstrap(): Promise<void> {
   const app = await NestFactory.create(AppModule, {
     logger: createWinstonLogger(),
-    cors: !isProd,
+    cors: false,
+  });
+
+  app.enableCors({
+    origin: environmentVariables.FRONTEND_URL || "http://localhost:3000",
+    credentials: true,
   });
   //Increase request size limits
   app.use(json({ limit: "50mb" }));

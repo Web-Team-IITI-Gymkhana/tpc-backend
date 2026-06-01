@@ -37,3 +37,9 @@ dist
 ti-*
 
 /uploads/
+
+# Environment files
+.env
+.env.*
+!.env.example
+!.env.sample

@@ -391,3 +391,6 @@ export const RESUME_FOLDER = path.join(env().UPLOAD_DIR, "resume");
 export const JD_FOLDER = path.join(env().UPLOAD_DIR, "jd");
 export const IE_FOLDER = path.join(env().UPLOAD_DIR, "ie");
 export const POLICY_FOLDER = path.join(env().UPLOAD_DIR, "policy");
+export const ADMIN_DAO = "ADMIN_DAO";
+export const NOTICEBOARD_DAO = "NOTICEBOARD_DAO";
+export const SEQUELIZE = "SEQUELIZE";
