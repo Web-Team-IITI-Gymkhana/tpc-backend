@@ -587,8 +587,11 @@ export class StudentService {
       }
       updates.backlog = updateData.backlog;
 
-      // Automatically assign 0 if the student has never had a backlog
-      if (updateData.backlog === BacklogEnum.NEVER) {
+      // Automatically assign 0 if they have no active backlogs
+      if (
+        updateData.backlog === BacklogEnum.NEVER || 
+        updateData.backlog === BacklogEnum.PREVIOUS
+      ) {
         updates.numberOfBacklogs = 0;
       }
     }
