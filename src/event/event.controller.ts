@@ -76,6 +76,7 @@ export class EventController {
   }
 
   @Delete("/applications")
+  @UseGuards(new RoleGuard(RoleEnum.ADMIN))
   @ApiQuery({ name: "id", type: String, isArray: true })
   @ApiResponse({ type: Number })
   async deleteApplications(@Query() query: DeleteValuesDto) {
@@ -85,6 +86,7 @@ export class EventController {
   }
 
   @DeleteValues()
+  @UseGuards(new RoleGuard(RoleEnum.ADMIN))
   async deleteEvents(@Query() query: DeleteValuesDto) {
     const ans = await this.eventService.deleteEvents(query.id);
 
