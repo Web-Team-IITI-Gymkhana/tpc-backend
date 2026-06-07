@@ -66,12 +66,23 @@ Accepted values are:
 
 - `gen`
 - `general`
+- `GEN`
 - `obc`
+- `obc_nc`
 - `obc_ncl`
-- `obc-ncl`
+- `OBC_NC`
 - `sc`
+- `SC`
 - `st`
+- `ST`
+- `EWS`
 - `ews`
+- `gen_pwd`
+- `general_pwd`
+- `obc_pwd`
+- `sc_pwd`
+- `st_pwd`
+- `ews_pwd`
 
 If the category is blank or something else, the code defaults it to `GENERAL`.
 
@@ -172,8 +183,7 @@ npx ts-node src/upload-ppo-data.ts abc-111 xyz-222 ./resources/ppo-data.csv
 
 ## Practical Notes
 
-- `rollNo` is important because the script first tries to find the student using roll number.
-- `Official Email` should be correct because course inference depends on it.
+- `Official Email` should be correct and important because course and roll no inference depends on it.
 - `Department` should match the enum naming as closely as possible.
 - `Overall CTC` and `1st year CTC` are expected as numbers in lakhs.
 

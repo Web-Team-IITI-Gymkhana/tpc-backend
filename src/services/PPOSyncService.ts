@@ -30,7 +30,6 @@ import { JobRegistrationEnum } from "../enums/jobRegistration.enum";
 interface PPORow {
   sNo: string;
   name: string;
-  rollNo: string;
   officialEmail: string;
   department: string;
   gender: string;
@@ -41,13 +40,22 @@ interface PPORow {
   internshipCompany: string;
   stipendPerMonth: number;
   internOthers?: number;
-  ppoCtcLakhs?: number;
+  ppoCtc?: number;
   ppoOfferDate: string;
   finalCompany: string;
   finalRole: string;
-  finalFirstYearCtcLakhs?: number;
-  finalOverallCtcLakhs?: number;
+  finalFirstYearCtc?: number;
+  finalOverallCtc?: number;
 }
+
+const REQUIRED_PPO_COLUMNS: { column: number; header: string; field: keyof PPORow }[] = [
+  { column: 2, header: "Name", field: "name" },
+  { column: 3, header: "Official Email", field: "officialEmail" },
+  { column: 4, header: "Department", field: "department" },
+  { column: 5, header: "Gender", field: "gender" },
+  { column: 10, header: "Internship Company", field: "internshipCompany" },
+  { column: 15, header: "FTE-Company Name Final offer", field: "finalCompany" },
+];
 
 interface UploadStats {
   total: number;
@@ -70,10 +78,10 @@ export class PPOSyncService {
     @InjectModel(UserModel) private readonly userRepo: typeof UserModel
   ) {}
 
-  private normalizeRollNo(rollNo?: string | number): string | null {
-    if (rollNo === undefined || rollNo === null) return null;
-    const normalized = rollNo.toString().trim().toLowerCase();
-    return normalized || null;
+  private parseRollNo(email?: string): string | null {
+    const localPart = this.normalizeEmail(email).replace(/@iiti\.ac\.in$/, "");
+    const match = localPart.match(/(\d+)$/);
+    return match?.[1] ?? null;
   }
 
   private normalizeEmail(email?: string): string {
@@ -82,8 +90,67 @@ export class PPOSyncService {
 
   private parseNumber(value: unknown): number | undefined {
     if (value === undefined || value === null || value === "") return undefined;
-    const parsed = Number(value);
+    const parsed =
+      typeof value === "number"
+        ? value
+        : Number(
+            String(value)
+              .replace(/[,\s₹]/g, "")
+              .trim()
+          );
     return Number.isFinite(parsed) ? parsed : undefined;
+  }
+
+  private parseCtcRupees(value: unknown): number | undefined {
+    const parsed = this.parseNumber(value);
+    if (parsed === undefined) return undefined;
+
+    return Math.floor(parsed > 1000 ? parsed : parsed * 100000);
+  }
+
+  private parseDate(value: unknown): string {
+    if (value === undefined || value === null || value === "") return "";
+
+    if (value instanceof Date && !Number.isNaN(value.getTime())) {
+      return value.toISOString().slice(0, 10);
+    }
+
+    if (typeof value === "number") {
+      const excelDate = XLSX.SSF.parse_date_code(value);
+      if (excelDate) {
+        return this.formatDateParts(excelDate.y, excelDate.m, excelDate.d);
+      }
+    }
+
+    const raw = String(value).trim();
+    const numericValue = Number(raw);
+    if (Number.isFinite(numericValue)) {
+      const excelDate = XLSX.SSF.parse_date_code(numericValue);
+      if (excelDate) {
+        return this.formatDateParts(excelDate.y, excelDate.m, excelDate.d);
+      }
+    }
+
+    const dateParts = raw.match(/^(\d{1,2})[/-](\d{1,2})[/-](\d{2,4})$/);
+    if (dateParts) {
+      const day = Number(dateParts[1]);
+      const month = Number(dateParts[2]);
+      const year = Number(dateParts[3].length === 2 ? `20${dateParts[3]}` : dateParts[3]);
+      const formatted = this.formatDateParts(year, month, day);
+      return formatted || raw;
+    }
+
+    const parsedDate = new Date(raw);
+    return Number.isNaN(parsedDate.getTime()) ? raw : parsedDate.toISOString().slice(0, 10);
+  }
+
+  private formatDateParts(year: number, month: number, day: number): string {
+    const date = new Date(Date.UTC(year, month - 1, day));
+    if (date.getUTCFullYear() !== year || date.getUTCMonth() !== month - 1 || date.getUTCDate() !== day) {
+      return "";
+    }
+
+    return date.toISOString().slice(0, 10);
   }
 
   private parseCategory(category?: string): CategoryEnum {
@@ -91,14 +158,20 @@ export class PPOSyncService {
     switch (normalized) {
       case "gen":
       case "general":
+      case "GEN":
         return CategoryEnum.GENERAL;
       case "obc":
+      case "obc_nc":
       case "obc_ncl":
+      case "OBC_NC":
         return CategoryEnum.OBC;
       case "sc":
+      case "SC":
         return CategoryEnum.SC;
       case "st":
+      case "ST":
         return CategoryEnum.ST;
+      case "EWS":
       case "ews":
         return CategoryEnum.EWS;
       case "gen_pwd":
@@ -133,7 +206,12 @@ export class PPOSyncService {
   }
 
   private parseDepartment(department?: string): DepartmentEnum | undefined {
-    const normalized = (department || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+    if (!department) return undefined;
+
+    // Convert to lowercase and swap '&' for 'and' before stripping
+    const sanitizedInput = department.toLowerCase().replace(/&/g, "and");
+    const normalized = sanitizedInput.replace(/[^a-z0-9]/g, "");
+
     const entries = Object.entries(DepartmentEnum) as [string, DepartmentEnum][];
 
     return entries.find(([key, value]) => {
@@ -150,15 +228,15 @@ export class PPOSyncService {
     if (/^msc\d+@/i.test(email)) {
       return CourseEnum.MSC;
     }
-    
+
     if (/^ms\d+@/i.test(email)) {
       return CourseEnum.MS;
     }
-    
+
     if (/^mt\d+@/i.test(email)) {
       return CourseEnum.MTECH;
     }
-    
+
     if (/^phd\d+@/i.test(email)) {
       return CourseEnum.PHD;
     }
@@ -176,33 +254,47 @@ export class PPOSyncService {
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
     const rawRows = XLSX.utils.sheet_to_json<unknown[]>(sheet, { header: 1 });
 
-    // CSV order: S NO, Name, rollNo, Official Email, Department, ...
+    // CSV order: S NO, Name, Official Email, Department, ...
     return rawRows
       .slice(1)
-      .filter((row) => Array.isArray(row) && row.length > 2 && row[2])
+      .filter((row) => Array.isArray(row) && row.some((cell) => String(cell ?? "").trim() !== ""))
       .map(
         (row): PPORow => ({
           sNo: String(row[0] ?? ""),
           name: String(row[1] ?? "").trim(),
-          rollNo: String(row[2] ?? "").trim(),
-          officialEmail: String(row[3] ?? "").trim(),
-          department: String(row[4] ?? "").trim(),
-          gender: String(row[5] ?? "").trim(),
-          dateOfBirth: String(row[6] ?? "").trim(),
-          personalEmail: String(row[7] ?? "").trim(),
-          category: String(row[8] ?? "").trim(),
-          contactNo: String(row[9] ?? "").trim(),
-          internshipCompany: String(row[10] ?? "").trim(),
-          stipendPerMonth: this.parseNumber(row[11]) ?? 0,
-          internOthers: this.parseNumber(row[12]),
-          ppoCtcLakhs: this.parseNumber(row[13]),
-          ppoOfferDate: String(row[14] ?? "").trim(),
-          finalCompany: String(row[15] ?? "").trim(),
-          finalRole: String(row[16] ?? "").trim(),
-          finalFirstYearCtcLakhs: this.parseNumber(row[17]),
-          finalOverallCtcLakhs: this.parseNumber(row[18]),
+          officialEmail: String(row[2] ?? "").trim(),
+          department: String(row[3] ?? "").trim(),
+          gender: String(row[4] ?? "").trim(),
+          dateOfBirth: String(row[5] ?? "").trim(),
+          personalEmail: String(row[6] ?? "").trim(),
+          category: String(row[7] ?? "").trim(),
+          contactNo: String(row[8] ?? "").trim(),
+          internshipCompany: String(row[9] ?? "").trim(),
+          stipendPerMonth: this.parseNumber(row[10]) ?? 0,
+          internOthers: this.parseNumber(row[11]),
+          ppoCtc: this.parseCtcRupees(row[12]),
+          ppoOfferDate: this.parseDate(row[13]),
+          finalCompany: String(row[14] ?? "").trim(),
+          finalRole: String(row[15] ?? "").trim(),
+          finalFirstYearCtc: this.parseCtcRupees(row[16]),
+          finalOverallCtc: this.parseCtcRupees(row[17]),
         })
       );
+  }
+
+  private validateRequiredColumns(row: PPORow): void {
+    const missingColumns = REQUIRED_PPO_COLUMNS.filter(({ field }) => {
+      const value = row[field];
+      return value === undefined || value === null || String(value).trim() === "";
+    });
+
+    if (missingColumns.length === 0) return;
+
+    throw new Error(
+      `missing required PPO column(s): ${missingColumns
+        .map(({ column, header }) => `${column} (${header})`)
+        .join(", ")}`
+    );
   }
 
   private async findProgramForStudent(
@@ -235,7 +327,7 @@ export class PPOSyncService {
     placementSeason: SeasonModel,
     transaction?: Transaction
   ): Promise<StudentModel> {
-    const rollNo = this.normalizeRollNo(row.rollNo);
+    const rollNo = this.parseRollNo(row.officialEmail);
     if (!rollNo) {
       throw new Error(`missing roll number for "${row.name || row.officialEmail}"`);
     }
@@ -471,8 +563,8 @@ export class PPOSyncService {
     student: StudentModel,
     transaction?: Transaction
   ): Promise<SalaryModel> {
-    const totalCtc = Math.floor((row.finalOverallCtcLakhs ?? row.finalFirstYearCtcLakhs ?? 0) * 100000);
-    const firstYearCtc = Math.floor((row.finalFirstYearCtcLakhs ?? row.finalOverallCtcLakhs ?? 0) * 100000);
+    const totalCtc = row.finalOverallCtc ?? row.finalFirstYearCtc ?? 0;
+    const firstYearCtc = row.finalFirstYearCtc ?? row.finalOverallCtc ?? 0;
 
     return this.salaryRepo.create(
       {
@@ -523,13 +615,11 @@ export class PPOSyncService {
     student: StudentModel,
     transaction?: Transaction
   ): Promise<SalaryModel> {
-    const tentativeCtc = row.ppoCtcLakhs === undefined ? undefined : Math.floor(row.ppoCtcLakhs * 100000);
-
     return this.salaryRepo.create(
       {
         jobId: job.id,
         stipend: row.stipendPerMonth,
-        tentativeCTC: tentativeCtc,
+        tentativeCTC: row.ppoCtc,
         ppoProvisionOnPerformance: true,
         salaryPeriod: "PER_MONTH",
         others: row.internOthers?.toString(),
@@ -573,7 +663,7 @@ export class PPOSyncService {
     return JSON.stringify({
       ppoFromCompany: row.internshipCompany,
       ppoOfferDate: row.ppoOfferDate,
-      ppoCtcLakhs: row.ppoCtcLakhs,
+      ppoCtc: row.ppoCtc,
       internStipend: row.stipendPerMonth,
       internOthers: row.internOthers,
       source: "PPO_SYNC_IMPORT",
@@ -638,7 +728,9 @@ export class PPOSyncService {
     placementSeason: SeasonModel,
     transaction?: Transaction
   ): Promise<"success" | "skipped"> {
-    const rollNo = this.normalizeRollNo(row.rollNo);
+    this.validateRequiredColumns(row);
+
+    const rollNo = this.parseRollNo(row.officialEmail);
     if (!rollNo) {
       console.warn(`[PPO Upload] SKIP (missing roll number): ${row.name || row.officialEmail}`);
       return "skipped";
@@ -697,7 +789,7 @@ export class PPOSyncService {
     const stats: UploadStats = { total: rows.length, success: 0, skipped: 0, failed: 0 };
 
     for (const row of rows) {
-      const rollNo = this.normalizeRollNo(row.rollNo) ?? row.officialEmail;
+      const rollNo = this.parseRollNo(row.officialEmail) ?? row.officialEmail;
       try {
         const result = await this.studentRepo.sequelize.transaction((transaction) =>
           this.processRow(row, internSeason.id, placementSeason, transaction)
