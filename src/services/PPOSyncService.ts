@@ -27,7 +27,7 @@ import {
 } from "../enums";
 import { JobRegistrationEnum } from "../enums/jobRegistration.enum";
 
-interface PPORow {
+interface IPPORow {
   sNo: string;
   name: string;
   officialEmail: string;
@@ -48,7 +48,7 @@ interface PPORow {
   finalOverallCtc?: number;
 }
 
-const REQUIRED_PPO_COLUMNS: { column: number; header: string; field: keyof PPORow }[] = [
+const REQUIRED_PPO_COLUMNS: { column: number; header: string; field: keyof IPPORow }[] = [
   { column: 2, header: "Name", field: "name" },
   { column: 3, header: "Official Email", field: "officialEmail" },
   { column: 4, header: "Department", field: "department" },
@@ -57,11 +57,19 @@ const REQUIRED_PPO_COLUMNS: { column: number; header: string; field: keyof PPORo
   { column: 15, header: "FTE-Company Name Final offer", field: "finalCompany" },
 ];
 
-interface UploadStats {
+interface IUploadStats {
   total: number;
   success: number;
   skipped: number;
   failed: number;
+}
+
+type PPOReportStatus = "created" | "success" | "skipped" | "failed" | "warning";
+
+interface IPPOReportEntry {
+  status: PPOReportStatus;
+  rollNo: string;
+  message: string;
 }
 
 @Injectable()
@@ -78,9 +86,87 @@ export class PPOSyncService {
     @InjectModel(UserModel) private readonly userRepo: typeof UserModel
   ) {}
 
+  private report: IPPOReportEntry[] = [];
+
+  private addReport(status: PPOReportStatus, rollNo: string, message: string): void {
+    this.report.push({ status, rollNo: rollNo || "-", message });
+  }
+
+  private getErrorMessage(error: unknown): string {
+    if (error instanceof Error) return error.message;
+
+    return String(error);
+  }
+
+  private printHeader(title: string, rows: [string, string][]): void {
+    const width = 88;
+    console.log("=".repeat(width));
+    console.log(title);
+    console.log("-".repeat(width));
+    for (const [label, value] of rows) {
+      console.log(`${label.padEnd(18)} : ${value}`);
+    }
+    console.log("=".repeat(width));
+  }
+
+  private truncate(value: string, length: number): string {
+    if (value.length <= length) return value;
+
+    return `${value.slice(0, length - 3)}...`;
+  }
+
+  private printReportEntries(title: string, entries: IPPOReportEntry[]): void {
+    if (entries.length === 0) return;
+
+    const statusWidth = 9;
+    const rollWidth = 18;
+    const messageWidth = 56;
+    const divider = `+-${"-".repeat(statusWidth)}-+-${"-".repeat(rollWidth)}-+-${"-".repeat(messageWidth)}-+`;
+
+    console.log("");
+    console.log(title);
+    console.log(divider);
+    console.log(
+      `| ${"Status".padEnd(statusWidth)} | ${"Roll/Email".padEnd(rollWidth)} | ${"Message".padEnd(messageWidth)} |`
+    );
+    console.log(divider);
+    for (const entry of entries) {
+      console.log(
+        `| ${entry.status.toUpperCase().padEnd(statusWidth)} | ${this.truncate(entry.rollNo, rollWidth).padEnd(
+          rollWidth
+        )} | ${this.truncate(entry.message, messageWidth).padEnd(messageWidth)} |`
+      );
+    }
+    console.log(divider);
+  }
+
+  private printFinalReport(stats: IUploadStats): void {
+    const successes = this.report.filter(({ status }) => status === "success");
+    const skipped = this.report.filter(({ status }) => status === "skipped");
+    const failed = this.report.filter(({ status }) => status === "failed");
+    const created = this.report.filter(({ status }) => status === "created");
+    const warnings = this.report.filter(({ status }) => status === "warning");
+
+    this.printHeader("PPO Sync Summary", [
+      ["Total rows", stats.total.toString()],
+      ["Success", stats.success.toString()],
+      ["Skipped", stats.skipped.toString()],
+      ["Failed", stats.failed.toString()],
+      ["Created records", created.length.toString()],
+      ["Warnings", warnings.length.toString()],
+    ]);
+
+    this.printReportEntries("Successful Rows", successes);
+    this.printReportEntries("Skipped Rows", skipped);
+    this.printReportEntries("Created Records", created);
+    this.printReportEntries("Warnings", warnings);
+    this.printReportEntries("Failed Rows", failed);
+  }
+
   private parseRollNo(email?: string): string | null {
     const localPart = this.normalizeEmail(email).replace(/@iiti\.ac\.in$/, "");
     const match = localPart.match(/(\d+)$/);
+
     return match?.[1] ?? null;
   }
 
@@ -98,6 +184,7 @@ export class PPOSyncService {
               .replace(/[,\s₹]/g, "")
               .trim()
           );
+
     return Number.isFinite(parsed) ? parsed : undefined;
   }
 
@@ -137,10 +224,12 @@ export class PPOSyncService {
       const month = Number(dateParts[2]);
       const year = Number(dateParts[3].length === 2 ? `20${dateParts[3]}` : dateParts[3]);
       const formatted = this.formatDateParts(year, month, day);
+
       return formatted || raw;
     }
 
     const parsedDate = new Date(raw);
+
     return Number.isNaN(parsedDate.getTime()) ? raw : parsedDate.toISOString().slice(0, 10);
   }
 
@@ -158,20 +247,15 @@ export class PPOSyncService {
     switch (normalized) {
       case "gen":
       case "general":
-      case "GEN":
         return CategoryEnum.GENERAL;
       case "obc":
       case "obc_nc":
       case "obc_ncl":
-      case "OBC_NC":
         return CategoryEnum.OBC;
       case "sc":
-      case "SC":
         return CategoryEnum.SC;
       case "st":
-      case "ST":
         return CategoryEnum.ST;
-      case "EWS":
       case "ews":
         return CategoryEnum.EWS;
       case "gen_pwd":
@@ -186,8 +270,7 @@ export class PPOSyncService {
       case "ews_pwd":
         return CategoryEnum.EWS_PWD;
       default:
-        console.warn(`Unknown category: ${category || "(blank)"}, defaulting to GENERAL`);
-        return CategoryEnum.GENERAL;
+        return null;
     }
   }
 
@@ -217,11 +300,12 @@ export class PPOSyncService {
     return entries.find(([key, value]) => {
       const normalizedKey = key.toLowerCase().replace(/[^a-z0-9]/g, "");
       const normalizedValue = value.toLowerCase().replace(/[^a-z0-9]/g, "");
+
       return normalized === normalizedKey || normalized === normalizedValue;
     })?.[1];
   }
 
-  private inferCourse(row: PPORow): CourseEnum {
+  private inferCourse(row: IPPORow): CourseEnum {
     // Infer Course of PhD, MTech, MS, MSC, BTech students from their mail
     const email = this.normalizeEmail(row.officialEmail) || "";
 
@@ -245,7 +329,7 @@ export class PPOSyncService {
     return CourseEnum.BTECH;
   }
 
-  private parseCSV(filePath: string): PPORow[] {
+  private parseCSV(filePath: string): IPPORow[] {
     if (!fs.existsSync(filePath)) {
       throw new Error(`File not found: ${filePath}`);
     }
@@ -259,7 +343,7 @@ export class PPOSyncService {
       .slice(1)
       .filter((row) => Array.isArray(row) && row.some((cell) => String(cell ?? "").trim() !== ""))
       .map(
-        (row): PPORow => ({
+        (row): IPPORow => ({
           sNo: String(row[0] ?? ""),
           name: String(row[1] ?? "").trim(),
           officialEmail: String(row[2] ?? "").trim(),
@@ -282,9 +366,10 @@ export class PPOSyncService {
       );
   }
 
-  private validateRequiredColumns(row: PPORow): void {
+  private validateRequiredColumns(row: IPPORow): void {
     const missingColumns = REQUIRED_PPO_COLUMNS.filter(({ field }) => {
       const value = row[field];
+
       return value === undefined || value === null || String(value).trim() === "";
     });
 
@@ -298,7 +383,7 @@ export class PPOSyncService {
   }
 
   private async findProgramForStudent(
-    row: PPORow,
+    row: IPPORow,
     placementSeason: SeasonModel,
     transaction?: Transaction
   ): Promise<ProgramModel | null> {
@@ -323,7 +408,7 @@ export class PPOSyncService {
   }
 
   private async findOrCreateStudent(
-    row: PPORow,
+    row: IPPORow,
     placementSeason: SeasonModel,
     transaction?: Transaction
   ): Promise<StudentModel> {
@@ -370,7 +455,8 @@ export class PPOSyncService {
       { transaction }
     );
 
-    console.log(`[PPO Upload] Created missing student Roll ${rollNo}`);
+    this.addReport("created", rollNo, "Created missing student profile");
+
     return student;
   }
 
@@ -470,7 +556,7 @@ export class PPOSyncService {
         companyId: company.id,
         designation: "Placement Coordinator",
       },
-      { transaction }
+      { transaction, hooks: false }
     );
   }
 
@@ -492,7 +578,7 @@ export class PPOSyncService {
         currentStatus: JobStatusTypeEnum.RECRUITMENT_PROCESS_COMPLELETED,
         registration: JobRegistrationEnum.CLOSED,
       },
-      { transaction }
+      { transaction, hooks: false }
     );
   }
 
@@ -527,6 +613,7 @@ export class PPOSyncService {
 
     const company = await this.findOrCreateCompany(companyName, transaction);
     const recruiter = await this.createRecruiter(company, transaction);
+
     return this.createPPOJob(company, recruiter, seasonId, role, transaction);
   }
 
@@ -559,7 +646,7 @@ export class PPOSyncService {
 
   private async createSalary(
     job: JobModel,
-    row: PPORow,
+    row: IPPORow,
     student: StudentModel,
     transaction?: Transaction
   ): Promise<SalaryModel> {
@@ -584,7 +671,7 @@ export class PPOSyncService {
   }
 
   private async findOrCreatePlacementSalary(
-    row: PPORow,
+    row: IPPORow,
     placementSeasonId: string,
     student: StudentModel,
     transaction?: Transaction
@@ -605,13 +692,18 @@ export class PPOSyncService {
     );
     const salary = await this.createSalary(job, row, student, transaction);
 
-    console.log(`[PPO Upload] Created placement job/salary for ${row.finalCompany} - ${row.finalRole}`);
+    this.addReport(
+      "created",
+      this.parseRollNo(row.officialEmail) ?? row.officialEmail,
+      `Created placement job/salary: ${row.finalCompany} - ${row.finalRole || "Not Specified"}`
+    );
+
     return salary;
   }
 
   private async createInternSalary(
     job: JobModel,
-    row: PPORow,
+    row: IPPORow,
     student: StudentModel,
     transaction?: Transaction
   ): Promise<SalaryModel> {
@@ -633,7 +725,7 @@ export class PPOSyncService {
   }
 
   private async findOrCreateInternSalary(
-    row: PPORow,
+    row: IPPORow,
     internSeasonId: string,
     student: StudentModel,
     transaction?: Transaction
@@ -655,11 +747,16 @@ export class PPOSyncService {
     );
     const salary = await this.createInternSalary(job, row, student, transaction);
 
-    console.log(`[PPO Upload] Created intern job/salary for ${row.internshipCompany} - ${role}`);
+    this.addReport(
+      "created",
+      this.parseRollNo(row.officialEmail) ?? row.officialEmail,
+      `Created intern job/salary: ${row.internshipCompany} - ${role}`
+    );
+
     return salary;
   }
 
-  private buildOfferMetadata(row: PPORow): string {
+  private buildOfferMetadata(row: IPPORow): string {
     return JSON.stringify({
       ppoFromCompany: row.internshipCompany,
       ppoOfferDate: row.ppoOfferDate,
@@ -674,7 +771,7 @@ export class PPOSyncService {
   private async createOnCampusOffer(
     student: StudentModel,
     salary: SalaryModel,
-    row: PPORow,
+    row: IPPORow,
     transaction?: Transaction
   ): Promise<OnCampusOfferModel> {
     return this.onCampusOfferRepo.create(
@@ -689,7 +786,7 @@ export class PPOSyncService {
   }
 
   private async findOrCreateAcceptedInternOffer(
-    row: PPORow,
+    row: IPPORow,
     student: StudentModel,
     internSeasonId: string,
     rollNo: string,
@@ -716,14 +813,17 @@ export class PPOSyncService {
       { transaction }
     );
 
-    console.log(`[PPO Upload] Created missing intern offer for Roll ${rollNo}`);
+    this.addReport("created", rollNo, "Created missing intern PPO_ACCEPTED offer");
+
     return createdOffer;
   }
 
-  // Returns "success" | "skipped". Throws for error conditions so the
-  // caller's try/catch counts them as failures.
+  /*
+   * Returns "success" | "skipped". Throws for error conditions so the
+   * caller's try/catch counts them as failures.
+   */
   private async processRow(
-    row: PPORow,
+    row: IPPORow,
     internSeasonId: string,
     placementSeason: SeasonModel,
     transaction?: Transaction
@@ -732,44 +832,50 @@ export class PPOSyncService {
 
     const rollNo = this.parseRollNo(row.officialEmail);
     if (!rollNo) {
-      console.warn(`[PPO Upload] SKIP (missing roll number): ${row.name || row.officialEmail}`);
+      this.addReport("skipped", row.officialEmail || row.name, "Missing roll number");
+
       return "skipped";
     }
 
     // Step 1: find or create the student/profile data needed by the offer flow.
     const student = await this.findOrCreateStudent(row, placementSeason, transaction);
 
-    // Step 2: duplicate protection. Any existing placement-season offer means
-    // this row has already been handled or conflicts with existing placement data.
+    /*
+     * Step 2: duplicate protection. Any existing placement-season offer means
+     * this row has already been handled or conflicts with existing placement data.
+     */
     const existingPlacement = await this.findPlacementOffer(student.id, placementSeason.id, transaction);
     if (existingPlacement) {
-      console.warn(
-        `[PPO Upload] SKIP Roll ${rollNo}: placement offer already exists with status ${existingPlacement.status}`
-      );
+      this.addReport("skipped", rollNo, `Placement offer already exists with status ${existingPlacement.status}`);
+
       return "skipped";
     }
 
     // Step 3: ensure the intern offer exists and is marked as PPO_ACCEPTED.
     await this.findOrCreateAcceptedInternOffer(row, student, internSeasonId, rollNo, transaction);
 
-    // Step 4: reuse placement salary if present; otherwise create company,
-    // recruiter, job, and salary from this PPO row.
+    /*
+     * Step 4: reuse placement salary if present; otherwise create company,
+     * recruiter, job, and salary from this PPO row.
+     */
     const salary = await this.findOrCreatePlacementSalary(row, placementSeason.id, student, transaction);
 
     // Step 5: create the placement PPO offer.
     await this.createOnCampusOffer(student, salary, row, transaction);
 
-    console.log(`[PPO Upload] OK   Roll ${rollNo}: placement PPO offer created`);
+    this.addReport("success", rollNo, "Placement PPO offer created");
+
     return "success";
   }
 
   async syncPPOData(internSeasonId: string, placementSeasonId: string, filePath: string): Promise<void> {
-    console.log("=".repeat(60));
-    console.log("PPO Sync");
-    console.log(`  Intern season    : ${internSeasonId}`);
-    console.log(`  Placement season : ${placementSeasonId}`);
-    console.log(`  File             : ${filePath}`);
-    console.log("=".repeat(60));
+    this.report = [];
+
+    this.printHeader("PPO Sync", [
+      ["Intern season", internSeasonId],
+      ["Placement season", placementSeasonId],
+      ["File", filePath],
+    ]);
 
     const [internSeason, placementSeason] = await Promise.all([
       this.seasonRepo.findByPk(internSeasonId),
@@ -784,9 +890,9 @@ export class PPOSyncService {
     }
 
     const rows = this.parseCSV(filePath);
-    console.log(`Parsed ${rows.length} data rows\n`);
+    console.log(`Parsed rows        : ${rows.length}`);
 
-    const stats: UploadStats = { total: rows.length, success: 0, skipped: 0, failed: 0 };
+    const stats: IUploadStats = { total: rows.length, success: 0, skipped: 0, failed: 0 };
 
     for (const row of rows) {
       const rollNo = this.parseRollNo(row.officialEmail) ?? row.officialEmail;
@@ -800,16 +906,11 @@ export class PPOSyncService {
           stats.skipped++;
         }
       } catch (err) {
-        const message = err instanceof Error ? err.message : String(err);
-        console.error(`[PPO Upload Error] Roll ${rollNo}: ${message}`);
+        this.addReport("failed", rollNo, this.getErrorMessage(err));
         stats.failed++;
       }
     }
 
-    console.log("\n" + "=".repeat(60));
-    console.log(
-      `Total: ${stats.total} | Success: ${stats.success} | Skipped: ${stats.skipped} | Failed: ${stats.failed}`
-    );
-    console.log("=".repeat(60));
+    this.printFinalReport(stats);
   }
 }

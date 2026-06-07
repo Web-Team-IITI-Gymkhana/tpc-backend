@@ -34,7 +34,20 @@ The sample format is shown in [resources/ppo-sample-data.csv](/home/pranay-gotti
 
 Current expected column order:
 
-`S NO, Name, rollNo, Official Email, Department, Gender, Date of Birth, Personal Email, Birth Category, Contact No., Internship Company, Stipend p/m, Others (for accomodation etc), PPO- CTC, Offer rcd date, FTE-Company Name Final offer (including PPO), Job Title, 1st year CTC, Overall CTC`
+`S NO, Name, Official Email, Department, Gender, Date of Birth, Personal Email, Birth Category, Contact No., Internship Company, Stipend p/m, Others (for accomodation etc), PPO- CTC, Offer rcd date, FTE-Company Name Final offer (including PPO), Job Title, 1st year CTC, Overall CTC`
+
+## Neccessary Columns
+
+```bash
+const REQUIRED_PPO_COLUMNS: { column: number; header: string; field: keyof IPPORow }[] = [
+  { column: 2, header: "Name", field: "name" },
+  { column: 3, header: "Official Email", field: "officialEmail" },
+  { column: 4, header: "Department", field: "department" },
+  { column: 5, header: "Gender", field: "gender" },
+  { column: 10, header: "Internship Company", field: "internshipCompany" },
+  { column: 15, header: "FTE-Company Name Final offer", field: "finalCompany" },
+];
+```
 
 ## Important Field Rules
 
@@ -60,22 +73,17 @@ Using one of the enum values directly is the safest option.
 
 ### Birth Category
 
-The `Birth Category` field should be one of the values supported by the importer.
+The `Birth Category` field should be one of the values supported by the importer. Any Case is fine
 
 Accepted values are:
 
 - `gen`
 - `general`
-- `GEN`
 - `obc`
 - `obc_nc`
 - `obc_ncl`
-- `OBC_NC`
 - `sc`
-- `SC`
 - `st`
-- `ST`
-- `EWS`
 - `ews`
 - `gen_pwd`
 - `general_pwd`
@@ -84,30 +92,6 @@ Accepted values are:
 - `st_pwd`
 - `ews_pwd`
 
-If the category is blank or something else, the code defaults it to `GENERAL`.
-
-This is based on the logic currently used in the code:
-
-```ts
-switch (normalized) {
-  case "gen":
-  case "general":
-    return CategoryEnum.GENERAL;
-  case "obc":
-  case "obc_ncl":
-  case "obc-ncl":
-    return CategoryEnum.OBC;
-  case "sc":
-    return CategoryEnum.SC;
-  case "st":
-    return CategoryEnum.ST;
-  case "ews":
-    return CategoryEnum.EWS;
-  default:
-    console.warn(`Unknown category: ${category || "(blank)"}, defaulting to GENERAL`);
-    return CategoryEnum.GENERAL;
-}
-```
 
 ## Assumptions Before Running
 
