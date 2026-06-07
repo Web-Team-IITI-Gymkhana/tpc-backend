@@ -5,15 +5,16 @@ This file explains how to use the `upload-ppo-data` script in a simple, beginner
 ## Command
 
 Usage:
-  npx ts-node src/upload-ppo-data.ts <intern_season_id> <placement_season_id> <path_to_csv>
+  npx ts-node src/upload-ppo-data.ts <intern_season_id> <placement_season_id> <program_year> <path_to_csv>
 
 Arguments:
   intern_season_id    - UUID of the internship season
   placement_season_id - UUID of the placement season
+  program_year        - Program year of the students
   path_to_csv         - Path to the CSV file
 
 Example:
-  npx ts-node src/upload-ppo-data.ts abc-111 xyz-222 ./resources/ppo-data.csv
+  npx ts-node src/upload-ppo-data.ts abc-111 xyz-222 2026 ./resources/ppo-data.csv
 
 ## What This Script Does
 
@@ -74,6 +75,7 @@ Using one of the enum values directly is the safest option.
 ### Birth Category
 
 The `Birth Category` field should be one of the values supported by the importer. Any Case is fine
+If none is mentioned then it defaults to GENERAL category
 
 Accepted values are:
 
@@ -156,13 +158,13 @@ If the same company is written in different ways, the system may create redundan
 5. Run the command:
 
 ```bash
-npx ts-node src/upload-ppo-data.ts <intern_season_id> <placement_season_id> <path_to_csv>
+npx ts-node src/upload-ppo-data.ts <intern_season_id> <placement_season_id> <program_year> <path_to_csv>
 ```
 
 6. Example:
 
 ```bash
-npx ts-node src/upload-ppo-data.ts abc-111 xyz-222 ./resources/ppo-data.csv
+npx ts-node src/upload-ppo-data.ts abc-111 xyz-222 2026 ./resources/ppo-data.csv
 ```
 
 ## Practical Notes

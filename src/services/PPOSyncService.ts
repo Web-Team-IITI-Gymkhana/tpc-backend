@@ -270,7 +270,8 @@ export class PPOSyncService {
       case "ews_pwd":
         return CategoryEnum.EWS_PWD;
       default:
-        return null;
+        console.warn(`Unknown category: ${category || "(blank)"}, defaulting to GENERAL`);
+        return CategoryEnum.GENERAL;
     }
   }
 
@@ -384,32 +385,30 @@ export class PPOSyncService {
 
   private async findProgramForStudent(
     row: IPPORow,
-    placementSeason: SeasonModel,
+    programYear: string,
     transaction?: Transaction
-  ): Promise<ProgramModel | null> {
+  ): Promise<ProgramModel> {
     const department = this.parseDepartment(row.department);
-    if (!department) return null;
+    if (!department) {
+      throw new Error(`cannot create student: invalid department "${row.department}"`);
+    }
 
     const course = this.inferCourse(row);
 
-    const programForSeason = await this.programRepo.findOne({
-      where: { department, course, year: placementSeason.year },
+    const program = await this.programRepo.findOne({
+      where: { department, course, year: programYear },
       transaction,
     });
-    if (programForSeason) return programForSeason;
+    if (program) return program;
 
-    const programForCourse = await this.programRepo.findOne({
-      where: { department, course },
-      transaction,
-    });
-    if (programForCourse) return programForCourse;
-
-    return this.programRepo.findOne({ where: { department }, transaction });
+    throw new Error(
+      `no program found for department "${department}", course "${course}", and program year "${programYear}"; input valid program year or create program`
+    );
   }
 
   private async findOrCreateStudent(
     row: IPPORow,
-    placementSeason: SeasonModel,
+    programYear: string,
     transaction?: Transaction
   ): Promise<StudentModel> {
     const rollNo = this.parseRollNo(row.officialEmail);
@@ -425,12 +424,7 @@ export class PPOSyncService {
     if (studentByRollNo) return studentByRollNo;
 
     const email = this.normalizeEmail(row.officialEmail) || `${rollNo}@ppo-import.local`;
-    const program = await this.findProgramForStudent(row, placementSeason, transaction);
-    if (!program) {
-      throw new Error(
-        `cannot create student ${rollNo}: no program found for department "${row.department}" and placement year ${placementSeason.year}`
-      );
-    }
+    const program = await this.findProgramForStudent(row, programYear, transaction);
 
     const [user] = await this.userRepo.findOrCreate({
       where: { email, role: RoleEnum.STUDENT },
@@ -826,6 +820,7 @@ export class PPOSyncService {
     row: IPPORow,
     internSeasonId: string,
     placementSeason: SeasonModel,
+    programYear: string,
     transaction?: Transaction
   ): Promise<"success" | "skipped"> {
     this.validateRequiredColumns(row);
@@ -838,7 +833,7 @@ export class PPOSyncService {
     }
 
     // Step 1: find or create the student/profile data needed by the offer flow.
-    const student = await this.findOrCreateStudent(row, placementSeason, transaction);
+    const student = await this.findOrCreateStudent(row, programYear, transaction);
 
     /*
      * Step 2: duplicate protection. Any existing placement-season offer means
@@ -868,12 +863,18 @@ export class PPOSyncService {
     return "success";
   }
 
-  async syncPPOData(internSeasonId: string, placementSeasonId: string, filePath: string): Promise<void> {
+  async syncPPOData(
+    internSeasonId: string,
+    placementSeasonId: string,
+    programYear: string,
+    filePath: string
+  ): Promise<void> {
     this.report = [];
 
     this.printHeader("PPO Sync", [
       ["Intern season", internSeasonId],
       ["Placement season", placementSeasonId],
+      ["Program year", programYear],
       ["File", filePath],
     ]);
 
@@ -898,7 +899,7 @@ export class PPOSyncService {
       const rollNo = this.parseRollNo(row.officialEmail) ?? row.officialEmail;
       try {
         const result = await this.studentRepo.sequelize.transaction((transaction) =>
-          this.processRow(row, internSeason.id, placementSeason, transaction)
+          this.processRow(row, internSeason.id, placementSeason, programYear, transaction)
         );
         if (result === "success") {
           stats.success++;
