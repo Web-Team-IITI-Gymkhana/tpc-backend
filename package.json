@@ -20,6 +20,7 @@
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "upload:data": "ts-node src/upload-data.ts",
     "upload:ppo": "ts-node src/upload-ppo-data.ts",
+    "upload:ppo:seasons": "ts-node src/upload-ppo-data.ts seasons",
     "db:sync:prod": "node dist/sync-database.js",
     "db:sync:force:prod": "node dist/sync-database.js --force",
     "db:sync:alter:prod": "node dist/sync-database.js --alter",

@@ -5,6 +5,9 @@ This file explains how to use the `upload-ppo-data` script in a simple, beginner
 ## Command
 
 Usage:
+  npx ts-node src/upload-ppo-data.ts seasons     (To fetch ids of seasons)
+
+Usage:
   npx ts-node src/upload-ppo-data.ts <intern_season_id> <placement_season_id> <program_year> <path_to_csv>
 
 Arguments:
