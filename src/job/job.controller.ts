@@ -92,6 +92,7 @@ export class JobController {
   }
 
   @DeleteValues()
+  @UseGuards(new RoleGuard(RoleEnum.ADMIN))
   async deleteJobs(@Query() query: DeleteValuesDto) {
     const ans = await this.jobService.deleteJobs(query.id);
 
@@ -99,6 +100,7 @@ export class JobController {
   }
 
   @Delete("/coordinators")
+  @UseGuards(new RoleGuard(RoleEnum.ADMIN))
   @ApiQuery({ name: "id", type: String, isArray: true })
   @ApiResponse({ type: Number })
   async deleteJobCoordinators(@Query() query: DeleteValuesDto) {

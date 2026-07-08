@@ -30,6 +30,7 @@ export class RegistrationsController {
     return await this.registrationsService.createRegistrations(registrations);
   }
   @DeleteValues()
+  @UseGuards(new RoleGuard(RoleEnum.ADMIN))
   async deleteRegistrations(@Query() query: DeleteValuesDto) {
     return await this.registrationsService.deleteRegistrations(query.id);
   }

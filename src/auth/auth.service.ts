@@ -49,14 +49,16 @@ export class AuthService {
   }
 
   async createRecruiter(body) {
+    const email = body.user.email.trim().toLowerCase();
     const user = await this.userRepo.findOne({
       where: {
-        email: body.user.email,
+        email: email,
       },
     });
 
     if (user) throw new HttpException("Email already exist", HttpStatus.INTERNAL_SERVER_ERROR);
 
+    body.user.email = email;
     body.user.role = RoleEnum.RECRUITER;
 
     const recruiter = await this.recruiterRepo.create(body, {
@@ -74,9 +76,10 @@ export class AuthService {
   }
 
   async createRecruiterWithJaf(body: CreateRecruiterWithJafDto, t: Transaction) {
+    const email = body.user.email.trim().toLowerCase();
     const user = await this.userRepo.findOne({
       where: {
-        email: body.user.email,
+        email: email,
       },
     });
 
@@ -85,6 +88,7 @@ export class AuthService {
     const { jaf, ...recruiterPayload } = body;
     recruiterPayload.user = {
       ...body.user,
+      email: email,
       role: RoleEnum.RECRUITER,
     };
 

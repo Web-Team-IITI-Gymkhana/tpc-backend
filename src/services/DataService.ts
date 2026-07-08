@@ -127,7 +127,7 @@ export class DataUploadService {
   async CreateStudent(data: any, seasonId: string) {
     const user = await this.userRepo.create({
       name: data.name,
-      email: data.officialEmail,
+      email: data.officialEmail.trim().toLowerCase(),
       contact: data.contactNo,
       role: RoleEnum.STUDENT,
     });

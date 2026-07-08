@@ -1,4 +1,5 @@
 import { Inject, Injectable } from "@nestjs/common";
+import { Op } from "sequelize";
 import { ADMIN_DAO } from "src/constants";
 import { AdminModel } from "src/db/models";
 
@@ -12,7 +13,9 @@ export class AdminService {
     async isAdmin(email: string): Promise<boolean> {
         const admin = await this.adminRepository.findOne({
             where: {
-                email: email.trim().toLowerCase(),
+                email: {
+                    [Op.iLike]: email.trim(),
+                },
             },
         });
 
