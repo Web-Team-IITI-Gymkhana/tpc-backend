@@ -116,8 +116,8 @@ class InterviewDto {
 }
 
 export class SelectionProcedureDto {
-  @NestedEnum(SelectionModeEnum, {})
-  selectionMode: SelectionModeEnum;
+  @NestedEnum(SelectionModeEnum, { optional: true })
+  selectionMode?: SelectionModeEnum;
 
   @NestedBoolean({})
   shortlistFromResume: boolean;
@@ -270,8 +270,8 @@ class JobDto {
   @NestedString({ optional: true, isArray: true })
   skills?: string[];
 
-  @NestedString({})
-  location: string;
+  @NestedString({ optional: true })
+  location?: string;
 
   @NestedNumber({ optional: true })
   minNoOfHires?: number;
