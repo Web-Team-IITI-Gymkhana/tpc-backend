@@ -1,4 +1,4 @@
-import { NestedString, NestedUUID, NestedEnum, NestedNumber } from "src/decorators/dto";
+import { NestedString, NestedUUID, NestedEnum, NestedNumber, NestedBoolean, NestedDate } from "src/decorators/dto";
 import { CategoryEnum, GenderEnum, DepartmentEnum } from "src/enums";
 
 export class UpdateSalariesDto {
@@ -49,4 +49,62 @@ export class UpdateSalariesDto {
 
   @NestedNumber({ optional: true })
   twelthMarks?: number;
+
+  @NestedNumber({ optional: true })
+  stipend?: number;
+
+  @NestedString({ optional: true })
+  foreignCurrencyStipend?: string;
+
+  @NestedBoolean({ optional: true })
+  accommodation?: boolean;
+
+  @NestedBoolean({ optional: true })
+  ppoProvisionOnPerformance?: boolean;
+
+  @NestedNumber({ optional: true })
+  tentativeCTC?: number;
+
+  @NestedDate({ optional: true })
+  PPOConfirmationDate?: Date;
+
+  @NestedNumber({ optional: true })
+  joiningBonus?: number;
+
+  @NestedNumber({ optional: true })
+  performanceBonus?: number;
+
+  @NestedNumber({ optional: true })
+  relocation?: number;
+
+  @NestedNumber({ optional: true })
+  bondAmount?: number;
+
+  @NestedNumber({ optional: true })
+  esopAmount?: number;
+
+  @NestedString({ optional: true })
+  esopVestPeriod?: string;
+
+  @NestedNumber({ optional: true })
+  firstYearCTC?: number;
+
+  @NestedNumber({ optional: true })
+  retentionBonus?: number;
+
+  @NestedNumber({ optional: true })
+  deductions?: number;
+
+  @NestedNumber({ optional: true })
+  medicalAllowance?: number;
+
+  @NestedString({ optional: true })
+  bondDuration?: string;
+
+  @NestedNumber({ optional: true })
+  foreignCurrencyCTC?: number;
+
+  @NestedString({ optional: true })
+  foreignCurrencyCode?: string;
 }
+
