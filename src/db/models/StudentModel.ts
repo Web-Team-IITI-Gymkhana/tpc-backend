@@ -81,6 +81,12 @@ export class StudentModel extends Model<StudentModel> {
   })
   twelthMarks?: number;
 
+  @Column({
+    type: sequelize.INTEGER,
+    allowNull: true,
+  })
+  numberOfBacklogs?: number;
+
   @ForeignKey(() => ProgramModel)
   @Column({
     type: sequelize.UUID,
