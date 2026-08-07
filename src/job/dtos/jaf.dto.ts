@@ -1,4 +1,5 @@
 import { IsDateString } from "class-validator";
+import { Transform } from "class-transformer";
 import {
   NestedBoolean,
   NestedDate,
@@ -117,6 +118,7 @@ class InterviewDto {
 
 export class SelectionProcedureDto {
   @NestedEnum(SelectionModeEnum, { optional: true })
+  @Transform(({ value }) => (value === "" || value === null ? undefined : value))
   selectionMode?: SelectionModeEnum;
 
   @NestedBoolean({})
