@@ -2,6 +2,7 @@
 import { Module } from "@nestjs/common";
 import { SequelizeModule } from "@nestjs/sequelize";
 import { DataModule } from "./DataModule";
+import { PPOSyncService } from "./PPOSyncService";
 import {
   UserModel,
   StudentModel,
@@ -68,6 +69,19 @@ const { DB_NAME, DB_HOST, DB_PASSWORD, DB_PORT, DB_USERNAME } = environmentVaria
       synchronize: false,
     }),
     DataModule,
+    SequelizeModule.forFeature([
+      ProgramModel,
+      JobModel,
+      SalaryModel,
+      OnCampusOfferModel,
+      CompanyModel,
+      RecruiterModel,
+      SeasonModel,
+      UserModel,
+      StudentModel,
+    ]),
   ],
+  providers: [PPOSyncService],
+  exports: [PPOSyncService],
 })
 export class DataCliModule {}
