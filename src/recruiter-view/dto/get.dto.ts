@@ -363,8 +363,8 @@ export class GetJobDto extends GetJobsDto {
   @NestedDate({ optional: true })
   joiningDate?: Date;
 
-  @NestedString({})
-  location: string;
+  @NestedString({ optional: true })
+  location?: string;
 
   @NestedNumber({ optional: true })
   noOfVacancies?: number;
