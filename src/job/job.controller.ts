@@ -2,17 +2,20 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   NotFoundException,
   Param,
   ParseUUIDPipe,
   Post,
   Query,
+  Req,
   Res,
   StreamableFile,
   UseGuards,
 } from "@nestjs/common";
 import { ApiBearerAuth, ApiBody, ApiQuery, ApiResponse, ApiTags } from "@nestjs/swagger";
 import { JobService } from "./job.service";
+import { JobExportService } from "./job-export.service";
 import { DeleteValues, GetFile, GetValue, GetValues, PatchValues } from "src/decorators/controller";
 import { JobsQueryDto } from "./dtos/query.dto";
 import { GetJobDto, GetJobsDto } from "./dtos/get.dto";
@@ -36,6 +39,7 @@ export class JobController {
   JDFolder = JD_FOLDER;
   constructor(
     private jobService: JobService,
+    private jobExportService: JobExportService,
     private fileService: FileService
   ) {}
 
@@ -107,5 +111,45 @@ export class JobController {
     const ans = await this.jobService.deleteJobCoordinators(query.id);
 
     return ans;
+  }
+
+  @Get("/:id/export")
+  @UseGuards(new RoleGuard(RoleEnum.ADMIN))
+  async exportJobDetails(
+    @Param("id", new ParseUUIDPipe()) id: string,
+    @Query("format") format: "csv" | "pdf",
+    @Query("sendEmail") sendEmail: string,
+    @Query("email") email: string,
+    @Req() req: any,
+    @Res({ passthrough: true }) res: Response
+  ) {
+    const targetFormat = format === "pdf" ? "pdf" : "csv";
+    const jobData = await this.jobExportService.fetchJobCompleteDetails(id);
+    const company = jobData.job?.company?.name?.replace(/[^a-zA-Z0-9_-]/g, "_") || "Job";
+    const role = jobData.job?.role?.replace(/[^a-zA-Z0-9_-]/g, "_") || "Details";
+    const filename = `${company}_${role}_details.${targetFormat}`;
+
+    let buffer: Buffer;
+    if (targetFormat === "pdf") {
+      buffer = await this.jobExportService.generateLatexPdf(jobData);
+    } else {
+      const csvString = this.jobExportService.generateSingleCsv(jobData);
+      buffer = Buffer.from(csvString, "utf-8");
+    }
+
+    if (sendEmail === "true") {
+      const userEmail = email || req.user?.email;
+      if (!userEmail) {
+        throw new NotFoundException("User email not found for email delivery");
+      }
+      await this.jobExportService.sendExportEmail(userEmail, jobData, targetFormat, buffer, filename);
+      return { message: `Job details export sent successfully to ${userEmail}` };
+    }
+
+    const contentType = targetFormat === "pdf" ? "application/pdf" : "text/csv";
+    res.setHeader("Content-Type", contentType);
+    res.setHeader("Content-Disposition", `attachment; filename="${filename}"`);
+
+    return new StreamableFile(buffer);
   }
 }
