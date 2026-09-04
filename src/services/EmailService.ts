@@ -8,6 +8,8 @@ import { Address } from "nodemailer/lib/mailer";
 import * as fs from "fs";
 import * as path from "path";
 
+import { Attachment } from "nodemailer/lib/mailer";
+
 export class SendEmailDto {
   from?: Address;
   recepients: Address[];
@@ -15,6 +17,7 @@ export class SendEmailDto {
   html: string;
   text?: string;
   placeholderReplacements?: Record<string, string>;
+  attachments?: Attachment[];
 }
 
 export function getHtmlContent(filePath: string, replacements: { [key: string]: string }): string {
@@ -44,7 +47,7 @@ export class EmailService {
   }
 
   async sendEmail(dto: SendEmailDto) {
-    const { from, recepients, subject, html, placeholderReplacements } = dto;
+    const { from, recepients, subject, html, placeholderReplacements, attachments } = dto;
     const environmentVariables: IEnvironmentVariables = env();
     const { MAIL_USER, APP_NAME } = environmentVariables;
 
@@ -58,6 +61,7 @@ export class EmailService {
       to: recepients,
       subject,
       html,
+      attachments,
     };
 
     const result = await transport.sendMail(options, (error, info) => {
