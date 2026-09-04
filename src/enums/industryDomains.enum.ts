@@ -1,4 +1,14 @@
 export enum IndustryDomainEnum {
+  // New domains (displayed in JAF FE)
+  SEMICONDUCTORS_ELECTRONICS = "Semiconductors/Electronics",
+  AUTOMOTIVE_MANUFACTURING_ENGINEERING = "Automotive/Manufacturing/Engineering",
+  IT_ITES = "IT/ITES",
+  ANALYTICS_CONSULTING = "Analytics/Consulting",
+  BANKING_FINANCIAL_SERVICES_INVESTMENT_BANKING = "Banking/Financial services/Investment Banking",
+  HEALTHCARE_EDUCATION_OTHERS = "Healthcare/Education/Others",
+  OIL_GAS_ENERGY = "Oil & Gas/Energy",
+
+  // Previous domains (retained for backward compatibility with existing database records)
   ADVERTISING_EVENTS = "Advertising / Events",
   AGRICULTURE_DAIRY_FORESTRY_FISHING = "Agriculture / Dairy / Forestry / Fishing",
   AUTOMOTIVE_ANCILLARIES_AUTOMOBILE = "Automotive / Ancillaries / Automobile",
@@ -68,7 +78,7 @@ export enum IndustryDomainEnum {
   TYRES = "Tyres",
   WELLNESS_FITNESS_SPORTS = "Wellness / Fitness / Sports",
   WOOD = "Wood",
-  IT_ITES = "IT / ITES",
+  IT_ITES_LEGACY = "IT / ITES",
   MANUFACTURING_CORE = "Manufacturing / Core",
   TECHNOLOGY = "Technology",
   OTHERS = "Others",
