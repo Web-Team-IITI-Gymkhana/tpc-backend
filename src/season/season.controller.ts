@@ -7,9 +7,11 @@ import {
   UseInterceptors,
   BadRequestException,
   Param,
+  Patch,
   Res,
   StreamableFile,
 } from "@nestjs/common";
+import { FileInterceptor } from "@nestjs/platform-express";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { SeasonService } from "./season.service";
 import { CreateFile, DeleteValues, GetFile, GetValues, PatchValues, PostValues } from "src/decorators/controller";
@@ -77,6 +79,31 @@ export class SeasonController {
     const ans = await Promise.all(pr);
 
     return ans.flat();
+  }
+
+  @Patch("/:id")
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
+  @UseInterceptors(FileInterceptor("policy"))
+  async updateSeasonById(
+    @Param("id") id: string,
+    @Body() seasonData: UpdateSeasonsDto,
+    @UploadedFile() file
+  ) {
+    if (file) {
+      const magic = file.buffer.slice(0, 4).toString("ascii");
+      if (magic !== "%PDF") throw new BadRequestException("Only PDF is supported for policy documents");
+      if (file.size > POLICY_SIZE_LIMIT) throw new BadRequestException("Policy document size exceeds the limit");
+
+      const filename = uuidv4() + ".pdf";
+      seasonData.policyDocument = filename;
+
+      await this.fileService.uploadFile(path.join(POLICY_FOLDER, filename), file);
+    }
+
+    seasonData.id = id;
+    const ans = await this.seasonService.updateSeasons(seasonData);
+
+    return ans;
   }
 
   @DeleteValues()
