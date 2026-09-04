@@ -6,4 +6,5 @@ export enum EventTypeEnum {
   TEST = "TEST",
   APPLICATION = "APPLICATION",
   COMPLETED = "COMPLETED",
+  EVENTS = "EVENTS",
 }
