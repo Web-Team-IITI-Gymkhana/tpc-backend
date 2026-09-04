@@ -44,6 +44,7 @@
     "@nestjs/swagger": "^7.3.1",
     "@nestjs/throttler": "^6.4.0",
     "@nestjs/typeorm": "^11.0.1",
+    "@sentry/nestjs": "^10.73.0",
     "@types/nodemailer-smtp-transport": "^2.7.8",
     "axios": "^1.10.0",
     "class-transformer": "^0.5.1",
