@@ -21,7 +21,6 @@ import {
   TpcMemberModel,
   ExternalOpportunitiesModel,
   AdminModel,
-  NoticeboardModel,
 } from "./models";
 import { isProductionEnv } from "../utils";
 import {
@@ -84,7 +83,6 @@ export const databaseProviders = [
         UserModel,
         StudentModel,
         AdminModel,
-        NoticeboardModel,
         TpcMemberModel,
         RecruiterModel,
         FacultyModel,

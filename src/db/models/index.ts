@@ -19,5 +19,4 @@ export * from "./TpcMemberModel";
 export * from "./RegistrationModel";
 export * from "./ExternalOpportunitiesModel";
 export { AdminModel } from "./AdminModel";
-export { NoticeboardModel } from "./NoticeboardModel";
 

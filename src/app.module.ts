@@ -39,7 +39,6 @@ import { TpcMemberViewModule } from "./tpc-member-view/tpc-member-view.module";
 import { ClashesModule } from "./clashes/clashes.module";
 
 import { AdminModule } from "./admin/admin.module";
-import { NoticeboardModule } from "./noticeboard/noticeboard.module";
 
 import { SentryModule } from "@sentry/nestjs/setup";
 
@@ -89,7 +88,6 @@ import { SentryModule } from "@sentry/nestjs/setup";
     ClashesModule,
 
     AdminModule,
-    NoticeboardModule,
   ],
   controllers: [AppController],
   providers: [
