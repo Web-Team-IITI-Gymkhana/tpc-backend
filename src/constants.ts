@@ -133,7 +133,7 @@ export const allCourses = [
   },
 
   // Master of Arts (MA)
-  { course: CourseEnum.MA, branch: "English", department: DepartmentEnum.HUMANITIES_AND_SOCIAL_SCIENCES },
+  { course: CourseEnum.MA, branch: "English Literature & Linguistics", department: DepartmentEnum.HUMANITIES_AND_SOCIAL_SCIENCES },
 
   // Two-year Master of Science (MSc)
   { course: CourseEnum.MSC, branch: "Chemistry", department: DepartmentEnum.CHEMISTRY },
