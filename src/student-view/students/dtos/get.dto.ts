@@ -140,6 +140,9 @@ export class StudentViewDto {
   @NestedNumber({ optional: true })
   twelthMarks?: number;
 
+  @NestedNumber({ optional: true })
+  numberOfBacklogs?: number;
+
   @NestedObject({ type: UserDto })
   user: UserDto;
 

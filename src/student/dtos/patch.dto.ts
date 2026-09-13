@@ -40,6 +40,9 @@ export class UpdateStudentsDto {
   @NestedNumber({ optional: true })
   twelthMarks?: number;
 
+  @NestedNumber({ optional: true })
+  numberOfBacklogs?: number;
+
   @NestedObject({ type: UpdateUserDto, optional: true })
   user?: UpdateUserDto;
 }
@@ -54,4 +57,7 @@ export class OnboardingUpdateDto {
 
   @NestedNumber({ optional: true })
   twelthMarks?: number;
+
+  @NestedNumber({ optional: true })
+  numberOfBacklogs?: number;
 }
