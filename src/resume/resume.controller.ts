@@ -17,6 +17,8 @@ import { ResumeQueryDto } from "./dtos/query.dto";
 import { createArrayPipe, pipeTransform, pipeTransformArray } from "src/utils/utils";
 import { GetResumeDto, GetResumesDto } from "./dtos/get.dto";
 import { CreateFile, DeleteFiles, GetFile, GetValue, GetValues, PatchValues } from "src/decorators/controller";
+import { User } from "src/decorators/User";
+import { UserModel } from "src/db/models";
 import { CreateResumeDto } from "./dtos/post.dto";
 import { TransactionInterceptor } from "src/interceptor/TransactionInterceptor";
 import { TransactionParam } from "src/decorators/TransactionParam";
@@ -83,8 +85,16 @@ export class ResumeController {
   }
 
   @PatchValues(UpdateResumesDto)
-  async updateResumes(@Body(createArrayPipe(UpdateResumesDto)) resumes: UpdateResumesDto[]) {
-    const pr = resumes.map((resume) => this.resumeService.updateResume(resume));
+  async updateResumes(
+    @Body(createArrayPipe(UpdateResumesDto)) resumes: UpdateResumesDto[],
+    @User() user: UserModel
+  ) {
+    const pr = resumes.map((resume) => {
+      if (resume.verified !== undefined) {
+        resume.verifiedById = resume.verified ? user.id : null;
+      }
+      return this.resumeService.updateResume(resume);
+    });
     const ans = await Promise.all(pr);
 
     return ans.flat();
