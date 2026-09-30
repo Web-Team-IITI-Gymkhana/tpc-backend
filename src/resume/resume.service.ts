@@ -40,6 +40,10 @@ export class ResumeService {
             },
           ],
         },
+        {
+          model: UserModel,
+          as: "verifiedBy",
+        },
       ],
     };
 
@@ -98,6 +102,10 @@ export class ResumeService {
               as: "event",
             },
           ],
+        },
+        {
+          model: UserModel,
+          as: "verifiedBy",
         },
       ],
     });
