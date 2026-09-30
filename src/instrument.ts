@@ -11,4 +11,7 @@ Sentry.init({
     // userInfo: false,
     // httpBodies: [],
   },
+  integrations: [
+    Sentry.consoleLoggingIntegration({ levels: ["log", "warn", "error", "info"] }),
+  ],
 });

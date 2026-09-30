@@ -5,12 +5,14 @@ import { AppModule } from "./app.module";
 import Helmet from "helmet";
 import { WinstonModule } from "nest-winston";
 import * as winston from "winston";
+import Transport from "winston-transport";
 import { isProductionEnv } from "./utils";
 import { SwaggerModule, DocumentBuilder, SwaggerDocumentOptions, SwaggerCustomOptions } from "@nestjs/swagger";
 import { HttpExceptionFilter } from "./interceptor/ExceptionFilter";
 import { LoggerInterceptor } from "./interceptor/LoggerInterceptor";
 import { env, IEnvironmentVariables } from "./config";
 import { json, urlencoded } from "express";
+import * as Sentry from "@sentry/nestjs";
 
 const environmentVariables: IEnvironmentVariables = env();
 const logger = new Logger("main");
@@ -88,6 +90,10 @@ function createSwagger(app: INestApplication) {
 }
 
 function createWinstonLogger(): LoggerService {
+  const SentryWinstonTransport = Sentry.createSentryWinstonTransport(Transport, {
+    levels: ["trace", "debug", "info", "warn", "error", "fatal"],
+  });
+
   return WinstonModule.createLogger({
     transports: [
       new winston.transports.Console({
@@ -100,6 +106,7 @@ function createWinstonLogger(): LoggerService {
           winston.format.printf((info) => `${info.timestamp} ${info.level}: ${info.message}`)
         ),
       }),
+      new SentryWinstonTransport(),
     ],
   });
 }
