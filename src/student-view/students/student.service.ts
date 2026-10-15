@@ -57,7 +57,7 @@ export class StudentService {
     @Inject(SEASON_DAO) private seasonRepo: typeof SeasonModel,
     @Inject(REGISTRATIONS_DAO) private registrationsRepo: typeof RegistrationModel,
     @Inject("SEQUELIZE") private readonly sequelizeInstance: Sequelize
-  ) {}
+  ) { }
 
   async filterSalaries(studentId: string) {
     const student = await this.studentRepo.findByPk(studentId, { include: [ProgramModel] });
