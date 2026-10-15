@@ -68,8 +68,8 @@ export class GetResumesDto {
   @NestedBoolean({})
   verified: boolean;
 
-  @NestedUUID({ optional: true })
-  verifiedby?: string | null;
+  @NestedObject({ type: UserDto, optional: true })
+  verifiedBy?: UserDto;
 
   @NestedObject({ type: StudentDto })
   student: StudentDto;

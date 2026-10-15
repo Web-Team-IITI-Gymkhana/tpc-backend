@@ -43,11 +43,17 @@ export class ResumeModel extends Model<ResumeModel> {
   verified: boolean;
 
   @ForeignKey(() => UserModel)
-  @Column({ type: sequelize.UUID, allowNull: true })
-  verifiedby: string | null;
+  @Column({
+    type: sequelize.UUID,
+    allowNull: true,
+  })
+  verifiedById?: string;
 
-  @BelongsTo(() => UserModel, { foreignKey: "verifiedby", onDelete: "SET NULL" })
-  verifier: UserModel;
+  @BelongsTo(() => UserModel, {
+    foreignKey: "verifiedById",
+    onDelete: "SET NULL",
+  })
+  verifiedBy?: UserModel;
 
   @HasMany(() => ApplicationModel, {
     foreignKey: "resumeId",
