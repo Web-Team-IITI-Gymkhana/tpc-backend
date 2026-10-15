@@ -107,14 +107,20 @@ export class ResumeService {
     return ans.get({ plain: true });
   }
 
-  async createResume(resume: CreateResumeDto, t: Transaction) {
-    const ans = await this.resumeRepo.create(resume, { transaction: t });
+  async createResume(resume: CreateResumeDto, t: Transaction, verifierId: string) {
+    const ans = await this.resumeRepo.create(
+      { ...resume, verifiedby: resume.verified ? verifierId : null },
+      { transaction: t }
+    );
 
     return ans.id;
   }
 
-  async updateResume(resume: UpdateResumesDto) {
-    const [ans] = await this.resumeRepo.update(resume, { where: { id: resume.id } });
+  async updateResume(resume: UpdateResumesDto, verifierId: string) {
+    const [ans] = await this.resumeRepo.update(
+      { verified: resume.verified, verifiedby: resume.verified ? verifierId : null },
+      { where: { id: resume.id } }
+    );
 
     return ans > 0 ? [] : [resume.id];
   }

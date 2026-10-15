@@ -2,6 +2,7 @@ import sequelize, { Sequelize } from "sequelize";
 import { BelongsTo, Column, ForeignKey, HasMany, Model, Table } from "sequelize-typescript";
 import { StudentModel } from "./StudentModel";
 import { ApplicationModel } from "./ApplicationModel";
+import { UserModel } from "./UserModel";
 
 @Table({
   tableName: "Resume",
@@ -40,6 +41,13 @@ export class ResumeModel extends Model<ResumeModel> {
 
   @Column({ type: sequelize.BOOLEAN, defaultValue: false, allowNull: false })
   verified: boolean;
+
+  @ForeignKey(() => UserModel)
+  @Column({ type: sequelize.UUID, allowNull: true })
+  verifiedby: string | null;
+
+  @BelongsTo(() => UserModel, { foreignKey: "verifiedby", onDelete: "SET NULL" })
+  verifier: UserModel;
 
   @HasMany(() => ApplicationModel, {
     foreignKey: "resumeId",
