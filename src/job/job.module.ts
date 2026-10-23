@@ -5,8 +5,10 @@ import { JobController } from "./job.controller";
 import { JobService } from "./job.service";
 import { AttachmentController } from "./attachment.controller";
 
+import { JobExportService } from "./job-export.service";
+
 @Module({
   controllers: [JafController, JobController, AttachmentController],
-  providers: [JafService, JobService],
+  providers: [JafService, JobService, JobExportService],
 })
 export class JobModule {}

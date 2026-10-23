@@ -3,8 +3,8 @@ import { SeasonTypeEnum } from "src/enums";
 import { SeasonStatusEnum } from "src/enums/SeasonStatus.enum";
 
 export class UpdateSeasonsDto {
-  @NestedUUID({})
-  id: string;
+  @NestedUUID({ optional: true })
+  id?: string;
 
   @NestedString({ optional: true })
   year?: string;

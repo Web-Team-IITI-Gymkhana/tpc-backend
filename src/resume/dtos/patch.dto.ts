@@ -6,4 +6,7 @@ export class UpdateResumesDto {
 
   @NestedBoolean({})
   verified: boolean;
+
+  @NestedUUID({ optional: true })
+  verifiedById?: string;
 }

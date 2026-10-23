@@ -41,8 +41,11 @@ import { ClashesModule } from "./clashes/clashes.module";
 import { AdminModule } from "./admin/admin.module";
 import { NoticeboardModule } from "./noticeboard/noticeboard.module";
 
+import { SentryModule } from "@sentry/nestjs/setup";
+
 @Module({
   imports: [
+    SentryModule.forRoot(),
     ConfigModule.forRoot(),
 
     { module: DatabaseModule, global: true },

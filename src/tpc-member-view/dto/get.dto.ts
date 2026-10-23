@@ -132,8 +132,8 @@ export class GetJobsDto {
   @NestedNumber({ optional: true })
   duration?: number;
 
-  @NestedString({})
-  location: string;
+  @NestedString({ optional: true })
+  location?: string;
 
   @NestedObject({ type: SeasonDto })
   season: SeasonDto;

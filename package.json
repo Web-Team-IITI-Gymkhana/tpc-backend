@@ -19,6 +19,8 @@
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
     "test:e2e": "jest --config ./test/jest-e2e.json",
     "upload:data": "ts-node src/upload-data.ts",
+    "upload:ppo": "ts-node src/upload-ppo-data.ts",
+    "upload:ppo:seasons": "ts-node src/upload-ppo-data.ts seasons",
     "db:sync:prod": "node dist/sync-database.js",
     "db:sync:force:prod": "node dist/sync-database.js --force",
     "db:sync:alter:prod": "node dist/sync-database.js --alter",
@@ -42,6 +44,7 @@
     "@nestjs/swagger": "^7.3.1",
     "@nestjs/throttler": "^6.4.0",
     "@nestjs/typeorm": "^11.0.1",
+    "@sentry/nestjs": "^10.73.0",
     "@types/nodemailer-smtp-transport": "^2.7.8",
     "axios": "^1.10.0",
     "class-transformer": "^0.5.1",
@@ -66,6 +69,7 @@
     "typeorm": "^0.3.29",
     "uuid": "^9.0.1",
     "winston": "^3.11.0",
+    "winston-transport": "^4.7.0",
     "xlsx": "^0.18.5"
   },
   "devDependencies": {
@@ -114,7 +118,10 @@
       "**/*.(t|j)s"
     ],
     "coverageDirectory": "../coverage",
-    "testEnvironment": "node"
+    "testEnvironment": "node",
+    "moduleNameMapper": {
+      "^src/(.*)$": "<rootDir>/$1"
+    }
   },
   "main": ".eslintrc.js",
   "keywords": []

@@ -187,8 +187,8 @@ class JobDto {
   @NestedString({ optional: true, isArray: true })
   skills?: string[];
 
-  @NestedString({})
-  location: string;
+  @NestedString({ optional: true })
+  location?: string;
 
   @NestedObject({ type: CompanyDto })
   company: CompanyDto;
