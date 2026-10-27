@@ -45,6 +45,7 @@ import { EventsQueryDto } from "src/event/dtos/query.dto";
 import { JobsQueryDto } from "src/job/dtos/query.dto";
 import { parseFilter, parseOrder, parsePagesize } from "src/utils";
 import { OnboardingUpdateDto } from "../../student/dtos/patch.dto";
+import { validateBacklogCount } from "../../student/validateBacklogCount";
 
 @Injectable()
 export class StudentService {
@@ -514,14 +515,13 @@ export class StudentService {
 
     if (
       student?.backlog == null ||
-      student?.numberOfBacklogs == null ||
       student?.tenthMarks == null ||
       student?.twelthMarks == null
     ) {
       throw new BadRequestException("Please complete your profile onboarding before registering for seasons");
     }
 
-    if (student?.numberOfBacklogs == null) {
+    if (student.numberOfBacklogs == null) {
       throw new BadRequestException("Please go to your profile and update your 'Number of Backlogs' before continuing.");
     }
 
@@ -547,15 +547,10 @@ export class StudentService {
 
     if (
       student?.backlog == null ||
-      student?.numberOfBacklogs == null ||
       student?.tenthMarks == null ||
       student?.twelthMarks == null
     ) {
       throw new BadRequestException("Please complete your profile onboarding before modifying season registrations");
-    }
-
-    if (student?.numberOfBacklogs == null) {
-      throw new BadRequestException("Please go to your profile and update your 'Number of Backlogs' before continuing.");
     }
 
     const season = await this.seasonRepo.findOne({ where: { id: seasonId } });
@@ -600,6 +595,9 @@ export class StudentService {
       if (currentStudent?.numberOfBacklogs != null) {
         throw new BadRequestException("Number of backlogs has already been set and cannot be modified");
       }
+      if (updateData.numberOfBacklogs === null) {
+        throw new BadRequestException("Number of backlogs must be a nonnegative integer");
+      }
       updates.numberOfBacklogs = updateData.numberOfBacklogs;
     }
 
@@ -617,15 +615,12 @@ export class StudentService {
       updates.twelthMarks = updateData.twelthMarks;
     }
 
-    if (updateData?.numberOfBacklogs !== undefined) {
-      if (currentStudent?.numberOfBacklogs != null) {
-        throw new BadRequestException("Number of backlogs has already been set and cannot be modified");
-      }
-      updates.numberOfBacklogs = updateData.numberOfBacklogs;
-    }
-
     if (Object.keys(updates).length === 0) {
       return { message: "No updates to apply" };
+    }
+
+    if (updateData?.backlog !== undefined || updateData?.numberOfBacklogs !== undefined) {
+      validateBacklogCount(updates.backlog ?? currentStudent.backlog, updates.numberOfBacklogs ?? currentStudent.numberOfBacklogs);
     }
 
     await this.studentRepo.update(updates, {

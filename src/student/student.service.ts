@@ -1,4 +1,4 @@
-import { Inject, Injectable, NotFoundException } from "@nestjs/common";
+import { BadRequestException, Inject, Injectable, NotFoundException } from "@nestjs/common";
 import { STUDENT_DAO, USER_DAO } from "src/constants";
 import { PenaltyModel, ProgramModel, ResumeModel, StudentModel, UserModel } from "src/db/models";
 import { StudentsQueryDto } from "./dtos/query.dto";
@@ -9,6 +9,7 @@ import { UpdateStudentsDto } from "./dtos/patch.dto";
 import { omit } from "lodash";
 import sequelize from "sequelize";
 import { RoleEnum } from "src/enums";
+import { validateBacklogCount } from "./validateBacklogCount";
 
 @Injectable()
 export class StudentService {
@@ -92,6 +93,15 @@ export class StudentService {
   }
 
   async updateStudent(student: UpdateStudentsDto, t: Transaction) {
+    if (student.backlog !== undefined || student.numberOfBacklogs !== undefined) {
+      const currentStudent = await this.studentRepo.findByPk(student.id, { transaction: t });
+      if (!currentStudent) throw new NotFoundException(`The Student with id: ${student.id} does not exist`);
+      if (student.numberOfBacklogs === null) {
+        throw new BadRequestException("Number of backlogs must be a nonnegative integer");
+      }
+      validateBacklogCount(student.backlog ?? currentStudent.backlog, student.numberOfBacklogs ?? currentStudent.numberOfBacklogs);
+    }
+
     const [[ans], [res]] = await Promise.all([
       this.studentRepo.update(omit(student, "user"), { where: { id: student.id }, transaction: t }),
       this.userRepo.update(student.user, {
