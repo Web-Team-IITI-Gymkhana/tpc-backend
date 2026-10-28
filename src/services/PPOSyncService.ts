@@ -307,8 +307,12 @@ export class PPOSyncService {
   }
 
   private inferCourse(row: IPPORow): CourseEnum {
-    // Infer Course of PhD, MTech, MS, MSC, BTech students from their mail
+    // Infer the course from the student's institutional email address.
     const email = this.normalizeEmail(row.officialEmail) || "";
+
+    if (/^ma\d+@/i.test(email)) {
+      return CourseEnum.MA;
+    }
 
     if (/^msc\d+@/i.test(email)) {
       return CourseEnum.MSC;
@@ -326,7 +330,7 @@ export class PPOSyncService {
       return CourseEnum.PHD;
     }
 
-    // If they aren't MSc, MS, MTech, or PhD, default to BTech
+    // If no known course prefix is present, default to BTech.
     return CourseEnum.BTECH;
   }
 
