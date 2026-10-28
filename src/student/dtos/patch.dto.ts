@@ -1,5 +1,6 @@
 import { NestedEmail, NestedEnum, NestedNumber, NestedObject, NestedString, NestedUUID } from "src/decorators/dto";
 import { CategoryEnum, GenderEnum, BacklogEnum } from "src/enums";
+import { IsInt, Min } from "class-validator";
 
 class UpdateUserDto {
   @NestedString({ optional: true })
@@ -40,6 +41,11 @@ export class UpdateStudentsDto {
   @NestedNumber({ optional: true })
   twelthMarks?: number;
 
+  @NestedNumber({ optional: true })
+  @IsInt()
+  @Min(0)
+  numberOfBacklogs?: number;
+
   @NestedObject({ type: UpdateUserDto, optional: true })
   user?: UpdateUserDto;
 }
@@ -54,4 +60,9 @@ export class OnboardingUpdateDto {
 
   @NestedNumber({ optional: true })
   twelthMarks?: number;
+
+  @NestedNumber({ optional: true })
+  @IsInt()
+  @Min(0)
+  numberOfBacklogs?: number;
 }
