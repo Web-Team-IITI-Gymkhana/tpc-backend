@@ -25,6 +25,7 @@ import { BacklogEnum, CategoryEnum, DepartmentEnum, GenderEnum, JobStatusTypeEnu
 import { ApplicationModel } from "./ApplicationModel";
 import { EmailService, getHtmlContent } from "../../services/EmailService";
 import { SendEmailDto } from "../../services/EmailService";
+import { EMAIL_CHUNK_SIZE } from "../../constants";
 import { StudentModel } from "./StudentModel";
 import { UserModel } from "./UserModel";
 import { TpcMemberModel } from "./TpcMemberModel";
@@ -252,64 +253,68 @@ export class JobModel extends Model<JobModel> {
 
   @AfterCreate
   static async sendEmailHook(instance: JobModel) {
-    if (SEND_MAIL == "FALSE") return;
-    const mailerService = new EmailService();
+    try {
+      if (SEND_MAIL == "FALSE") return;
+      const mailerService = new EmailService();
 
-    const admins = await UserModel.findAll({
-      where: {
-        role: "ADMIN",
-      },
-    });
-
-    // Get CAMC managers
-    const tpcManagers = await TpcMemberModel.findAll({
-      where: {
-        role: TpcMemberRoleEnum.MANAGER,
-      },
-      include: [
-        {
-          model: StudentModel,
-          as: "student",
-          include: [
-            {
-              model: UserModel,
-              as: "user",
-            },
-          ],
+      const admins = await UserModel.findAll({
+        where: {
+          role: "ADMIN",
         },
-      ],
-    });
+      });
 
-    // Job instance after create will have companyId but not company instance.
-    const company = await CompanyModel.findByPk(instance.companyId, {
-      attributes: ["name"],
-    });
+      // Get CAMC managers
+      const tpcManagers = await TpcMemberModel.findAll({
+        where: {
+          role: TpcMemberRoleEnum.MANAGER,
+        },
+        include: [
+          {
+            model: StudentModel,
+            as: "student",
+            include: [
+              {
+                model: UserModel,
+                as: "user",
+              },
+            ],
+          },
+        ],
+      });
 
-    const adminEmails = admins.map((admin) => ({ address: admin.email }));
-    const managerEmails = tpcManagers.map((manager) => ({ address: manager.student.user.email }));
-    const allEmails = [...adminEmails, ...managerEmails];
+      // Job instance after create will have companyId but not company instance.
+      const company = await CompanyModel.findByPk(instance.companyId, {
+        attributes: ["name"],
+      });
 
-    const url = `${FRONTEND_URL}/admin/jobs/${instance.id}`;
+      const adminEmails = admins.map((admin) => ({ address: admin.email }));
+      const managerEmails = tpcManagers.map((manager) => ({ address: manager.student.user.email }));
+      const allEmails = [...adminEmails, ...managerEmails];
 
-    const adminPath = path.resolve(process.cwd(), "src/html", "JafToAdmin.html");
-    const adminReplacements = {
-      companyName: company?.name,
-      url: url,
-    };
-    const adminContent = getHtmlContent(adminPath, adminReplacements);
+      const url = `${FRONTEND_URL}/admin/jobs/${instance.id}`;
 
-    const recruiterPath = path.resolve(process.cwd(), "src/html", "JafToRecruiter.html");
+      const adminPath = path.resolve(process.cwd(), "src/html", "JafToAdmin.html");
+      const adminReplacements = {
+        companyName: company?.name,
+        url: url,
+      };
+      const adminContent = getHtmlContent(adminPath, adminReplacements);
 
-    const mailToAdmin: SendEmailDto = {
-      from: { name: APP_NAME, address: MAIL_USER },
-      recepients: [...allEmails],
-      // recepients: [{ address: DEFAULT_MAIL_TO }],
-      subject: `Job Announcement Form Filled by ${company?.name}`,
-      html: adminContent,
-    };
+      const recruiterPath = path.resolve(process.cwd(), "src/html", "JafToRecruiter.html");
 
-    await mailerService.sendEmail(mailToAdmin);
-    // await mailerService.sendEmail(mailToRecruiter);
+      const mailToAdmin: SendEmailDto = {
+        from: { name: APP_NAME, address: MAIL_USER },
+        recepients: [...allEmails],
+        // recepients: [{ address: DEFAULT_MAIL_TO }],
+        subject: `Job Announcement Form Filled by ${company?.name}`,
+        html: adminContent,
+      };
+
+      await mailerService.sendEmail(mailToAdmin);
+      // await mailerService.sendEmail(mailToRecruiter);
+    } catch (error) {
+      console.log("Email sending failed in sendEmailHook:", error?.message || error);
+    }
   }
 
   @BeforeBulkUpdate
@@ -332,141 +337,151 @@ export class JobModel extends Model<JobModel> {
         ],
       });
 
-    const newActive = options.attributes.active;
+      const newActive = options.attributes.active;
 
-    const filteredJobs = jobs.filter((job) => job.active === false && newActive === true);
-    if (filteredJobs.length === 0) return;
+      const filteredJobs = jobs.filter((job) => job.active === false && newActive === true);
+      if (filteredJobs.length === 0) return;
 
-    const salaries = await SalaryModel.findAll({
-      where: {
-        jobId: filteredJobs.map((job) => job.id),
-      },
-      include: [
-        {
-          model: JobModel,
-          as: "job",
-          include: [
-            {
-              model: SeasonModel,
-              as: "season",
-              required: true,
-              include: [
-                {
-                  model: RegistrationModel,
-                  as: "registrations",
-                },
-              ],
-            },
-          ],
+      const salaries = await SalaryModel.findAll({
+        where: {
+          jobId: filteredJobs.map((job) => job.id),
         },
-      ],
-    });
-
-    const programIds = {};
-
-    await Promise.all(
-      salaries.map(async (salary) => {
-        const programs = await ProgramModel.findAll({
-          where: {
-            department: {
-              [Op.in]: salary.facultyApprovals,
-            },
+        include: [
+          {
+            model: JobModel,
+            as: "job",
+            include: [
+              {
+                model: SeasonModel,
+                as: "season",
+                required: true,
+                include: [
+                  {
+                    model: RegistrationModel,
+                    as: "registrations",
+                  },
+                ],
+              },
+            ],
           },
-          attributes: ["id"],
-        });
+        ],
+      });
 
-        programIds[salary.id] = programs.map((program) => program.id);
-      })
-    );
+      const programIds = {};
 
-    const conditions = salaries.map((salary) => {
-      const condition: any = {
-        cpi: { [Op.gte]: salary.minCPI },
-        tenthMarks: { [Op.gte]: salary.tenthMarks },
-        twelthMarks: { [Op.gte]: salary.twelthMarks },
-        id: {
-          [Op.in]: sequelize.literal(
-            `(SELECT "studentId" FROM "Registrations" WHERE "seasonId" = '${salary.job.season.id}' AND "registered" = true)`
-          ),
+      await Promise.all(
+        salaries.map(async (salary) => {
+          const programs = await ProgramModel.findAll({
+            where: {
+              department: {
+                [Op.in]: salary.facultyApprovals,
+              },
+            },
+            attributes: ["id"],
+          });
+
+          programIds[salary.id] = programs.map((program) => program.id);
+        })
+      );
+
+      const conditions = salaries.map((salary) => {
+        const condition: any = {
+          cpi: { [Op.gte]: salary.minCPI },
+          tenthMarks: { [Op.gte]: salary.tenthMarks },
+          twelthMarks: { [Op.gte]: salary.twelthMarks },
+          id: {
+            [Op.in]: sequelize.literal(
+              `(SELECT "studentId" FROM "Registrations" WHERE "seasonId" = '${salary.job.season.id}' AND "registered" = true)`
+            ),
+          },
+          programId: {
+            [Op.or]: [
+              { [Op.in]: salary.programs },
+              salary.programs && salary.programs.length === 0 ? { [Op.is]: null } : undefined,
+            ].filter(Boolean),
+            [Op.not]: programIds[salary.id],
+          },
+        };
+
+        if (salary.categories && salary.categories.length > 0) {
+          condition.category = { [Op.in]: salary.categories };
+        }
+        if (salary.genders && salary.genders.length > 0) {
+          condition.gender = { [Op.in]: salary.genders };
+        }
+        if (salary.isBacklogAllowed === BacklogEnum.NEVER) {
+          condition.backlog = { [Op.eq]: BacklogEnum.NEVER };
+        } else if (salary.isBacklogAllowed === BacklogEnum.PREVIOUS) {
+          condition.backlog = { [Op.in]: [BacklogEnum.NEVER, BacklogEnum.PREVIOUS] };
+        } else {
+          condition.backlog = { [Op.in]: [BacklogEnum.NEVER, BacklogEnum.PREVIOUS, BacklogEnum.ACTIVE] };
+        }
+
+        return condition;
+      });
+
+      const students = await StudentModel.findAll({
+        where: {
+          [Op.or]: conditions,
         },
-        programId: {
-          [Op.or]: [
-            { [Op.in]: salary.programs },
-            salary.programs && salary.programs.length === 0 ? { [Op.is]: null } : undefined,
-          ].filter(Boolean),
-          [Op.not]: programIds[salary.id],
-        },
-      };
+        include: [
+          {
+            model: UserModel,
+            as: "user",
+            required: true,
+          },
+        ],
+      });
 
-      if (salary.categories && salary.categories.length > 0) {
-        condition.category = { [Op.in]: salary.categories };
-      }
-      if (salary.genders && salary.genders.length > 0) {
-        condition.gender = { [Op.in]: salary.genders };
-      }
-      if (salary.isBacklogAllowed === BacklogEnum.NEVER) {
-        condition.backlog = { [Op.eq]: BacklogEnum.NEVER};
-      }
-      else if (salary.isBacklogAllowed === BacklogEnum.PREVIOUS) {
-        condition.backlog = { [Op.in]: [BacklogEnum.NEVER, BacklogEnum.PREVIOUS] };
-      }
-      else{
-        condition.backlog = { [Op.in]: [BacklogEnum.NEVER, BacklogEnum.PREVIOUS, BacklogEnum.ACTIVE] };
-      }
+      const allEmails = students
+        .map((student) => student.user?.email?.trim().toLowerCase())
+        .filter((email) => Boolean(email));
 
-      return condition;
-    });
+      const uniqueEmails = Array.from(new Set(allEmails));
+      if (uniqueEmails.length === 0) return;
 
-    const students = await StudentModel.findAll({
-      where: {
-        [Op.or]: conditions,
-      },
-      include: [
-        {
-          model: UserModel,
-          as: "user",
-          required: true,
-        },
-      ],
-    });
+      const mailerService = new EmailService();
 
-    const mailerService = new EmailService();
+      const url = `${FRONTEND_URL}/student/job/salary/${filteredJobs[0].id}`;
+      const templatePath = path.resolve(process.cwd(), "src/html", "PollForStudent.html");
 
-    const url = `${FRONTEND_URL}/student/job/salary/${filteredJobs[0].id}`;
-    const templatePath = path.resolve(process.cwd(), "src/html", "PollForStudent.html");
+      const firstEvent = filteredJobs[0].events?.[0];
+      const formattedEndDateTime = firstEvent?.endDateTime
+        ? new Date(firstEvent.endDateTime).toLocaleString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            second: "numeric",
+            hour12: true,
+          })
+        : "the specified deadline";
 
-    const formattedEndDateTime = filteredJobs[0].events[0].endDateTime.toLocaleString("en-US", {
-      year: "numeric",
-      month: "long",
-      day: "numeric",
-      hour: "numeric",
-      minute: "numeric",
-      second: "numeric",
-      hour12: true,
-    });
-
-    for (const student of students) {
       const replacements = {
-        companyName: filteredJobs[0].company.name,
-        role: filteredJobs[0].role,
-        studentName: student.user.name,
+        companyName: filteredJobs[0].company?.name || "Company",
+        role: filteredJobs[0].role || "Role",
+        studentName: "Student",
         deadline: formattedEndDateTime,
         url: url,
       };
       const emailHtmlContent = getHtmlContent(templatePath, replacements);
-      const data: SendEmailDto = {
-        from: { name: APP_NAME, address: MAIL_USER },
-        // recepients: [{ address: DEFAULT_MAIL_TO }],
-        recepients: [{ address: student.user.email }],
-        subject: `IMP: POLL for ${filteredJobs[0].company.name} - ${filteredJobs[0].role}`,
-        html: emailHtmlContent,
-      };
 
-      await mailerService.sendEmail(data);
-    }
+      for (let i = 0; i < uniqueEmails.length; i += EMAIL_CHUNK_SIZE) {
+        const emailChunk = uniqueEmails.slice(i, i + EMAIL_CHUNK_SIZE);
+        const data: SendEmailDto = {
+          from: { name: APP_NAME, address: MAIL_USER },
+          recepients: [{ address: MAIL_USER }],
+          bcc: emailChunk.map((email) => ({ address: email })),
+          subject: `IMP: POLL for ${filteredJobs[0].company?.name || "Company"} - ${filteredJobs[0].role || "Role"}`,
+          html: emailHtmlContent,
+        };
+
+        await mailerService.sendEmail(data);
+      }
     } catch (error) {
       // Email sending fails silently - don't throw error
-      console.log('Email sending failed in sendEmailOnEventChange:', error.message);
+      console.log("Email sending failed in sendEmailOnEventChange:", error?.message || error);
     }
   }
 }

@@ -1,6 +1,6 @@
 // email.service.ts
 
-import { Global, HttpException, Injectable, Logger } from "@nestjs/common";
+import { Global, Injectable, Logger } from "@nestjs/common";
 import * as nodemailer from "nodemailer";
 import { env, IEnvironmentVariables } from "../config";
 import { Mail } from "nodemailer/lib/mailer";
@@ -13,6 +13,8 @@ import { Attachment } from "nodemailer/lib/mailer";
 export class SendEmailDto {
   from?: Address;
   recepients: Address[];
+  bcc?: Address[];
+  cc?: Address[];
   subject: string;
   html: string;
   text?: string;
@@ -32,10 +34,17 @@ export function getHtmlContent(filePath: string, replacements: { [key: string]: 
 @Global()
 @Injectable()
 export class EmailService {
-  mailTransport() {
+  private logger = new Logger(EmailService.name);
+  private static transporter: nodemailer.Transporter | null = null;
+
+  mailTransport(): nodemailer.Transporter {
+    if (EmailService.transporter) {
+      return EmailService.transporter;
+    }
+
     const environmentVariables: IEnvironmentVariables = env();
     const { MAIL_USER, MAIL_PASSWORD } = environmentVariables;
-    const transporter = nodemailer.createTransport({
+    EmailService.transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
         user: MAIL_USER,
@@ -43,11 +52,11 @@ export class EmailService {
       },
     });
 
-    return transporter;
+    return EmailService.transporter;
   }
 
   async sendEmail(dto: SendEmailDto) {
-    const { from, recepients, subject, html, placeholderReplacements, attachments } = dto;
+    const { from, recepients, bcc, cc, subject, html, attachments } = dto;
     const environmentVariables: IEnvironmentVariables = env();
     const { MAIL_USER, APP_NAME } = environmentVariables;
 
@@ -59,53 +68,50 @@ export class EmailService {
         address: MAIL_USER,
       },
       to: recepients,
+      bcc,
+      cc,
       subject,
       html,
       attachments,
     };
 
-    const result = await transport.sendMail(options, (error, info) => {
-      if (error) {
-        this.logger.error("Error sending email1:", error);
-        throw new HttpException("Error sending email", 500);
-      } else {
-        this.logger.log("Email sent:", info.response);
-      }
-    });
-
-    return result;
+    try {
+      const result = await transport.sendMail(options);
+      this.logger.log(`Email sent: ${result.response || result.messageId || "success"}`);
+      return result;
+    } catch (error) {
+      this.logger.error("Error sending email:", error);
+      return null;
+    }
   }
-  private logger = new Logger(EmailService.name);
 
   async sendTokenEmail(to: string, token: string): Promise<boolean> {
-    const transport = this.mailTransport();
-    const environmentVariables: IEnvironmentVariables = env();
-    const { MAIL_USER, APP_NAME, FRONTEND_URL } = environmentVariables;
-    const url = `${FRONTEND_URL}/passwordless/${token}`;
-    const templatePath = path.resolve(process.cwd(), "src/html", "token.html");
-    const replacements = {
-      url: url,
-    };
-    const emailHtmlContent = getHtmlContent(templatePath, replacements);
-    const options: Mail.Options = {
-      from: {
-        name: APP_NAME,
-        address: MAIL_USER,
-      },
-      to: to,
-      subject: "token for your login",
-      html: emailHtmlContent,
-    };
+    try {
+      const transport = this.mailTransport();
+      const environmentVariables: IEnvironmentVariables = env();
+      const { MAIL_USER, APP_NAME, FRONTEND_URL } = environmentVariables;
+      const url = `${FRONTEND_URL}/passwordless/${token}`;
+      const templatePath = path.resolve(process.cwd(), "src/html", "token.html");
+      const replacements = {
+        url: url,
+      };
+      const emailHtmlContent = getHtmlContent(templatePath, replacements);
+      const options: Mail.Options = {
+        from: {
+          name: APP_NAME,
+          address: MAIL_USER,
+        },
+        to: to,
+        subject: "token for your login",
+        html: emailHtmlContent,
+      };
 
-    await transport.sendMail(options, (error, info) => {
-      if (error) {
-        this.logger.error("Error sending email1:", error);
-        throw new HttpException("Error sending email", 500);
-      } else {
-        this.logger.log("Email sent:", info.response);
-      }
-    });
-
-    return true;
+      const result = await transport.sendMail(options);
+      this.logger.log(`Email sent: ${result.response || result.messageId || "success"}`);
+      return true;
+    } catch (error) {
+      this.logger.error("Error sending token email:", error);
+      return false;
+    }
   }
 }
