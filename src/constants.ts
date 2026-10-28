@@ -397,3 +397,4 @@ export const POLICY_FOLDER = path.join(env().UPLOAD_DIR, "policy");
 export const ADMIN_DAO = "ADMIN_DAO";
 export const NOTICEBOARD_DAO = "NOTICEBOARD_DAO";
 export const SEQUELIZE = "SEQUELIZE";
+export const EMAIL_CHUNK_SIZE = 80;
