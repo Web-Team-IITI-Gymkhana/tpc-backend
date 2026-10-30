@@ -51,6 +51,7 @@ export class RecruiterController {
     return ans.flat();
   }
   @DeleteValues()
+  @UseGuards(new RoleGuard(RoleEnum.ADMIN))
   async deleteRecruiters(@Query() query: DeleteValuesDto) {
     const ids = query.id;
     const pids = typeof ids === "string" ? [ids] : ids;

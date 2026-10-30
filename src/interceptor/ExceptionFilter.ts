@@ -1,10 +1,12 @@
 import { ExceptionFilter, Catch, ArgumentsHost, HttpException, HttpStatus, Logger } from "@nestjs/common";
 import { Request, Response } from "express";
+import { SentryExceptionCaptured } from "@sentry/nestjs";
 
 @Catch()
 export class HttpExceptionFilter implements ExceptionFilter {
   private logger = new Logger(HttpExceptionFilter.name);
 
+  @SentryExceptionCaptured()
   catch(error: Error, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const request = ctx.getRequest<Request>();
@@ -42,6 +44,14 @@ export class HttpExceptionFilter implements ExceptionFilter {
       this.logger.error(error);
       message = "Unknown error happened";
       status = HttpStatus.INTERNAL_SERVER_ERROR;
+    }
+
+    try {
+      const ts = new Date().toISOString();
+      const logMessage = Array.isArray(message) ? message.join(", ") : String(message ?? "");
+      console.error(`[Error] ${ts} ${request.method} ${request.url} ${status} ${logMessage}`);
+    } catch (_) {
+      // never let logging interfere with the response
     }
 
     response.status(status).json({

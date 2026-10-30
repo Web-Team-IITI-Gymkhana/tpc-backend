@@ -38,6 +38,7 @@ export class PenaltyController {
     return ans.flat();
   }
   @DeleteValues()
+  @UseGuards(new RoleGuard(RoleEnum.ADMIN))
   async deletePenalties(@Query() query: DeleteValuesDto) {
     const ans = await this.penaltyService.deletePenalties(query.id);
 

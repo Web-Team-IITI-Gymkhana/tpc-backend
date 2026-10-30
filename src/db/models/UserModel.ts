@@ -1,4 +1,4 @@
-import { Table, Column, Model, IsEmail, Unique, AllowNull, HasOne } from "sequelize-typescript";
+import { Table, Column, Model, IsEmail, Unique, AllowNull, HasOne, BeforeCreate, BeforeUpdate } from "sequelize-typescript";
 import sequelize from "sequelize";
 import { RoleEnum } from "../../enums";
 import { StudentModel } from "./StudentModel";
@@ -10,6 +10,14 @@ import { TpcMemberModel } from "./TpcMemberModel";
   tableName: "User",
 })
 export class UserModel extends Model<UserModel> {
+  @BeforeCreate
+  @BeforeUpdate
+  static lowercaseEmail(instance: UserModel) {
+    if (instance.email) {
+      instance.email = instance.email.trim().toLowerCase();
+    }
+  }
+
   @Column({
     primaryKey: true,
     allowNull: false,

@@ -1,5 +1,5 @@
 import { Global, Inject, Injectable, Logger } from "@nestjs/common";
-import { Transaction } from "sequelize";
+import { Transaction, Op } from "sequelize";
 import { USER_DAO } from "src/constants";
 import { RoleEnum } from "src/enums";
 import { FacultyModel, RecruiterModel, StudentModel, TpcMemberModel, UserModel } from "src/db/models";
@@ -14,7 +14,11 @@ export class UserService {
 
   async getUserByEmail(email: string): Promise<IUser> {
     const userModel = await this.userRepo.findOne({
-      where: { email: email },
+      where: {
+        email: {
+          [Op.iLike]: email.trim(),
+        },
+      },
       attributes: ["id", "role"],
       include: [
         {

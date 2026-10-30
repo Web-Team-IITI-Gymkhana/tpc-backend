@@ -49,7 +49,7 @@ export class CompanyController {
     return ans.flat();
   }
   @DeleteValues()
-  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.TPC_MEMBER))
+  @UseGuards(AuthGuard("jwt"), new RoleGuard(RoleEnum.ADMIN))
   async deleteCompanies(@Query() query: DeleteValuesDto) {
     const ans = await this.companyService.deleteCompanies(query.id);
 

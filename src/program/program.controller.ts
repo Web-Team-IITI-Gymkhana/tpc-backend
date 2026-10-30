@@ -40,6 +40,7 @@ export class ProgramController {
     return ans.flat();
   }
   @DeleteValues()
+  @UseGuards(new RoleGuard(RoleEnum.ADMIN))
   async deletePrograms(@Query() query: DeleteValuesDto) {
     const ans = await this.programService.deletePrograms(query.id);
 

@@ -1,5 +1,5 @@
 import { ApiPropertyOptional, ApiProperty, ApiPropertyOptions } from "@nestjs/swagger";
-import { Type } from "class-transformer";
+import { Transform, Type } from "class-transformer";
 import {
   ValidateNested,
   IsOptional,
@@ -84,6 +84,9 @@ export function NestedEnum(enumType: any, options: { optional?: boolean; isArray
     if (optional) {
       ApiPropertyOptional(apiPropertyOptions)(target, key);
       IsOptional()(target, key);
+      // Coerce empty strings to undefined so @IsOptional skips @IsEnum validation.
+      // This prevents blank/empty values from being stored in the DB.
+      Transform(({ value }) => (value === "" || value === null ? undefined : value))(target, key);
     } else {
       ApiProperty(apiPropertyOptions)(target, key);
     }

@@ -102,7 +102,7 @@ export class FacultyService {
       department: faculty.department,
       user: {
         name: faculty.user.name,
-        email: faculty.user.email,
+        email: faculty.user.email.trim().toLowerCase(),
         contact: faculty.user.contact,
         role: RoleEnum.FACULTY,
       },

@@ -59,6 +59,7 @@ export class OnCampusOfferController {
   }
 
   @DeleteValues()
+  @UseGuards(new RoleGuard(RoleEnum.ADMIN))
   async deleteOnCampusOffers(@Query() query: DeleteValuesDto) {
     const ans = await this.offerService.deleteOnCampusOffers(query.id);
 
