@@ -16,6 +16,7 @@ export class SendEmailDto {
   subject: string;
   html: string;
   text?: string;
+  attachments?: Mail.Options["attachments"];
   placeholderReplacements?: Record<string, string>;
 }
 
