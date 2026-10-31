@@ -75,5 +75,14 @@ export function env(): IEnvironmentVariables {
     throw new Error("AGENTS_TIMEOUT_MS must be a positive integer");
   }
 
+  if (ans.AGENTS_ENABLED) {
+    try {
+      const url = new URL(ans.AGENTS_SERVICE_URL);
+      if (!["http:", "https:"].includes(url.protocol)) throw new Error("Unsupported URL protocol");
+    } catch (_error) {
+      throw new Error("AGENTS_SERVICE_URL must be a valid HTTP URL");
+    }
+  }
+
   return ans;
 }
