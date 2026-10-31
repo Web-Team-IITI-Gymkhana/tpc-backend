@@ -1,13 +1,15 @@
-import { Module } from "@nestjs/common";
+import { MiddlewareConsumer, Module, NestModule } from "@nestjs/common";
 import { AgentsController } from "./agents.controller";
-import { AgentsEnabledGuard } from "./agents.enabled.guard";
 import { AgentsExceptionFilter } from "./agents.exception-filter";
-import { AgentsRequestIdGuard } from "./agents.request-id.guard";
 import { AgentsService } from "./agents.service";
-import { AgentsThrottlerGuard } from "./agents.throttler.guard";
+import { AgentsRequestIdMiddleware } from "./agents-request-id.middleware";
 
 @Module({
   controllers: [AgentsController],
-  providers: [AgentsEnabledGuard, AgentsExceptionFilter, AgentsRequestIdGuard, AgentsService, AgentsThrottlerGuard],
+  providers: [AgentsExceptionFilter, AgentsRequestIdMiddleware, AgentsService],
 })
-export class AgentsModule {}
+export class AgentsModule implements NestModule {
+  configure(consumer: MiddlewareConsumer): void {
+    consumer.apply(AgentsRequestIdMiddleware).forRoutes(AgentsController);
+  }
+}
