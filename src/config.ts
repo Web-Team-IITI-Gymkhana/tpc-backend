@@ -23,6 +23,10 @@ export interface IEnvironmentVariables {
   APP_NAME: string;
   RECAPTCHA_SECRET: string;
   SENTRY_DSN: string;
+  AGENTS_ENABLED: boolean;
+  AGENTS_SERVICE_URL?: string;
+  AGENTS_SERVICE_SECRET?: string;
+  AGENTS_TIMEOUT_MS?: number;
 }
 
 export function env(): IEnvironmentVariables {
@@ -50,10 +54,25 @@ export function env(): IEnvironmentVariables {
     APP_NAME: process.env.APP_NAME,
     RECAPTCHA_SECRET: process.env.RECAPTCHA_SECRET,
     SENTRY_DSN: process.env.SENTRY_DSN || "",
+    AGENTS_ENABLED: process.env.AGENTS_ENABLED === "true",
+    AGENTS_SERVICE_URL: process.env.AGENTS_SERVICE_URL,
+    AGENTS_SERVICE_SECRET: process.env.AGENTS_SERVICE_SECRET,
+    AGENTS_TIMEOUT_MS: process.env.AGENTS_TIMEOUT_MS ? Number(process.env.AGENTS_TIMEOUT_MS) : undefined,
   };
 
   for (const key in ans) {
+    if (["AGENTS_SERVICE_URL", "AGENTS_SERVICE_SECRET", "AGENTS_TIMEOUT_MS"].includes(key) && !ans.AGENTS_ENABLED) {
+      continue;
+    }
     if (ans[key] === undefined) throw new Error(`${key} not found in environment variables`);
+  }
+
+  if (ans.AGENTS_ENABLED && (!ans.AGENTS_SERVICE_URL || !ans.AGENTS_SERVICE_SECRET || !ans.AGENTS_TIMEOUT_MS)) {
+    throw new Error("Agent service settings are required when AGENTS_ENABLED is true");
+  }
+
+  if (ans.AGENTS_ENABLED && (!Number.isInteger(ans.AGENTS_TIMEOUT_MS) || ans.AGENTS_TIMEOUT_MS <= 0)) {
+    throw new Error("AGENTS_TIMEOUT_MS must be a positive integer");
   }
 
   return ans;
