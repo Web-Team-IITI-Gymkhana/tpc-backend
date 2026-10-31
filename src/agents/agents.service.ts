@@ -11,14 +11,22 @@ import axios from "axios";
 import * as jwt from "jsonwebtoken";
 import { v4 as uuidv4 } from "uuid";
 import { env } from "src/config";
-import { AgentsRole } from "./agents.roles";
+import { RoleEnum } from "src/enums";
 
 @Injectable()
 export class AgentsService {
   private readonly logger = new Logger(AgentsService.name);
   private readonly inFlightUsers = new Set<string>();
 
-  createServiceToken(userId: string, role: AgentsRole, requestId: string): string {
+  getServiceRole(role: RoleEnum): string {
+    if (![RoleEnum.STUDENT, RoleEnum.RECRUITER, RoleEnum.TPC_MEMBER, RoleEnum.ADMIN].includes(role)) {
+      throw new HttpException("You are not allowed to use the chatbot", HttpStatus.FORBIDDEN);
+    }
+
+    return role.toLowerCase();
+  }
+
+  createServiceToken(userId: string, role: string, requestId: string): string {
     const config = env();
 
     if (!config.AGENTS_ENABLED || !config.AGENTS_SERVICE_SECRET) {
@@ -39,7 +47,7 @@ export class AgentsService {
     );
   }
 
-  async ask(query: string, userId: string, role: AgentsRole, requestId: string): Promise<string> {
+  async ask(query: string, userId: string, role: string, requestId: string): Promise<string> {
     const config = env();
     if (this.inFlightUsers.has(userId)) {
       throw new HttpException("Too many chatbot requests", HttpStatus.TOO_MANY_REQUESTS);

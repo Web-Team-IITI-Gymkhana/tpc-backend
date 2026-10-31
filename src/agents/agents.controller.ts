@@ -2,7 +2,6 @@ import { Body, Controller, HttpException, Post, Req, ServiceUnavailableException
 import { AuthGuard } from "@nestjs/passport";
 import { ApiBearerAuth, ApiTags } from "@nestjs/swagger";
 import { Throttle, ThrottlerGuard } from "@nestjs/throttler";
-import { AgentsRole, getAgentsRole } from "./agents.roles";
 import { AgentsChatDto } from "./dtos/post.dto";
 import { AgentsExceptionFilter } from "./agents.exception-filter";
 import { AgentsService } from "./agents.service";
@@ -33,7 +32,7 @@ export class AgentsController {
     try {
       if (!env().AGENTS_ENABLED) throw new ServiceUnavailableException("Chatbot is currently unavailable");
 
-      const role: AgentsRole = getAgentsRole(request.user.role);
+      const role = this.agentsService.getServiceRole(request.user.role);
       auditRole = role;
       const response = await this.agentsService.ask(body.query, request.user.id, role, requestId);
       status = 200;
