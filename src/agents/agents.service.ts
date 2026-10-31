@@ -85,7 +85,14 @@ export class AgentsService {
     }
   }
 
-  logAudit(userId: string, role: string, requestId: string, queryLength: number, status: number, latency: number): void {
+  logAudit(
+    userId: string | null,
+    role: string | null,
+    requestId: string,
+    queryLength: number | null,
+    status: number,
+    latency: number
+  ): void {
     this.logger.log(
       JSON.stringify({
         event: "agents.chat",
