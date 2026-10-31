@@ -6,6 +6,8 @@ import { AgentsChatDto } from "./dtos/post.dto";
 import { AgentsExceptionFilter } from "./agents.exception-filter";
 import { AgentsService } from "./agents.service";
 import { env } from "src/config";
+import { User } from "src/decorators/User";
+import { IUser } from "src/auth/User";
 
 @Controller("agents")
 @ApiTags("Agents")
@@ -23,18 +25,18 @@ export class AgentsController {
   })
   @UseGuards(AuthGuard("jwt"), ThrottlerGuard)
   @UseFilters(AgentsExceptionFilter)
-  async chat(@Body() body: AgentsChatDto, @Req() request) {
+  async chat(@Body() body: AgentsChatDto, @User() user: IUser, @Req() request) {
     const startedAt = Date.now();
     const requestId = request.agentsRequestId;
-    let auditRole: string = request.user.role;
+    let auditRole: string = user.role;
     let status = 500;
 
     try {
       if (!env().AGENTS_ENABLED) throw new ServiceUnavailableException("Chatbot is currently unavailable");
 
-      const role = this.agentsService.getServiceRole(request.user.role);
+      const role = this.agentsService.getServiceRole(user.role);
       auditRole = role;
-      const response = await this.agentsService.ask(body.query, request.user.id, role, requestId);
+      const response = await this.agentsService.ask(body.query, user.id, role, requestId);
       status = 200;
 
       return { response, request_id: requestId };
@@ -43,7 +45,7 @@ export class AgentsController {
       throw error;
     } finally {
       this.agentsService.logAudit(
-        request.user.id,
+        user.id,
         auditRole,
         requestId,
         body.query.length,
