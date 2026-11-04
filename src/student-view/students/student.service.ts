@@ -45,6 +45,7 @@ import { EventsQueryDto } from "src/event/dtos/query.dto";
 import { JobsQueryDto } from "src/job/dtos/query.dto";
 import { parseFilter, parseOrder, parsePagesize } from "src/utils";
 import { OnboardingUpdateDto } from "../../student/dtos/patch.dto";
+import { validateBacklogCount } from "../../student/validateBacklogCount";
 
 @Injectable()
 export class StudentService {
@@ -513,14 +514,15 @@ export class StudentService {
     }
 
     if (
-      student.backlog === null ||
-      student.backlog === undefined ||
-      student.tenthMarks === null ||
-      student.tenthMarks === undefined ||
-      student.twelthMarks === null ||
-      student.twelthMarks === undefined
+      student?.backlog == null ||
+      student?.tenthMarks == null ||
+      student?.twelthMarks == null
     ) {
       throw new BadRequestException("Please complete your profile onboarding before registering for seasons");
+    }
+
+    if (student.numberOfBacklogs == null) {
+      throw new BadRequestException("Please go to your profile and update your 'Number of Backlogs' before continuing.");
     }
 
     const season = await this.seasonRepo.findOne({ where: { id: seasonId } });
@@ -544,12 +546,9 @@ export class StudentService {
     }
 
     if (
-      student.backlog === null ||
-      student.backlog === undefined ||
-      student.tenthMarks === null ||
-      student.tenthMarks === undefined ||
-      student.twelthMarks === null ||
-      student.twelthMarks === undefined
+      student?.backlog == null ||
+      student?.tenthMarks == null ||
+      student?.twelthMarks == null
     ) {
       throw new BadRequestException("Please complete your profile onboarding before modifying season registrations");
     }
@@ -577,22 +576,40 @@ export class StudentService {
 
     const updates: any = {};
 
-    if (updateData.backlog !== undefined) {
-      if (currentStudent.backlog !== null && currentStudent.backlog !== undefined) {
+    if (updateData?.backlog !== undefined) {
+      if (currentStudent?.backlog != null) {
         throw new BadRequestException("Backlog status has already been set and cannot be modified");
       }
       updates.backlog = updateData.backlog;
+
+      // Automatically assign 0 if they have no active backlogs
+      if (
+        updateData.backlog === BacklogEnum.NEVER || 
+        updateData.backlog === BacklogEnum.PREVIOUS
+      ) {
+        updates.numberOfBacklogs = 0;
+      }
     }
 
-    if (updateData.tenthMarks !== undefined) {
-      if (currentStudent.tenthMarks !== null && currentStudent.tenthMarks !== undefined) {
+    if (updateData?.numberOfBacklogs !== undefined) {
+      if (currentStudent?.numberOfBacklogs != null) {
+        throw new BadRequestException("Number of backlogs has already been set and cannot be modified");
+      }
+      if (updateData.numberOfBacklogs === null) {
+        throw new BadRequestException("Number of backlogs must be a nonnegative integer");
+      }
+      updates.numberOfBacklogs = updateData.numberOfBacklogs;
+    }
+
+    if (updateData?.tenthMarks !== undefined) {
+      if (currentStudent?.tenthMarks != null) {
         throw new BadRequestException("10th marks have already been set and cannot be modified");
       }
       updates.tenthMarks = updateData.tenthMarks;
     }
 
-    if (updateData.twelthMarks !== undefined) {
-      if (currentStudent.twelthMarks !== null && currentStudent.twelthMarks !== undefined) {
+    if (updateData?.twelthMarks !== undefined) {
+      if (currentStudent?.twelthMarks != null) {
         throw new BadRequestException("12th marks have already been set and cannot be modified");
       }
       updates.twelthMarks = updateData.twelthMarks;
@@ -600,6 +617,10 @@ export class StudentService {
 
     if (Object.keys(updates).length === 0) {
       return { message: "No updates to apply" };
+    }
+
+    if (updateData?.backlog !== undefined || updateData?.numberOfBacklogs !== undefined) {
+      validateBacklogCount(updates.backlog ?? currentStudent.backlog, updates.numberOfBacklogs ?? currentStudent.numberOfBacklogs);
     }
 
     await this.studentRepo.update(updates, {
