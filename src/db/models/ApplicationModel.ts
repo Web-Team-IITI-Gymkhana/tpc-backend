@@ -113,123 +113,131 @@ export class ApplicationModel extends Model<ApplicationModel> {
 
   @AfterCreate
   static async sendEmailHook(instance: ApplicationModel) {
-    if (SEND_MAIL == "FALSE") return;
-    const mailerService = new EmailService();
+    try {
+      if (SEND_MAIL == "FALSE") return;
+      const mailerService = new EmailService();
 
-    const student = await StudentModel.findByPk(instance.studentId, {
-      include: [
-        {
-          model: UserModel,
-          as: "user",
-        },
-      ],
-    });
+      const student = await StudentModel.findByPk(instance.studentId, {
+        include: [
+          {
+            model: UserModel,
+            as: "user",
+          },
+        ],
+      });
 
-    const job = await JobModel.findByPk(instance.jobId, {
-      include: [
-        {
-          model: CompanyModel,
-          as: "company",
-        },
-      ],
-    });
+      const job = await JobModel.findByPk(instance.jobId, {
+        include: [
+          {
+            model: CompanyModel,
+            as: "company",
+          },
+        ],
+      });
 
-    const templatePath = path.resolve(process.cwd(), "src/html", "ApplicationToStudent.html");
-    const replacements = {
-      studentName: student.user.name,
-      companyName: job.company.name,
-      role: job.role,
-    };
-    const emailHtmlContent = getHtmlContent(templatePath, replacements);
+      const templatePath = path.resolve(process.cwd(), "src/html", "ApplicationToStudent.html");
+      const replacements = {
+        studentName: student?.user?.name || "Student",
+        companyName: job?.company?.name || "Company",
+        role: job?.role || "Role",
+      };
+      const emailHtmlContent = getHtmlContent(templatePath, replacements);
 
-    const dto: SendEmailDto = {
-      from: { name: APP_NAME, address: MAIL_USER },
-      // recepients: [{ address: DEFAULT_MAIL_TO }],
-      recepients: [{ address: `${student.user.email}` }],
-      subject: "Job Application Successfully Submitted",
-      html: emailHtmlContent,
-    };
+      const dto: SendEmailDto = {
+        from: { name: APP_NAME, address: MAIL_USER },
+        // recepients: [{ address: DEFAULT_MAIL_TO }],
+        recepients: [{ address: `${student?.user?.email}` }],
+        subject: "Job Application Successfully Submitted",
+        html: emailHtmlContent,
+      };
 
-    await mailerService.sendEmail(dto);
+      await mailerService.sendEmail(dto);
+    } catch (error) {
+      console.log("Email sending failed in ApplicationModel.sendEmailHook:", error?.message || error);
+    }
   }
 
   @BeforeBulkUpdate
   static async sendEmailOnEventChange(options: IUpdateOptions) {
-    if (SEND_MAIL == "FALSE") return;
-    if (options.attributes.eventId === undefined) return;
-    const applications = await ApplicationModel.findAll({ where: options.where });
+    try {
+      if (SEND_MAIL == "FALSE") return;
+      if (options.attributes.eventId === undefined) return;
+      const applications = await ApplicationModel.findAll({ where: options.where });
 
-    const newEventId = options.attributes.eventId;
+      const newEventId = options.attributes.eventId;
 
-    const filteredApplications = applications.filter((application) => application.eventId !== newEventId);
+      const filteredApplications = applications.filter((application) => application.eventId !== newEventId);
 
-    const students = await StudentModel.findAll({
-      where: {
-        id: filteredApplications.map((application) => application.studentId),
-      },
-      include: [
-        {
-          model: UserModel,
-          as: "user",
-          required: true,
+      const students = await StudentModel.findAll({
+        where: {
+          id: filteredApplications.map((application) => application.studentId),
         },
-      ],
-    });
+        include: [
+          {
+            model: UserModel,
+            as: "user",
+            required: true,
+          },
+        ],
+      });
 
-    const jobs = await JobModel.findAll({
-      where: {
-        id: filteredApplications.map((application) => application.jobId),
-      },
-      include: [
-        {
-          model: CompanyModel,
-          as: "company",
+      const jobs = await JobModel.findAll({
+        where: {
+          id: filteredApplications.map((application) => application.jobId),
         },
-      ],
-    });
+        include: [
+          {
+            model: CompanyModel,
+            as: "company",
+          },
+        ],
+      });
 
-    const studentDict = students.reduce((acc, student) => {
-      acc[student.id] = student;
+      const studentDict = students.reduce((acc, student) => {
+        acc[student.id] = student;
 
-      return acc;
-    }, {});
+        return acc;
+      }, {});
 
-    const jobDict = jobs.reduce((acc, job) => {
-      acc[job.id] = job;
+      const jobDict = jobs.reduce((acc, job) => {
+        acc[job.id] = job;
 
-      return acc;
-    }, {});
+        return acc;
+      }, {});
 
-    const applicationarray = filteredApplications.map((application) => {
-      return {
-        ...application,
-        student: studentDict[application.studentId],
-        job: jobDict[application.jobId],
-      };
-    });
+      const applicationarray = filteredApplications.map((application) => {
+        return {
+          ...application,
+          student: studentDict[application.studentId],
+          job: jobDict[application.jobId],
+        };
+      });
 
-    const mailerService = new EmailService();
+      const mailerService = new EmailService();
 
-    const templatePath = path.resolve(process.cwd(), "src/html", "PromotionToStudent.html");
+      const templatePath = path.resolve(process.cwd(), "src/html", "PromotionToStudent.html");
 
-    for (const application of applicationarray) {
-      const url = `${FRONTEND_URL}/student/job/${application.job.id}`;
-      const replacements = {
-        companyName: application.job.company.name,
-        studentName: application.student.user.name,
-        url: url,
-        role: application.job.role,
-      };
-      const emailHtmlContent = getHtmlContent(templatePath, replacements);
-      const data: SendEmailDto = {
-        from: { name: APP_NAME, address: MAIL_USER },
-        // recepients: [{ address: DEFAULT_MAIL_TO }],
-        recepients: [{ address: application.student.user.email }],
-        subject: `Advancement to Next Round with ${application.job.company.name}`,
-        html: emailHtmlContent,
-      };
+      for (const application of applicationarray) {
+        const url = `${FRONTEND_URL}/student/job/${application.job?.id}`;
+        const replacements = {
+          companyName: application.job?.company?.name || "Company",
+          studentName: application.student?.user?.name || "Student",
+          url: url,
+          role: application.job?.role || "Role",
+        };
+        const emailHtmlContent = getHtmlContent(templatePath, replacements);
+        const data: SendEmailDto = {
+          from: { name: APP_NAME, address: MAIL_USER },
+          // recepients: [{ address: DEFAULT_MAIL_TO }],
+          recepients: [{ address: application.student?.user?.email }],
+          subject: `Advancement to Next Round with ${application.job?.company?.name || "Company"}`,
+          html: emailHtmlContent,
+        };
 
-      await mailerService.sendEmail(data);
+        await mailerService.sendEmail(data);
+      }
+    } catch (error) {
+      console.log("Email sending failed in ApplicationModel.sendEmailOnEventChange:", error?.message || error);
     }
   }
 }
