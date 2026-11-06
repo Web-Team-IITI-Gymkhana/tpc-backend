@@ -279,8 +279,8 @@ export class JobExportService {
           e.id,
           e.type || e.title || "N/A",
           e.roundNumber ?? "N/A",
-          e.startDateTime ? new Date(e.startDateTime).toLocaleString() : "N/A",
-          e.endDateTime ? new Date(e.endDateTime).toLocaleString() : "N/A",
+          e.startDateTime ? new Date(e.startDateTime).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }) : "N/A",
+          e.endDateTime ? new Date(e.endDateTime).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }) : "N/A",
           e.venue || "N/A",
         ]);
       });
@@ -504,7 +504,7 @@ ${coordinators.length === 0 ? `No coordinators & - & - & - & - \\\\` : coordinat
 \\textbf{Round} & \\textbf{Event Type} & \\textbf{Start Time} & \\textbf{Venue} \\\\
 \\midrule
 ${events.length === 0 ? `No events scheduled & - & - & - \\\\` : events.map((e: any) => {
-  const stTime = e.startDateTime ? new Date(e.startDateTime).toLocaleString() : "N/A";
+  const stTime = e.startDateTime ? new Date(e.startDateTime).toLocaleString("en-US", { timeZone: "Asia/Kolkata" }) : "N/A";
   return `${this.escapeLatex(e.roundNumber ?? 0)} & ${this.escapeLatex(e.type || e.title || "N/A")} & ${this.escapeLatex(stTime)} & ${this.escapeLatex(e.venue || "N/A")} \\\\`;
 }).join("\n")}
 \\bottomrule

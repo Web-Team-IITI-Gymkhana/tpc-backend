@@ -20,6 +20,11 @@ export class SendEmailDto {
   text?: string;
   placeholderReplacements?: Record<string, string>;
   attachments?: Attachment[];
+  icalEvent?: {
+    filename?: string;
+    method?: string;
+    content?: string | Buffer;
+  };
 }
 
 export function getHtmlContent(filePath: string, replacements: { [key: string]: string }): string {
@@ -56,7 +61,7 @@ export class EmailService {
   }
 
   async sendEmail(dto: SendEmailDto) {
-    const { from, recepients, bcc, cc, subject, html, attachments } = dto;
+    const { from, recepients, bcc, cc, subject, html, attachments, icalEvent } = dto;
     const environmentVariables: IEnvironmentVariables = env();
     const { MAIL_USER, APP_NAME } = environmentVariables;
 
@@ -73,6 +78,7 @@ export class EmailService {
       subject,
       html,
       attachments,
+      ...(icalEvent ? { icalEvent } : {}),
     };
 
     try {

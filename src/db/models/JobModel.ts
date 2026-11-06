@@ -21,7 +21,7 @@ import { RecruiterModel } from "./RecruiterModel";
 import { SalaryModel } from "./SalaryModel";
 import { JobCoordinatorModel } from "./JobCoordinatorModel";
 import { FacultyApprovalRequestModel } from "./FacultyApprovalRequestModel";
-import { BacklogEnum, CategoryEnum, DepartmentEnum, GenderEnum, JobStatusTypeEnum, TpcMemberRoleEnum } from "../../enums";
+import { BacklogEnum, CategoryEnum, DepartmentEnum, EventTypeEnum, GenderEnum, JobStatusTypeEnum, TpcMemberRoleEnum } from "../../enums";
 import { ApplicationModel } from "./ApplicationModel";
 import { EmailService, getHtmlContent } from "../../services/EmailService";
 import { SendEmailDto } from "../../services/EmailService";
@@ -445,9 +445,25 @@ export class JobModel extends Model<JobModel> {
       const url = `${FRONTEND_URL}/student/job/salary/${filteredJobs[0].id}`;
       const templatePath = path.resolve(process.cwd(), "src/html", "PollForStudent.html");
 
-      const firstEvent = filteredJobs[0].events?.[0];
-      const formattedEndDateTime = firstEvent?.endDateTime
-        ? new Date(firstEvent.endDateTime).toLocaleString("en-US", {
+      const pollEvent =
+        filteredJobs[0].events?.find((e) => e.type === EventTypeEnum.POLL || e.roundNumber === 0) ||
+        filteredJobs[0].events?.[0];
+      const formattedStartDateTime = pollEvent?.startDateTime
+        ? new Date(pollEvent.startDateTime).toLocaleString("en-US", {
+            timeZone: "Asia/Kolkata",
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            hour: "numeric",
+            minute: "numeric",
+            second: "numeric",
+            hour12: true,
+          })
+        : "Immediately";
+
+      const formattedEndDateTime = pollEvent?.endDateTime
+        ? new Date(pollEvent.endDateTime).toLocaleString("en-US", {
+            timeZone: "Asia/Kolkata",
             year: "numeric",
             month: "long",
             day: "numeric",
@@ -458,12 +474,52 @@ export class JobModel extends Model<JobModel> {
           })
         : "the specified deadline";
 
+      const companyName = filteredJobs[0].company?.name || "Company";
+      const role = filteredJobs[0].role || "Role";
+
+      let googleCalendarUrl = url;
+      let icalContent = "";
+
+      if (pollEvent?.endDateTime) {
+        const startDate = pollEvent.startDateTime ? new Date(pollEvent.startDateTime) : new Date();
+        const endDate = new Date(pollEvent.endDateTime);
+        const formatToCalDate = (d: Date) => d.toISOString().replace(/[-:]|\.\d{3}/g, "");
+        const startCal = formatToCalDate(startDate);
+        const endCal = formatToCalDate(endDate);
+
+        const eventTitle = encodeURIComponent(`POLL Deadline: ${companyName} - ${role}`);
+        const eventDetails = encodeURIComponent(`Please participate in the poll on the Placement Portal: ${url}`);
+
+        googleCalendarUrl = `https://calendar.google.com/calendar/render?action=TEMPLATE&text=${eventTitle}&dates=${startCal}/${endCal}&details=${eventDetails}`;
+
+        icalContent = [
+          "BEGIN:VCALENDAR",
+          "VERSION:2.0",
+          "PRODID:-//Training and Placement Cell//Placement Portal//EN",
+          "CALSCALE:GREGORIAN",
+          "METHOD:REQUEST",
+          "BEGIN:VEVENT",
+          `UID:${filteredJobs[0].id}-${pollEvent.id || "poll"}@placementportal`,
+          `DTSTAMP:${formatToCalDate(new Date())}`,
+          `DTSTART:${startCal}`,
+          `DTEND:${endCal}`,
+          `SUMMARY:POLL: ${companyName} - ${role}`,
+          `DESCRIPTION:Please participate in the poll on the Placement Portal: ${url}`,
+          `URL:${url}`,
+          "STATUS:CONFIRMED",
+          "END:VEVENT",
+          "END:VCALENDAR",
+        ].join("\r\n");
+      }
+
       const replacements = {
-        companyName: filteredJobs[0].company?.name || "Company",
-        role: filteredJobs[0].role || "Role",
+        companyName,
+        role,
         studentName: "Student",
+        startDate: formattedStartDateTime,
         deadline: formattedEndDateTime,
         url: url,
+        googleCalendarUrl: googleCalendarUrl,
       };
       const emailHtmlContent = getHtmlContent(templatePath, replacements);
 
@@ -473,8 +529,17 @@ export class JobModel extends Model<JobModel> {
           from: { name: APP_NAME, address: MAIL_USER },
           recepients: [{ address: MAIL_USER }],
           bcc: emailChunk.map((email) => ({ address: email })),
-          subject: `IMP: POLL for ${filteredJobs[0].company?.name || "Company"} - ${filteredJobs[0].role || "Role"}`,
+          subject: `IMP: POLL for ${companyName} - ${role}`,
           html: emailHtmlContent,
+          ...(icalContent
+            ? {
+                icalEvent: {
+                  filename: "poll-event.ics",
+                  method: "REQUEST",
+                  content: icalContent,
+                },
+              }
+            : {}),
         };
 
         await mailerService.sendEmail(data);
