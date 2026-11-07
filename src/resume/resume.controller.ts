@@ -34,6 +34,8 @@ import { DeleteFilesDto } from "src/utils/utils.dto";
 import { AuthGuard } from "@nestjs/passport";
 import { RoleGuard } from "src/auth/roleGaurd";
 import { RoleEnum } from "src/enums";
+import { User } from "src/decorators/User";
+import { IUser } from "src/auth/User";
 
 @Controller("resumes")
 @ApiTags("Resume")
@@ -70,7 +72,12 @@ export class ResumeController {
 
   @CreateFile(CreateResumeDto, "resume")
   @UseInterceptors(TransactionInterceptor)
-  async createResume(@Body() resume: CreateResumeDto, @UploadedFile() file, @TransactionParam() t: Transaction) {
+  async createResume(
+    @Body() resume: CreateResumeDto,
+    @UploadedFile() file,
+    @TransactionParam() t: Transaction,
+    @User() user: IUser
+  ) {
     //Check the file
     const magic = file.buffer.slice(0, 4).toString("ascii");
     if (magic !== "%PDF") throw new BadRequestException("Only PDF is supported");
@@ -78,7 +85,7 @@ export class ResumeController {
 
     const filename = uuidv4() + ".pdf";
 
-    const ans = await this.resumeService.createResume({ ...omit(resume, "resume"), filepath: filename }, t);
+    const ans = await this.resumeService.createResume({ ...omit(resume, "resume"), filepath: filename }, t, user.id);
     await this.fileService.uploadFile(path.join(this.foldername, filename), file);
 
     return ans;

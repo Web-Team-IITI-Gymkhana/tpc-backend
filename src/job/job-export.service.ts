@@ -371,31 +371,18 @@ export class JobExportService {
     let str = String(text);
     // Strip HTML tags
     str = str.replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
-    // Escape LaTeX special characters in a single pass to avoid double-escaping
-    return str.replace(/[\\&%#_{}~^]/g, (match) => {
-      switch (match) {
-        case "\\":
-          return "\\textbackslash{}";
-        case "&":
-          return "\\&";
-        case "%":
-          return "\\%";
-        case "#":
-          return "\\#";
-        case "_":
-          return "\\_";
-        case "{":
-          return "\\{";
-        case "}":
-          return "\\}";
-        case "~":
-          return "\\textasciitilde{}";
-        case "^":
-          return "\\textasciicircum{}";
-        default:
-          return match;
-      }
-    });
+    // Escape LaTeX special characters
+    return str
+      .replace(/\\/g, "\\textbackslash{}")
+      .replace(/&/g, "\\&")
+      .replace(/%/g, "\\%")
+      .replace(/\$/g, "\\\$")
+      .replace(/#/g, "\\#")
+      .replace(/_/g, "\\_")
+      .replace(/\{/g, "\\{")
+      .replace(/\}/g, "\\}")
+      .replace(/~/g, "\\textasciitilde{}")
+      .replace(/\^/g, "\\textasciicircum{}");
   }
 
   async generateLatexPdf(data: any): Promise<Buffer> {
@@ -416,7 +403,7 @@ export class JobExportService {
 
     const texContent = `
 \\documentclass[10pt,a4paper]{article}
-\\usepackage[utf8]{inputenc}
+\\usepackage[utf8]{utf8}
 \\usepackage[margin=0.6in]{geometry}
 \\usepackage{booktabs}
 \\usepackage{tabularx}
@@ -562,23 +549,8 @@ ${offers.length === 0 ? `No offers made & - & - & - & - \\\\` : offers.map((off:
       const pdfBuffer = fs.readFileSync(pdfPath);
       return pdfBuffer;
     } catch (err) {
-      let logSnippet = "";
-      const logPath = path.join(tempDir, "document.log");
-      if (fs.existsSync(logPath)) {
-        try {
-          const logContent = fs.readFileSync(logPath, "utf8");
-          const errorLines = logContent
-            .split("\n")
-            .filter((l) => l.startsWith("!") || l.includes("Error") || l.includes("Fatal"))
-            .slice(-10)
-            .join("\n");
-          logSnippet = errorLines || logContent.slice(-1000);
-        } catch (_e) {
-          // ignore log reading error
-        }
-      }
-      this.logger.error(`pdflatex compilation error:\n${logSnippet || err.message || err}`);
-      throw new Error(`Failed to compile LaTeX PDF document: ${logSnippet || err.message || err}`);
+      this.logger.error("pdflatex compilation error:", err);
+      throw new Error(`Failed to compile LaTeX PDF document: ${err.message || err}`);
     } finally {
       // Clean up temp files safely
       try {

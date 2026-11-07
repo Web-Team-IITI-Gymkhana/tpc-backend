@@ -17,7 +17,6 @@ FROM node:lts-slim
 # Install pdflatex for LaTeX PDF compilation
 RUN apt-get update && apt-get install -y --no-install-recommends \
     texlive-latex-base \
-    texlive-latex-extra \
     texlive-fonts-recommended \
     && rm -rf /var/lib/apt/lists/*
 
