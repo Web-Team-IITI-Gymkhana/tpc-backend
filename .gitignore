@@ -43,3 +43,10 @@ ti-*
 .env.*
 !.env.example
 !.env.sample
+
+#agents
+.agents
+AGENTS.md
+CLAUDE.md
+skills-lock.json
+docs

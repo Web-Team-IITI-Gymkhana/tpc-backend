@@ -40,6 +40,7 @@ import { ClashesModule } from "./clashes/clashes.module";
 
 import { AdminModule } from "./admin/admin.module";
 import { NoticeboardModule } from "./noticeboard/noticeboard.module";
+import { AgentsModule } from "./agents/agents.module";
 
 import { SentryModule } from "@sentry/nestjs/setup";
 
@@ -90,6 +91,7 @@ import { SentryModule } from "@sentry/nestjs/setup";
 
     AdminModule,
     NoticeboardModule,
+    AgentsModule,
   ],
   controllers: [AppController],
   providers: [
