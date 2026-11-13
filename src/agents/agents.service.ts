@@ -16,10 +16,9 @@ import { RoleEnum } from "src/enums";
 @Injectable()
 export class AgentsService {
   private readonly logger = new Logger(AgentsService.name);
-  private readonly inFlightUsers = new Set<string>();
 
   getServiceRole(role: RoleEnum): string {
-    if (![RoleEnum.STUDENT, RoleEnum.RECRUITER, RoleEnum.TPC_MEMBER, RoleEnum.ADMIN].includes(role)) {
+    if (!Object.values(RoleEnum).includes(role)) {
       throw new HttpException("You are not allowed to use the chatbot", HttpStatus.FORBIDDEN);
     }
 
@@ -49,23 +48,20 @@ export class AgentsService {
 
   async ask(query: string, userId: string, role: string, requestId: string): Promise<string> {
     const config = env();
-    if (this.inFlightUsers.has(userId)) {
-      throw new HttpException("Too many chatbot requests", HttpStatus.TOO_MANY_REQUESTS);
-    }
-
-    this.inFlightUsers.add(userId);
+    // shortcut: duplicates are blocked per chat tab; add a shared limit if cross-tab load saturates agents.
     try {
       const serviceToken = this.createServiceToken(userId, role, requestId);
       const url = `${config.AGENTS_SERVICE_URL.replace(/\/$/, "")}/django/api/rag/ask/`;
       const response = await axios.post<{ response: string }>(
         url,
-        { query, role },
+        { query },
         {
           headers: {
             "X-Service-Token": serviceToken,
             "X-Request-Id": requestId,
           },
           timeout: config.AGENTS_TIMEOUT_MS,
+          maxRedirects: 0,
         }
       );
 
@@ -80,8 +76,6 @@ export class AgentsService {
       }
 
       throw new ServiceUnavailableException("Chatbot is currently unavailable");
-    } finally {
-      this.inFlightUsers.delete(userId);
     }
   }
 
