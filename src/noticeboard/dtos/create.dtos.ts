@@ -1,9 +1,10 @@
 import {
+    ArrayUnique,
     IsArray,
+    IsEmail,
     IsOptional,
     IsString,
-    ArrayUnique,
-    IsEmail,
+    IsUUID,
 } from "class-validator";
 import { Type } from "class-transformer";
 
@@ -31,4 +32,10 @@ export class CreateAnnouncementDto {
     @ArrayUnique()
     @IsEmail({}, { each: true })
     emails?: string[];
+
+    @IsOptional()
+    @IsArray()
+    @ArrayUnique()
+    @IsUUID("4", { each: true })
+    programIds?: string[];
 }
